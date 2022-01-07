@@ -1,1 +1,1 @@
-# isaac-react-editor
+# isaac-content-editor
