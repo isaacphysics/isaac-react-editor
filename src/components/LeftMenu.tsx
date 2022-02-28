@@ -1,9 +1,13 @@
-import React, { ContextType, useContext } from "react";
+import React, { ContextType, useContext, useState } from "react";
+import useSWR from "swr";
+import { Modal } from "reactstrap";
+import IsaacContent from "isaac-react-app";
+
 import { AppContext } from "../App";
 import { encodeBase64 } from "../utils/base64";
 import { FileBrowser } from "./FileBrowser";
 import { fetcher } from "../services/github";
-import useSWR from "swr";
+
 
 function dirname(path: string | undefined) {
     if (!path) return path;
@@ -47,6 +51,8 @@ export function LeftMenu() {
     const path = appContext.selection.getSelection()?.path;
     const {data, mutate} = useSWR(path && `repos/$OWNER/$REPO/contents/${path}`);
 
+    const [previewOpen, setPreviewOpen] = useState(false);
+
     return <div style={{
         width: "300px",
         height: "100vh",
@@ -65,7 +71,15 @@ export function LeftMenu() {
             {appContext.editor.getDirty() && <button onClick={() => doSave(appContext, data.sha, mutate)}>
                 Save
             </button>}
+            {appContext.selection.getSelection() && <button onClick={() => {
+                setPreviewOpen(true);
+            }}>
+                Preview
+            </button>}
         </header>
         <FileBrowser/>
+        <Modal isOpen={previewOpen} onClosed={() => setPreviewOpen(false)}>
+            {previewOpen && <IsaacContent doc={JSON.parse(appContext.editor.currentRef.current)} />}
+        </Modal>
     </div>;
 }
