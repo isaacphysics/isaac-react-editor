@@ -18,6 +18,15 @@ export const AppContext = createContext({
 
 export const browserHistory = createBrowserHistory();
 
+function RedirectTo({path}: {path: string}) {
+    useEffect(() => {
+        const dest = new URL(window.location.href);
+        dest.pathname = path;
+        window.location.replace(dest);
+    });
+    return <LoadingScreen message="Beginning editing..." />;
+}
+
 function App() {
     const loggedIn = isLoggedIn();
 
@@ -35,6 +44,7 @@ function App() {
             {loggedIn && <>
                 <Route path="edit/:branch/*" element={<EditorScreen />} />
                 <Route path="edit/:branch" element={<EditorScreen />} />
+                <Route path="*" element={<RedirectTo path="edit/master" />} />
             </>}
         </Routes>
     </HistoryRouter>;
