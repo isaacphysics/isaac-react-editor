@@ -1,0 +1,68 @@
+:root {
+    --border-color: #ddd;
+    --border-radius: 4px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.buttons {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    left: 1px;
+    min-width: 110px;
+}
+
+.buttonsSpacer {
+    height: 40px;
+    border-right: var(--border-color) 1px solid;
+    margin-top: var(--border-radius);
+}
+
+.buttonsFill {
+    flex-grow: 1;
+    border-right: var(--border-color) 1px solid;
+    min-height: 20px;
+    margin-bottom: var(--border-radius);
+}
+
+.buttons button {
+    display: block;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-color: var(--border-color);
+    z-index: 2;
+}
+.buttons button + button {
+    position: relative;
+    margin-top: -1px;
+}
+
+.buttons :global(.btn-outline-primary) {
+    border-right-color: #fff;
+    z-index: 1;
+    border-right-width: var(--border-radius);
+}
+
+.buttons :global(.btn-outline-primary) + button {
+    border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
+}
+
+.main {
+    flex-grow: 1;
+    border: var(--border-color) 1px solid;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.header {
+    text-align: right;
+    height: 60px;
+    padding: 10px;
+}
+
+.main > div {
+    border: none;
+}

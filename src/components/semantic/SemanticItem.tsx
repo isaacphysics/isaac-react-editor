@@ -5,6 +5,7 @@ import styles from "./styles.module.css";
 import { ValuePresenter } from "./ValuePresenter";
 import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
+import { AccordionPresenter } from "./AccordionPresenter";
 
 type TYPES =
     | "content"
@@ -45,6 +46,12 @@ const pageEntry: RegistryEntry = {
     name: "Page",
 };
 
+const accordionEntry: RegistryEntry = {
+    ...contentEntry,
+    name: "Accordion",
+    childrenPresenter: AccordionPresenter,
+}
+
 export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     content: contentEntry,
     isaacConceptPage: pageEntry,
@@ -54,7 +61,7 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     isaacQuiz: pageEntry,
     isaacTopicSummaryPage: pageEntry,
     page: pageEntry,
-    content$accordion: contentEntry, // TODO: Accordion children presenter
+    content$accordion: accordionEntry,
     content$tabs: contentEntry, // TODO: Tabs children presenter
 };
 
@@ -62,6 +69,7 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
 interface SemanticItemProps {
     doc: Content;
     update: (newContent: Content) => void;
+    onDelete?: () => void;
 }
 
 interface BoxProps {
@@ -76,7 +84,7 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, children}) =>
         {children}
     </div>;
 
-export function SemanticItem({doc, update}: SemanticItemProps) {
+export function SemanticItem({doc, update, onDelete}: SemanticItemProps) {
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
     const entryType = REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
 
@@ -93,7 +101,7 @@ export function SemanticItem({doc, update}: SemanticItemProps) {
     const additional = AdditionalPresenter ? <AdditionalPresenter doc={doc} update={update} /> : null;
 
     // Render outline with type name
-    return <Box name={entryType.name}>
+    return <Box name={entryType.name} onDelete={onDelete}>
         {metadata}
         {value}
         {children}
