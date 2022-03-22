@@ -1,7 +1,6 @@
 import React, { ContextType, useContext, useState } from "react";
 import useSWR from "swr";
 import { Modal } from "reactstrap";
-import IsaacContent from "isaac-react-app";
 
 import { AppContext } from "../App";
 import { encodeBase64 } from "../utils/base64";
@@ -79,7 +78,7 @@ export function LeftMenu() {
         </header>
         <FileBrowser/>
         <Modal isOpen={previewOpen} onClosed={() => setPreviewOpen(false)}>
-            {previewOpen && <IsaacContent doc={JSON.parse(appContext.editor.currentRef.current)} />}
+            {previewOpen && <pre>{appContext.editor.currentRef.current}</pre>}
         </Modal>
     </div>;
 }

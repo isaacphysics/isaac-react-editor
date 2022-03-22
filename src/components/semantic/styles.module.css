@@ -1,0 +1,51 @@
+.box {
+    border: #eee 1px solid;
+    padding: 1em;
+    position: relative;
+    width: 100%;
+}
+.box > .box {
+    margin: 1em 0;
+}
+.boxLabel {
+    background: #ddd;
+    position: relative;
+    padding: 0.5em;
+    top:-0.75em;
+    left:-1em;
+    /*clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%);*/
+}
+
+.boxLabel:before {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    border-bottom: 0.5em solid white;
+    border-left: 0.5em solid transparent;
+    width: 0;
+}
+
+.boxDelete {
+    position: absolute;
+    padding: 0.5em;
+    top: 0;
+    right: 0;
+    opacity: 0.5;
+}
+
+.boxDelete:hover {
+    opacity: 1;
+}
+
+.inserter {
+    /*margin: -1em;*/
+}
+
+.inserterAdd {
+    opacity: 0.5;
+    text-align: center;
+}
+
+.inserter:hover .inserterAdd {
+    opacity: 1;
+}

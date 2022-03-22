@@ -1,11 +1,10 @@
 import React, { MutableRefObject, useContext, useEffect } from 'react';
-import CodeMirror, { EditorView } from '@uiw/react-codemirror';
-import { json } from '@codemirror/lang-json';
-import { AppContext } from "../App";
 import useSWR from "swr";
 import { Alert, Spinner } from "reactstrap";
-import { decodeBase64 } from "../utils/base64";
 
+import { AppContext } from "../App";
+import { decodeBase64 } from "../utils/base64";
+import { SemanticRoot } from "./semantic/SemanticRoot";
 
 export interface EditorState {
     getDirty: () => boolean;
@@ -23,14 +22,14 @@ export const defaultEditorState: EditorState = {
     previousRef: {current: ""},
 };
 
-export function Editor() {
+export function SemanticEditor() {
     const appContext = useContext(AppContext);
 
     const selection = appContext.selection.getSelection();
     const path = selection?.path;
     const {data, error} = useSWR(selection && !selection.isDir ? `repos/$OWNER/$REPO/contents/${path}` : null);
 
-    const decodedContent = data && decodeBase64(data.content);
+    const decodedContent = data && JSON.parse(decodeBase64(data.content) as string);
 
     useEffect(() => {
         if (data) {
@@ -53,16 +52,9 @@ export function Editor() {
     }
 
     return <div>
-        <CodeMirror
-            key={path} // Force replacement of this component instead of updating when path changes
-            value={decodedContent}
-            height="100vh"
-            width="100%"
-            extensions={[json(), EditorView.lineWrapping]}
-            onChange={(value) => {
-                appContext.editor.setDirty(value !== appContext.editor.previousRef.current);
-                appContext.editor.currentRef.current = value;
-            }}
-        />
+        <SemanticRoot doc={JSON.parse(appContext.editor.currentRef.current)} update={(newContent) => {
+            appContext.editor.setDirty(true);
+            appContext.editor.currentRef.current = JSON.stringify(newContent); // This is so wrong
+        }} />
     </div>;
 }

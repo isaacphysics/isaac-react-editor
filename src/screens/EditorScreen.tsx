@@ -4,9 +4,9 @@ import { Params, useNavigate, useParams } from "react-router-dom";
 
 import { Selection } from "../components/FileBrowser";
 import { LeftMenu } from "../components/LeftMenu";
-import { Editor } from "../components/Editor";
 import { AppContext, browserHistory } from "../App";
 import { defaultGithubContext, fetcher, User } from "../services/github";
+import { SemanticEditor } from "../components/SemanticEditor";
 
 function paramsToSelection(params: Readonly<Params>) {
     let path = params["*"];
@@ -94,7 +94,7 @@ export function EditorScreen() {
         <AppContext.Provider value={appContext}>
             <div style={{display: "flex"}}>
                 <LeftMenu/>
-                {selection && !selection.isDir ? <Editor/> :
+                {selection && !selection.isDir ? <SemanticEditor /> :
                     <div style={{margin: "auto", alignSelf: "center"}}>
                         Choose a file on the left to edit
                     </div>}
