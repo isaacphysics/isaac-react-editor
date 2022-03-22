@@ -9,6 +9,14 @@ import { deriveNewDoc } from "./ListChildrenPresenter";
 export function AccordionPresenter({doc, update}: PresenterProps) {
     const [index, setIndex] = useState(0);
 
+    const shift = (by: number) => {
+        const newDoc = deriveNewDoc(doc);
+        const [item] = newDoc.children.splice(index, 1);
+        newDoc.children.splice(index + by, 0, item);
+        update(newDoc);
+        setIndex(index + by);
+    };
+
     return <div className={styles.wrapper}>
         <div className={styles.buttons}>
             <div className={styles.buttonsSpacer} />
@@ -38,6 +46,12 @@ export function AccordionPresenter({doc, update}: PresenterProps) {
         </div>
         <div className={styles.main}>
             <div className={styles.header}>
+                <Button disabled={index === 0} onClick={() => {
+                    shift(-1);
+                }}>▲</Button>
+                <Button disabled={index === (doc.children?.length ?? 1) - 1} onClick={() => {
+                    shift(1);
+                }}>▼</Button>
                 <Button onClick={() => {
                     if (window.confirm("Are you sure you want to delete this section?")) {
                         const newDoc = deriveNewDoc(doc);

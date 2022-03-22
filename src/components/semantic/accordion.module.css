@@ -63,6 +63,10 @@
     padding: 10px;
 }
 
+.header button {
+    margin-left: 10px;
+}
+
 .main > div {
     border: none;
 }
