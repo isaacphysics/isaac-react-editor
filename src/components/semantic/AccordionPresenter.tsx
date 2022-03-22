@@ -52,7 +52,7 @@ export function AccordionPresenter({doc, update}: PresenterProps) {
                 <Button disabled={index === (doc.children?.length ?? 1) - 1} onClick={() => {
                     shift(1);
                 }}>▼</Button>
-                <Button onClick={() => {
+                <Button color="danger" onClick={() => {
                     if (window.confirm("Are you sure you want to delete this section?")) {
                         const newDoc = deriveNewDoc(doc);
                         newDoc.children.splice(index, 1);
