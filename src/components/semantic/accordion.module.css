@@ -67,6 +67,10 @@
     margin-left: 10px;
 }
 
+.header form {
+    display: inline-block;
+}
+
 .main > div {
     border: none;
 }

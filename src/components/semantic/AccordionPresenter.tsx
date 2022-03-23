@@ -1,12 +1,21 @@
 import React, { useRef, useState } from "react";
-import { Button } from "reactstrap";
+import { Button, Form } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
 import { PresenterProps, SemanticItem } from "./SemanticItem";
 import styles from "./accordion.module.css";
 import { deriveNewDoc } from "./ListChildrenPresenter";
 import { EditableDocProp } from "./EditableDocProp";
-import { EditableTextRef } from "./EditableText";
+import { EditableText, EditableTextRef } from "./EditableText";
+
+function hasErrorInLevel(newText: string | undefined) {
+    if (newText) {
+        const newLevel = parseInt(newText, 10);
+        if (isNaN(newLevel) || newLevel.toString(10) !== newText || newLevel < 1 || newLevel > 6) {
+            return "Level must be a number between 1 and 6";
+        }
+    }
+}
 
 export function AccordionPresenter(props: PresenterProps) {
     const {doc, update} = props;
@@ -51,7 +60,17 @@ export function AccordionPresenter(props: PresenterProps) {
         </div>
         <div className={styles.main}>
             <div className={styles.header}>
+                <Form inline>
+                    <EditableDocProp {...props} prop="id" label="Section ID" />
+                </Form>
                 <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>
+                <Form inline>
+                    <EditableText onSave={(newLevel) => {
+                        const newDoc = {...doc};
+                        newDoc.level = newLevel ? parseInt(newLevel, 10) : undefined;
+                        update(newDoc);
+                    }} text={doc.level?.toString()} label="Section Level" hasError={hasErrorInLevel} {...props} />
+                </Form>
                 <Button disabled={index === 0} onClick={() => {
                     shift(-1);
                 }}>▲</Button>
@@ -71,6 +90,7 @@ export function AccordionPresenter(props: PresenterProps) {
                 }}>Delete section</Button>
             </div>
             <h2><EditableDocProp ref={editTitleRef} {...props} prop="title" placeHolder="Section Title" hideWhenEmpty /></h2>
+            <h3><EditableDocProp {...props} prop="subtitle" hideWhenEmpty /></h3>
             <SemanticItem doc={doc.children?.[index] as Content} update={(newContent) => {
                 const newDoc = deriveNewDoc(doc);
                 newDoc.children[index] = newContent;

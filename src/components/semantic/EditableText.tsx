@@ -8,7 +8,9 @@ import React, {
     useRef,
     useState
 } from "react";
-import { Button, Input } from "reactstrap";
+import { Button, FormFeedback, Input } from "reactstrap";
+
+import styles from "./editable.module.css";
 
 export interface SaveOptions {
     movement?: number;
@@ -91,14 +93,8 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                 if (hasError.current && !!hasError.current(current.value)) {
                                     alert("Not a valid value")
                                     return current;
-                                } else if (placeHolder) {
-                                    onSave.current(undefined, action.options);
                                 } else {
-                                    if (text !== undefined) {
-                                        // Not empty to start with
-                                        alert("Cannot be empty.");
-                                    }
-                                    return current;
+                                    onSave.current(undefined, action.options);
                                 }
                             }
                         } else {
@@ -119,7 +115,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                     return {...current, value: action.value};
             }
         };
-    }, [text, onDelete, hasError, placeHolder, onSave, noSupressSaves]);
+    }, [text, onDelete, hasError, onSave, noSupressSaves]);
     const [state, dispatch] = useReducer(reducer, {isEditing: false});
 
     useEffect(() => {
@@ -171,13 +167,13 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     }
 
     const labelElement = label && <>{selected ?
-        <em>{label}:</em> : label}</>;
-    return state.isEditing ?
-        <span ref={wrapperRef}>
+        <em>{label}:</em> : label} </>;
+    if (state.isEditing) {
+        return <span ref={wrapperRef}>
             {labelElement}
             {multiLine ?
                 <Input type="textarea"
-                       /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                    /* eslint-disable-next-line jsx-a11y/no-autofocus */
                        autoFocus
                        value={state.value}
                        onChange={e => setCurrent(e.target.value)}
@@ -186,7 +182,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                        onBlur={onBlur}/>
                 :
                 <Input type="text"
-                       /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                    /* eslint-disable-next-line jsx-a11y/no-autofocus */
                        autoFocus
                        value={state.value}
                        onChange={e => setCurrent(e.target.value)}
@@ -196,26 +192,29 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                        invalid={!!errorMessage}
                 />
             }
-            {errorMessage && <b>{errorMessage}</b>}
+            {errorMessage && <FormFeedback>{errorMessage}</FormFeedback>}
             <Button onClick={cancel}>Cancel</Button>
             <Button onClick={() => save()}>Save</Button>
         </span>
-        : multiLine ?
+    }
+    if (nonEmpty) {
+        return multiLine ?
             <span>
-                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-                <span onClick={startEdit}>
+                <button className={styles.startEdit} onClick={startEdit}>
                     {labelElement}
                     {text === undefined ? <i>{placeHolder}</i> : escapedNewLineToLineBreakTag(text)}
-                </span>
+                </button>
             </span>
             :
-            /* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */
-            <span onClick={startEdit}>
+            <button className={styles.startEdit} onClick={startEdit}>
                 {labelElement}
                 {text === undefined ?
                     <i>{placeHolder}</i> : text}
-                {onDelete.current && <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
-            </span>;
+                {onDelete.current &&
+                    <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
+            </button>;
+    }
+    return <Button onClick={startEdit}>Set {labelElement}</Button>
 });
 
 EditableText.displayName = "EditableText";
