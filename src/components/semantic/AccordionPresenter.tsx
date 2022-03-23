@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
 import { PresenterProps, SemanticItem } from "./SemanticItem";
 import styles from "./accordion.module.css";
 import { deriveNewDoc } from "./ListChildrenPresenter";
+import { EditableDocProp } from "./EditableDocProp";
+import { EditableTextRef } from "./EditableText";
 
-export function AccordionPresenter({doc, update}: PresenterProps) {
+export function AccordionPresenter(props: PresenterProps) {
+    const {doc, update} = props;
     const [index, setIndex] = useState(0);
+
+    const editTitleRef = useRef<EditableTextRef>(null);
 
     const shift = (by: number) => {
         const newDoc = deriveNewDoc(doc);
@@ -46,6 +51,7 @@ export function AccordionPresenter({doc, update}: PresenterProps) {
         </div>
         <div className={styles.main}>
             <div className={styles.header}>
+                <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>
                 <Button disabled={index === 0} onClick={() => {
                     shift(-1);
                 }}>▲</Button>
@@ -64,6 +70,7 @@ export function AccordionPresenter({doc, update}: PresenterProps) {
                     }
                 }}>Delete section</Button>
             </div>
+            <h2><EditableDocProp ref={editTitleRef} {...props} prop="title" placeHolder="Section Title" hideWhenEmpty /></h2>
             <SemanticItem doc={doc.children?.[index] as Content} update={(newContent) => {
                 const newDoc = deriveNewDoc(doc);
                 newDoc.children[index] = newContent;

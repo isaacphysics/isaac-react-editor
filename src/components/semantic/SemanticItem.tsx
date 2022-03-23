@@ -6,6 +6,7 @@ import { ValuePresenter } from "./ValuePresenter";
 import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
+import { QuestionMetaPresenter } from "./QuestionMetaPresenter";
 
 type TYPES =
     | "content"
@@ -17,7 +18,8 @@ type TYPES =
     | "isaacEventPage"
     | "isaacTopicSummaryPage"
     | "page"
-    | "isaacQuiz";
+    | "isaacQuiz"
+    | "isaacQuestion";
 
 export interface PresenterProps {
     doc: Content;
@@ -52,6 +54,12 @@ const accordionEntry: RegistryEntry = {
     childrenPresenter: AccordionPresenter,
 }
 
+const questionEntry: RegistryEntry = {
+    ...contentEntry,
+    name: "Question",
+    metadataPresenter: QuestionMetaPresenter,
+};
+
 export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     content: contentEntry,
     isaacConceptPage: pageEntry,
@@ -63,6 +71,7 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     page: pageEntry,
     content$accordion: accordionEntry,
     content$tabs: contentEntry, // TODO: Tabs children presenter
+    isaacQuestion: questionEntry,
 };
 
 
@@ -87,6 +96,7 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, children}) =>
 export function SemanticItem({doc, update, onDelete}: SemanticItemProps) {
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
     const entryType = REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
+    console.log(doc.type);
 
     const MetadataPresenter = entryType.metadataPresenter;
     const metadata = MetadataPresenter ? <MetadataPresenter doc={doc} update={update} /> : null;
