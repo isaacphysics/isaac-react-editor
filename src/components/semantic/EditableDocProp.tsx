@@ -3,8 +3,8 @@ import { PresenterProps } from "./SemanticItem";
 import { Content } from "../../isaac-data-types";
 import { EditableText, EditableTextProps, EditableTextRef } from "./EditableText";
 import React, { forwardRef } from "react";
+import { KeysWithValsOfType } from "../../utils/types";
 
-type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P } & keyof T;
 type EditableDocProps =
     & PresenterProps
     & { prop: KeysWithValsOfType<Content, string | undefined> }

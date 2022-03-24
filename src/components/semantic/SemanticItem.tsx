@@ -6,7 +6,12 @@ import { ValuePresenter } from "./ValuePresenter";
 import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
-import { QuestionMetaPresenter } from "./QuestionMetaPresenter";
+import {
+    HintsPresenter,
+    QuestionMetaPresenter,
+    QuickQuestionAnswerPresenter
+} from "./QuestionPresenters";
+import { TabsPresenter } from "./TabsPresenter";
 
 type TYPES =
     | "content"
@@ -19,7 +24,8 @@ type TYPES =
     | "isaacTopicSummaryPage"
     | "page"
     | "isaacQuiz"
-    | "isaacQuestion";
+    | "isaacQuestion"
+    | "isaacMultiChoiceQuestion";
 
 export interface PresenterProps {
     doc: Content;
@@ -54,6 +60,12 @@ const accordionEntry: RegistryEntry = {
     childrenPresenter: AccordionPresenter,
 }
 
+const tabsEntry: RegistryEntry = {
+    ...contentEntry,
+    name: "Tabs",
+    childrenPresenter: TabsPresenter,
+}
+
 const questionEntry: RegistryEntry = {
     ...contentEntry,
     name: "Question",
@@ -70,15 +82,17 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     isaacTopicSummaryPage: pageEntry,
     page: pageEntry,
     content$accordion: accordionEntry,
-    content$tabs: contentEntry, // TODO: Tabs children presenter
-    isaacQuestion: questionEntry,
+    content$tabs: tabsEntry,
+    isaacQuestion: {...questionEntry, additionalPresenter: QuickQuestionAnswerPresenter},
+    isaacMultiChoiceQuestion: {...questionEntry, additionalPresenter: HintsPresenter}
 };
 
 
-interface SemanticItemProps {
+export interface SemanticItemProps {
     doc: Content;
     update: (newContent: Content) => void;
     onDelete?: () => void;
+    name?: string;
 }
 
 interface BoxProps {
@@ -93,10 +107,9 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, children}) =>
         {children}
     </div>;
 
-export function SemanticItem({doc, update, onDelete}: SemanticItemProps) {
+export function SemanticItem({doc, update, onDelete, name}: SemanticItemProps) {
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
     const entryType = REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
-    console.log(doc.type);
 
     const MetadataPresenter = entryType.metadataPresenter;
     const metadata = MetadataPresenter ? <MetadataPresenter doc={doc} update={update} /> : null;
@@ -111,7 +124,7 @@ export function SemanticItem({doc, update, onDelete}: SemanticItemProps) {
     const additional = AdditionalPresenter ? <AdditionalPresenter doc={doc} update={update} /> : null;
 
     // Render outline with type name
-    return <Box name={entryType.name} onDelete={onDelete}>
+    return <Box name={name || entryType.name} onDelete={onDelete}>
         {metadata}
         {value}
         {children}

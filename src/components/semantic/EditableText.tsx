@@ -181,6 +181,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
 
     const labelElement = label && <>{selected ?
         <em>{label}:</em> : label} </>;
+    const labelLC = label?.replace(/(^|[^a-zA-Z0-9])[A-Z][a-z]/g, (match) => match.toLowerCase());
     if (state.isEditing) {
         return <span ref={wrapperRef} className={styles.isEditingWrapper}>
             <span className={styles.controlWrapper}>
@@ -231,7 +232,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                     <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
             </button>;
     }
-    return <Button onClick={startEdit}>Set {labelElement}</Button>
+    return <Button onClick={startEdit}>Set {labelLC}</Button>
 });
 
 EditableText.displayName = "EditableText";

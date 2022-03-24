@@ -1,0 +1,79 @@
+:root {
+    --border-color: #ddd;
+    --border-radius: 4px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.buttons {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    bottom: -1px;
+}
+
+.buttonsSpacer {
+    width: 40px;
+    border-bottom: var(--border-color) 1px solid;
+    margin-left: var(--border-radius);
+}
+
+.buttonsFill {
+    flex-grow: 1;
+    border-bottom: var(--border-color) 1px solid;
+    min-width: 20px;
+    margin-right: var(--border-radius);
+}
+
+.buttons button {
+    display: block;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    border-color: var(--border-color);
+    z-index: 2;
+}
+.buttons button + button {
+    position: relative;
+    margin-left: -1px;
+}
+
+.buttons :global(.btn-outline-primary) {
+    border-bottom-color: #fff;
+    z-index: 1;
+    border-bottom-width: var(--border-radius);
+}
+
+.buttons :global(.btn-outline-primary) + button {
+    border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
+}
+
+.main {
+    flex-grow: 1;
+    border: var(--border-color) 1px solid;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.header {
+    text-align: right;
+    height: 60px;
+    padding: 10px;
+}
+
+.main .header > * { /* For specificity */
+    margin-left: 10px;
+}
+
+.header form {
+    display: inline-block;
+}
+
+.meta {
+    padding: 0 1em;
+}
+
+.main > div {
+    border: none;
+}
