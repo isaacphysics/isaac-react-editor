@@ -108,21 +108,26 @@ export interface SemanticItemProps {
     update: (newContent: Content) => void;
     onDelete?: () => void;
     name?: string;
+    className?: string;
 }
 
 interface BoxProps {
     name: string | undefined;
     onDelete?: () => void;
+    className?: string;
 }
 
-export const Box: FunctionComponent<BoxProps> = ({name, onDelete, children}) =>
-    <div className={styles.box}>
-        {name && <span className={styles.boxLabel}>{name}</span>}
-        {onDelete && <button className={styles.boxDelete} onClick={onDelete}>X</button>}
+export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, children}) =>
+    <div className={`${styles.box}${className ? ` ${className}` : ""}`}>
+        <div className={styles.boxHeader}>
+            {name && <span className={styles.boxLabel}>{name}</span>}
+            <span className={styles.boxSpacer} />
+            {onDelete && <button className={styles.boxDelete} onClick={onDelete}>X</button>}
+        </div>
         {children}
     </div>;
 
-export function SemanticItem({doc, update, onDelete, name}: SemanticItemProps) {
+export function SemanticItem({doc, update, onDelete, name, className}: SemanticItemProps) {
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
     const entryType = REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
 
@@ -139,7 +144,7 @@ export function SemanticItem({doc, update, onDelete, name}: SemanticItemProps) {
     const additional = AdditionalPresenter ? <AdditionalPresenter doc={doc} update={update} /> : null;
 
     // Render outline with type name
-    return <Box name={name || entryType.name} onDelete={onDelete}>
+    return <Box name={name || entryType.name} onDelete={onDelete} className={className}>
         {metadata}
         {value}
         {children}

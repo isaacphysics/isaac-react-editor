@@ -11,7 +11,7 @@ type TabsProps = PresenterProps & {
     index: number;
     setIndex: (newIndex: number) => void;
     name: string;
-    styles: Record<"buttons"|"buttonsSpacer"|"buttonsFill"|"main"|"header", string>;
+    styles: Record<"buttons"|"buttonsSpacer"|"buttonsFill"|"main"|"header"|"hideMargins", string>;
 };
 
 export function TabsHeader({doc, update, index, setIndex, name, styles}: TabsProps) {
@@ -81,7 +81,7 @@ export function TabsMain({doc, update, index, setIndex, name, styles, back, forw
             }}>Delete {nameLC}</Button>
         </div>
         {contentHeader}
-        <SemanticItem doc={doc.children?.[index] as Content} update={(newContent) => {
+        <SemanticItem className={styles.hideMargins} doc={doc.children?.[index] as Content} update={(newContent) => {
             const newDoc = deriveNewDoc(doc);
             newDoc.children[index] = newContent;
             update(newDoc);

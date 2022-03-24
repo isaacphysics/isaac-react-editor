@@ -12,10 +12,16 @@ interface InserterProps {
 
 export const emptyContent = {type: "content", encoding: "markdown", value: "", __empty: true}; // TODO: filter these out from saving to server
 
+function InsertButton(props: { onClick: () => void }) {
+    return <div className={styles.inserterAdd}>
+        <Button color="link" size="lg" onClick={props.onClick}>➕</Button>
+    </div>;
+}
+
 function Inserter({insert, open}: InserterProps) {
     const [isInserting, setInserting] = useState(open);
     return <div className={styles.inserter}>
-        {!isInserting && <div className={styles.inserterAdd}><button onClick={() => setInserting(true)}>+</button></div>}
+        {!isInserting && <InsertButton onClick={() => setInserting(true)}/>}
         {isInserting && <Box name="?" onDelete={() => setInserting(false)}>
             <p>Please choose a block type:</p>
             <Button color="link" onClick={() => {
@@ -28,9 +34,9 @@ function Inserter({insert, open}: InserterProps) {
 
 export const emptyChoice = {type: "choice", encoding: "markdown", value: "", explanation: {type: "content", children: []}, correct: false};
 
-function ChoiceInserter({insert, open}: InserterProps) {
+function ChoiceInserter({insert}: InserterProps) {
     return <div className={styles.inserter}>
-        <div className={styles.inserterAdd}><button onClick={() => insert({...emptyChoice})}>+</button></div>
+        <InsertButton onClick={() => insert({...emptyChoice})} />
     </div>;
 }
 

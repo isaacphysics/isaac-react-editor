@@ -78,3 +78,7 @@
 .main > div {
     border: none;
 }
+
+.hideMargins {
+    margin: -1em 0;
+}

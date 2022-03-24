@@ -3,17 +3,22 @@
     padding: 1em;
     position: relative;
     width: 100%;
-    padding-top: calc(35px + 1em);
+    padding-top: 0;
 }
 .box > .box {
     margin: 1em 0;
 }
+.boxHeader {
+    padding-bottom: 1em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0 -1em;
+}
 .boxLabel {
     background: #ddd;
-    position: absolute;
     padding: 0.5em;
-    top: 0;
-    left: 0;
+    position: relative;
 }
 
 .boxLabel:before {
@@ -25,27 +30,47 @@
     width: 0;
 }
 
+.boxSpacer {
+    flex-grow: 1;
+}
+
 .boxDelete {
-    position: absolute;
-    top: 0;
-    right: 0;
+    float: right;
     opacity: 0.5;
     height: 35px;
+    position: relative;
 }
 
 .boxDelete:hover {
     opacity: 1;
 }
 
+.box:hover > .inserter {
+    display: block;
+}
+
 .inserter {
-    /*margin: -1em;*/
+    margin: -32px 0;
+    display: none; /* Screws up insert selector; maybe insert a real unknown item instead???? */
+}
+
+.inserter:first-of-type, .boxHeader + .inserter {
+    margin-top: -16px;
+}
+
+.inserter:last-of-type {
+    margin-bottom: -16px;
 }
 
 .inserterAdd {
-    opacity: 0.5;
     text-align: center;
 }
 
-.inserter:hover .inserterAdd {
+.inserterAdd button {
+    opacity: 0.5;
+}
+
+.inserterAdd button:hover {
     opacity: 1;
+    text-decoration: none;
 }
