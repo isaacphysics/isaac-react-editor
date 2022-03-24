@@ -26,6 +26,14 @@ function Inserter({insert, open}: InserterProps) {
     </div>;
 }
 
+export const emptyChoice = {type: "choice", encoding: "markdown", value: "", explanation: {type: "content", children: []}, correct: false};
+
+function ChoiceInserter({insert, open}: InserterProps) {
+    return <div className={styles.inserter}>
+        <div className={styles.inserterAdd}><button onClick={() => insert({...emptyChoice})}>+</button></div>
+    </div>;
+}
+
 export function deriveNewDoc(doc: Content) {
     const newContent = {
         ...doc,
@@ -43,11 +51,21 @@ function isEmpty(doc: Content) {
     return doc.__empty === true;
 }
 
+function selectInserter(doc: Content) {
+    switch (doc.type) {
+        case "choices":
+            return ChoiceInserter;
+        default:
+            return Inserter;
+    }
+}
+
 export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const result: JSX.Element[] = [];
 
     function addInserter(position: number, open: boolean) {
-        result.push(<Inserter key={`__insert_${position}_${open}`} open={open} insert={(newContent) => {
+        const UseInserter = selectInserter(doc);
+        result.push(<UseInserter key={`__insert_${position}_${open}`} open={open} insert={(newContent) => {
             const newDoc = deriveNewDoc(doc);
             newDoc.children.splice(position, 0, newContent);
             update(newDoc);

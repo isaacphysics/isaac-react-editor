@@ -3,9 +3,24 @@ import React, { useMemo, useState } from "react";
 import { PresenterProps, SemanticItem } from "./SemanticItem";
 import { EditableDocProp } from "./EditableDocProp";
 import styles from "./question.module.css";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
-import { IsaacQuestionBase, IsaacQuickQuestion } from "../../isaac-data-types";
+import {
+    Button,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Input,
+    Label
+} from "reactstrap";
+import {
+    Choice,
+    ChoiceQuestion,
+    IsaacMultiChoiceQuestion,
+    IsaacQuestionBase,
+    IsaacQuickQuestion
+} from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
+import { ValuePresenter } from "./ValuePresenter";
 
 const QUESTION_TYPES = {
     isaacQuestion: {
@@ -106,4 +121,52 @@ export function HintsPresenter({doc, update}: PresenterProps) {
         newDoc.hints = newHints.children;
         update(newDoc);
     }} name="Hints" />;
+}
+
+export function ChoicesPresenter({doc, update}: PresenterProps) {
+    const question = doc as ChoiceQuestion;
+    const choices = useMemo(() => {
+        return {
+            type: "choices",
+            children: question.choices,
+        };
+    }, [question.choices]);
+    return <SemanticItem doc={choices} update={(newChoices) => {
+        const newDoc = {...question};
+        newDoc.choices = newChoices.children;
+        update(newDoc);
+    }} />;
+}
+
+export function ChoicePresenter(props: PresenterProps) {
+    const choice = props.doc as Choice;
+    return <div className={styles.choice}>
+        <Button onClick={() => {
+            const newChoice = {...choice};
+            newChoice.correct = !choice.correct;
+            props.update(newChoice);
+        }} color={choice.correct ? "success" : "danger"}>
+            {choice.correct ? "✓" : "✗"}
+        </Button>
+        <div className={styles.choiceValue}>
+            <ValuePresenter {...props} />
+        </div>
+        <div className={styles.choiceExplanation}>
+            <SemanticDocProp {...props} prop="explanation" name="Explanation" />
+        </div>
+    </div>;
+}
+
+export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
+    const {doc, update} = props;
+    const question = doc as IsaacMultiChoiceQuestion;
+    return <>
+        <Label className={styles.checkboxLabel}><Input type="checkbox" checked={question.randomiseChoices} onChange={(e) => {
+            const newQuestion = {...question};
+            newQuestion.randomiseChoices = e.target.checked;
+            update(newQuestion);
+        }} />Randomise Choices</Label>
+        <ChoicesPresenter {...props} />
+        <HintsPresenter {...props} />
+    </>;
 }

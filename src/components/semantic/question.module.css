@@ -1,3 +1,22 @@
 .questionType {
     float: right;
 }
+
+.checkboxLabel {
+    margin-left: 1.25rem;
+}
+
+.choice {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: baseline;
+}
+
+.choiceValue {
+    flex-grow: 1;
+}
+
+.choiceExplanation {
+    flex-grow: 1;
+}

@@ -7,7 +7,8 @@ import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
-    HintsPresenter,
+    ChoicePresenter,
+    MultipleChoiceQuestionPresenter,
     QuestionMetaPresenter,
     QuickQuestionAnswerPresenter
 } from "./QuestionPresenters";
@@ -25,7 +26,9 @@ type TYPES =
     | "page"
     | "isaacQuiz"
     | "isaacQuestion"
-    | "isaacMultiChoiceQuestion";
+    | "isaacMultiChoiceQuestion"
+    | "choices"
+    | "choice";
 
 export interface PresenterProps {
     doc: Content;
@@ -47,6 +50,16 @@ const contentEntry: RegistryEntry = {
     childrenPresenter: ListChildrenPresenter,
     valuePresenter: ValuePresenter,
     additionalPresenter: undefined,
+};
+
+const choicesEntry: RegistryEntry = {
+    ...contentEntry,
+    name: "Choices",
+};
+
+const choiceEntry: RegistryEntry = {
+    name: "Choice",
+    additionalPresenter: ChoicePresenter,
 };
 
 const pageEntry: RegistryEntry = {
@@ -84,7 +97,9 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     content$accordion: accordionEntry,
     content$tabs: tabsEntry,
     isaacQuestion: {...questionEntry, additionalPresenter: QuickQuestionAnswerPresenter},
-    isaacMultiChoiceQuestion: {...questionEntry, additionalPresenter: HintsPresenter}
+    isaacMultiChoiceQuestion: {...questionEntry, additionalPresenter: MultipleChoiceQuestionPresenter},
+    choices: choicesEntry,
+    choice: choiceEntry,
 };
 
 
