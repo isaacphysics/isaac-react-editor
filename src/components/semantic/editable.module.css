@@ -5,3 +5,22 @@
     padding: 0;
     margin: 0;
 }
+
+.isEditingWrapper button {
+    margin-left: 10px;
+}
+
+.controlWrapper {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.controlWrapper :global(.form-control) {
+    display: inline-block;
+    width: auto;
+}
+
+.feedback {
+    display: inline-block;
+    width: auto;
+}

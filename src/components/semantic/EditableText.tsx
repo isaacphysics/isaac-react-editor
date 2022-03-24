@@ -32,7 +32,11 @@ export type EditableTextProps = {
 
 export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
 
-type EditableTextState = { isEditing: boolean; value?: string };
+interface EditableTextState {
+    isEditing: boolean;
+    value?: string;
+    errorShown: boolean;
+}
 
 type EditableTextAction =
     | { type: "startEdit" }
@@ -52,6 +56,16 @@ function useWrappedRef<T>(t: T) {
 
 export interface EditableTextRef {
     startEdit: () => void;
+}
+
+function showErrorIfNotShown(current: EditableTextState) {
+    if (!current.errorShown) {
+        alert("Not a valid value");
+    }
+    return {
+        ...current,
+        errorShown: true,
+    };
 }
 
 export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
@@ -83,6 +97,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                     return {
                         isEditing: true,
                         value: text,
+                        errorShown: false,
                     };
                 case 'save':
                     if (current.isEditing) {
@@ -91,16 +106,14 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                 onDelete.current(action.options);
                             } else {
                                 if (hasError.current && !!hasError.current(current.value)) {
-                                    alert("Not a valid value")
-                                    return current;
+                                    return showErrorIfNotShown(current);
                                 } else {
                                     onSave.current(undefined, action.options);
                                 }
                             }
                         } else {
                             if (hasError.current && !!hasError.current(current.value)) {
-                                alert("Not a valid value");
-                                return current;
+                                return showErrorIfNotShown(current);
                             }
                             if (noSupressSaves || current.value !== text) {
                                 // No changes, no save
@@ -108,15 +121,15 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                             }
                         }
                     }
-                    return {isEditing: false};
+                    return {isEditing: false, errorShown: false};
                 case 'cancel':
-                    return {isEditing: false};
+                    return {isEditing: false, errorShown: false};
                 case 'update':
-                    return {...current, value: action.value};
+                    return {...current, value: action.value, errorShown: false};
             }
         };
     }, [text, onDelete, hasError, onSave, noSupressSaves]);
-    const [state, dispatch] = useReducer(reducer, {isEditing: false});
+    const [state, dispatch] = useReducer(reducer, {isEditing: false, errorShown: false});
 
     useEffect(() => {
         if (autoFocus === true) {
@@ -169,30 +182,34 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const labelElement = label && <>{selected ?
         <em>{label}:</em> : label} </>;
     if (state.isEditing) {
-        return <span ref={wrapperRef}>
-            {labelElement}
-            {multiLine ?
-                <Input type="textarea"
-                    /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                       autoFocus
-                       value={state.value}
-                       onChange={e => setCurrent(e.target.value)}
-                       onKeyDown={handleKey}
-                       placeholder={placeHolder}
-                       onBlur={onBlur}/>
-                :
-                <Input type="text"
-                    /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                       autoFocus
-                       value={state.value}
-                       onChange={e => setCurrent(e.target.value)}
-                       onKeyDown={handleKey}
-                       placeholder={placeHolder}
-                       onBlur={onBlur}
-                       invalid={!!errorMessage}
-                />
-            }
-            {errorMessage && <FormFeedback>{errorMessage}</FormFeedback>}
+        return <span ref={wrapperRef} className={styles.isEditingWrapper}>
+            <span className={styles.controlWrapper}>
+                <span>
+                    {labelElement}
+                    {multiLine ?
+                        <Input type="textarea"
+                            /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                               autoFocus
+                               value={state.value}
+                               onChange={e => setCurrent(e.target.value)}
+                               onKeyDown={handleKey}
+                               placeholder={placeHolder}
+                               onBlur={onBlur}/>
+                        :
+                        <Input type="text"
+                            /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                               autoFocus
+                               value={state.value}
+                               onChange={e => setCurrent(e.target.value)}
+                               onKeyDown={handleKey}
+                               placeholder={placeHolder}
+                               onBlur={onBlur}
+                               invalid={!!errorMessage}
+                        />
+                    }
+                </span>
+                {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
+            </span>
             <Button onClick={cancel}>Cancel</Button>
             <Button onClick={() => save()}>Save</Button>
         </span>

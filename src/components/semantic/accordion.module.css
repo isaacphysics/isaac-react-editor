@@ -63,12 +63,16 @@
     padding: 10px;
 }
 
-.header button {
+.main .header > * { /* For specificity */
     margin-left: 10px;
 }
 
 .header form {
     display: inline-block;
+}
+
+.meta {
+    padding: 0 1em;
 }
 
 .main > div {
