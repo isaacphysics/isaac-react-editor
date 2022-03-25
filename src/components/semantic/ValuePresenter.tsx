@@ -9,14 +9,18 @@ const converter = new Remarkable({
 }).use(linkify);
 
 export function ValuePresenter({doc}: PresenterProps) {
+    const value = doc.value;
+    if (value === "" && doc.type === "choice") {
+        return <em>Enter choice here</em>;
+    }
     switch (doc.encoding) {
         case "html":
-            return <div dangerouslySetInnerHTML={{__html: doc.value || ""}} />;
+            return <div dangerouslySetInnerHTML={{__html: value || ""}} />;
         case "markdown":
-            return <div dangerouslySetInnerHTML={{__html: converter.render(doc.value || "")}} />;
+            return <div dangerouslySetInnerHTML={{__html: converter.render(value || "")}} />;
         case "plain":
-            return <div>{doc.value}</div>;
+            return <div>{value}</div>;
         default:
-            return <div>{`<${doc.encoding}> ${doc.value}`}</div>;
+            return <div>{`<${doc.encoding}> ${value}`}</div>;
     }
 }

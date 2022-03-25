@@ -14,8 +14,10 @@ interface InserterProps {
 export const emptyContent = {type: "content", encoding: "markdown", value: ""};
 
 function InsertButton(props: { onClick: () => void }) {
-    return <div className={styles.inserterAdd}>
-        <Button color="link" size="lg" onClick={props.onClick}>➕</Button>
+    return <div className={styles.inserter}>
+        <div className={styles.inserterAdd}>
+            <Button color="link" size="lg" onClick={props.onClick}>➕</Button>
+        </div>
     </div>;
 }
 
@@ -23,16 +25,16 @@ function Inserter({insert, forceOpen}: InserterProps) {
     const [isInserting, setInserting] = useState(false);
 
     const isOpen = forceOpen || isInserting;
-    return <div className={`${styles.inserter} ${isOpen ? styles.selector : ""}`}>
-        {!isOpen && <InsertButton onClick={() => setInserting(true)}/>}
-        {isOpen && <Box name="?" onDelete={forceOpen ? undefined : () => setInserting(false)}>
+    return isOpen ?
+        <Box name="?" onDelete={forceOpen ? undefined : () => setInserting(false)}>
             <p>Please choose a block type:</p>
             <Button color="link" onClick={() => {
                 insert({...emptyContent});
                 setInserting(false);
             }}>Content</Button>
-        </Box>}
-    </div>;
+        </Box>
+    :
+        <InsertButton onClick={() => setInserting(true)}/>;
 }
 
 export const emptyChoice = {
@@ -47,9 +49,7 @@ export const emptyChoice = {
 };
 
 function ChoiceInserter({insert, position}: InserterProps) {
-    return <div className={styles.inserter}>
-        <InsertButton onClick={() => insert({...emptyChoice, correct: position === 0} as Content)} />
-    </div>;
+    return <InsertButton onClick={() => insert({...emptyChoice, correct: position === 0} as Content)} />;
 }
 
 export function deriveNewDoc(doc: Content) {

@@ -12,6 +12,10 @@
     align-items: center;
 }
 
+.choice > button {
+    width: 38px;
+}
+
 .choiceValue {
     flex-grow: 1;
 }

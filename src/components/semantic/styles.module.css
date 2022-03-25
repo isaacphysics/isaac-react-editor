@@ -62,15 +62,6 @@
     margin-bottom: -16px;
 }
 
-.inserter.selector {
-    margin: 0;
-    display: block;
-}
-
-.inserter.selector:last-child {
-    margin-bottom: 16px;
-}
-
 .inserterAdd {
     text-align: center;
 }
