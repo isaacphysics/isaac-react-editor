@@ -19,6 +19,7 @@
     background: #ddd;
     padding: 0.5em;
     position: relative;
+    color: #444;
 }
 
 .boxLabel:before {
@@ -39,10 +40,25 @@
     opacity: 0.5;
     height: 35px;
     position: relative;
+    border: none;
+    background: none;
 }
 
 .boxDelete:hover {
     opacity: 1;
+}
+
+.boxDeleteHovered {
+    border-color: #dc3545;
+}
+
+.boxDeleteHovered > .boxHeader .boxLabel {
+    background: #dc3545;
+    color: #fff;
+}
+
+.boxDeleteHovered > *:not(:first-child) {
+    opacity: 0.4;
 }
 
 .box:hover > .inserter {

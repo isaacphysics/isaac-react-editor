@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
 
 import styles from "./styles.module.css";
 
@@ -117,15 +117,23 @@ interface BoxProps {
     className?: string;
 }
 
-export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, children}) =>
-    <div className={`${styles.box}${className ? ` ${className}` : ""}`}>
+export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, children}) => {
+    const [deleteHovered, setDeleteHovered] = useState(false);
+    return <div className={`${styles.box} ${className ?? ""} ${deleteHovered ? styles.boxDeleteHovered : ""}`}>
         <div className={styles.boxHeader}>
             {name && <span className={styles.boxLabel}>{name}</span>}
-            <span className={styles.boxSpacer} />
-            {onDelete && <button className={styles.boxDelete} onClick={onDelete}>X</button>}
+            <span className={styles.boxSpacer}/>
+            {onDelete && <button className={styles.boxDelete}
+                                 onMouseOver={() => setDeleteHovered(true)}
+                                 onMouseOut={() => setDeleteHovered(false)}
+                                 onFocus={() => setDeleteHovered(true)}
+                                 onBlur={() => setDeleteHovered(false)}
+                                 onClick={onDelete}>
+                ❌</button>}
         </div>
         {children}
     </div>;
+};
 
 export function SemanticItem({doc, update, onDelete, name, className}: SemanticItemProps) {
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
