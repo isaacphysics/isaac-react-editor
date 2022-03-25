@@ -103,9 +103,11 @@ export function QuestionMetaPresenter(props: PresenterProps) {
     </div>;
 }
 
-export function QuickQuestionAnswerPresenter({doc, ...rest}: PresenterProps) {
+function AnswerPresenter({doc, ...rest}: PresenterProps) {
     return <SemanticDocProp doc={doc as IsaacQuickQuestion} {...rest} prop="answer" name="Answer" />;
 }
+
+export const QuickQuestionAnswerPresenter = AnswerPresenter;
 
 export function HintsPresenter({doc, update}: PresenterProps) {
     const question = doc as IsaacQuestionBase;
@@ -167,6 +169,7 @@ export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
             update(newQuestion);
         }} />Randomise Choices</Label>
         <ChoicesPresenter {...props} />
+        <AnswerPresenter {...props} />
         <HintsPresenter {...props} />
     </>;
 }

@@ -11,35 +11,37 @@ type TabsProps = PresenterProps & {
     index: number;
     setIndex: (newIndex: number) => void;
     name: string;
-    styles: Record<"buttons"|"buttonsSpacer"|"buttonsFill"|"main"|"header"|"hideMargins", string>;
+    styles: Record<"buttons"|"buttonsSpacer"|"buttonsFill"|"main"|"header"|"hideMargins"|"buttonsShifter", string>;
 };
 
 export function TabsHeader({doc, update, index, setIndex, name, styles}: TabsProps) {
     return <div className={styles.buttons}>
-        <div className={styles.buttonsSpacer}/>
-        {doc.children?.map((child, i) => {
-            return <Button key={child.id || `__index__${i}`}
-                           outline
-                           color={index === i ? "primary" : undefined}
-                           onMouseDown={(e) => {
-                               e.preventDefault();
-                           }}
-                           onClick={() => setIndex(i)}>{name ? `${name} ` : ""}{i + 1}</Button>;
-        })}
-        <Button key="__add"
-                outline
-                onMouseDown={(e) => {
-                    e.preventDefault();
-                }}
-                onClick={() => {
-                    const newDoc = deriveNewDoc(doc);
-                    newDoc.children.push({type: "content", children: []} as Content);
-                    update(newDoc);
-                    setIndex(newDoc.children.length - 1);
-                }}>
-            Add&nbsp;{name}
-        </Button>
-        <div className={styles.buttonsFill}/>
+        <div className={styles.buttonsShifter}>
+            <div className={styles.buttonsSpacer}/>
+            {doc.children?.map((child, i) => {
+                return <Button key={child.id || `__index__${i}`}
+                               outline
+                               color={index === i ? "primary" : undefined}
+                               onMouseDown={(e) => {
+                                   e.preventDefault();
+                               }}
+                               onClick={() => setIndex(i)}>{name ? `${name} ` : ""}{i + 1}</Button>;
+            })}
+            <Button key="__add"
+                    outline
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                    }}
+                    onClick={() => {
+                        const newDoc = deriveNewDoc(doc);
+                        newDoc.children.push({type: "content", children: []} as Content);
+                        update(newDoc);
+                        setIndex(newDoc.children.length - 1);
+                    }}>
+                Add&nbsp;{name}
+            </Button>
+            <div className={styles.buttonsFill}/>
+        </div>
     </div>;
 }
 

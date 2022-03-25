@@ -9,6 +9,9 @@
 }
 
 .buttons {
+}
+
+.buttonsShifter {
     align-items: flex-end;
     display: flex;
     flex-direction: row;

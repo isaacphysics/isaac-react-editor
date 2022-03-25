@@ -9,12 +9,18 @@
 }
 
 .buttons {
+    position: sticky;
+    min-width: 110px;
+    top: 10px;
+    align-self: flex-start;
+}
+
+.buttonsShifter {
+    position: relative;
+    left: 1px;
     align-items: flex-end;
     display: flex;
     flex-direction: column;
-    position: relative;
-    left: 1px;
-    min-width: 110px;
 }
 
 .buttonsSpacer {
@@ -24,9 +30,8 @@
 }
 
 .buttonsFill {
-    flex-grow: 1;
     border-right: var(--border-color) 1px solid;
-    min-height: 20px;
+    height: 20px;
     margin-bottom: var(--border-radius);
 }
 
