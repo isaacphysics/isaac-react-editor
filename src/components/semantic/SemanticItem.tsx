@@ -8,13 +8,13 @@ import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
     ChoicePresenter,
-    MultipleChoiceQuestionPresenter,
+    MultipleChoiceQuestionPresenter, NumericQuestionPresenter,
     QuestionMetaPresenter,
     QuickQuestionAnswerPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 
-type TYPES =
+export type TYPES =
     | "content"
     | "content$accordion"
     | "content$tabs"
@@ -28,11 +28,15 @@ type TYPES =
     | "isaacQuestion"
     | "isaacMultiChoiceQuestion"
     | "choices"
-    | "choice";
+    | "choice"
+    | "isaacNumericQuestion"
+    | "quantity"
+    | "quantities"
+;
 
-export interface PresenterProps {
-    doc: Content;
-    update: (newContent: Content) => void;
+export interface PresenterProps<D extends Content = Content> {
+    doc: D;
+    update: <T extends D>(newContent: T) => void;
 }
 
 export type Presenter = FunctionComponent<PresenterProps>;
@@ -100,6 +104,9 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     isaacMultiChoiceQuestion: {...questionEntry, additionalPresenter: MultipleChoiceQuestionPresenter},
     choices: choicesEntry,
     choice: choiceEntry,
+    isaacNumericQuestion: {...questionEntry, additionalPresenter: NumericQuestionPresenter},
+    quantity: choiceEntry,
+    quantities: choicesEntry,
 };
 
 

@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from "react";
 
-import { PresenterProps, SemanticItem } from "./SemanticItem";
-import { EditableDocProp } from "./EditableDocProp";
+import { PresenterProps, SemanticItem, TYPES } from "./SemanticItem";
+import {
+    EditableDocPropFor,
+    EditableIDProp,
+    EditableSubtitleProp,
+    EditableTitleProp,
+    NumberDocPropFor
+} from "./EditableDocProp";
 import styles from "./question.module.css";
 import {
     Button,
@@ -16,11 +22,13 @@ import {
     Choice,
     ChoiceQuestion,
     IsaacMultiChoiceQuestion,
+    IsaacNumericQuestion,
     IsaacQuestionBase,
-    IsaacQuickQuestion
+    IsaacQuickQuestion, Quantity
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
 import { ValuePresenter } from "./ValuePresenter";
+import { EditableText } from "./EditableText";
 
 const QUESTION_TYPES = {
     isaacQuestion: {
@@ -79,9 +87,11 @@ function QuestionTypeSelector(props: PresenterProps) {
                 const possibleType = QUESTION_TYPES[key as QuestionType];
                 return <DropdownItem key={key} active={questionType === possibleType} onClick={() => {
                     if (questionType !== possibleType) {
-                        const newDoc = {...props.doc};
-                        newDoc.type = key;
-                        props.update(newDoc);
+                        // TODO: fixup question based on changes
+                        props.update({
+                            ...props.doc,
+                            type: key,
+                        });
                     }
                 }}>
                     {possibleType.name}
@@ -96,10 +106,10 @@ export function QuestionMetaPresenter(props: PresenterProps) {
         <div className={styles.questionType}>
             <QuestionTypeSelector {...props} />
         </div>
-        <h2><EditableDocProp {...props} prop="title" placeHolder="Question title"/></h2>
-        <h3><EditableDocProp {...props} prop="subtitle" placeHolder="Question subtitle"
+        <h2><EditableTitleProp {...props} placeHolder="Question title"/></h2>
+        <h3><EditableSubtitleProp {...props} placeHolder="Question subtitle"
                              hideWhenEmpty/></h3>
-        <h6><EditableDocProp {...props} prop="id" label="Question ID"/></h6>
+        <h6><EditableIDProp {...props} label="Question ID"/></h6>
     </div>;
 }
 
@@ -119,24 +129,35 @@ export function HintsPresenter({doc, update}: PresenterProps) {
         };
     }, [question.hints]);
     return <SemanticItem doc={hints} update={(newHints) => {
-        const newDoc = {...question};
-        newDoc.hints = newHints.children;
-        update(newDoc);
+        update({
+            ...question,
+            hints: newHints.children,
+        });
     }} name="Hints" />;
+}
+
+function getChoicesType(questionType: string): TYPES {
+    switch (questionType) {
+        case "isaacMultiChoiceQuestion": return "choices";
+        case "isaacNumericQuestion": return "quantities";
+    }
+    console.log("Unknown choices type", questionType);
+    return "choices";
 }
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
     const question = doc as ChoiceQuestion;
     const choices = useMemo(() => {
         return {
-            type: "choices",
+            type: getChoicesType(question.type ?? ""),
             children: question.choices,
         };
-    }, [question.choices]);
+    }, [question.type, question.choices]);
     return <SemanticItem doc={choices} update={(newChoices) => {
-        const newDoc = {...question};
-        newDoc.choices = newChoices.children;
-        update(newDoc);
+        update({
+            ...question,
+            choices: newChoices.children,
+        });
     }} />;
 }
 
@@ -144,9 +165,10 @@ export function ChoicePresenter(props: PresenterProps) {
     const choice = props.doc as Choice;
     return <div className={styles.choice}>
         <Button onClick={() => {
-            const newChoice = {...choice};
-            newChoice.correct = !choice.correct;
-            props.update(newChoice);
+            props.update({
+                ...choice,
+                correct: !choice.correct,
+            });
         }} color={choice.correct ? "success" : "danger"}>
             {choice.correct ? "✓" : "✗"}
         </Button>
@@ -159,17 +181,106 @@ export function ChoicePresenter(props: PresenterProps) {
     </div>;
 }
 
+export function QuantityPresenter(props: PresenterProps) {
+    const choice = props.doc as Quantity;
+    return <div className={styles.choice}>
+        <Button onClick={() => {
+            props.update({
+                ...choice,
+                correct: !choice.correct,
+            });
+        }} color={choice.correct ? "success" : "danger"}>
+            {choice.correct ? "✓" : "✗"}
+        </Button>
+        <div className={styles.choiceValue}>
+            <ValuePresenter {...props} />
+        </div>
+        <div className={styles.choiceExplanation}>
+            <SemanticDocProp {...props} prop="explanation" name="Explanation" />
+        </div>
+    </div>;
+}
+
+type CheckboxDocProps<K extends keyof D, D> =
+    & PresenterProps<D>
+    & {
+        prop: K;
+        label: string;
+    };
+
+function CheckboxDocProp<K extends keyof D, D extends { [Key in K]?: boolean }>({
+    doc,
+    update,
+    prop,
+    label,
+}: CheckboxDocProps<K, D>) {
+    return <Label className={styles.checkboxLabel}>
+        <Input type="checkbox"
+               checked={doc[prop]}
+               onChange={(e) => {
+                   update({
+                       ...doc,
+                       [prop]: e.target.checked,
+                   });
+               }}/>{label}</Label>;
+}
+
+function QuestionBodyPresenter(props: PresenterProps) {
+    return <>
+        <ChoicesPresenter {...props} />
+        <AnswerPresenter {...props} />
+        <HintsPresenter {...props} />
+    </>;
+}
+
 export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacMultiChoiceQuestion;
     return <>
-        <Label className={styles.checkboxLabel}><Input type="checkbox" checked={question.randomiseChoices} onChange={(e) => {
-            const newQuestion = {...question};
-            newQuestion.randomiseChoices = e.target.checked;
-            update(newQuestion);
-        }} />Randomise Choices</Label>
-        <ChoicesPresenter {...props} />
-        <AnswerPresenter {...props} />
-        <HintsPresenter {...props} />
+        <CheckboxDocProp doc={question} update={update} prop="randomiseChoices"
+                         label="Randomise Choices"/>
+        <QuestionBodyPresenter {...props}/>
+    </>;
+}
+
+const EditableSignificantFiguresMin = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMin");
+const EditableSignificantFiguresMax = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMax");
+
+const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuestion>) => {
+    return <EditableText
+        onSave={(newText) => {
+            update({
+                ...doc,
+                availableUnits: newText?.split("|").map(unit => unit.trim()),
+            });
+        }}
+        text={doc.availableUnits?.join(" | ")}
+        label="Available units"
+        />;
+};
+const EditableDisplayUnit = EditableDocPropFor<IsaacNumericQuestion>("displayUnit");
+
+export function NumericQuestionPresenter(props: PresenterProps) {
+    const {doc, update} = props;
+    const question = doc as IsaacNumericQuestion;
+
+    return <>
+        <div>
+            <CheckboxDocProp doc={question} update={update} prop="disregardSignificantFigures" label="Exact answers only" />
+        </div>
+        {!question.disregardSignificantFigures && <div>
+            Significant figures
+            {" "}
+            <EditableSignificantFiguresMin doc={question} update={update} label="from" />
+            {" "}
+            <EditableSignificantFiguresMax doc={question} update={update} label="to" />
+        </div>}
+        <div>
+            <CheckboxDocProp doc={question} update={update} prop="requireUnits" label="Require choice of units" />
+        </div>
+        {question.requireUnits ?
+            <EditableAvailableUnits doc={question} update={update} />
+        :   <EditableDisplayUnit doc={question} update={update} label="Display unit" />}
+        <QuestionBodyPresenter {...props} />
     </>;
 }

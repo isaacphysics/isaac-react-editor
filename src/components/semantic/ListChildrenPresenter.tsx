@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "reactstrap";
 
-import { Content } from "../../isaac-data-types";
+import { Content, Quantity } from "../../isaac-data-types";
 import { Box, PresenterProps, SemanticItem } from "./SemanticItem";
 import styles from "./styles.module.css";
 
@@ -45,11 +45,25 @@ export const emptyChoice = {
         type: "content",
         children: [],
     },
-    correct: false
+};
+
+export const emptyQuantity = {
+    type: "quantity",
+    encoding: "markdown",
+    value: "",
+    units: "",
+    explanation: {
+        type: "content",
+        children: [],
+    },
 };
 
 function ChoiceInserter({insert, position}: InserterProps) {
     return <InsertButton onClick={() => insert({...emptyChoice, correct: position === 0} as Content)} />;
+}
+
+function QuantityInserter({insert, position}: InserterProps) {
+    return <InsertButton onClick={() => insert({...emptyQuantity, correct: position === 0} as Content)} />;
 }
 
 export function deriveNewDoc(doc: Content) {
@@ -63,6 +77,8 @@ function selectInserter(doc: Content) {
     switch (doc.type) {
         case "choices":
             return ChoiceInserter;
+        case "quantities":
+            return QuantityInserter;
         default:
             return Inserter;
     }

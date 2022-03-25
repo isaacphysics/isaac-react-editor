@@ -5,7 +5,7 @@ import { Content } from "../../isaac-data-types";
 import { PresenterProps, SemanticItem } from "./SemanticItem";
 import styles from "./tabs.module.css";
 import { deriveNewDoc } from "./ListChildrenPresenter";
-import { EditableDocProp } from "./EditableDocProp";
+import { EditableIDProp } from "./EditableDocProp";
 
 type TabsProps = PresenterProps & {
     index: number;
@@ -65,7 +65,7 @@ export function TabsMain({doc, update, index, setIndex, name, styles, back, forw
 
     return <div className={styles.main}>
         <div className={styles.header}>
-            <EditableDocProp doc={doc} update={update} prop="id" label={`${name} ID`}/>
+            <EditableIDProp doc={doc} update={update} label={`${name} ID`}/>
             {extraButtons}
             <Button disabled={index === 0} onClick={() => shift(-1)}>{back}</Button>
             <Button disabled={index === (doc.children?.length ?? 1) - 1}
