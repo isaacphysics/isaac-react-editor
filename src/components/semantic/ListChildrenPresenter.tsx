@@ -7,10 +7,11 @@ import styles from "./styles.module.css";
 
 interface InserterProps {
     insert: (newContent: Content) => void;
-    open: boolean;
+    forceOpen: boolean;
+    position: number;
 }
 
-export const emptyContent = {type: "content", encoding: "markdown", value: "", __empty: true}; // TODO: filter these out from saving to server
+export const emptyContent = {type: "content", encoding: "markdown", value: ""};
 
 function InsertButton(props: { onClick: () => void }) {
     return <div className={styles.inserterAdd}>
@@ -18,11 +19,13 @@ function InsertButton(props: { onClick: () => void }) {
     </div>;
 }
 
-function Inserter({insert, open}: InserterProps) {
-    const [isInserting, setInserting] = useState(open);
-    return <div className={styles.inserter}>
-        {!isInserting && <InsertButton onClick={() => setInserting(true)}/>}
-        {isInserting && <Box name="?" onDelete={() => setInserting(false)}>
+function Inserter({insert, forceOpen}: InserterProps) {
+    const [isInserting, setInserting] = useState(false);
+
+    const isOpen = forceOpen || isInserting;
+    return <div className={`${styles.inserter} ${isOpen ? styles.selector : ""}`}>
+        {!isOpen && <InsertButton onClick={() => setInserting(true)}/>}
+        {isOpen && <Box name="?" onDelete={forceOpen ? undefined : () => setInserting(false)}>
             <p>Please choose a block type:</p>
             <Button color="link" onClick={() => {
                 insert({...emptyContent});
@@ -32,29 +35,28 @@ function Inserter({insert, open}: InserterProps) {
     </div>;
 }
 
-export const emptyChoice = {type: "choice", encoding: "markdown", value: "", explanation: {type: "content", children: []}, correct: false};
+export const emptyChoice = {
+    type: "choice",
+    encoding: "markdown",
+    value: "",
+    explanation: {
+        type: "content",
+        children: [],
+    },
+    correct: false
+};
 
-function ChoiceInserter({insert}: InserterProps) {
+function ChoiceInserter({insert, position}: InserterProps) {
     return <div className={styles.inserter}>
-        <InsertButton onClick={() => insert({...emptyChoice})} />
+        <InsertButton onClick={() => insert({...emptyChoice, correct: position === 0} as Content)} />
     </div>;
 }
 
 export function deriveNewDoc(doc: Content) {
-    const newContent = {
+    return {
         ...doc,
         children: doc.children ? [...doc.children] : [],
     };
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    delete newContent.__empty;
-    return newContent;
-}
-
-function isEmpty(doc: Content) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return doc.__empty === true;
 }
 
 function selectInserter(doc: Content) {
@@ -69,9 +71,9 @@ function selectInserter(doc: Content) {
 export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const result: JSX.Element[] = [];
 
-    function addInserter(position: number, open: boolean) {
+    function addInserter(position: number, forceOpen: boolean) {
         const UseInserter = selectInserter(doc);
-        result.push(<UseInserter key={`__insert_${position}_${open}`} open={open} insert={(newContent) => {
+        result.push(<UseInserter key={`__insert_${position}`} position={position} forceOpen={forceOpen} insert={(newContent) => {
             const newDoc = deriveNewDoc(doc);
             newDoc.children.splice(position, 0, newContent);
             update(newDoc);
@@ -90,7 +92,7 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
             update(newDoc);
         }}/>);
     });
-    addInserter(doc.children?.length || 0, isEmpty(doc));
+    addInserter(doc.children?.length || 0, doc.children?.length === 0);
     return <>
         {result}
     </>;

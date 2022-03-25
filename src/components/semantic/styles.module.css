@@ -51,15 +51,24 @@
 
 .inserter {
     margin: -32px 0;
-    display: none; /* Screws up insert selector; maybe insert a real unknown item instead???? */
+    display: none;
 }
 
-.inserter:first-of-type, .boxHeader + .inserter {
+.boxHeader + .inserter {
     margin-top: -16px;
 }
 
-.inserter:last-of-type {
+.inserter:last-child {
     margin-bottom: -16px;
+}
+
+.inserter.selector {
+    margin: 0;
+    display: block;
+}
+
+.inserter.selector:last-child {
+    margin-bottom: 16px;
 }
 
 .inserterAdd {

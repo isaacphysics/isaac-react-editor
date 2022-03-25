@@ -33,7 +33,7 @@ export function TabsHeader({doc, update, index, setIndex, name, styles}: TabsPro
                 }}
                 onClick={() => {
                     const newDoc = deriveNewDoc(doc);
-                    newDoc.children.push({type: "content", children: [], __empty: true} as Content);
+                    newDoc.children.push({type: "content", children: []} as Content);
                     update(newDoc);
                     setIndex(newDoc.children.length - 1);
                 }}>
