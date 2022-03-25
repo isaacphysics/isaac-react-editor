@@ -1,18 +1,25 @@
 /* tslint:disable */
-// Generated using typescript-generator version 2.12.476 on 2022-03-18 17:12:50.
+// Generated using typescript-generator version 2.12.476 on 2022-03-25 13:08:59.
 
 export interface AssignmentDO {
     id?: number;
     gameboardId?: string;
     groupId?: number;
     ownerUserId?: number;
+    notes?: string;
     creationDate?: Date;
     dueDate?: Date;
 }
 
+export interface GameboardContentDescriptor {
+    id?: string;
+    contentType?: string;
+    context?: AudienceContext;
+}
+
 export interface GameboardDO {
     title?: string;
-    questions?: string[];
+    contents?: GameboardContentDescriptor[];
     wildCard?: IsaacWildcard;
     wildCardPosition?: number;
     creationDate?: Date;
@@ -36,6 +43,10 @@ export interface IsaacCard extends Content {
 
 export interface IsaacCardDeck extends Content {
     cards?: IsaacCard[];
+}
+
+export interface IsaacClozeQuestion extends IsaacItemQuestion {
+    withReplacement?: boolean;
 }
 
 export interface IsaacConceptPage extends SeguePage {
@@ -80,6 +91,7 @@ export interface IsaacGraphSketcherQuestion extends IsaacQuestionBase {
 
 export interface IsaacItemQuestion extends IsaacQuestionBase {
     items?: Item[];
+    randomiseItems?: boolean;
 }
 
 export interface IsaacMultiChoiceQuestion extends IsaacQuestionBase {
@@ -87,9 +99,15 @@ export interface IsaacMultiChoiceQuestion extends IsaacQuestionBase {
 
 export interface IsaacNumericQuestion extends IsaacQuestionBase {
     requireUnits?: boolean;
+    disregardSignificantFigures?: boolean;
     significantFiguresMin?: number;
     significantFiguresMax?: number;
     availableUnits?: string[];
+    displayUnit?: string;
+}
+
+export interface IsaacPageFragment extends Content {
+    summary?: string;
 }
 
 export interface IsaacParsonsQuestion extends IsaacItemQuestion {
@@ -111,17 +129,25 @@ export interface IsaacQuestionPage extends SeguePage {
 }
 
 export interface IsaacQuickQuestion extends IsaacQuestionBase {
+    showConfidence?: boolean;
 }
 
 export interface IsaacQuiz extends SeguePage {
     visibleToStudents?: boolean;
+    hiddenFromRoles?: string[];
+    rubric?: Content;
 }
 
 export interface IsaacQuizSection extends Content {
 }
 
+export interface IsaacRegexMatchQuestion extends IsaacQuestionBase {
+    multiLineEntry?: boolean;
+}
+
 export interface IsaacStringMatchQuestion extends IsaacQuestionBase {
     multiLineEntry?: boolean;
+    preserveLeadingWhitespace?: boolean;
     preserveTrailingWhitespace?: boolean;
 }
 
@@ -174,13 +200,13 @@ export interface TestQuestion {
 }
 
 export interface EventBooking {
-    additionalInformation?: { [index: string]: string };
-    eventId?: string;
-    userId?: number;
     id?: number;
     creationDate?: Date;
-    bookingStatus?: BookingStatus;
+    userId?: number;
+    eventId?: string;
+    additionalInformation?: { [index: string]: string };
     reservedById?: number;
+    bookingStatus?: BookingStatus;
     updateDate?: Date;
 }
 
@@ -212,6 +238,16 @@ export interface ChoiceQuestion extends Question {
     randomiseChoices?: boolean;
 }
 
+export interface CodeSnippet extends Content {
+    language?: string;
+    code?: string;
+    disableHighlighting?: boolean;
+    url?: string;
+}
+
+export interface CodeTabs extends Content {
+}
+
 export interface Content extends ContentBase {
     title?: string;
     subtitle?: string;
@@ -223,6 +259,7 @@ export interface Content extends ContentBase {
     attribution?: string;
     relatedContent?: string[];
     published?: boolean;
+    deprecated?: boolean;
     level?: number;
     searchableContent?: string;
 }
@@ -233,6 +270,8 @@ export interface ContentBase {
     tags?: string[];
     canonicalSourceFile?: string;
     version?: string;
+    audience?: AudienceContext[];
+    display?: { [index: string]: string[] };
 }
 
 export interface EmailTemplate extends Content {
@@ -285,6 +324,7 @@ export interface Item extends Content {
 }
 
 export interface ItemChoice extends Choice {
+    allowSubsetMatch?: boolean;
     items?: Item[];
 }
 
@@ -317,6 +357,13 @@ export interface Quantity extends Choice {
 export interface Question extends Content {
     answer?: ContentBase;
     hints?: ContentBase[];
+    defaultFeedback?: Content;
+}
+
+export interface RegexPattern extends Choice {
+    caseInsensitive?: boolean;
+    multiLineRegex?: boolean;
+    matchWholeString?: boolean;
 }
 
 export interface SeguePage extends Content {
@@ -330,11 +377,21 @@ export interface StringChoice extends Choice {
 export interface Video extends Media {
 }
 
+export interface AudienceContext {
+    stage?: Stage[];
+    examBoard?: ExamBoard[];
+    difficulty?: Difficulty[];
+    role?: RoleRequirement[];
+}
+
 export interface GameFilter {
     subjects?: string[];
     fields?: string[];
     topics?: string[];
     levels?: number[];
+    stages?: string[];
+    difficulties?: string[];
+    examBoards?: string[];
     concepts?: string[];
     questionCategories?: string[];
 }
@@ -372,3 +429,11 @@ export type GameboardCreationMethod = "FILTER" | "BUILDER";
 export type QuizFeedbackMode = "NONE" | "OVERALL_MARK" | "SECTION_MARKS" | "DETAILED_FEEDBACK";
 
 export type BookingStatus = "CONFIRMED" | "CANCELLED" | "WAITING_LIST" | "ATTENDED" | "ABSENT" | "RESERVED";
+
+export type Stage = "year_7" | "year_8" | "year_9" | "gcse" | "a_level" | "further_a" | "university" | "all";
+
+export type ExamBoard = "aqa" | "ocr" | "cie" | "edexcel" | "eduqas" | "wjec" | "all";
+
+export type Difficulty = "practice_1" | "practice_2" | "practice_3" | "challenge_1" | "challenge_2" | "challenge_3";
+
+export type RoleRequirement = "logged_in" | "teacher";
