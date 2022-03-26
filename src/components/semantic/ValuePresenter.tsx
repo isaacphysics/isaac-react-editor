@@ -11,13 +11,6 @@ const converter = new Remarkable({
 
 export function ValuePresenter({doc}: PresenterProps) {
     let value = doc.value;
-    if (doc.type === "quantity") {
-        const quantity = doc as Quantity;
-        if (value === "") {
-            return <em>Enter quantity here</em>;
-        }
-        value = `${doc.value} ${quantity.units}`;
-    }
     if (doc.type === "formula") {
         const quantity = doc as Formula;
         if (value === "") {

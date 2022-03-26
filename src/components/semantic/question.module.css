@@ -18,10 +18,12 @@
 
 .choiceValue {
     flex-grow: 1;
+    flex-basis: 0;
 }
 
 .choiceExplanation {
     flex-grow: 1;
+    flex-basis: 0;
 }
 
 .editableFullwidth > span {

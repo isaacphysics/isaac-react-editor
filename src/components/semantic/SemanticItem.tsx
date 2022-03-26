@@ -7,12 +7,12 @@ import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
-    ChoicePresenter,
     MultipleChoiceQuestionPresenter, NumericQuestionPresenter,
     QuestionMetaPresenter,
     QuickQuestionAnswerPresenter, SymbolicQuestionPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
+import { ChoicePresenter } from "./ChoicePresenter";
 
 export type TYPES =
     | "content"
@@ -31,10 +31,8 @@ export type TYPES =
     | "choice"
     | "isaacNumericQuestion"
     | "quantity"
-    | "quantities"
     | "isaacSymbolicQuestion"
     | "formula"
-    | "formulas"
 ;
 
 export interface PresenterProps<D extends Content = Content> {
@@ -42,7 +40,7 @@ export interface PresenterProps<D extends Content = Content> {
     update: <T extends D>(newContent: T) => void;
 }
 
-export type Presenter = FunctionComponent<PresenterProps>;
+export type Presenter<D extends Content = Content> = FunctionComponent<PresenterProps<D>>;
 
 interface RegistryEntry {
     name?: string;
@@ -117,10 +115,8 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     choice: choiceEntry,
     isaacNumericQuestion: {...questionEntry, additionalPresenter: NumericQuestionPresenter},
     quantity: choiceEntry,
-    quantities: choicesEntry,
     isaacSymbolicQuestion: {...questionEntry, additionalPresenter: SymbolicQuestionPresenter},
     formula: choiceEntry,
-    formulas: choicesEntry,
 };
 
 

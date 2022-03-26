@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { PresenterProps, SemanticItem, TYPES } from "./SemanticItem";
+import { PresenterProps, SemanticItem } from "./SemanticItem";
 import {
     EditableDocPropFor,
     EditableIDProp,
@@ -9,26 +9,19 @@ import {
     NumberDocPropFor
 } from "./EditableDocProp";
 import styles from "./question.module.css";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import {
-    Button,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownToggle,
-    Input,
-    Label
-} from "reactstrap";
-import {
-    Choice,
     ChoiceQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
-    IsaacQuickQuestion, IsaacSymbolicQuestion, Quantity
+    IsaacQuickQuestion,
+    IsaacSymbolicQuestion
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
-import { ValuePresenter } from "./ValuePresenter";
 import { EditableText } from "./EditableText";
+import { CheckboxDocProp } from "./CheckboxDocProp";
+import { CHOICE_TYPES } from "./ListChildrenPresenter";
 
 const QUESTION_TYPES = {
     isaacQuestion: {
@@ -136,21 +129,23 @@ export function HintsPresenter({doc, update}: PresenterProps) {
     }} name="Hints" />;
 }
 
-function getChoicesType(questionType: string): TYPES {
+function getChoicesType(questionType: string): CHOICE_TYPES {
     switch (questionType) {
-        case "isaacMultiChoiceQuestion": return "choices";
-        case "isaacNumericQuestion": return "quantities";
-        case "isaacSymbolicQuestion": return "formulas";
+        case "isaacMultiChoiceQuestion": return "choice";
+        case "isaacNumericQuestion": return "quantity";
+        case "isaacSymbolicQuestion": return "formula";
     }
     console.log("Unknown choices type", questionType);
-    return "choices";
+    return "choice";
 }
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
     const question = doc as ChoiceQuestion;
     const choices = useMemo(() => {
         return {
-            type: getChoicesType(question.type ?? ""),
+            type: "choices",
+            // NB: We are reusing layout here for this special component to represent the type of choice
+            layout: getChoicesType(question.type ?? ""),
             children: question.choices,
         };
     }, [question.type, question.choices]);
@@ -160,70 +155,6 @@ export function ChoicesPresenter({doc, update}: PresenterProps) {
             choices: newChoices.children,
         });
     }} />;
-}
-
-export function ChoicePresenter(props: PresenterProps) {
-    const choice = props.doc as Choice;
-    return <div className={styles.choice}>
-        <Button onClick={() => {
-            props.update({
-                ...choice,
-                correct: !choice.correct,
-            });
-        }} color={choice.correct ? "success" : "danger"}>
-            {choice.correct ? "✓" : "✗"}
-        </Button>
-        <div className={styles.choiceValue}>
-            <ValuePresenter {...props} />
-        </div>
-        <div className={styles.choiceExplanation}>
-            <SemanticDocProp {...props} prop="explanation" name="Explanation" />
-        </div>
-    </div>;
-}
-
-export function QuantityPresenter(props: PresenterProps) {
-    const choice = props.doc as Quantity;
-    return <div className={styles.choice}>
-        <Button onClick={() => {
-            props.update({
-                ...choice,
-                correct: !choice.correct,
-            });
-        }} color={choice.correct ? "success" : "danger"}>
-            {choice.correct ? "✓" : "✗"}
-        </Button>
-        <div className={styles.choiceValue}>
-            <ValuePresenter {...props} />
-        </div>
-        <div className={styles.choiceExplanation}>
-            <SemanticDocProp {...props} prop="explanation" name="Explanation" />
-        </div>
-    </div>;
-}
-
-type CheckboxDocProps<K extends keyof D, D> =
-    & PresenterProps<D>
-    & {
-        prop: K;
-        label: string;
-    };
-
-function CheckboxDocProp<K extends keyof D, D extends { [Key in K]?: boolean }>({
-    doc,
-    update,
-    prop,
-    label,
-}: CheckboxDocProps<K, D>) {
-    return <Label className={styles.checkboxLabel}>
-        <Input type="checkbox"
-               checked={doc[prop]}
-               onChange={(e) => {
-                   update({
-                       ...doc,
-                       [prop]: e.target.checked,
-                   });
-               }}/>{label}</Label>;
 }
 
 function QuestionBodyPresenter(props: PresenterProps) {
