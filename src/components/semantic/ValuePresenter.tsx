@@ -3,7 +3,7 @@ import { Remarkable } from "remarkable";
 import { linkify } from "remarkable/linkify";
 
 import { PresenterProps } from "./SemanticItem";
-import { Quantity } from "../../isaac-data-types";
+import { Formula, Quantity } from "../../isaac-data-types";
 
 const converter = new Remarkable({
     html: true,
@@ -17,6 +17,13 @@ export function ValuePresenter({doc}: PresenterProps) {
             return <em>Enter quantity here</em>;
         }
         value = `${doc.value} ${quantity.units}`;
+    }
+    if (doc.type === "formula") {
+        const quantity = doc as Formula;
+        if (value === "") {
+            return <em>Enter formula here</em>;
+        }
+        value = `${doc.value}\r\n${quantity.pythonExpression}`;
     }
     if (value === "" && doc.type === "choice") {
         return <em>Enter choice here</em>;

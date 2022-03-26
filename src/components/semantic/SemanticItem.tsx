@@ -10,7 +10,7 @@ import {
     ChoicePresenter,
     MultipleChoiceQuestionPresenter, NumericQuestionPresenter,
     QuestionMetaPresenter,
-    QuickQuestionAnswerPresenter
+    QuickQuestionAnswerPresenter, SymbolicQuestionPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 
@@ -32,6 +32,9 @@ export type TYPES =
     | "isaacNumericQuestion"
     | "quantity"
     | "quantities"
+    | "isaacSymbolicQuestion"
+    | "formula"
+    | "formulas"
 ;
 
 export interface PresenterProps<D extends Content = Content> {
@@ -83,10 +86,18 @@ const tabsEntry: RegistryEntry = {
     childrenPresenter: TabsPresenter,
 }
 
+
+function BoxedListChildrenPresenter(props: PresenterProps) {
+    return <Box>
+        <ListChildrenPresenter {...props} />
+    </Box>;
+}
+
 const questionEntry: RegistryEntry = {
     ...contentEntry,
     name: "Question",
     metadataPresenter: QuestionMetaPresenter,
+    childrenPresenter: BoxedListChildrenPresenter,
 };
 
 export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
@@ -107,6 +118,9 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     isaacNumericQuestion: {...questionEntry, additionalPresenter: NumericQuestionPresenter},
     quantity: choiceEntry,
     quantities: choicesEntry,
+    isaacSymbolicQuestion: {...questionEntry, additionalPresenter: SymbolicQuestionPresenter},
+    formula: choiceEntry,
+    formulas: choicesEntry,
 };
 
 
@@ -119,7 +133,7 @@ export interface SemanticItemProps {
 }
 
 interface BoxProps {
-    name: string | undefined;
+    name?: string | undefined;
     onDelete?: () => void;
     className?: string;
 }

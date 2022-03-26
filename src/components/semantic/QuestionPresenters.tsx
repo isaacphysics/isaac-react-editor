@@ -24,7 +24,7 @@ import {
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
-    IsaacQuickQuestion, Quantity
+    IsaacQuickQuestion, IsaacSymbolicQuestion, Quantity
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
 import { ValuePresenter } from "./ValuePresenter";
@@ -140,6 +140,7 @@ function getChoicesType(questionType: string): TYPES {
     switch (questionType) {
         case "isaacMultiChoiceQuestion": return "choices";
         case "isaacNumericQuestion": return "quantities";
+        case "isaacSymbolicQuestion": return "formulas";
     }
     console.log("Unknown choices type", questionType);
     return "choices";
@@ -245,7 +246,6 @@ export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
 
 const EditableSignificantFiguresMin = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMin");
 const EditableSignificantFiguresMax = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMax");
-
 const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuestion>) => {
     return <EditableText
         onSave={(newText) => {
@@ -281,6 +281,36 @@ export function NumericQuestionPresenter(props: PresenterProps) {
         {question.requireUnits ?
             <EditableAvailableUnits doc={question} update={update} />
         :   <EditableDisplayUnit doc={question} update={update} label="Display unit" />}
+        <QuestionBodyPresenter {...props} />
+    </>;
+}
+
+
+const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQuestion>) => {
+    return <EditableText
+        onSave={(newText) => {
+            update({
+                ...doc,
+                availableSymbols: newText?.split(",").map(unit => unit.trim()),
+            });
+        }}
+        text={doc.availableSymbols?.map(unit => unit.trim()).join(", ")}
+        label="Available symbols"
+    />;
+};
+const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed");
+
+export function SymbolicQuestionPresenter(props: PresenterProps) {
+    const {doc, update} = props;
+    const question = doc as IsaacSymbolicQuestion;
+
+    return <>
+        <div className={styles.editableFullwidth}>
+            <EditableAvailableSymbols doc={question} update={update} />
+        </div>
+        <div className={styles.editableFullwidth}>
+            <EditableFormulaSeed doc={question} update={update} />
+        </div>
         <QuestionBodyPresenter {...props} />
     </>;
 }

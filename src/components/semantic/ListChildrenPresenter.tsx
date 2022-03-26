@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { FunctionComponent, useState } from "react";
 import { Button } from "reactstrap";
 
-import { Content, Quantity } from "../../isaac-data-types";
-import { Box, PresenterProps, SemanticItem } from "./SemanticItem";
+import { Choice, Content } from "../../isaac-data-types";
+import { Box, PresenterProps, SemanticItem, TYPES } from "./SemanticItem";
 import styles from "./styles.module.css";
 
 interface InserterProps {
@@ -47,24 +47,17 @@ export const emptyChoice = {
     },
 };
 
-export const emptyQuantity = {
-    type: "quantity",
-    encoding: "markdown",
-    value: "",
-    units: "",
-    explanation: {
-        type: "content",
-        children: [],
-    },
+function ChoiceInserter<T extends Choice>(empty: T) {
+    const ChoiceInserter = ({insert, position}: InserterProps) =>
+        <InsertButton onClick={() => insert({...empty, correct: position === 0} as Content)} />;
+    return ChoiceInserter;
+}
+
+const INSERTER_MAP: Partial<Record<TYPES, FunctionComponent<InserterProps>>> = {
+    choices: ChoiceInserter(emptyChoice),
+    quantities: ChoiceInserter({...emptyChoice, type: "quantity", units: ""}),
+    formulas: ChoiceInserter({...emptyChoice, type: "formula", pythonExpression: "", requiresExactMatch: false,})
 };
-
-function ChoiceInserter({insert, position}: InserterProps) {
-    return <InsertButton onClick={() => insert({...emptyChoice, correct: position === 0} as Content)} />;
-}
-
-function QuantityInserter({insert, position}: InserterProps) {
-    return <InsertButton onClick={() => insert({...emptyQuantity, correct: position === 0} as Content)} />;
-}
 
 export function deriveNewDoc(doc: Content) {
     return {
@@ -73,22 +66,11 @@ export function deriveNewDoc(doc: Content) {
     };
 }
 
-function selectInserter(doc: Content) {
-    switch (doc.type) {
-        case "choices":
-            return ChoiceInserter;
-        case "quantities":
-            return QuantityInserter;
-        default:
-            return Inserter;
-    }
-}
-
 export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const result: JSX.Element[] = [];
 
     function addInserter(position: number, forceOpen: boolean) {
-        const UseInserter = selectInserter(doc);
+        const UseInserter = INSERTER_MAP[doc.type as TYPES] ?? Inserter;
         result.push(<UseInserter key={`__insert_${position}`} position={position} forceOpen={forceOpen} insert={(newContent) => {
             const newDoc = deriveNewDoc(doc);
             newDoc.children.splice(position, 0, newContent);

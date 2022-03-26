@@ -23,3 +23,20 @@
 .choiceExplanation {
     flex-grow: 1;
 }
+
+.editableFullwidth > span {
+    width: 100%
+}
+
+.editableFullwidth span {
+    display: inline-flex;
+    flex-grow: 1;
+}
+
+.editableFullwidth input {
+    flex-grow: 1;
+}
+
+.editableFullwidth span span span {
+    align-items: baseline;
+}
