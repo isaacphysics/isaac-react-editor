@@ -6,6 +6,10 @@
     margin-left: 1.25rem;
 }
 
+.questionLabel {
+    margin-bottom: 0.5rem;
+}
+
 .choice {
     display: flex;
     flex-direction: row;

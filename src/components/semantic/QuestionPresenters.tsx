@@ -110,7 +110,13 @@ function AnswerPresenter({doc, ...rest}: PresenterProps) {
     return <SemanticDocProp doc={doc as IsaacQuickQuestion} {...rest} prop="answer" name="Answer" />;
 }
 
-export const QuickQuestionAnswerPresenter = AnswerPresenter;
+export function QuickQuestionPresenter(props: PresenterProps) {
+    const question = props.doc as IsaacQuickQuestion;
+    return <>
+        <CheckboxDocProp doc={question} update={props.update} prop="showConfidence" label="Show confidence question" />
+        <AnswerPresenter {...props} />
+    </>;
+}
 
 export function HintsPresenter({doc, update}: PresenterProps) {
     const question = doc as IsaacQuestionBase;
@@ -199,7 +205,7 @@ export function NumericQuestionPresenter(props: PresenterProps) {
         <div>
             <CheckboxDocProp doc={question} update={update} prop="disregardSignificantFigures" label="Exact answers only" />
         </div>
-        {!question.disregardSignificantFigures && <div>
+        {!question.disregardSignificantFigures && <div className={styles.questionLabel}>
             Significant figures
             {" "}
             <EditableSignificantFiguresMin doc={question} update={update} label="from" />

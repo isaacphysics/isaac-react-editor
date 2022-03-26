@@ -9,7 +9,7 @@ import { AccordionPresenter } from "./AccordionPresenter";
 import {
     MultipleChoiceQuestionPresenter, NumericQuestionPresenter,
     QuestionMetaPresenter,
-    QuickQuestionAnswerPresenter, SymbolicQuestionPresenter
+    QuickQuestionPresenter, SymbolicQuestionPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 import { ChoicePresenter } from "./ChoicePresenter";
@@ -109,7 +109,7 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     page: pageEntry,
     content$accordion: accordionEntry,
     content$tabs: tabsEntry,
-    isaacQuestion: {...questionEntry, additionalPresenter: QuickQuestionAnswerPresenter},
+    isaacQuestion: {...questionEntry, additionalPresenter: QuickQuestionPresenter},
     isaacMultiChoiceQuestion: {...questionEntry, additionalPresenter: MultipleChoiceQuestionPresenter},
     choices: choicesEntry,
     choice: choiceEntry,

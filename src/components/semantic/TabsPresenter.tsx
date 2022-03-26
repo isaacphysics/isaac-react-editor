@@ -29,6 +29,7 @@ export function TabsHeader({doc, update, index, setIndex, name, styles}: TabsPro
             })}
             <Button key="__add"
                     outline
+                    color="info"
                     onMouseDown={(e) => {
                         e.preventDefault();
                     }}
