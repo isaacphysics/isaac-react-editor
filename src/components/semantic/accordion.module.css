@@ -78,6 +78,27 @@
 
 .meta {
     padding: 0 1em;
+    z-index: 2;
+    position: relative;
+}
+
+.meta::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.audienceDisplayControls {
+    float: right;
+}
+
+.audienceDisplayControls :global(.form-control) {
+    display: inline-block;
+    width: auto;
+}
+
+.displayButtons {
+    text-align: right;
 }
 
 .main > div {
