@@ -106,15 +106,15 @@ export function QuestionMetaPresenter(props: PresenterProps) {
     </div>;
 }
 
-function AnswerPresenter({doc, ...rest}: PresenterProps) {
+export function AnswerPresenter({doc, ...rest}: PresenterProps) {
     return <SemanticDocProp doc={doc as IsaacQuickQuestion} {...rest} prop="answer" name="Answer" />;
 }
 
 export function QuickQuestionPresenter(props: PresenterProps) {
     const question = props.doc as IsaacQuickQuestion;
     return <>
+        <QuestionMetaPresenter {...props} />
         <CheckboxDocProp doc={question} update={props.update} prop="showConfidence" label="Show confidence question" />
-        <AnswerPresenter {...props} />
     </>;
 }
 
@@ -163,7 +163,7 @@ export function ChoicesPresenter({doc, update}: PresenterProps) {
     }} />;
 }
 
-function QuestionBodyPresenter(props: PresenterProps) {
+export function QuestionBodyPresenter(props: PresenterProps) {
     return <>
         <ChoicesPresenter {...props} />
         <AnswerPresenter {...props} />
@@ -175,9 +175,9 @@ export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacMultiChoiceQuestion;
     return <>
+        <QuestionMetaPresenter {...props} />
         <CheckboxDocProp doc={question} update={update} prop="randomiseChoices"
                          label="Randomise Choices"/>
-        <QuestionBodyPresenter {...props}/>
     </>;
 }
 
@@ -202,6 +202,7 @@ export function NumericQuestionPresenter(props: PresenterProps) {
     const question = doc as IsaacNumericQuestion;
 
     return <>
+        <QuestionMetaPresenter {...props} />
         <div>
             <CheckboxDocProp doc={question} update={update} prop="disregardSignificantFigures" label="Exact answers only" />
         </div>
@@ -218,7 +219,7 @@ export function NumericQuestionPresenter(props: PresenterProps) {
         {question.requireUnits ?
             <EditableAvailableUnits doc={question} update={update} />
         :   <EditableDisplayUnit doc={question} update={update} label="Display unit" />}
-        <QuestionBodyPresenter {...props} />
+        <div className={styles.questionLabel} /> {/* For spacing */}
     </>;
 }
 
@@ -242,12 +243,12 @@ export function SymbolicQuestionPresenter(props: PresenterProps) {
     const question = doc as IsaacSymbolicQuestion;
 
     return <>
+        <QuestionMetaPresenter {...props} />
         <div className={styles.editableFullwidth}>
             <EditableAvailableSymbols doc={question} update={update} />
         </div>
         <div className={styles.editableFullwidth}>
             <EditableFormulaSeed doc={question} update={update} />
         </div>
-        <QuestionBodyPresenter {...props} />
     </>;
 }

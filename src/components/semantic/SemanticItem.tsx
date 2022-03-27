@@ -7,7 +7,8 @@ import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
-    MultipleChoiceQuestionPresenter, NumericQuestionPresenter,
+    AnswerPresenter,
+    MultipleChoiceQuestionPresenter, NumericQuestionPresenter, QuestionBodyPresenter,
     QuestionMetaPresenter,
     QuickQuestionPresenter, SymbolicQuestionPresenter
 } from "./QuestionPresenters";
@@ -94,8 +95,8 @@ function BoxedListChildrenPresenter(props: PresenterProps) {
 const questionEntry: RegistryEntry = {
     ...contentEntry,
     name: "Question",
-    metadataPresenter: QuestionMetaPresenter,
     childrenPresenter: BoxedListChildrenPresenter,
+    additionalPresenter: QuestionBodyPresenter,
 };
 
 export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
@@ -109,13 +110,14 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     page: pageEntry,
     content$accordion: accordionEntry,
     content$tabs: tabsEntry,
-    isaacQuestion: {...questionEntry, additionalPresenter: QuickQuestionPresenter},
-    isaacMultiChoiceQuestion: {...questionEntry, additionalPresenter: MultipleChoiceQuestionPresenter},
+    // Quick questions don't have choices or hints
+    isaacQuestion: {...questionEntry, metadataPresenter: QuickQuestionPresenter, additionalPresenter: AnswerPresenter},
+    isaacMultiChoiceQuestion: {...questionEntry, metadataPresenter: MultipleChoiceQuestionPresenter},
     choices: choicesEntry,
     choice: choiceEntry,
-    isaacNumericQuestion: {...questionEntry, additionalPresenter: NumericQuestionPresenter},
+    isaacNumericQuestion: {...questionEntry, metadataPresenter: NumericQuestionPresenter},
     quantity: choiceEntry,
-    isaacSymbolicQuestion: {...questionEntry, additionalPresenter: SymbolicQuestionPresenter},
+    isaacSymbolicQuestion: {...questionEntry, metadataPresenter: SymbolicQuestionPresenter},
     formula: choiceEntry,
 };
 
