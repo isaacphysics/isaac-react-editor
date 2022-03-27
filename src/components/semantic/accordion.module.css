@@ -3,6 +3,12 @@
     --border-radius: 4px;
 }
 
+.headerDisplayControls {
+    text-align: right;
+    position: relative;
+    top: -1em;
+}
+
 .wrapper {
     display: flex;
     flex-direction: row;

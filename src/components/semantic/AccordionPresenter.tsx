@@ -17,11 +17,12 @@ function hasErrorInLevel(newText: string | undefined) {
     }
 }
 
-type Display = { audience: string[]; nonAudience: string[] };
+type Display = { audience: string[]; nonAudience: string[] } | undefined;
 
 interface AudienceDisplayControlProps {
     set: (newDisplay: Display | undefined) => void;
-    display: { [p: string]: string[] };
+    display: Display;
+    title: string;
 }
 
 const audienceOptions = ["open", "closed"];
@@ -92,21 +93,23 @@ function DisplayListEditor({displayList, setDisplayList, name, displayOptions}: 
     </>;
 }
 
-function AudienceDisplayControl({display, set}: AudienceDisplayControlProps) {
+function AudienceDisplayControl({display, set, title}: AudienceDisplayControlProps) {
     const [editing, setEditing] = useState(false);
-    const [audience, setAudience] = useState(display.audience ?? []);
-    const [nonAudience, setNonAudience] = useState(display.nonAudience ?? []);
+    const [audience, setAudience] = useState(display?.audience ?? []);
+    const [nonAudience, setNonAudience] = useState(display?.nonAudience ?? []);
 
     useEffect(() => {
         if (editing) {
-            setAudience(display.audience ?? []);
-            setNonAudience(display.nonAudience ?? []);
+            setAudience(display?.audience ?? []);
+            setNonAudience(display?.nonAudience ?? []);
         }
         // Only need to update each time we start editing
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editing]);
+    const titleText = <small>{title}{": "}</small>;
     if (!editing) {
         return <>
+            {titleText}
             {display && (display.audience.length !== 0 || display.nonAudience.length !== 0) ?
                 <span>
                     <span>Audience:&nbsp;{display.audience.length ? "[" + display.audience.join(", ") + "]" : "default"}</span>
@@ -120,6 +123,7 @@ function AudienceDisplayControl({display, set}: AudienceDisplayControlProps) {
         </>;
     }
     return <>
+        {titleText}
         <DisplayListEditor displayList={audience} setDisplayList={setAudience} name="Audience" displayOptions={audienceOptions} />
         <DisplayListEditor displayList={nonAudience} setDisplayList={setNonAudience} name="Non-Audience" displayOptions={nonAudienceOptions} />
         <div className={styles.displayButtons}>
@@ -156,37 +160,51 @@ export function AccordionPresenter(props: PresenterProps) {
         update(newDoc);
     }
 
-    const currentChildDisplay = doc?.children?.[index].display;
-    return <div className={styles.wrapper}>
-        <TabsHeader {...props} index={index} setIndex={setIndex} name="Section" styles={styles} />
-        <TabsMain {...props} index={index} setIndex={setIndex} name="Section" styles={styles} back="▲" forward="▼" contentHeader={
-            <div className={styles.meta}>
-                <h2><EditableTitleProp ref={editTitleRef} {...props}  placeHolder="Section Title" hideWhenEmpty /></h2>
-                <h3><EditableSubtitleProp {...props} hideWhenEmpty /></h3>
-                <div className={styles.audienceDisplayControls}>
-                    {currentChildDisplay === undefined &&
-                        <Button onClick={() => {
-                            setCurrentChildDisplay({
-                                audience: [],
-                                nonAudience: []
-                            });
-                        }}>
-                            Override Display
-                        </Button>
-                    }
-                    {currentChildDisplay !== undefined &&
-                        <AudienceDisplayControl key={index} display={currentChildDisplay} set={setCurrentChildDisplay} />
-                    }
+    const currentChildDisplay = doc?.children?.[index].display as Display;
+    return <>
+        <div className={styles.headerDisplayControls}>
+            <AudienceDisplayControl
+                display={doc.display as Display}
+                set={(display) => {
+                    update({
+                        ...doc,
+                        display,
+                    });
+                }}
+                title="Accordion Display"
+            />
+        </div>
+        <div className={styles.wrapper}>
+            <TabsHeader {...props} index={index} setIndex={setIndex} name="Section" styles={styles} />
+            <TabsMain {...props} index={index} setIndex={setIndex} name="Section" styles={styles} back="▲" forward="▼" contentHeader={
+                <div className={styles.meta}>
+                    <h2><EditableTitleProp ref={editTitleRef} {...props}  placeHolder="Section Title" hideWhenEmpty /></h2>
+                    <h3><EditableSubtitleProp {...props} hideWhenEmpty /></h3>
+                    <div className={styles.audienceDisplayControls}>
+                        {currentChildDisplay === undefined &&
+                            <Button onClick={() => {
+                                setCurrentChildDisplay({
+                                    audience: [],
+                                    nonAudience: []
+                                });
+                            }}>
+                                Override Display
+                            </Button>
+                        }
+                        {currentChildDisplay !== undefined &&
+                            <AudienceDisplayControl key={index} display={currentChildDisplay} set={setCurrentChildDisplay} title="Display Override" />
+                        }
+                    </div>
                 </div>
-            </div>
-        } extraButtons={<>
-            <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>
-            <EditableText onSave={(newLevel) => {
-                props.update({
-                    ...props.doc,
-                    level: newLevel ? parseInt(newLevel, 10) : undefined,
-                });
-            }} text={props.doc.level?.toString()} label="Section Level" hasError={hasErrorInLevel} {...props} />
-        </>}/>
-    </div>;
+            } extraButtons={<>
+                <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>
+                <EditableText onSave={(newLevel) => {
+                    props.update({
+                        ...props.doc,
+                        level: newLevel ? parseInt(newLevel, 10) : undefined,
+                    });
+                }} text={props.doc.level?.toString()} label="Section Level" hasError={hasErrorInLevel} {...props} />
+            </>}/>
+        </div>
+    </>;
 }
