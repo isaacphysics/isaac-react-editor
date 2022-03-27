@@ -30,6 +30,10 @@
     flex-basis: 0;
 }
 
+.editableFullwidth {
+    margin-bottom: 0.5em;
+}
+
 .editableFullwidth > span {
     width: 100%
 }
@@ -45,4 +49,12 @@
 
 .editableFullwidth span span span {
     align-items: baseline;
+}
+
+.symbolicMetaButtons {
+    margin-bottom: 0.5em;
+}
+
+.symbolicMetaButtons button {
+    margin-left: 0.5em;
 }

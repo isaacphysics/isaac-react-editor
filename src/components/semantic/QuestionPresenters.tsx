@@ -9,7 +9,7 @@ import {
     NumberDocPropFor
 } from "./EditableDocProp";
 import styles from "./question.module.css";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import {
     ChoiceQuestion,
     IsaacMultiChoiceQuestion,
@@ -238,17 +238,50 @@ const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQue
 };
 const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed");
 
+const availableMetaSymbols = [
+    ["_trigs", "Trigs"],
+    ["_1/trigs", "1/Trigs"],
+    ["_inv_trigs", "Inv Trigs"],
+    ["_inv_1/trigs", "Inv 1/Trigs"],
+    ["_hyp_trigs", "Hyp Trigs"],
+    ["_inv_hyp_trigs", "Inv Hyp Trigs"],
+    ["_logs", "Logarithms"],
+    ["_no_alphabet", "No Alphabet"]
+];
+
+function hasSymbol(availableSymbols: string[] | undefined, symbol: string) {
+    return availableSymbols?.find(s => s === symbol);
+}
+
 export function SymbolicQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacSymbolicQuestion;
+
+    function toggle(symbol: string) {
+        const availableSymbols = [...question.availableSymbols ?? []];
+        const index = availableSymbols.indexOf(symbol);
+        if (index !== -1) {
+            availableSymbols.splice(index, 1);
+        } else {
+            availableSymbols.push(symbol);
+        }
+        update({
+            ...doc, availableSymbols
+        });
+    }
 
     return <>
         <QuestionMetaPresenter {...props} />
         <div className={styles.editableFullwidth}>
             <EditableAvailableSymbols doc={question} update={update} />
         </div>
+        <div className={styles.symbolicMetaButtons}>
+            {availableMetaSymbols.map(([symbol, label]) => {
+                return <Button size="sm" key={symbol} color={hasSymbol(question.availableSymbols, symbol) ? "primary" : "secondary"} onClick={() => toggle(symbol)}>{label}</Button>
+            })}
+        </div>
         <div className={styles.editableFullwidth}>
-            <EditableFormulaSeed doc={question} update={update} />
+            <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
         </div>
     </>;
 }
