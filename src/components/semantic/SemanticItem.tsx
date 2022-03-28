@@ -167,10 +167,10 @@ export function SemanticItem({doc, update, onDelete, name, className}: SemanticI
     const metadata = MetadataPresenter ? <MetadataPresenter doc={doc} update={update} /> : null;
 
     const ChildrenPresenter = entryType.childrenPresenter;
-    const children = doc.children && ChildrenPresenter ? <ChildrenPresenter doc={doc} update={update} /> : null;
+    const children = doc.children !== undefined && ChildrenPresenter ? <ChildrenPresenter doc={doc} update={update} /> : null;
 
     const ValuePresenter = entryType.valuePresenter;
-    const value = doc.value && ValuePresenter ? <ValuePresenter doc={doc} update={update} ref={valueRef} /> : null;
+    const value = doc.value !== undefined && ValuePresenter ? <ValuePresenter doc={doc} update={update} ref={valueRef} /> : null;
 
     const AdditionalPresenter = entryType.additionalPresenter;
     const additional = AdditionalPresenter ? <AdditionalPresenter doc={doc} update={update} /> : null;

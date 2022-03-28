@@ -69,8 +69,6 @@ export const ValuePresenter = forwardRef<ValuePresenterRef, PresenterProps>(({do
                 value={value.current}
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus={true}
-                //height="100vh"
-                //width="100%"
                 extensions={[markdown(), EditorView.lineWrapping]}
                 onChange={(newValue) => {
                     value.current = newValue;
