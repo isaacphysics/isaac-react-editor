@@ -18,7 +18,7 @@ export function CheckboxDocProp<K extends keyof D, D extends { [Key in K]?: bool
 }: CheckboxDocProps<K, D>) {
     return <Label className={styles.checkboxLabel}>
         <Input type="checkbox"
-               checked={doc[prop]}
+               checked={!!doc[prop]}
                onChange={(e) => {
                    update({
                        ...doc,
