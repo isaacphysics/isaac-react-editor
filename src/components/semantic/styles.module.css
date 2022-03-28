@@ -1,9 +1,9 @@
 .box {
     border: #eee 1px solid;
-    padding: 1em;
+    padding: 0 1em;
     position: relative;
     width: 100%;
-    padding-top: 0;
+    min-height: 29px;
 }
 .box > .box {
     margin: 1em 0;
@@ -41,7 +41,7 @@
 
 .boxDelete {
     position: absolute;
-    top: 0;
+    top: -4px;
     right: 0;
     opacity: 0.5;
     display: none;
@@ -56,6 +56,7 @@
 
 .boxDeleteHovered {
     border-color: #dc3545;
+    background: #dc354507;
 }
 
 .boxDeleteHovered > .boxHeader .boxLabel {
@@ -72,24 +73,26 @@
 }
 
 .inserter {
-    margin: -32px 0;
     display: none;
 }
 
-.boxHeader + .inserter {
+.boxHeader + .inserter .inserterAdd button {
     margin-top: -16px;
 }
 
-.inserter:last-child {
+.inserter:last-child .inserterAdd button {
     margin-bottom: -16px;
 }
 
 .inserterAdd {
-    text-align: center;
 }
 
 .inserterAdd button {
     opacity: 0.5;
+    position: absolute;
+    z-index: 2;
+    margin: -32px 0;
+    left: calc(50% - 27px);
 }
 
 .inserterAdd button:hover {

@@ -12,6 +12,7 @@
 .wrapper {
     display: flex;
     flex-direction: row;
+    margin-bottom: 1em;
 }
 
 .buttons {
@@ -112,5 +113,5 @@
 }
 
 .hideMargins {
-    margin: -1em 0;
+    margin-top: -1em;
 }
