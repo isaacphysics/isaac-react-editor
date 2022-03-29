@@ -19,7 +19,8 @@ import {
     NumericQuestionPresenter,
     QuestionBodyPresenter,
     QuickQuestionPresenter,
-    SymbolicQuestionPresenter, StringMatchQuestionPresenter
+    SymbolicQuestionPresenter,
+    StringMatchQuestionPresenter, FreeTextQuestionInstructions
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 import { ChoicePresenter } from "./ChoicePresenter";
@@ -35,6 +36,7 @@ export type TYPES =
     | "isaacTopicSummaryPage"
     | "page"
     | "choices"
+    | "choices$freeTextRule"
     | "isaacQuiz"
     | QUESTION_TYPES
     | CHOICE_TYPES
@@ -69,7 +71,7 @@ const choicesEntry: RegistryEntry = {
 
 const choiceEntry: RegistryEntry = {
     name: "Choice",
-    additionalPresenter: ChoicePresenter, // FIXME: this should be a ValuePresenter
+    additionalPresenter: ChoicePresenter,
 };
 
 const pageEntry: RegistryEntry = {
@@ -118,6 +120,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     isaacQuestion: {...questionEntry, metadataPresenter: QuickQuestionPresenter, additionalPresenter: AnswerPresenter},
     isaacMultiChoiceQuestion: {...questionEntry, metadataPresenter: MultipleChoiceQuestionPresenter},
     choices: choicesEntry,
+    choices$freeTextRule: {...choicesEntry, additionalPresenter: FreeTextQuestionInstructions},
     choice: choiceEntry,
     isaacNumericQuestion: {...questionEntry, metadataPresenter: NumericQuestionPresenter},
     quantity: choiceEntry,
@@ -127,6 +130,8 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     chemicalFormula: choiceEntry,
     isaacStringMatchQuestion: {...questionEntry, metadataPresenter: StringMatchQuestionPresenter},
     stringChoice: choiceEntry,
+    isaacFreeTextQuestion: {...questionEntry, metadataPresenter: StringMatchQuestionPresenter},
+    freeTextRule: choiceEntry,
 };
 
 
@@ -172,7 +177,8 @@ export function SemanticItem({doc, update, onDelete, name, className}: SemanticI
     const metadata = MetadataPresenter ? <MetadataPresenter doc={doc} update={update} /> : null;
 
     const ChildrenPresenter = entryType.childrenPresenter;
-    const children = doc.children !== undefined && ChildrenPresenter ? <ChildrenPresenter doc={doc} update={update} /> : null;
+    const supressChildren = doc.children === undefined &&  doc.value !== undefined && ChildrenPresenter === BaseValuePresenter;
+    const children = !supressChildren && ChildrenPresenter ? <ChildrenPresenter doc={doc} update={update} /> : null;
 
     const ValuePresenter = entryType.valuePresenter;
     const value = doc.value !== undefined && ValuePresenter ? <ValuePresenter doc={doc} update={update} ref={valueRef} /> : null;

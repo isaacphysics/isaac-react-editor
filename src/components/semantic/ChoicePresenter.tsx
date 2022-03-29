@@ -7,7 +7,14 @@ import React, {
 import { Button, Input, Label } from "reactstrap";
 
 import { Presenter, PresenterProps } from "./SemanticItem";
-import { ChemicalFormula, Choice, Formula, Quantity, StringChoice } from "../../isaac-data-types";
+import {
+    ChemicalFormula,
+    Choice,
+    Formula,
+    FreeTextRule,
+    Quantity,
+    StringChoice
+} from "../../isaac-data-types";
 import styles from "./choice.module.css";
 import {
     BaseValuePresenter, buildValuePresenter,
@@ -124,12 +131,33 @@ export const StringChoicePresenter = forwardRef<ValuePresenterRef, PresenterProp
 });
 StringChoicePresenter.displayName = "StringChoicePresenter";
 
+export const FreeTextRulePresenter = forwardRef<ValuePresenterRef, PresenterProps<FreeTextRule>>((props, ref) => {
+    const editableRef = useRef<EditableTextRef>(null);
+    useImperativeHandle(ref, () => ({
+        startEdit: () => {
+            editableRef.current?.startEdit();
+        }
+    }));
+    return <>
+        <EditableValueProp {...props} placeHolder="Matching rule" ref={editableRef} />
+        <br />
+        <br />
+        <CheckboxDocProp {...props} prop="caseInsensitive" label="Case insensitive" />
+        <CheckboxDocProp {...props} prop="allowsAnyOrder" label="Any order" />
+        <CheckboxDocProp {...props} prop="allowsExtraWords" label="Extra words" />
+        <CheckboxDocProp {...props} prop="allowsMisspelling" label="Misspelling" />
+    </>;
+});
+FreeTextRulePresenter.displayName = "FreeTextRulePresenter";
+
+
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
     quantity: QuantityPresenter,
     formula: FormulaPresenter,
     chemicalFormula: ChemicalFormulaPresenter,
     stringChoice: StringChoicePresenter,
+    freeTextRule: FreeTextRulePresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps) {

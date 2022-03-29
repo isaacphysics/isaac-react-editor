@@ -9,13 +9,15 @@ import {
     NumberDocPropFor
 } from "./EditableDocProp";
 import styles from "./question.module.css";
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
+import { Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import {
     ChoiceQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
-    IsaacQuickQuestion, IsaacStringMatchQuestion, IsaacSymbolicChemistryQuestion,
+    IsaacQuickQuestion,
+    IsaacStringMatchQuestion,
+    IsaacSymbolicChemistryQuestion,
     IsaacSymbolicQuestion
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
@@ -30,6 +32,7 @@ export type QUESTION_TYPES =
     | "isaacSymbolicQuestion"
     | "isaacSymbolicChemistryQuestion"
     | "isaacStringMatchQuestion"
+    | "isaacFreeTextQuestion"
 ;
 
 const QuestionTypes = {
@@ -150,6 +153,7 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacSymbolicQuestion: "formula",
     isaacSymbolicChemistryQuestion: "chemicalFormula",
     isaacStringMatchQuestion: "stringChoice",
+    isaacFreeTextQuestion: "freeTextRule",
 };
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
@@ -310,8 +314,29 @@ export function ChemistryQuestionPresenter(props: PresenterProps) {
 
 
 export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMatchQuestion>) {
-    //const {doc, update} = props;
     return <>
         <QuestionMetaPresenter {...props} />
+        <CheckboxDocProp {...props} prop="multiLineEntry" label="Multi-line" />
     </>;
+}
+
+export function FreeTextQuestionInstructions(props: PresenterProps) {
+    return <div>
+        <h5>Matching Rule Syntax</h5>
+        <Alert color="info">
+            A fuller set of instructions can be found <a href="https://github.com/isaacphysics/rutherford-content/wiki/Editor-Notes#free-text-questions" target="_">here</a>.
+        </Alert>
+        <table className="table table-striped table-bordered">
+            <thead><tr><th>Symbol</th><th>Description</th><th>Rule</th><th>✓️ Match</th><th>✗ Failed Match</th></tr></thead>
+            <tbody>
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
+            <tr>  <td className={styles.center}><code>|</code></td>  <td>Separate an OR list of word choices</td>  <td className={styles.nowrap}><code>JavaScript|[Java&nbsp;Script]|JS</code></td>  <td>"JavaScript", "Java Script", "JS"</td>         <td>"Java"</td>                                             </tr>
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
+            <tr>  <td className={styles.center}><code>.</code></td>  <td>Match only one character</td>             <td className={styles.center}><code>.a.b.</code></td>                              <td>"XaXbX"</td>                                   <td>"ab", "Xab", "aXb", "abX", "XYZaXYZbXYZ", "XbXaX"</td>  </tr>
+            {/* eslint-disable-next-line react/no-unescaped-entities */}
+            <tr>  <td className={styles.center}><code>*</code></td>  <td>Match zero or more characters</td>        <td className={styles.center}><code>*a*b*</code></td>                              <td>"ab", "Xab", "aXb", "abX", "XYZaXYZbXYZ"</td>  <td>"ba", "XbXaX"</td>                                      </tr>
+            </tbody>
+        </table>
+    </div>;
+
 }

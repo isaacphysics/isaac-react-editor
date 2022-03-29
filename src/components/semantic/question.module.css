@@ -4,6 +4,7 @@
 
 .checkboxLabel {
     margin-left: 1.25rem;
+    margin-right: 0.5rem;
 }
 
 .questionLabel {
@@ -37,4 +38,12 @@
 
 .symbolicMetaButtons button {
     margin-left: 0.5em;
+}
+
+.center {
+    text-align: center;
+}
+
+.nowrap {
+    white-space: nowrap;
 }
