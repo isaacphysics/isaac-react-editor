@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Choice, Content } from "../../isaac-data-types";
@@ -70,27 +70,41 @@ export function deriveNewDoc(doc: Content) {
     };
 }
 
+const extractKey = (doc: Content, index: number) => `${doc.type}@${index}: ${Math.random()}`;
+
+const UNINITIALISED = [] as string[];
+
 export function ListChildrenPresenter({doc, update}: PresenterProps) {
+    const keyList = useRef(UNINITIALISED);
+    if (keyList.current === UNINITIALISED) {
+        // We only want to do this pre-mount, and then we manually keep this up to date after that.
+        keyList.current = doc.children?.map(extractKey) ?? [];
+    }
     const result: JSX.Element[] = [];
 
-    function addInserter(position: number, forceOpen: boolean) {
+    function addInserter(index: number, forceOpen: boolean) {
         const UseInserter = (doc.type === "choices" && INSERTER_MAP[doc.layout as CHOICE_TYPES]) || Inserter;
-        result.push(<UseInserter key={`__insert_${position}`} position={position} forceOpen={forceOpen} insert={(newContent) => {
+        // There is no optimal solution here: we want to keep inserter state between boxes, but if a box is deleted,
+        // there is no general solution for keeping an inserter open neighbouring the deleted box.
+        const key = `__insert_${keyList.current[index] ?? "last"}`;
+        result.push(<UseInserter key={key} position={index} forceOpen={forceOpen} insert={(newContent) => {
             const newDoc = deriveNewDoc(doc);
-            newDoc.children.splice(position, 0, newContent);
+            newDoc.children.splice(index, 0, newContent);
+            keyList.current.splice(index, 0, extractKey(newContent, index));
             update(newDoc);
         }} />);
     }
 
     doc.children?.forEach((child, index) => {
         addInserter(index, false);
-        result.push(<SemanticItem key={child.id || `_child_${index}`} doc={child as Content} update={(newContent) => {
+        result.push(<SemanticItem key={keyList.current[index]} doc={child as Content} update={(newContent) => {
             const newDoc = deriveNewDoc(doc);
             newDoc.children[index] = newContent;
             update(newDoc);
         }} onDelete={() => {
             const newDoc = deriveNewDoc(doc);
             newDoc.children.splice(index, 1);
+            keyList.current.splice(index, 1);
             update(newDoc);
         }}/>);
     });
