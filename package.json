@@ -14,14 +14,16 @@
     "@types/react-dom": "^17.0.11",
     "@uiw/react-codemirror": "^4.3.3",
     "bootstrap": "^4.6.1",
+    "he": "^1.2.0",
     "js-cookie": "^3.0.1",
+    "katex": "^0.15.3",
     "react": "^16.8.5",
     "react-dom": "16.8.4",
     "react-router": "^6.2.1",
     "react-router-dom": "^6.2.1",
     "react-scripts": "5.0.0",
     "reactstrap": "^8.10.1",
-    "remarkable": "^2.0.1",
+    "remarkable": "^1.7.4",
     "swr": "^1.2.1",
     "typescript": "^4.5.5",
     "web-vitals": "^2.1.4"
@@ -52,7 +54,7 @@
       "react-hooks/exhaustive-deps": "warn",
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-empty-interface": "warn",
-      "@typescript-eslint/explicit-module-boundary-types": "off"
+      "@typescript-eslint/no-inferrable-types": "off"
     },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -68,7 +70,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@types/he": "^1.1.2",
     "@types/js-cookie": "^3.0.1",
-    "@types/remarkable": "^2.0.3"
+    "@types/katex": "^0.11.1",
+    "@types/remarkable": "^1.7.4"
   }
 }

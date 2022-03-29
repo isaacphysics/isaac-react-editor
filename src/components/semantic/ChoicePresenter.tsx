@@ -18,6 +18,7 @@ import {
 import { SemanticDocProp } from "./SemanticDocProp";
 import { CHOICE_TYPES } from "./ListChildrenPresenter";
 import { CheckboxDocProp } from "./CheckboxDocProp";
+import { TrustedHtml } from "../../isaac/TrustedHtml";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -49,7 +50,7 @@ export const QuantityPresenter = buildValuePresenter(
             }
 
             const html = "$\\quantity{" + (doc.value || "") + "}{" + (doc.units || "") + "}$";
-            return <span dangerouslySetInnerHTML={{__html: html}} />;
+            return <TrustedHtml html={html} />;
         } else {
             return <>
                 <LabeledInput value={value} prop="value" label="Quantity" />
@@ -68,7 +69,7 @@ export const FormulaPresenterInner = buildValuePresenter(
             if (doc.value === undefined || doc.value === "") {
                 content = <div><em>Enter value and python expression here</em></div>;
             } else {
-                content = <div>{doc.value}<pre>PYTHON: {doc.pythonExpression}</pre></div>
+                content = <div><TrustedHtml html={doc.value} /><pre>PYTHON: {doc.pythonExpression}</pre></div>
             }
             return content;
         } else {

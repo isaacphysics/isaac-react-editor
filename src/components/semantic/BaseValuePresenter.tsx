@@ -7,8 +7,6 @@ import React, {
     useRef,
     useState
 } from "react";
-import { Remarkable } from "remarkable";
-import { linkify } from "remarkable/linkify";
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
@@ -17,10 +15,8 @@ import { Button } from "reactstrap";
 import { PresenterProps } from "./SemanticItem";
 import styles from "./value.module.css";
 import { Content } from "../../isaac-data-types";
-
-const converter = new Remarkable({
-    html: true,
-}).use(linkify);
+import { TrustedHtml } from "../../isaac/TrustedHtml";
+import { TrustedMarkdown } from "../../isaac/TrustedMarkdown";
 
 export interface ValuePresenterRef {
     startEdit: () => void;
@@ -46,8 +42,6 @@ export function buildValuePresenter<V, D extends Content = Content>(
             setEditing((currently) => {
                 if (!currently) {
                     value.current = init(doc);
-                } else {
-                    console.log("Already editing");
                 }
                 return true;
             });
@@ -95,9 +89,9 @@ const BaseValue = ({doc, editing, value}: ValuePresenterProps<string | undefined
         }
         switch (doc.encoding) {
             case "html":
-                return <div dangerouslySetInnerHTML={{__html: doc.value || ""}}/>;
+                return <TrustedHtml html={doc.value} />;
             case "markdown":
-                return <div dangerouslySetInnerHTML={{__html: converter.render(doc.value || "")}}/>;
+                return <TrustedMarkdown markdown={doc.value} />;
             case "plain":
                 return <div>{value}</div>;
             default:

@@ -8,12 +8,12 @@ import { FileBrowser } from "./FileBrowser";
 import { fetcher } from "../services/github";
 
 
-function dirname(path: string | undefined) {
+/*function dirname(path: string | undefined) {
     if (!path) return path;
     return path.substring(0, path.lastIndexOf('/'));
-}
+}*/
 
-async function doSave(appContext: ContextType<typeof AppContext>, sha: string, mutate: (data?: any, update?: boolean) => void) {
+async function doSave(appContext: ContextType<typeof AppContext>, sha: string, mutate: (data?: unknown, update?: boolean) => void) {
     // Commit this to github
     const fileText = appContext.editor.currentRef.current;
     const fileJSON = JSON.parse(fileText);
