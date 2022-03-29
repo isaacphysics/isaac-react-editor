@@ -2,7 +2,12 @@ import React, { FunctionComponent, useRef, useState } from "react";
 
 import styles from "./styles.module.css";
 
-import { ValuePresenter, ValuePresenterRef } from "./ValuePresenter";
+import {
+    BaseValuePresenter,
+    ValuePresenterRef,
+    ValuePresenter,
+    ValueWrapper, ValueRef
+} from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
@@ -11,7 +16,8 @@ import {
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QuestionBodyPresenter,
-    QuickQuestionPresenter, SymbolicQuestionPresenter
+    QuickQuestionPresenter,
+    SymbolicQuestionPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 import { ChoicePresenter } from "./ChoicePresenter";
@@ -48,14 +54,14 @@ interface RegistryEntry {
     name?: string;
     metadataPresenter?: Presenter;
     childrenPresenter?: Presenter;
-    valuePresenter?: typeof ValuePresenter;
+    valuePresenter?: ValuePresenter;
     additionalPresenter?: Presenter;
 }
 
 const contentEntry: RegistryEntry = {
     metadataPresenter: undefined,
     childrenPresenter: ListChildrenPresenter,
-    valuePresenter: ValuePresenter,
+    valuePresenter: BaseValuePresenter,
     additionalPresenter: undefined,
 };
 
@@ -135,15 +141,13 @@ interface BoxProps {
     name?: string | undefined;
     onDelete?: () => void;
     className?: string;
-    onClick?: () => void;
+    valueRef?: ValueRef;
 }
 
-export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, onClick, children}) => {
+export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, valueRef, children}) => {
     const [deleteHovered, setDeleteHovered] = useState(false);
-    return <div className={`${styles.box} ${className ?? ""} ${deleteHovered ? styles.boxDeleteHovered : ""}`}>
-        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
-        <div className={styles.boxHeader}
-             onClick={onClick}>
+    return <ValueWrapper className={`${styles.box} ${className ?? ""} ${deleteHovered ? styles.boxDeleteHovered : ""}`} valueRef={valueRef}>
+        <div className={styles.boxHeader}>
             {name && <span className={styles.boxLabel}>{name}</span>}
             <span className={styles.boxSpacer}/>
             {onDelete && <button className={styles.boxDelete}
@@ -155,7 +159,7 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, onC
                 ❌</button>}
         </div>
         {children}
-    </div>;
+    </ValueWrapper>;
 };
 
 export function SemanticItem({doc, update, onDelete, name, className}: SemanticItemProps) {
@@ -176,7 +180,7 @@ export function SemanticItem({doc, update, onDelete, name, className}: SemanticI
     const additional = AdditionalPresenter ? <AdditionalPresenter doc={doc} update={update} /> : null;
 
     // Render outline with type name
-    return <Box name={name || entryType.name} onDelete={onDelete} className={className} onClick={() => valueRef.current?.startEdit()}>
+    return <Box name={name || entryType.name} onDelete={onDelete} className={className} valueRef={valueRef}>
         {metadata}
         {value}
         {children}

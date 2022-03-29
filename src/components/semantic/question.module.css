@@ -10,26 +10,6 @@
     margin-bottom: 0.5rem;
 }
 
-.choice {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.choice > button {
-    width: 38px;
-}
-
-.choiceValue {
-    flex-grow: 1;
-    flex-basis: 0;
-}
-
-.choiceExplanation {
-    flex-grow: 1;
-    flex-basis: 0;
-}
-
 .editableFullwidth {
     margin-bottom: 0.5em;
 }

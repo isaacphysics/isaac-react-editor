@@ -200,6 +200,91 @@ const testDoc = {
                     "type": "content",
                     "children": [
                         {
+                            "type": "isaacMultiChoiceQuestion",
+                            "encoding": "markdown",
+                            "value": "This is a multiple choice question. The correct answer is $42$. Correct choices in the editor have a ✔️ next to them.",
+                            "choices": [
+                                {
+                                    "encoding": "markdown",
+                                    "value": "$42$",
+                                    "type": "choice",
+                                    "explanation": {
+                                        "type": "content",
+                                        "children": [
+                                            {
+                                                "type": "content",
+                                                "value": "This is a correct choice.",
+                                                "encoding": "html"
+                                            }
+                                        ],
+                                        "encoding": "markdown"
+                                    },
+                                    "correct": true
+                                },
+                                {
+                                    "encoding": "markdown",
+                                    "value": "$69$",
+                                    "type": "choice",
+                                    "explanation": {
+                                        "type": "content",
+                                        "children": [
+                                            {
+                                                "type": "content",
+                                                "value": "This is an incorrect choice.",
+                                                "encoding": "markdown"
+                                            }
+                                        ],
+                                        "encoding": "markdown"
+                                    },
+                                    "correct": false
+                                }
+                            ],
+                            "answer": {
+                                "type": "content",
+                                "value": "This is the answer; the correct answer is $42$.",
+                                "encoding": "markdown"
+                            },
+                            "id": "_regression_test_multi2_",
+                            "hints": [
+                                {
+                                    "type": "content",
+                                    "children": [
+                                        {
+                                            "type": "content",
+                                            "value": "This is Hint 1.",
+                                            "encoding": "markdown"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "content",
+                                    "children": [
+                                        {
+                                            "type": "content",
+                                            "value": "This is Hint 2. It contains a figure!",
+                                            "encoding": "markdown"
+                                        },
+                                        {
+                                            "type": "figure",
+                                            "value": "This is a figure caption!",
+                                            "encoding": "markdown",
+                                            "src": "../questions/physics/mechanics/dynamics/level4/figures/Dynamics_Spouting_Can3.svg",
+                                            "altText": "This is figure AltText.",
+                                            "id": "_regression_test_figure_"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "title": "Multiple Choice",
+                            "randomiseChoices": true
+                        }
+                    ],
+                    "id": "acc_multi_q2"
+                },
+                {
+                    "type": "content",
+                    "children": [
+                        {
                             "value": "The answer to this question is $\\quantity{2.01}{m\\\\,s^{-1}}$. The wrong answer is $\\quantity{5.00}{m\\\\,s^{-1}}$. A known wrong answer to the wrong number of sig figs is $\\quantity{42}{m\\\\,s^{-1}}$, it should say \"Hello\" on selecting it, not a sig fig warning. The answer $999$ requires no units. The units $\\units{m\\\\,s^{-1}}$ are not in `availableUnits`, so if they appear the selection code works correctly!",
                             "encoding": "markdown",
                             "type": "isaacNumericQuestion",
