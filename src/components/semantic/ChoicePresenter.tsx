@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 import React, {
     forwardRef,
-    MutableRefObject,
+    MutableRefObject, useImperativeHandle,
     useRef,
 } from "react";
 import { Button, Input, Label } from "reactstrap";
 
-import { PresenterProps } from "./SemanticItem";
-import { ChemicalFormula, Choice, Formula, Quantity } from "../../isaac-data-types";
+import { Presenter, PresenterProps } from "./SemanticItem";
+import { ChemicalFormula, Choice, Formula, Quantity, StringChoice } from "../../isaac-data-types";
 import styles from "./choice.module.css";
 import {
     BaseValuePresenter, buildValuePresenter,
@@ -19,6 +19,8 @@ import { SemanticDocProp } from "./SemanticDocProp";
 import { CHOICE_TYPES } from "./ListChildrenPresenter";
 import { CheckboxDocProp } from "./CheckboxDocProp";
 import { TrustedHtml } from "../../isaac/TrustedHtml";
+import { EditableDocPropFor, EditableValueProp } from "./EditableDocProp";
+import { EditableTextRef } from "./EditableText";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -106,12 +108,29 @@ export const ChemicalFormulaPresenter = buildValuePresenter(
     ({mhchemExpression}, doc) => ({...doc, mhchemExpression}),
 );
 
+export const StringChoicePresenter = forwardRef<ValuePresenterRef, PresenterProps<StringChoice>>((props, ref) => {
+    const editableRef = useRef<EditableTextRef>(null);
+    useImperativeHandle(ref, () => ({
+        startEdit: () => {
+            editableRef.current?.startEdit();
+        }
+    }));
+    return <>
+        <EditableValueProp {...props} placeHolder="Enter choice here" ref={editableRef} />
+        <br />
+        <br />
+        <CheckboxDocProp {...props} prop="caseInsensitive" label="Case insensitive" />
+    </>;
+});
+StringChoicePresenter.displayName = "StringChoicePresenter";
+
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
     quantity: QuantityPresenter,
     formula: FormulaPresenter,
     chemicalFormula: ChemicalFormulaPresenter,
-}
+    stringChoice: StringChoicePresenter,
+};
 
 export function ChoicePresenter(props: PresenterProps) {
     const choiceValueRef = useRef<ValuePresenterRef>(null);

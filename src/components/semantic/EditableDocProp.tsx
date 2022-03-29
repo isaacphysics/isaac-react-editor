@@ -32,6 +32,7 @@ export const EditableDocPropFor = <
 export const EditableIDProp = EditableDocPropFor("id");
 export const EditableTitleProp = EditableDocPropFor("title");
 export const EditableSubtitleProp = EditableDocPropFor("subtitle");
+export const EditableValueProp = EditableDocPropFor("value");
 
 export const NumberDocPropFor = <
     D extends Content,

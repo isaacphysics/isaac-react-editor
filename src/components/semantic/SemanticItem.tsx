@@ -19,7 +19,7 @@ import {
     NumericQuestionPresenter,
     QuestionBodyPresenter,
     QuickQuestionPresenter,
-    SymbolicQuestionPresenter
+    SymbolicQuestionPresenter, StringMatchQuestionPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 import { ChoicePresenter } from "./ChoicePresenter";
@@ -125,6 +125,8 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     formula: choiceEntry,
     isaacSymbolicChemistryQuestion: {...questionEntry, metadataPresenter: ChemistryQuestionPresenter},
     chemicalFormula: choiceEntry,
+    isaacStringMatchQuestion: {...questionEntry, metadataPresenter: StringMatchQuestionPresenter},
+    stringChoice: choiceEntry,
 };
 
 

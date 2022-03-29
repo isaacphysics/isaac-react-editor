@@ -15,7 +15,7 @@ import {
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
-    IsaacQuickQuestion, IsaacSymbolicChemistryQuestion,
+    IsaacQuickQuestion, IsaacStringMatchQuestion, IsaacSymbolicChemistryQuestion,
     IsaacSymbolicQuestion
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
@@ -29,6 +29,7 @@ export type QUESTION_TYPES =
     | "isaacNumericQuestion"
     | "isaacSymbolicQuestion"
     | "isaacSymbolicChemistryQuestion"
+    | "isaacStringMatchQuestion"
 ;
 
 const QuestionTypes = {
@@ -148,6 +149,7 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacNumericQuestion: "quantity",
     isaacSymbolicQuestion: "formula",
     isaacSymbolicChemistryQuestion: "chemicalFormula",
+    isaacStringMatchQuestion: "stringChoice",
 };
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
@@ -291,7 +293,6 @@ export function SymbolicQuestionPresenter(props: PresenterProps) {
     </>;
 }
 
-
 export function ChemistryQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacSymbolicChemistryQuestion;
@@ -304,5 +305,13 @@ export function ChemistryQuestionPresenter(props: PresenterProps) {
         <div className={styles.editableFullwidth}>
             <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
         </div>
+    </>;
+}
+
+
+export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMatchQuestion>) {
+    //const {doc, update} = props;
+    return <>
+        <QuestionMetaPresenter {...props} />
     </>;
 }
