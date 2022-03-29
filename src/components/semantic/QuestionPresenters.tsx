@@ -15,7 +15,7 @@ import {
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
-    IsaacQuickQuestion,
+    IsaacQuickQuestion, IsaacSymbolicChemistryQuestion,
     IsaacSymbolicQuestion
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
@@ -23,7 +23,15 @@ import { EditableText } from "./EditableText";
 import { CheckboxDocProp } from "./CheckboxDocProp";
 import { CHOICE_TYPES } from "./ListChildrenPresenter";
 
-const QUESTION_TYPES = {
+export type QUESTION_TYPES =
+    | "isaacQuestion"
+    | "isaacMultiChoiceQuestion"
+    | "isaacNumericQuestion"
+    | "isaacSymbolicQuestion"
+    | "isaacSymbolicChemistryQuestion"
+;
+
+const QuestionTypes = {
     isaacQuestion: {
         name: "Quick Question",
     },
@@ -64,20 +72,19 @@ const QUESTION_TYPES = {
         name: "Graph Sketcher Question",
     },
 };
-type QuestionType = keyof typeof QUESTION_TYPES;
 
 function QuestionTypeSelector(props: PresenterProps) {
     const [isOpen, setOpen] = useState(false);
 
-    const questionType = QUESTION_TYPES[props.doc.type as QuestionType];
+    const questionType = QuestionTypes[props.doc.type as QUESTION_TYPES];
 
     return <Dropdown toggle={() => setOpen(toggle => !toggle)} isOpen={isOpen}>
         <DropdownToggle caret>
             {questionType.name}
         </DropdownToggle>
         <DropdownMenu>
-            {Object.keys(QUESTION_TYPES).map((key) => {
-                const possibleType = QUESTION_TYPES[key as QuestionType];
+            {Object.keys(QuestionTypes).map((key) => {
+                const possibleType = QuestionTypes[key as QUESTION_TYPES];
                 return <DropdownItem key={key} active={questionType === possibleType} onClick={() => {
                     if (questionType !== possibleType) {
                         // TODO: fixup question based on changes
@@ -135,15 +142,13 @@ export function HintsPresenter({doc, update}: PresenterProps) {
     }} name="Hints" />;
 }
 
-function getChoicesType(questionType: string): CHOICE_TYPES {
-    switch (questionType) {
-        case "isaacMultiChoiceQuestion": return "choice";
-        case "isaacNumericQuestion": return "quantity";
-        case "isaacSymbolicQuestion": return "formula";
-    }
-    console.log("Unknown choices type", questionType);
-    return "choice";
-}
+const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
+    isaacQuestion: null,
+    isaacMultiChoiceQuestion: "choice",
+    isaacNumericQuestion: "quantity",
+    isaacSymbolicQuestion: "formula",
+    isaacSymbolicChemistryQuestion: "chemicalFormula",
+};
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
     const question = doc as ChoiceQuestion;
@@ -151,7 +156,7 @@ export function ChoicesPresenter({doc, update}: PresenterProps) {
         return {
             type: "choices",
             // NB: We are reusing layout here for this special component to represent the type of choice
-            layout: getChoicesType(question.type ?? ""),
+            layout: choicesType[question.type as QUESTION_TYPES] ?? "",
             children: question.choices,
         };
     }, [question.type, question.choices]);
@@ -279,6 +284,22 @@ export function SymbolicQuestionPresenter(props: PresenterProps) {
             {availableMetaSymbols.map(([symbol, label]) => {
                 return <Button size="sm" key={symbol} color={hasSymbol(question.availableSymbols, symbol) ? "primary" : "secondary"} onClick={() => toggle(symbol)}>{label}</Button>
             })}
+        </div>
+        <div className={styles.editableFullwidth}>
+            <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
+        </div>
+    </>;
+}
+
+
+export function ChemistryQuestionPresenter(props: PresenterProps) {
+    const {doc, update} = props;
+    const question = doc as IsaacSymbolicChemistryQuestion;
+
+    return <>
+        <QuestionMetaPresenter {...props} />
+        <div className={styles.editableFullwidth}>
+            <EditableAvailableSymbols doc={question} update={update} />
         </div>
         <div className={styles.editableFullwidth}>
             <EditableFormulaSeed doc={question} update={update} label="Formula seed" />

@@ -9,10 +9,12 @@ import {
     ValueWrapper, ValueRef
 } from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
-import { ListChildrenPresenter } from "./ListChildrenPresenter";
+import { CHOICE_TYPES, ListChildrenPresenter } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
+    QUESTION_TYPES,
     AnswerPresenter,
+    ChemistryQuestionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QuestionBodyPresenter,
@@ -32,15 +34,10 @@ export type TYPES =
     | "isaacEventPage"
     | "isaacTopicSummaryPage"
     | "page"
-    | "isaacQuiz"
-    | "isaacQuestion"
-    | "isaacMultiChoiceQuestion"
     | "choices"
-    | "choice"
-    | "isaacNumericQuestion"
-    | "quantity"
-    | "isaacSymbolicQuestion"
-    | "formula"
+    | "isaacQuiz"
+    | QUESTION_TYPES
+    | CHOICE_TYPES
 ;
 
 export interface PresenterProps<D extends Content = Content> {
@@ -106,7 +103,7 @@ const questionEntry: RegistryEntry = {
     additionalPresenter: QuestionBodyPresenter,
 };
 
-export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
+export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content: contentEntry,
     isaacConceptPage: pageEntry,
     isaacEventPage: pageEntry,
@@ -126,6 +123,8 @@ export const REGISTRY: {[key in TYPES]: RegistryEntry} = {
     quantity: choiceEntry,
     isaacSymbolicQuestion: {...questionEntry, metadataPresenter: SymbolicQuestionPresenter},
     formula: choiceEntry,
+    isaacSymbolicChemistryQuestion: {...questionEntry, metadataPresenter: ChemistryQuestionPresenter},
+    chemicalFormula: choiceEntry,
 };
 
 

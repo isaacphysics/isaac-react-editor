@@ -1,5 +1,4 @@
 import React, { useContext } from "react";
-import 'katex/dist/contrib/mhchem.js';
 
 import { FigureNumberingContext } from "./IsaacTypes";
 import { katexify } from "./LaTeX";

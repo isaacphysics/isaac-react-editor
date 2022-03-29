@@ -1,6 +1,8 @@
 import katex from "katex";
 import he from "he";
 
+import 'katex/dist/contrib/mhchem.js';
+
 import renderA11yString from "./katex-a11y";
 
 import { BooleanNotation, FigureNumbersById } from "./IsaacTypes";

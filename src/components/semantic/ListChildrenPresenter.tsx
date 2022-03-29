@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useRef, useState } from "react";
+import React, { FunctionComponent, useRef, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Choice, Content } from "../../isaac-data-types";
@@ -52,11 +52,12 @@ const emptyChoice = {
     },
 };
 
-export type CHOICE_TYPES = "choice" | "quantity" | "formula";
+export type CHOICE_TYPES = "choice" | "quantity" | "formula" | "chemicalFormula";
 const emptyChoices = [
     {...emptyChoice, type: "choice"},
     {...emptyChoice, type: "quantity", units: ""},
     {...emptyChoice, type: "formula", pythonExpression: "", requiresExactMatch: false},
+    {...emptyChoice, type: "chemicalFormula", mhchemExpression: ""},
 ];
 
 const INSERTER_MAP: Partial<Record<CHOICE_TYPES, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {

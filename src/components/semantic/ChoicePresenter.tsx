@@ -7,7 +7,7 @@ import React, {
 import { Button, Input, Label } from "reactstrap";
 
 import { PresenterProps } from "./SemanticItem";
-import { Choice, Formula, Quantity } from "../../isaac-data-types";
+import { ChemicalFormula, Choice, Formula, Quantity } from "../../isaac-data-types";
 import styles from "./choice.module.css";
 import {
     BaseValuePresenter, buildValuePresenter,
@@ -65,13 +65,11 @@ export const QuantityPresenter = buildValuePresenter(
 export const FormulaPresenterInner = buildValuePresenter(
     function FormulaValue({editing, doc, value}) {
         if (!editing) {
-            let content;
             if (doc.value === undefined || doc.value === "") {
-                content = <div><em>Enter value and python expression here</em></div>;
+                return <div><em>Enter value and python expression here</em></div>;
             } else {
-                content = <div><TrustedHtml html={doc.value} /><pre>PYTHON: {doc.pythonExpression}</pre></div>
+                return <div><TrustedHtml html={doc.value} /><pre>PYTHON: {doc.pythonExpression}</pre></div>
             }
-            return content;
         } else {
             return <>
                 <LabeledInput value={value} prop="value" label="LaTeX formula" className={styles.fullWidth} />
@@ -90,10 +88,29 @@ const FormulaPresenter = forwardRef<ValuePresenterRef, PresenterProps<Formula>>(
 </>);
 FormulaPresenter.displayName = "FormulaPresenter";
 
+export const ChemicalFormulaPresenter = buildValuePresenter(
+    function ChemicalFormulaValue({editing, doc, value}) {
+        if (!editing) {
+            if (doc.mhchemExpression === undefined || doc.mhchemExpression === "") {
+                return <div><em>Enter mhchem formula here</em></div>;
+            } else {
+                return <TrustedHtml html={`$\\ce{${doc.mhchemExpression}}$`} />;
+            }
+        } else {
+            return <>
+                <LabeledInput value={value} prop="mhchemExpression" label="mhchem formula" className={styles.fullWidth} />
+            </>;
+        }
+    },
+    (doc: ChemicalFormula) => ({mhchemExpression: doc.mhchemExpression}),
+    ({mhchemExpression}, doc) => ({...doc, mhchemExpression}),
+);
+
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
     quantity: QuantityPresenter,
     formula: FormulaPresenter,
+    chemicalFormula: ChemicalFormulaPresenter,
 }
 
 export function ChoicePresenter(props: PresenterProps) {
