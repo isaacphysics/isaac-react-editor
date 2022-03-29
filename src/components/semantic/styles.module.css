@@ -9,11 +9,10 @@
     margin: 1em 0;
 }
 .boxHeader {
-    padding-bottom: 1em;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin: 0 -1em;
+    margin: 0 -1em 1em;
 }
 .boxLabel {
     background: #ddd;
@@ -74,10 +73,6 @@
 
 .inserter {
     display: none;
-}
-
-.boxHeader + .inserter .inserterAdd button {
-    margin-top: -16px;
 }
 
 .inserter:last-child .inserterAdd button {
