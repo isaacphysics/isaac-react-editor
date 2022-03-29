@@ -141,6 +141,7 @@ export const ValueWrapper: FunctionComponent<ValueWrapperProps> = ({
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-noninteractive-element-interactions
     return <div role="cell" className={className} onClick={valueRef && ((e) => {
         // Only catch clicks that are outside any other element
+        // FIXME: This misses clicks in the header, and also takes clicks in odd places like padding and empty spaces of an item.
         if (e.target === e.currentTarget) {
             valueRef.current?.startEdit();
         }
