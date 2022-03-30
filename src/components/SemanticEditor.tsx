@@ -53,6 +53,7 @@ export function SemanticEditor() {
 
     return <div>
         <SemanticRoot doc={JSON.parse(appContext.editor.currentRef.current)} update={(newContent) => {
+            console.log("Top level update", newContent);
             appContext.editor.setDirty(true);
             appContext.editor.currentRef.current = JSON.stringify(newContent); // This is so wrong
         }} />

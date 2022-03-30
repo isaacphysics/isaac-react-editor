@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, {
-    forwardRef,
     FunctionComponent,
+    MutableRefObject,
     useCallback,
     useImperativeHandle,
     useRef,
@@ -21,21 +21,25 @@ import { TrustedMarkdown } from "../../isaac/TrustedMarkdown";
 export interface ValuePresenterRef {
     startEdit: () => void;
 }
-export type ValuePresenter<D extends Content = Content> = React.ForwardRefExoticComponent<React.PropsWithoutRef<PresenterProps<D>> & React.RefAttributes<ValuePresenterRef>>;
+export type ValuePresenterProps<D extends Content = Content> =
+    & PresenterProps<D>
+    & {valueRef: MutableRefObject<ValuePresenterRef | null>}
+;
+export type ValuePresenter<D extends Content = Content> = FunctionComponent<ValuePresenterProps<D>>;
 
 // TODO: It feels like the type-system could enforce that value should only be read when editing is true
-export interface ValuePresenterProps<V, D extends Content = Content> {
+export interface ValueProps<V, D extends Content = Content> {
     doc: D;
     value: React.MutableRefObject<V | undefined>;
     editing: boolean;
 }
 
 export function buildValuePresenter<V, D extends Content = Content>(
-    Component: FunctionComponent<ValuePresenterProps<V, D>>,
+    Component: FunctionComponent<ValueProps<V, D>>,
     init: (doc: D) => V,
     save: (value: V, doc: D) => D,
-) {
-    const vp = forwardRef<ValuePresenterRef, PresenterProps<D>>(({doc, update}, ref) => {
+): ValuePresenter<D> {
+    const VP = ({doc, update, valueRef}: ValuePresenterProps<D>) => {
         const [editing, setEditing] = useState(false);
         const value = useRef<V>();
         const startEdit = useCallback(() => {
@@ -47,12 +51,12 @@ export function buildValuePresenter<V, D extends Content = Content>(
             });
         }, [doc]);
 
-        useImperativeHandle(ref, () => ({
+        useImperativeHandle(valueRef, () => ({
             startEdit: () => {
                 startEdit();
             }
         }), [startEdit]);
-        const component = <Component editing={editing} doc={doc} value={value} />;
+        const component = <Component editing={editing} doc={doc} value={value}/>;
         if (!editing) {
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
             return <div onClick={() => startEdit()}>
@@ -75,12 +79,12 @@ export function buildValuePresenter<V, D extends Content = Content>(
                 </div>
             </>;
         }
-    });
-    vp.displayName = Component.displayName;
-    return vp;
+    };
+    VP.displayName = Component.displayName;
+    return VP;
 }
 
-const BaseValue = ({doc, editing, value}: ValuePresenterProps<string | undefined>) => {
+const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
     if (!editing) {
         if (!doc.value) {
             return <p>

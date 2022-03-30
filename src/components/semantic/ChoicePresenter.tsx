@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import { Button, Input, Label } from "reactstrap";
 
-import { Presenter, PresenterProps } from "./SemanticItem";
+import { PresenterProps } from "./SemanticItem";
 import {
     ChemicalFormula,
     Choice,
@@ -17,8 +17,7 @@ import {
 } from "../../isaac-data-types";
 import styles from "./choice.module.css";
 import {
-    BaseValuePresenter, buildValuePresenter,
-    ValuePresenter,
+    BaseValuePresenter, buildValuePresenter, ValuePresenter, ValuePresenterProps,
     ValuePresenterRef,
     ValueWrapper
 } from "./BaseValuePresenter";
@@ -26,7 +25,7 @@ import { SemanticDocProp } from "./SemanticDocProp";
 import { CHOICE_TYPES } from "./ListChildrenPresenter";
 import { CheckboxDocProp } from "./CheckboxDocProp";
 import { TrustedHtml } from "../../isaac/TrustedHtml";
-import { EditableDocPropFor, EditableValueProp } from "./EditableDocProp";
+import { EditableValueProp } from "./EditableDocProp";
 import { EditableTextRef } from "./EditableText";
 
 
@@ -90,12 +89,13 @@ export const FormulaPresenterInner = buildValuePresenter(
     ({value, pythonExpression}, doc) => ({...doc, value, pythonExpression}),
 );
 
-const FormulaPresenter = forwardRef<ValuePresenterRef, PresenterProps<Formula>>(({doc, update}, ref) => <>
-    <FormulaPresenterInner doc={doc} update={update} ref={ref}/>
-    <CheckboxDocProp doc={doc} update={update} prop="requiresExactMatch"
-                     label="Require exact match"/>
-</>);
-FormulaPresenter.displayName = "FormulaPresenter";
+const FormulaPresenter = (props: ValuePresenterProps<Formula>) => {
+    const {valueRef, ...rest} = props;
+    return <>
+        <FormulaPresenterInner {...props}/>
+        <CheckboxDocProp {...rest} prop="requiresExactMatch" label="Require exact match"/>
+    </>;
+};
 
 export const ChemicalFormulaPresenter = buildValuePresenter(
     function ChemicalFormulaValue({editing, doc, value}) {
@@ -115,40 +115,40 @@ export const ChemicalFormulaPresenter = buildValuePresenter(
     ({mhchemExpression}, doc) => ({...doc, mhchemExpression}),
 );
 
-export const StringChoicePresenter = forwardRef<ValuePresenterRef, PresenterProps<StringChoice>>((props, ref) => {
+export const StringChoicePresenter = (props: ValuePresenterProps<StringChoice>) => {
+    const {valueRef, ...rest} = props;
     const editableRef = useRef<EditableTextRef>(null);
-    useImperativeHandle(ref, () => ({
+    useImperativeHandle(valueRef, () => ({
         startEdit: () => {
             editableRef.current?.startEdit();
         }
     }));
     return <>
-        <EditableValueProp {...props} placeHolder="Enter choice here" ref={editableRef} />
+        <EditableValueProp {...rest} placeHolder="Enter choice here" ref={editableRef} />
         <br />
         <br />
-        <CheckboxDocProp {...props} prop="caseInsensitive" label="Case insensitive" />
+        <CheckboxDocProp {...rest} prop="caseInsensitive" label="Case insensitive" />
     </>;
-});
-StringChoicePresenter.displayName = "StringChoicePresenter";
+};
 
-export const FreeTextRulePresenter = forwardRef<ValuePresenterRef, PresenterProps<FreeTextRule>>((props, ref) => {
+export const FreeTextRulePresenter = (props: ValuePresenterProps<FreeTextRule>) => {
+    const {valueRef, ...rest} = props;
     const editableRef = useRef<EditableTextRef>(null);
-    useImperativeHandle(ref, () => ({
+    useImperativeHandle(valueRef, () => ({
         startEdit: () => {
             editableRef.current?.startEdit();
         }
     }));
     return <>
-        <EditableValueProp {...props} placeHolder="Matching rule" ref={editableRef} />
+        <EditableValueProp {...rest} placeHolder="Matching rule" ref={editableRef} />
         <br />
         <br />
-        <CheckboxDocProp {...props} prop="caseInsensitive" label="Case insensitive" />
-        <CheckboxDocProp {...props} prop="allowsAnyOrder" label="Any order" />
-        <CheckboxDocProp {...props} prop="allowsExtraWords" label="Extra words" />
-        <CheckboxDocProp {...props} prop="allowsMisspelling" label="Misspelling" />
+        <CheckboxDocProp {...rest} prop="caseInsensitive" label="Case insensitive" />
+        <CheckboxDocProp {...rest} prop="allowsAnyOrder" label="Any order" />
+        <CheckboxDocProp {...rest} prop="allowsExtraWords" label="Extra words" />
+        <CheckboxDocProp {...rest} prop="allowsMisspelling" label="Misspelling" />
     </>;
-});
-FreeTextRulePresenter.displayName = "FreeTextRulePresenter";
+};
 
 
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
@@ -175,7 +175,7 @@ export function ChoicePresenter(props: PresenterProps) {
             {choice.correct ? "✓" : "✗"}
         </Button>
         <ValueWrapper className={styles.choiceValue} valueRef={choiceValueRef}>
-            <ChoiceValuePresenter {...props} ref={choiceValueRef}/>
+            <ChoiceValuePresenter {...props} valueRef={choiceValueRef}/>
         </ValueWrapper>
         <div className={styles.choiceExplanation}>
             <SemanticDocProp {...props} prop="explanation" name="Explanation"/>

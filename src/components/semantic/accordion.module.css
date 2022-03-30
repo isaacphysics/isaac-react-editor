@@ -115,3 +115,7 @@
 .hideMargins {
     margin-top: -1em;
 }
+
+.empty {
+    margin: 1em;
+}

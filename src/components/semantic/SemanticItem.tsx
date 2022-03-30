@@ -3,27 +3,32 @@ import React, { FunctionComponent, useRef, useState } from "react";
 import styles from "./styles.module.css";
 
 import {
-    BaseValuePresenter,
-    ValuePresenterRef,
     ValuePresenter,
-    ValueWrapper, ValueRef
+    ValuePresenterRef,
+    ValueRef,
+    ValueWrapper
 } from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
-import { CHOICE_TYPES, ListChildrenPresenter } from "./ListChildrenPresenter";
+import { CHOICE_TYPES } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
-    QUESTION_TYPES,
     AnswerPresenter,
     ChemistryQuestionPresenter,
+    FreeTextQuestionInstructions,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
+    QUESTION_TYPES,
     QuestionBodyPresenter,
     QuickQuestionPresenter,
-    SymbolicQuestionPresenter,
-    StringMatchQuestionPresenter, FreeTextQuestionInstructions
+    StringMatchQuestionPresenter,
+    SymbolicQuestionPresenter
 } from "./QuestionPresenters";
 import { TabsPresenter } from "./TabsPresenter";
 import { ChoicePresenter } from "./ChoicePresenter";
+import {
+    BoxedContentValueOrChildrenPresenter,
+    ContentValueOrChildrenPresenter
+} from "./ContentValueOrChildrenPresenter";
 
 export type TYPES =
     | "content"
@@ -51,17 +56,15 @@ export type Presenter<D extends Content = Content> = FunctionComponent<Presenter
 
 interface RegistryEntry {
     name?: string;
-    metadataPresenter?: Presenter;
-    childrenPresenter?: Presenter;
-    valuePresenter?: ValuePresenter;
-    additionalPresenter?: Presenter;
+    headerPresenter?: Presenter;
+    bodyPresenter?: ValuePresenter;
+    footerPresenter?: Presenter;
 }
 
 const contentEntry: RegistryEntry = {
-    metadataPresenter: undefined,
-    childrenPresenter: ListChildrenPresenter,
-    valuePresenter: BaseValuePresenter,
-    additionalPresenter: undefined,
+    headerPresenter: undefined,
+    bodyPresenter: ContentValueOrChildrenPresenter,
+    footerPresenter: undefined,
 };
 
 const choicesEntry: RegistryEntry = {
@@ -71,7 +74,7 @@ const choicesEntry: RegistryEntry = {
 
 const choiceEntry: RegistryEntry = {
     name: "Choice",
-    additionalPresenter: ChoicePresenter,
+    footerPresenter: ChoicePresenter,
 };
 
 const pageEntry: RegistryEntry = {
@@ -82,27 +85,19 @@ const pageEntry: RegistryEntry = {
 const accordionEntry: RegistryEntry = {
     ...contentEntry,
     name: "Accordion",
-    childrenPresenter: AccordionPresenter,
+    bodyPresenter: AccordionPresenter,
 }
 
 const tabsEntry: RegistryEntry = {
     ...contentEntry,
     name: "Tabs",
-    childrenPresenter: TabsPresenter,
-}
-
-
-function BoxedListChildrenPresenter(props: PresenterProps) {
-    return <Box>
-        <ListChildrenPresenter {...props} />
-    </Box>;
+    bodyPresenter: TabsPresenter,
 }
 
 const questionEntry: RegistryEntry = {
-    ...contentEntry,
     name: "Question",
-    childrenPresenter: BoxedListChildrenPresenter,
-    additionalPresenter: QuestionBodyPresenter,
+    bodyPresenter: BoxedContentValueOrChildrenPresenter,
+    footerPresenter: QuestionBodyPresenter,
 };
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
@@ -117,20 +112,20 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content$accordion: accordionEntry,
     content$tabs: tabsEntry,
     // Quick questions don't have choices or hints
-    isaacQuestion: {...questionEntry, metadataPresenter: QuickQuestionPresenter, additionalPresenter: AnswerPresenter},
-    isaacMultiChoiceQuestion: {...questionEntry, metadataPresenter: MultipleChoiceQuestionPresenter},
+    isaacQuestion: {...questionEntry, headerPresenter: QuickQuestionPresenter, footerPresenter: AnswerPresenter},
+    isaacMultiChoiceQuestion: {...questionEntry, headerPresenter: MultipleChoiceQuestionPresenter},
     choices: choicesEntry,
-    choices$freeTextRule: {...choicesEntry, additionalPresenter: FreeTextQuestionInstructions},
+    choices$freeTextRule: {...choicesEntry, footerPresenter: FreeTextQuestionInstructions},
     choice: choiceEntry,
-    isaacNumericQuestion: {...questionEntry, metadataPresenter: NumericQuestionPresenter},
+    isaacNumericQuestion: {...questionEntry, headerPresenter: NumericQuestionPresenter},
     quantity: choiceEntry,
-    isaacSymbolicQuestion: {...questionEntry, metadataPresenter: SymbolicQuestionPresenter},
+    isaacSymbolicQuestion: {...questionEntry, headerPresenter: SymbolicQuestionPresenter},
     formula: choiceEntry,
-    isaacSymbolicChemistryQuestion: {...questionEntry, metadataPresenter: ChemistryQuestionPresenter},
+    isaacSymbolicChemistryQuestion: {...questionEntry, headerPresenter: ChemistryQuestionPresenter},
     chemicalFormula: choiceEntry,
-    isaacStringMatchQuestion: {...questionEntry, metadataPresenter: StringMatchQuestionPresenter},
+    isaacStringMatchQuestion: {...questionEntry, headerPresenter: StringMatchQuestionPresenter},
     stringChoice: choiceEntry,
-    isaacFreeTextQuestion: {...questionEntry, metadataPresenter: StringMatchQuestionPresenter},
+    isaacFreeTextQuestion: {...questionEntry, headerPresenter: StringMatchQuestionPresenter},
     freeTextRule: choiceEntry,
 };
 
@@ -168,29 +163,25 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, val
     </ValueWrapper>;
 };
 
+
 export function SemanticItem({doc, update, onDelete, name, className}: SemanticItemProps) {
     const valueRef = useRef<ValuePresenterRef>(null);
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
     const entryType = REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
 
-    const MetadataPresenter = entryType.metadataPresenter;
+    const MetadataPresenter = entryType.headerPresenter;
     const metadata = MetadataPresenter ? <MetadataPresenter doc={doc} update={update} /> : null;
 
-    const ChildrenPresenter = entryType.childrenPresenter;
-    const supressChildren = doc.children === undefined &&  doc.value !== undefined && ChildrenPresenter === BaseValuePresenter;
-    const children = !supressChildren && ChildrenPresenter ? <ChildrenPresenter doc={doc} update={update} /> : null;
+    const BodyPresenter = entryType.bodyPresenter;
+    const body = BodyPresenter ? <BodyPresenter doc={doc} update={update} valueRef={valueRef} /> : null;
 
-    const ValuePresenter = entryType.valuePresenter;
-    const value = doc.value !== undefined && ValuePresenter ? <ValuePresenter doc={doc} update={update} ref={valueRef} /> : null;
-
-    const AdditionalPresenter = entryType.additionalPresenter;
+    const AdditionalPresenter = entryType.footerPresenter;
     const additional = AdditionalPresenter ? <AdditionalPresenter doc={doc} update={update} /> : null;
 
     // Render outline with type name
     return <Box name={name || entryType.name} onDelete={onDelete} className={className} valueRef={valueRef}>
         {metadata}
-        {value}
-        {children}
+        {body}
         {additional}
     </Box>;
 }

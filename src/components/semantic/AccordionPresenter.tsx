@@ -152,6 +152,15 @@ export function AccordionPresenter(props: PresenterProps) {
     const [index, setIndex] = useState(0);
     const {doc, update} = props;
 
+    const allProps = {
+        ...props,
+        index,
+        setIndex,
+        emptyDescription: "This accordion is empty.",
+        elementName: "Section",
+        styles,
+    };
+
     const editTitleRef = useRef<EditableTextRef>(null);
 
     function setCurrentChildDisplay(newDisplay: Display | undefined) {
@@ -175,8 +184,8 @@ export function AccordionPresenter(props: PresenterProps) {
             />
         </div>
         <div className={styles.wrapper}>
-            <TabsHeader {...props} index={index} setIndex={setIndex} name="Section" styles={styles} />
-            <TabsMain {...props} index={index} setIndex={setIndex} name="Section" styles={styles} back="▲" forward="▼" contentHeader={
+            <TabsHeader {...allProps} />
+            <TabsMain {...allProps} back="▲" forward="▼" contentHeader={
                 <div className={styles.meta}>
                     <h2><EditableTitleProp ref={editTitleRef} {...props}  placeHolder="Section Title" hideWhenEmpty /></h2>
                     <h3><EditableSubtitleProp {...props} hideWhenEmpty /></h3>
