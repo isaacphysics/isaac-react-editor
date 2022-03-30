@@ -1,10 +1,13 @@
 import React, { FunctionComponent, useRef, useState } from "react";
+import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import { json } from "@codemirror/lang-json";
 
 import styles from "./styles.module.css";
 
 import { ValuePresenterRef, ValueRef, ValueWrapper } from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
-import { getEntryType } from "./registry";
+import { getEntryType, PresenterProps } from "./registry";
+import { Alert, Button } from "reactstrap";
 
 export interface Shift {
     up: boolean;
@@ -55,8 +58,7 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, shift, classNa
     </ValueWrapper>;
 };
 
-
-export function SemanticItem(props: SemanticItemProps) {
+function SemanticItemInner(props: SemanticItemProps) {
     const {doc, update, name, ...rest} = props;
     const valueRef = useRef<ValuePresenterRef>(null);
     const entryType = getEntryType(doc);
@@ -76,4 +78,59 @@ export function SemanticItem(props: SemanticItemProps) {
         {body}
         {additional}
     </Box>;
+}
+
+const empty = Symbol("empty") as unknown as string;
+function JSONEditor({doc, update}: PresenterProps) {
+    const value = useRef(empty);
+    if (value.current === empty) {
+        value.current = JSON.stringify(doc, null, 2);
+    }
+    return <>
+        <CodeMirror
+            value={value.current}
+            extensions={[json(), EditorView.lineWrapping]}
+            onChange={(newValue) => {
+                value.current = newValue;
+            }}
+        />
+        <div className={styles.editButtons}>
+            <Button onClick={(e) => {
+                value.current = JSON.stringify(doc, null, 2);
+            }}>Cancel</Button>
+            <Button color="primary" onClick={(e) => {
+                update(JSON.parse(value.current));
+            }}>Save</Button>
+        </div>
+    </>;
+}
+
+export class SemanticItem extends React.Component<SemanticItemProps, { hasError: boolean; error: string; content?: string }> {
+    constructor(props: SemanticItemProps) {
+        super(props);
+        this.state = {hasError: false, error: ""};
+    }
+
+    static getDerivedStateFromError(error: {message: string}) {
+        return { hasError: true, error: error.message };
+    }
+
+    render() {
+        const {doc, update, name, ...rest} = this.props;
+        const entryType = getEntryType(doc);
+        if (this.state.hasError) {
+            return <Box name={name || entryType.name} {...rest}>
+                <Alert color="danger">
+                    <b>Error editing this component</b>
+                    <br />
+                    <small>{this.state.error}</small>
+                </Alert>
+                <JSONEditor {...this.props} update={(newContent) => {
+                    this.props.update(newContent);
+                    this.setState({hasError: false});
+                }} />
+            </Box>;
+        }
+        return <SemanticItemInner {...this.props} />;
+    }
 }

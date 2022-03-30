@@ -117,3 +117,12 @@
     opacity: 1;
     text-decoration: none;
 }
+
+.editButtons {
+    text-align: right;
+    margin-bottom: 0.5em;
+}
+
+.editButtons button {
+    margin-left: 0.5em;
+}

@@ -26,10 +26,12 @@ export const WithFigureNumbering: FunctionComponent<WithFigureNumberingProps> = 
             }
         } else {
             // Walk all the things that might possibly contain figures. Doesn't blow up if they don't exist.
-            for (const c of d.children || []) {
-                walk(c);
+            if (Array.isArray(d.children)) {
+                for (const c of d.children) {
+                    walk(c);
+                }
             }
-            if ("answer" in d) {
+            if (typeof d === "object" && "answer" in d) {
                 walk(d.answer);
                 for (const h of d.hints || []) {
                     walk(h);

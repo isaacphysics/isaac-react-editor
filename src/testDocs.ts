@@ -1670,3 +1670,25 @@ export const testPod = {
     "author": "td424",
     "url": "/pages/pre_made_gameboards#gcse_example"
 } as unknown as Content;
+
+export const testError = {
+    "type": "isaacQuestionPage",
+    "encoding": "markdown",
+    "title": "Regression Test Page",
+    "level": 0,
+    "id": "_regression_test_",
+    "author": "jsharkey13",
+    "children": "BORKED",
+    "chaldren": [
+        {
+            "type": "anvilApp",
+            "appId": "SMOE3VGUJXYQCXA4",
+            "appAccessKey": "QEOWRDHYIVB2KY2I4S4HI66K"
+        },
+        {
+            "type": "content",
+            "encoding": "markdown",
+            "value": "This page is to speed up regression testing of question behaviors. **Changing anything on this page is liable to break the automated testing**. Do so in the knowledge *you* will have to fix it . . . `git blame` is a powerful tool!"
+        },
+    ]
+} as unknown as Content;
