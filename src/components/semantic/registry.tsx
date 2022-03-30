@@ -6,7 +6,8 @@ import {
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
-    QuestionBodyPresenter, QuestionMetaPresenter,
+    QuestionBodyPresenter,
+    QuestionMetaPresenter,
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
     SymbolicQuestionPresenter
@@ -28,6 +29,8 @@ import { CodeSnippetPresenter } from "./CodeSnippetPresenter";
 import { VideoPresenter } from "./VideoPresenter";
 import { GlossaryTermPresenter } from "./GlossaryTermPresenter";
 import { EmailTemplatePresenter } from "./EmailTemplatePresenter";
+import { AnvilAppPresenter } from "./AnvilAppPresenter";
+import { QuizPagePresenter, QuizSectionPresenter } from "./PagePresenter";
 
 export type TYPES =
     | "content"
@@ -49,6 +52,8 @@ export type TYPES =
     | "video"
     | "glossaryTerm"
     | "emailTemplate"
+    | "anvilApp"
+    | "isaacQuizSection"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -124,7 +129,20 @@ const emailTemplate: RegistryEntry = {
     ...page,
     name: "Email template",
     bodyPresenter: EmailTemplatePresenter,
-}
+};
+const anvilApp: RegistryEntry = {
+    name: "Anvil app",
+    bodyPresenter: AnvilAppPresenter,
+};
+const isaacQuiz = {
+    ...page,
+    name: "Quiz",
+    headerPresenter: QuizPagePresenter,
+};
+const isaacQuizSection = {
+    ...content,
+    headerPresenter: QuizSectionPresenter,
+};
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
@@ -132,7 +150,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     isaacEventPage: page,
     isaacFastTrackQuestionPage: page,
     isaacQuestionPage: page,
-    isaacQuiz: page,
+    isaacQuiz,
     isaacTopicSummaryPage: page,
     page,
     content$accordion: accordion,
@@ -168,6 +186,8 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     video,
     glossaryTerm,
     emailTemplate,
+    anvilApp,
+    isaacQuizSection,
 };
 
 export function getEntryType(doc: Content) {

@@ -29,6 +29,585 @@ function RedirectTo({path}: {path: string}) {
     return <LoadingScreen message="Beginning editing..." />;
 }
 
+const testQuiz = {
+    "type": "isaacQuiz",
+    "id": "quiz_rubric_test",
+    "author": "bh412",
+    "title": "Quiz rubric test (Do Not Publish)",
+    "encoding": "markdown",
+    "rubric": {
+        "type": "content",
+        "encoding": "markdown",
+        "children": [
+            {
+                "type": "content",
+                "value": "This quiz is a demo designed to show users how a rubric will be displayed!",
+                "encoding": "markdown"
+            }
+        ]
+    },
+    "children": [
+        {
+            "id": "0ec982f6-e2bf-4974-b777-c50b9471beb1",
+            "type": "isaacQuizSection",
+            "title": "Circuits",
+            "children": [
+                {
+                    "type": "content",
+                    "value": "THIS IS A TEST OF RUBRIC",
+                    "encoding": "markdown"
+                },
+                {
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "3.0",
+                            "units": "V",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "84c48a78-2a27-4843-866a-c8895aa60e70",
+                    "requireUnits": true,
+                    "title": "Voltages 1",
+                    "significantFiguresMin": 1,
+                    "significantFiguresMax": 2,
+                    "availableUnits": [
+                        "V ",
+                        " A ",
+                        " \\Omega ",
+                        " J ",
+                        " W ",
+                        " C ",
+                        " s"
+                    ],
+                    "children": [
+                        {
+                            "type": "content",
+                            "encoding": "markdown",
+                            "value": "What is the voltage across resistor B?  Give your answer to two significant figures."
+                        },
+                        {
+                            "type": "figure",
+                            "value": "Parallel circuit of resistors",
+                            "encoding": "markdown",
+                            "src": "figures/25_6_test_2.svg",
+                            "altText": "Two 1.5V cells in series are connected to a parallel circuit, one branch contains a resistor B."
+                        }
+                    ]
+                },
+                {
+                    "type": "isaacNumericQuestion",
+                    "encoding": "markdown",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "2.7",
+                            "units": "V",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "5303de35-f66d-4e2f-9f4f-6be2e3bcefce",
+                    "requireUnits": true,
+                    "title": "Voltages 2",
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 2,
+                    "availableUnits": [
+                        "V ",
+                        " A ",
+                        " \\Omega ",
+                        " J ",
+                        " W ",
+                        " C ",
+                        " s"
+                    ],
+                    "children": [
+                        {
+                            "type": "content",
+                            "encoding": "markdown",
+                            "value": ""
+                        },
+                        {
+                            "type": "content",
+                            "value": "What is the voltage across resistor A?  Give your answer to two significant figures.",
+                            "encoding": "markdown"
+                        },
+                        {
+                            "type": "figure",
+                            "value": "Circuit with resistors",
+                            "encoding": "markdown",
+                            "src": "figures/25_6_test_2.svg",
+                            "altText": "Two 1.5V cells in series are connected to a parallel circuit, one branch contains resistor A and another resistor in series.  The resistor in series with A has a voltage of 0.3V."
+                        }
+                    ]
+                },
+                {
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "2.4",
+                            "units": "A",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "05d0982e-c729-477b-a3f3-64ce4d58253e",
+                    "requireUnits": true,
+                    "title": "Currents 1",
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 2,
+                    "availableUnits": [
+                        "V ",
+                        " A ",
+                        " \\Omega ",
+                        " J ",
+                        " W ",
+                        " C ",
+                        " s"
+                    ],
+                    "children": [
+                        {
+                            "type": "content",
+                            "encoding": "markdown",
+                            "value": "What is the current at position Y?  Give your answer to two significant figures."
+                        },
+                        {
+                            "type": "figure",
+                            "value": "Parallel circuit of resistors",
+                            "encoding": "markdown",
+                            "src": "figures/23_7_test_path.svg",
+                            "altText": "Three resistors are wired in parallel to a cell.  The current flowing out from the cell is 2.4A.  Current Y flows back to the cell."
+                        }
+                    ]
+                },
+                {
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "1.2",
+                            "units": "A",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "5ea6bdee-a666-42b1-a6bf-86f161790d7b",
+                    "requireUnits": true,
+                    "title": "Currents 2",
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 2,
+                    "availableUnits": [
+                        "V ",
+                        " A ",
+                        " \\Omega ",
+                        " J ",
+                        " W ",
+                        " C ",
+                        " s"
+                    ],
+                    "children": [
+                        {
+                            "type": "content",
+                            "encoding": "markdown",
+                            "value": "What is the current at position X?  Give your answer to two significant figures."
+                        },
+                        {
+                            "type": "figure",
+                            "value": "Parallel circuit of resistors",
+                            "encoding": "markdown",
+                            "src": "figures/23_7_test_path_2.svg",
+                            "altText": "A cell is connected to three resistors in parallel.  The current leaving the cell is 2.4A, the current flowing in the first resistor (nearest the cell) is 1.2A, the current in the last resistor is 0.2A.  Current X flows in the wire connecting the first and second resistors to the cell."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "dcc74786-c69f-4a80-ae56-927f6270b761",
+            "type": "isaacQuizSection",
+            "title": "Calculations",
+            "children": [
+                {
+                    "type": "content",
+                    "value": "This test is to measure your progress having completed the baseline assessment and used the revision materials available for the [Summer Programme](/pages/summer_prog_year_10).\n\nUnless told otherwise, give your answers to **two or three significant figures**.  ",
+                    "encoding": "markdown"
+                },
+                {
+                    "type": "isaacNumericQuestion",
+                    "encoding": "markdown",
+                    "value": "How much charge flows through a lamp in $\\quantity{150}{s}$ if it carries a steady current of $\\quantity{0.40}{A}$? ",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "60.0",
+                            "units": "C",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "a0fb4364-70bd-48c6-a197-e7312a2713ca",
+                    "requireUnits": true,
+                    "title": "Charge",
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 3,
+                    "availableUnits": [
+                        "C ",
+                        " s ",
+                        " A ",
+                        " \\Omega ",
+                        " W ",
+                        " J ",
+                        " V"
+                    ]
+                },
+                {
+                    "value": "What resistance is needed if you wish to have a $\\quantity{20}{mA}$ current and the supply voltage is $\\quantity{30}{V}$?",
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "1500",
+                            "units": "\\Omega",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "1.5",
+                            "units": "k\\Omega",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "fe171772-8b46-426e-b020-bbe4a059a2a2",
+                    "requireUnits": true,
+                    "title": "Resistance",
+                    "significantFiguresMin": 1,
+                    "significantFiguresMax": 3,
+                    "availableUnits": [
+                        "V ",
+                        " A ",
+                        " mA ",
+                        " \\Omega ",
+                        " k\\Omega ",
+                        " kV"
+                    ]
+                },
+                {
+                    "value": "Two car headlamps each have a resistance of $\\quantity{3.0}{\\Omega}$.  They are connected in parallel to a $\\quantity{12}{V}$ battery.  What is the total current flowing?",
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "8.0",
+                            "units": "A",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "8000",
+                            "units": "mA",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "4.0",
+                            "units": "A",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [
+                                    {
+                                        "type": "content",
+                                        "value": "This is the current through one lamp, but the question asks for the current through both.",
+                                        "encoding": "markdown"
+                                    }
+                                ],
+                                "encoding": "markdown"
+                            }
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "4000",
+                            "units": "mA",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [
+                                    {
+                                        "type": "content",
+                                        "value": "This is the current through one lamp, but the question asks for the current through both.",
+                                        "encoding": "markdown"
+                                    }
+                                ],
+                                "encoding": "markdown"
+                            }
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "43404e17-5672-416e-a8c5-7b91246b364c",
+                    "title": "Headlamp",
+                    "requireUnits": true,
+                    "availableUnits": [
+                        "V ",
+                        " A ",
+                        " mA ",
+                        " \\Omega ",
+                        " k\\Omega ",
+                        " kV"
+                    ],
+                    "significantFiguresMin": 1,
+                    "significantFiguresMax": 3
+                },
+                {
+                    "value": "A $\\quantity{1.0}{kW}$ lamp is connected to the $\\quantity{230}{V}$ mains.  How much current flows?",
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "4.3478",
+                            "units": "A",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "d10ab064-5c3a-45b9-aa6d-5b1184a11280",
+                    "requireUnits": true,
+                    "title": "Power",
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 3,
+                    "availableUnits": [
+                        "W ",
+                        " J ",
+                        " s ",
+                        " mJ ",
+                        " A ",
+                        " V ",
+                        " C ",
+                        " kV ",
+                        " kW ",
+                        " \\Omega ",
+                        " kJ ",
+                        " k\\Omega"
+                    ]
+                },
+                {
+                    "value": "If the motor in an electric car draws $\\quantity{700}{A}$ from a $\\quantity{360}{V}$ battery pack, what is its power?",
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "252",
+                            "units": "kW",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "252000",
+                            "units": "W",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "46cf5505-1c91-4303-9547-ce66a728cb4b",
+                    "requireUnits": true,
+                    "title": "Electric car",
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 3,
+                    "availableUnits": [
+                        "W ",
+                        " J ",
+                        " s ",
+                        " mJ ",
+                        " A ",
+                        " V ",
+                        " C ",
+                        " kV ",
+                        " kW ",
+                        " \\Omega ",
+                        " kJ ",
+                        " k\\Omega"
+                    ]
+                },
+                {
+                    "value": "A cable has a resistance of $\\quantity{0.20}{\\Omega}$ and carries a current of $\\quantity{60}{A}$.  What is the power dissipated by the cable?",
+                    "encoding": "markdown",
+                    "type": "isaacNumericQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "720",
+                            "units": "W",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "0.72",
+                            "units": "kW",
+                            "type": "quantity",
+                            "explanation": {
+                                "type": "content",
+                                "children": [],
+                                "encoding": "markdown"
+                            },
+                            "correct": true
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "_Enter answer here_",
+                        "encoding": "markdown"
+                    },
+                    "id": "34641d31-d6c2-4ffa-91ca-af93e25138fa",
+                    "title": "Power cable",
+                    "requireUnits": true,
+                    "significantFiguresMin": 2,
+                    "significantFiguresMax": 3,
+                    "availableUnits": [
+                        "W ",
+                        " J ",
+                        " s ",
+                        " mJ ",
+                        " A ",
+                        " V ",
+                        " C ",
+                        " kV ",
+                        " kW ",
+                        " \\Omega ",
+                        " kJ ",
+                        " k\\Omega"
+                    ]
+                }
+            ]
+        }
+    ],
+    "published": false,
+    "visibleToStudents": true
+} as unknown as Content;
+
 const testDoc = {
     "type": "isaacQuestionPage",
     "encoding": "markdown",
@@ -37,6 +616,11 @@ const testDoc = {
     "id": "_regression_test_",
     "author": "jsharkey13",
     "children": [
+        {
+            "type": "anvilApp",
+            "appId": "SMOE3VGUJXYQCXA4",
+            "appAccessKey": "QEOWRDHYIVB2KY2I4S4HI66K"
+        },
         {
             "type": "content",
             "encoding": "markdown",
@@ -1044,7 +1628,7 @@ const testDoc = {
 } as unknown as Content;
 
 function TestEditor() {
-    const [doc, update] = useState(testDoc);
+    const [doc, update] = useState(testQuiz);
     return <SemanticRoot doc={doc} update={(newContent) => update(newContent)}/>;
 }
 
