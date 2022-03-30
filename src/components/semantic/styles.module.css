@@ -1,3 +1,7 @@
+.outerWrapper {
+    overflow: hidden;
+}
+
 .box {
     border: #eee 1px solid;
     padding: 0 1em;

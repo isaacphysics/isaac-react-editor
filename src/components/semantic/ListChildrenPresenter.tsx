@@ -1,80 +1,26 @@
-import React, { FunctionComponent, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Button } from "reactstrap";
 
-import { Choice, Content } from "../../isaac-data-types";
-import { Box, PresenterProps, SemanticItem } from "./SemanticItem";
-import styles from "./styles.module.css";
+import { Content } from "../../isaac-data-types";
 
-interface InserterProps {
+import { PresenterProps, SemanticItem } from "./SemanticItem";
+import { Inserter } from "./Inserter";
+import styles from "./styles.module.css";
+import { CHOICE_TYPES, INSERTER_MAP } from "./ChoiceInserter";
+
+export interface InserterProps {
     insert: (newContent: Content) => void;
     forceOpen: boolean;
     position: number;
 }
 
-export const emptyContent = {type: "content", encoding: "markdown", value: ""};
-
-function InsertButton(props: { onClick: () => void }) {
+export function InsertButton(props: { onClick: () => void }) {
     return <div className={styles.inserter}>
         <div className={styles.inserterAdd}>
             <Button color="link" size="lg" onClick={props.onClick}>➕</Button>
         </div>
     </div>;
 }
-
-function Inserter({insert, forceOpen}: InserterProps) {
-    const [isInserting, setInserting] = useState(false);
-
-    const isOpen = forceOpen || isInserting;
-    return isOpen ?
-        <Box name="?" onDelete={forceOpen ? undefined : () => setInserting(false)}>
-            <p>Please choose a block type:</p>
-            <Button color="link" onClick={() => {
-                insert({...emptyContent});
-                setInserting(false);
-            }}>Content</Button>
-        </Box>
-    :
-        <InsertButton onClick={() => setInserting(true)}/>;
-}
-
-function ChoiceInserter<T extends Choice>(empty: T) {
-    const ChoiceInserter = ({insert, position}: InserterProps) =>
-        <InsertButton onClick={() => insert({...empty, correct: position === 0} as Content)} />;
-    return ChoiceInserter;
-}
-
-const emptyChoice = {
-    encoding: "markdown",
-    value: "",
-    explanation: {
-        type: "content",
-        children: [],
-    },
-};
-
-export type CHOICE_TYPES =
-    | "choice"
-    | "quantity"
-    | "formula"
-    | "chemicalFormula"
-    | "stringChoice"
-    | "freeTextRule"
-    | "logicFormula"
-;
-
-const emptyChoices = [
-    {...emptyChoice, type: "choice"},
-    {...emptyChoice, type: "quantity", units: ""},
-    {...emptyChoice, type: "formula", pythonExpression: "", requiresExactMatch: false},
-    {...emptyChoice, type: "chemicalFormula", mhchemExpression: ""},
-    {...emptyChoice, type: "stringChoice", caseInsensitive: false},
-    {...emptyChoice, type: "freeTextRule"},
-    {...emptyChoice, type: "logicFormula", pythonExpression: "", requiresExactMatch: false},
-];
-
-const INSERTER_MAP: Partial<Record<CHOICE_TYPES, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {
-    return [choice.type as CHOICE_TYPES, ChoiceInserter(choice)];
-}));
 
 export function deriveNewDoc(doc: Content) {
     return {

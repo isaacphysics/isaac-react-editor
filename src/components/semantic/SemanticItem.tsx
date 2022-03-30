@@ -9,7 +9,6 @@ import {
     ValueWrapper
 } from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
-import { CHOICE_TYPES } from "./ListChildrenPresenter";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
     AnswerPresenter,
@@ -29,6 +28,8 @@ import {
     BoxedContentValueOrChildrenPresenter,
     ContentValueOrChildrenPresenter
 } from "./ContentValueOrChildrenPresenter";
+import { FigurePresenter } from "./FigurePresenter";
+import { CHOICE_TYPES } from "./ChoiceInserter";
 
 export type TYPES =
     | "content"
@@ -44,6 +45,7 @@ export type TYPES =
     | "choices$freeTextRule"
     | "isaacQuiz"
     | "hints"
+    | "figure"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -104,6 +106,11 @@ const questionEntry: RegistryEntry = {
     footerPresenter: QuestionBodyPresenter,
 };
 
+const figureEntry: RegistryEntry = {
+    name: "Figure",
+    bodyPresenter: FigurePresenter,
+};
+
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content: contentEntry,
     isaacConceptPage: pageEntry,
@@ -134,6 +141,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     hints: hintsEntry,
     isaacSymbolicLogicQuestion: {...questionEntry, headerPresenter: LogicQuestionPresenter},
     logicFormula: choiceEntry,
+    figure: figureEntry,
 };
 
 

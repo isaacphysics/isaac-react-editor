@@ -17,11 +17,11 @@ import {
     ValueWrapper
 } from "./BaseValuePresenter";
 import { SemanticDocProp } from "./SemanticDocProp";
-import { CHOICE_TYPES } from "./ListChildrenPresenter";
 import { CheckboxDocProp } from "./CheckboxDocProp";
 import { TrustedHtml } from "../../isaac/TrustedHtml";
 import { EditableValueProp } from "./EditableDocProp";
 import { EditableTextRef } from "./EditableText";
+import { CHOICE_TYPES } from "./ChoiceInserter";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {

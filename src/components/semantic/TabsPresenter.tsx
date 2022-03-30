@@ -8,6 +8,7 @@ import styles from "./tabs.module.css";
 import { deriveNewDoc } from "./ListChildrenPresenter";
 import { EditableIDProp, EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { EditableTextRef } from "./EditableText";
+import { safeLowercase } from "../../utils/strings";
 
 export type TabsProps = PresenterProps & {
     index: number;
@@ -20,7 +21,7 @@ export type TabsProps = PresenterProps & {
 };
 
 export function TabsHeader({doc, update, index, setIndex, elementName, styles, suppressHeaderNames, showTitles}: TabsProps) {
-    const elementNameLC = elementName.toLowerCase();
+    const elementNameLC = safeLowercase(elementName);
     return <div className={styles.buttons}>
         <div className={styles.buttonsShifter}>
             <div className={styles.buttonsSpacer}/>
@@ -62,7 +63,7 @@ type TabsMainProps = TabsProps & {
 };
 
 export function TabsMain({doc, update, index, setIndex, emptyDescription, elementName, styles, suppressHeaderNames, showTitles, back, forward, contentHeader, extraButtons}: TabsMainProps) {
-    const elementNameLC = elementName.toLowerCase();
+    const elementNameLC = safeLowercase(elementName);
 
     const shift = (by: number) => {
         const newDoc = deriveNewDoc(doc);

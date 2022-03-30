@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, {
     FunctionComponent,
     MutableRefObject,
@@ -23,7 +22,7 @@ export interface ValuePresenterRef {
 }
 export type ValuePresenterProps<D extends Content = Content> =
     & PresenterProps<D>
-    & {valueRef: MutableRefObject<ValuePresenterRef | null>}
+    & {valueRef?: MutableRefObject<ValuePresenterRef | null>}
 ;
 export type ValuePresenter<D extends Content = Content> = FunctionComponent<ValuePresenterProps<D>>;
 
@@ -87,9 +86,16 @@ export function buildValuePresenter<V, D extends Content = Content>(
 const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
     if (!editing) {
         if (!doc.value) {
-            return <p>
-                <em>Enter content here</em>
-            </p>;
+            switch (doc.type) {
+                case "figure":
+                    return <p>
+                        <em>Enter caption here</em>
+                    </p>;
+                default:
+                    return <p>
+                        <em>Enter content here</em>
+                    </p>;
+            }
         }
         switch (doc.encoding) {
             case "html":

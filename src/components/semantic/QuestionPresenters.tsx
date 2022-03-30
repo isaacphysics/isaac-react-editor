@@ -23,7 +23,7 @@ import {
 import { SemanticDocProp } from "./SemanticDocProp";
 import { EditableText } from "./EditableText";
 import { CheckboxDocProp } from "./CheckboxDocProp";
-import { CHOICE_TYPES } from "./ListChildrenPresenter";
+import { CHOICE_TYPES } from "./ChoiceInserter";
 
 export type QUESTION_TYPES =
     | "isaacQuestion"
