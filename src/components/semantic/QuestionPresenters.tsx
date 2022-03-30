@@ -133,8 +133,7 @@ export function HintsPresenter({doc, update}: PresenterProps) {
     const question = doc as IsaacQuestionBase;
     const hints = useMemo(() => {
         return {
-            type: "content",
-            layout: "tabs",
+            type: "hints",
             children: question.hints,
         };
     }, [question.hints]);
@@ -143,7 +142,7 @@ export function HintsPresenter({doc, update}: PresenterProps) {
             ...question,
             hints: newHints.children,
         });
-    }} name="Hints" />;
+    }} />;
 }
 
 const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {

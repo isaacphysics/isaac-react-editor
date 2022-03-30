@@ -5,7 +5,7 @@ import { PresenterProps } from "./SemanticItem";
 import styles from "./accordion.module.css";
 import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { EditableText, EditableTextRef } from "./EditableText";
-import { TabsHeader, TabsMain } from "./TabsPresenter";
+import { TabsHeader, TabsMain, TabsProps } from "./TabsPresenter";
 import { deriveNewDoc } from "./ListChildrenPresenter";
 import { Content } from "../../isaac-data-types";
 
@@ -153,13 +153,14 @@ export function AccordionPresenter(props: PresenterProps) {
     const [index, setIndex] = useState(0);
     const {doc, update} = props;
 
-    const allProps = {
+    const allProps: TabsProps = {
         ...props,
         index,
         setIndex,
         emptyDescription: "This accordion is empty.",
         elementName: "Section",
         styles,
+        showTitles: false,
     };
 
     const editTitleRef = useRef<EditableTextRef>(null);
@@ -170,7 +171,6 @@ export function AccordionPresenter(props: PresenterProps) {
         newDoc.children[index] = newContent;
         update(newDoc);
     };
-
     const currentChildProps = {doc: currentChild, update: updateCurrentChild};
 
     const currentChildDisplay = currentChild?.display as Display;

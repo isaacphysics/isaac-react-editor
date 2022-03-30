@@ -43,6 +43,7 @@ export type TYPES =
     | "choices"
     | "choices$freeTextRule"
     | "isaacQuiz"
+    | "hints"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -83,15 +84,18 @@ const pageEntry: RegistryEntry = {
 };
 
 const accordionEntry: RegistryEntry = {
-    ...contentEntry,
     name: "Accordion",
     bodyPresenter: AccordionPresenter,
 }
 
 const tabsEntry: RegistryEntry = {
-    ...contentEntry,
     name: "Tabs",
     bodyPresenter: TabsPresenter,
+}
+
+const hintsEntry: RegistryEntry = {
+    name: "Hints",
+    bodyPresenter: (props) => <TabsPresenter {...props} hideTitles />,
 }
 
 const questionEntry: RegistryEntry = {
@@ -127,6 +131,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     stringChoice: choiceEntry,
     isaacFreeTextQuestion: {...questionEntry, headerPresenter: StringMatchQuestionPresenter},
     freeTextRule: choiceEntry,
+    hints: hintsEntry,
 };
 
 
