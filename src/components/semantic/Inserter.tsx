@@ -18,7 +18,16 @@ const blockTypes = {
         "value": "",
         "encoding": "markdown"
     }},
-    "glossary term": {type: "glossaryTerm", encoding: "markdown", value: ""},
+    "glossary term": {
+        type: "glossaryTerm",
+        encoding: "markdown",
+        tags: [],
+        explanation: {
+            "type": "content",
+            "value": "",
+            "encoding": "markdown"
+        },
+    },
     "figure": {type: "figure", encoding: "markdown", value: ""},
     "video": {type: "video", encoding: "markdown", src: "https://www.youtube.com/watch?v=<video_id>"},
     "tabs": {type: "content", layout: "tabs", encoding: "markdown", children: []},

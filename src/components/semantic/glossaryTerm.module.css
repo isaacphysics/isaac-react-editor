@@ -1,0 +1,16 @@
+.wrapper {
+    display: flex;
+    flex-direction: row;
+    align-content: flex-start;
+    margin-bottom: 0.5em;
+}
+
+.controls {
+    flex-basis: 0;
+    flex-grow: 1;
+}
+
+.explanation {
+    flex-basis: 0;
+    flex-grow: 1;
+}

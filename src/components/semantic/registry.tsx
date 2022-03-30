@@ -26,6 +26,7 @@ import { AccordionPresenter } from "./AccordionPresenter";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { CodeSnippetPresenter } from "./CodeSnippetPresenter";
 import { VideoPresenter } from "./VideoPresenter";
+import { GlossaryTermPresenter } from "./GlossaryTermPresenter";
 
 export type TYPES =
     | "content"
@@ -45,6 +46,7 @@ export type TYPES =
     | "codeSnippet"
     | "image"
     | "video"
+    | "glossaryTerm"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -112,6 +114,10 @@ const video: RegistryEntry = {
     name: "Video",
     bodyPresenter: VideoPresenter,
 };
+const glossaryTerm: RegistryEntry = {
+    name: "Glossary term",
+    bodyPresenter: GlossaryTermPresenter,
+};
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
@@ -151,6 +157,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     image: figure,
     codeSnippet,
     video,
+    glossaryTerm,
 };
 
 export function getEntryType(doc: Content) {

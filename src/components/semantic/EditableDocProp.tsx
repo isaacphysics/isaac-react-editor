@@ -15,7 +15,6 @@ export const EditableDocPropFor = <
     const typedRender = <D extends Content>({doc, update, ...rest}: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
         return <EditableText
             onSave={(newText) => {
-                console.log("EDPF update", prop, newText);
                 update({
                     ...doc,
                     [prop]: newText,
