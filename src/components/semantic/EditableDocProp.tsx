@@ -23,7 +23,7 @@ export const EditableDocPropFor = <
             }}
             /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
             // @ts-ignore
-            text={doc[prop] ?? ""}
+            text={doc[prop]}
             {...rest}
             ref={ref} />
     };

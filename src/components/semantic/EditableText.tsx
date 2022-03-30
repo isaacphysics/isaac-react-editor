@@ -191,7 +191,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                         <Input type="textarea"
                             /* eslint-disable-next-line jsx-a11y/no-autofocus */
                                autoFocus
-                               value={state.value}
+                               value={state.value ?? ""}
                                onChange={e => setCurrent(e.target.value)}
                                onKeyDown={handleKey}
                                placeholder={placeHolder}
@@ -200,7 +200,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                         <Input type="text"
                             /* eslint-disable-next-line jsx-a11y/no-autofocus */
                                autoFocus
-                               value={state.value}
+                               value={state.value ?? ""}
                                onChange={e => setCurrent(e.target.value)}
                                onKeyDown={handleKey}
                                placeholder={placeHolder}

@@ -59,7 +59,7 @@ export function buildValuePresenter<V, D extends Content = Content>(
         const component = <Component editing={editing} doc={doc} value={value}/>;
         if (!editing) {
             // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
-            return <div onClick={() => startEdit()}>
+            return <div onClick={() => startEdit()} className={styles.editableValue}>
                 {component}
             </div>;
         } else {

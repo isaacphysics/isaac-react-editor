@@ -1,9 +1,4 @@
-/* eslint-disable react/prop-types */
-import React, {
-    forwardRef,
-    MutableRefObject, useImperativeHandle,
-    useRef,
-} from "react";
+import React, { MutableRefObject, useImperativeHandle, useRef, } from "react";
 import { Button, Input, Label } from "reactstrap";
 
 import { PresenterProps } from "./SemanticItem";
@@ -158,6 +153,7 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     chemicalFormula: ChemicalFormulaPresenter,
     stringChoice: StringChoicePresenter,
     freeTextRule: FreeTextRulePresenter,
+    logicFormula: FormulaPresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps) {

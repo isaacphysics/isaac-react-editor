@@ -14,7 +14,7 @@ import { AccordionPresenter } from "./AccordionPresenter";
 import {
     AnswerPresenter,
     ChemistryQuestionPresenter,
-    FreeTextQuestionInstructions,
+    FreeTextQuestionInstructions, LogicQuestionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -132,6 +132,8 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     isaacFreeTextQuestion: {...questionEntry, headerPresenter: StringMatchQuestionPresenter},
     freeTextRule: choiceEntry,
     hints: hintsEntry,
+    isaacSymbolicLogicQuestion: {...questionEntry, headerPresenter: LogicQuestionPresenter},
+    logicFormula: choiceEntry,
 };
 
 

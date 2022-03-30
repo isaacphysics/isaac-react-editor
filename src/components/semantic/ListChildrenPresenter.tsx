@@ -52,7 +52,16 @@ const emptyChoice = {
     },
 };
 
-export type CHOICE_TYPES = "choice" | "quantity" | "formula" | "chemicalFormula" | "stringChoice" | "freeTextRule";
+export type CHOICE_TYPES =
+    | "choice"
+    | "quantity"
+    | "formula"
+    | "chemicalFormula"
+    | "stringChoice"
+    | "freeTextRule"
+    | "logicFormula"
+;
+
 const emptyChoices = [
     {...emptyChoice, type: "choice"},
     {...emptyChoice, type: "quantity", units: ""},
@@ -60,6 +69,7 @@ const emptyChoices = [
     {...emptyChoice, type: "chemicalFormula", mhchemExpression: ""},
     {...emptyChoice, type: "stringChoice", caseInsensitive: false},
     {...emptyChoice, type: "freeTextRule"},
+    {...emptyChoice, type: "logicFormula", pythonExpression: "", requiresExactMatch: false},
 ];
 
 const INSERTER_MAP: Partial<Record<CHOICE_TYPES, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {

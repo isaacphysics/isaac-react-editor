@@ -221,7 +221,7 @@ export function AccordionPresenter(props: PresenterProps) {
                         ...currentChild,
                         level: newLevel ? parseInt(newLevel, 10) : undefined,
                     });
-                }} text={currentChild.level?.toString() ?? ""} label="Section level" hasError={hasErrorInLevel} {...props} />
+                }} text={currentChild.level?.toString()} label="Section level" hasError={hasErrorInLevel} {...props} />
             </>}/>
         </div>
     </>;

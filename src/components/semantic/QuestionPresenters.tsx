@@ -17,7 +17,7 @@ import {
     IsaacQuestionBase,
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
-    IsaacSymbolicChemistryQuestion,
+    IsaacSymbolicChemistryQuestion, IsaacSymbolicLogicQuestion,
     IsaacSymbolicQuestion
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
@@ -33,6 +33,7 @@ export type QUESTION_TYPES =
     | "isaacSymbolicChemistryQuestion"
     | "isaacStringMatchQuestion"
     | "isaacFreeTextQuestion"
+    | "isaacSymbolicLogicQuestion"
 ;
 
 const QuestionTypes = {
@@ -153,6 +154,7 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacSymbolicChemistryQuestion: "chemicalFormula",
     isaacStringMatchQuestion: "stringChoice",
     isaacFreeTextQuestion: "freeTextRule",
+    isaacSymbolicLogicQuestion: "logicFormula",
 };
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
@@ -319,7 +321,7 @@ export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMa
     </>;
 }
 
-export function FreeTextQuestionInstructions(props: PresenterProps) {
+export function FreeTextQuestionInstructions() {
     return <div>
         <h5>Matching Rule Syntax</h5>
         <Alert color="info">
@@ -328,14 +330,51 @@ export function FreeTextQuestionInstructions(props: PresenterProps) {
         <table className="table table-striped table-bordered">
             <thead><tr><th>Symbol</th><th>Description</th><th>Rule</th><th>✓️ Match</th><th>✗ Failed Match</th></tr></thead>
             <tbody>
+            <tr>
+                <td className={styles.center}><code>|</code></td>
+                <td>Separate an OR list of word choices</td>
+                <td className={styles.nowrap}><code>JavaScript|[Java&nbsp;Script]|JS</code></td>
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
+                <td>"JavaScript", "Java Script", "JS"</td>
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
+                <td>"Java"</td>
+            </tr>
             {/* eslint-disable-next-line react/no-unescaped-entities */}
-            <tr>  <td className={styles.center}><code>|</code></td>  <td>Separate an OR list of word choices</td>  <td className={styles.nowrap}><code>JavaScript|[Java&nbsp;Script]|JS</code></td>  <td>"JavaScript", "Java Script", "JS"</td>         <td>"Java"</td>                                             </tr>
-            {/* eslint-disable-next-line react/no-unescaped-entities */}
-            <tr>  <td className={styles.center}><code>.</code></td>  <td>Match only one character</td>             <td className={styles.center}><code>.a.b.</code></td>                              <td>"XaXbX"</td>                                   <td>"ab", "Xab", "aXb", "abX", "XYZaXYZbXYZ", "XbXaX"</td>  </tr>
-            {/* eslint-disable-next-line react/no-unescaped-entities */}
-            <tr>  <td className={styles.center}><code>*</code></td>  <td>Match zero or more characters</td>        <td className={styles.center}><code>*a*b*</code></td>                              <td>"ab", "Xab", "aXb", "abX", "XYZaXYZbXYZ"</td>  <td>"ba", "XbXaX"</td>                                      </tr>
+            <tr>
+                <td className={styles.center}><code>.</code></td>
+                <td>Match only one character</td>
+                <td className={styles.center}><code>.a.b.</code></td>
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
+                <td>"XaXbX"</td>
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
+                <td>"ab", "Xab", "aXb", "abX", "XYZaXYZbXYZ", "XbXaX"</td>
+            </tr>
+            <tr>
+                <td className={styles.center}><code>*</code></td>
+                <td>Match zero or more characters</td>
+                <td className={styles.center}><code>*a*b*</code></td>
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
+                <td>"ab", "Xab", "aXb", "abX", "XYZaXYZbXYZ"</td>
+                {/* eslint-disable-next-line react/no-unescaped-entities */}
+                <td>"ba", "XbXaX"</td>
+            </tr>
             </tbody>
         </table>
     </div>;
 
+}
+
+export function LogicQuestionPresenter(props: PresenterProps) {
+    const {doc, update} = props;
+    const question = doc as IsaacSymbolicLogicQuestion;
+
+    return <>
+        <QuestionMetaPresenter {...props} />
+        <div className={styles.editableFullwidth}>
+            <EditableAvailableSymbols doc={question} update={update} />
+        </div>
+        <div className={styles.editableFullwidth}>
+            <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
+        </div>
+    </>;
 }

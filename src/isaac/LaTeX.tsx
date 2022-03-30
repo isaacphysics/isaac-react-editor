@@ -88,7 +88,6 @@ function mathjaxToKatex(macros: {[key: string]: MathJaxMacro}) {
 // Create MathJax versions for each of the two syntaxes, then create KaTeX versions of those:
 const MacrosWithMathsBoolean = Object.assign({}, BaseMacros, BooleanLogicMathsMacros);
 const MacrosWithEngineeringBoolean = Object.assign({}, BaseMacros, BooleanLogicEngineeringMacros);
-const KatexBaseMacros = mathjaxToKatex(BaseMacros);
 const KatexMacrosWithMathsBool = mathjaxToKatex(MacrosWithMathsBoolean);
 const KatexMacrosWithEngineeringBool = mathjaxToKatex(MacrosWithEngineeringBoolean);
 
@@ -255,11 +254,7 @@ export function katexify(html: string, booleanNotation : BooleanNotation | null,
                 const latexUnEntitied = he.decode(latex);
                 const latexMunged = munge(latexUnEntitied);
                 let macrosToUse;
-                if (booleanNotation) {
-                    macrosToUse = booleanNotation?.ENG ? KatexMacrosWithEngineeringBool : KatexMacrosWithMathsBool;
-                } else {
-                    macrosToUse = KatexBaseMacros;
-                }
+                macrosToUse = booleanNotation && booleanNotation?.ENG ? KatexMacrosWithEngineeringBool : KatexMacrosWithMathsBool;
                 macrosToUse = {...macrosToUse, "\\ref": (context: {consumeArgs: (n: number) => {text: string}[][]}) => {
                         const args = context.consumeArgs(1);
                         const reference = args[0].reverse().map((t: {text: string}) => t.text).join("");
