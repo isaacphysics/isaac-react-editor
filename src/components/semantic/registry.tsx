@@ -6,7 +6,7 @@ import {
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
-    QuestionBodyPresenter,
+    QuestionBodyPresenter, QuestionMetaPresenter,
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
     SymbolicQuestionPresenter
@@ -160,6 +160,8 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     freeTextRule: choice,
     isaacSymbolicLogicQuestion: {...question, headerPresenter: LogicQuestionPresenter},
     logicFormula: choice,
+    isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
+    graphChoice: choice,
     figure,
     image: figure,
     codeSnippet,

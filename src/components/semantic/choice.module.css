@@ -18,10 +18,17 @@
 
 .choiceExplanation {
     flex-grow: 1;
-    /* This basis has to equal the padding on choiceValue, as padding and borders are effectively added to the flex-basis */
-    flex-basis: 1em;
+    flex-basis: 0;
 }
 
 .fullWidth {
     display: block;
+}
+
+.graphSpec {
+    width: 100%;
+}
+
+.graphSpec textarea {
+    height: 6em;
 }

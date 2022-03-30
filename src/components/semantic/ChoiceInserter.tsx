@@ -28,6 +28,7 @@ export type CHOICE_TYPES =
     | "stringChoice"
     | "freeTextRule"
     | "logicFormula"
+    | "graphChoice"
     ;
 
 const emptyChoices = [
@@ -38,6 +39,7 @@ const emptyChoices = [
     {...emptyChoice, type: "stringChoice", caseInsensitive: false},
     {...emptyChoice, type: "freeTextRule", caseInsensitive: true, allowsExtraWords: true},
     {...emptyChoice, type: "logicFormula", pythonExpression: "", requiresExactMatch: false},
+    {...emptyChoice, type: "graphChoice", graphSpec: ""},
 ];
 
 export const CHOICE_INSERTER_MAP: Record<string, FunctionComponent<InserterProps>> = Object.fromEntries(emptyChoices.map((choice) => {

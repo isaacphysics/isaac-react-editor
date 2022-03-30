@@ -11,7 +11,7 @@ import {
 import styles from "./question.module.css";
 import { Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import {
-    ChoiceQuestion,
+    ChoiceQuestion, IsaacGraphSketcherQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
@@ -35,6 +35,7 @@ export type QUESTION_TYPES =
     | "isaacStringMatchQuestion"
     | "isaacFreeTextQuestion"
     | "isaacSymbolicLogicQuestion"
+    | "isaacGraphSketcherQuestion"
 ;
 
 const QuestionTypes = {
@@ -156,6 +157,7 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacStringMatchQuestion: "stringChoice",
     isaacFreeTextQuestion: "freeTextRule",
     isaacSymbolicLogicQuestion: "logicFormula",
+    isaacGraphSketcherQuestion: "graphChoice",
 };
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
@@ -377,5 +379,12 @@ export function LogicQuestionPresenter(props: PresenterProps) {
         <div className={styles.editableFullwidth}>
             <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
         </div>
+    </>;
+}
+
+// TODO: delete me
+export function GraphSketcherQuestionPresenter(props: PresenterProps<IsaacGraphSketcherQuestion>) {
+    return <>
+        <QuestionMetaPresenter {...props} />
     </>;
 }

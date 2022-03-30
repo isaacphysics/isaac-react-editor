@@ -1,11 +1,12 @@
 import React, { MutableRefObject, useImperativeHandle, useRef, } from "react";
 import { Button, Input, Label } from "reactstrap";
+import { InputType } from "reactstrap/lib/Input";
 
 import {
     ChemicalFormula,
     Choice,
     Formula,
-    FreeTextRule,
+    FreeTextRule, GraphChoice,
     Quantity,
     StringChoice
 } from "../../isaac-data-types";
@@ -29,12 +30,15 @@ interface LabeledInputProps<V extends Record<string, string | undefined>> {
     prop: keyof V;
     label: string;
     className?: string;
+    type?: InputType;
 }
 
-function LabeledInput<V extends Record<string, string | undefined>>({value, prop, label, className}: LabeledInputProps<V>) {
+function LabeledInput<V extends Record<string, string | undefined>>({value, prop, label, className, type}: LabeledInputProps<V>) {
     return <Label className={className}>
         {label}
-        <Input type="text"
+        <Input type={type ?? "text"}
+               // eslint-disable-next-line jsx-a11y/no-autofocus
+               autoFocus
                defaultValue={value.current?.[prop]}
                onChange={(e) => {
                    if (value.current !== undefined) {
@@ -145,6 +149,23 @@ export const FreeTextRulePresenter = (props: ValuePresenterProps<FreeTextRule>) 
     </>;
 };
 
+export const GraphChoicePresenter = buildValuePresenter(
+    function GraphChoiceValue({editing, doc, value}) {
+        if (!editing) {
+            if (doc.graphSpec === undefined || doc.graphSpec === "") {
+                return <em>Enter graph spec here</em>;
+            }
+
+            return <pre>{doc.graphSpec}</pre>;
+        } else {
+            return <>
+                <LabeledInput value={value} prop="graphSpec" label="Graph spec" type="textarea" className={styles.graphSpec} />
+            </>;
+        }
+    },
+    (doc: GraphChoice) => ({graphSpec: doc.graphSpec}),
+    ({graphSpec}, doc) => ({...doc, graphSpec}),
+);
 
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
@@ -154,6 +175,7 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     stringChoice: StringChoicePresenter,
     freeTextRule: FreeTextRulePresenter,
     logicFormula: FormulaPresenter,
+    graphChoice: GraphChoicePresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps) {
