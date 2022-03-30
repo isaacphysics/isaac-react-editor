@@ -7,6 +7,7 @@ import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { EditableText, EditableTextRef } from "./EditableText";
 import { TabsHeader, TabsMain } from "./TabsPresenter";
 import { deriveNewDoc } from "./ListChildrenPresenter";
+import { Content } from "../../isaac-data-types";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {
@@ -163,13 +164,21 @@ export function AccordionPresenter(props: PresenterProps) {
 
     const editTitleRef = useRef<EditableTextRef>(null);
 
-    function setCurrentChildDisplay(newDisplay: Display | undefined) {
+    const currentChild = doc.children?.[index] as Content;
+    const updateCurrentChild = (newContent: Content) => {
         const newDoc = deriveNewDoc(doc);
-        newDoc.children[index].display = newDisplay;
+        newDoc.children[index] = newContent;
         update(newDoc);
-    }
+    };
 
-    const currentChildDisplay = doc?.children?.[index].display as Display;
+    const currentChildProps = {doc: currentChild, update: updateCurrentChild};
+
+    const currentChildDisplay = currentChild?.display as Display;
+    const setCurrentChildDisplay = (display: Display | undefined) => updateCurrentChild({
+        ...currentChild,
+        display
+    });
+
     return <>
         <div className={styles.headerDisplayControls}>
             <AudienceDisplayControl
@@ -187,8 +196,8 @@ export function AccordionPresenter(props: PresenterProps) {
             <TabsHeader {...allProps} />
             <TabsMain {...allProps} back="▲" forward="▼" contentHeader={
                 <div className={styles.meta}>
-                    <h2><EditableTitleProp ref={editTitleRef} {...props}  placeHolder="Section Title" hideWhenEmpty /></h2>
-                    <h3><EditableSubtitleProp {...props} hideWhenEmpty /></h3>
+                    <h2><EditableTitleProp ref={editTitleRef} {...currentChildProps} placeHolder="Section title" hideWhenEmpty /></h2>
+                    <h3><EditableSubtitleProp {...currentChildProps} hideWhenEmpty /></h3>
                     <div className={styles.audienceDisplayControls}>
                         {currentChildDisplay === undefined &&
                             <Button onClick={() => {
@@ -206,13 +215,13 @@ export function AccordionPresenter(props: PresenterProps) {
                     </div>
                 </div>
             } extraButtons={<>
-                <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>
+                {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
                 <EditableText onSave={(newLevel) => {
-                    props.update({
-                        ...props.doc,
+                    updateCurrentChild({
+                        ...currentChild,
                         level: newLevel ? parseInt(newLevel, 10) : undefined,
                     });
-                }} text={props.doc.level?.toString()} label="Section Level" hasError={hasErrorInLevel} {...props} />
+                }} text={currentChild.level?.toString() ?? ""} label="Section level" hasError={hasErrorInLevel} {...props} />
             </>}/>
         </div>
     </>;
