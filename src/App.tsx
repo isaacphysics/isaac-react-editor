@@ -38,6 +38,17 @@ const testDoc = {
     "author": "jsharkey13",
     "children": [
         {
+            "id": "email-contact-us-form",
+            "type": "emailTemplate",
+            "encoding": "markdown",
+            "title": "",
+            "subject": "Contact Form",
+            "author": "jps79",
+            "plainTextContent": "Hello,\n\nThe contact form has been submitted, please see the details below.\n\nFirst name: {{contactGivenName}}\nLast Name: {{contactFamilyName}}\nEmail: {{contactEmail}}\nUser ID: {{contactUserId}}\nRole: {{contactUserRole}}\n\nSubject: {{contactSubject}}\n\nMessage: {{contactMessage}}\n\nRegards,\n\n{{sig}}",
+            "htmlContent": "Hello,<br><br>The contact form has been submitted, please see the details below.<br><br>First name: {{contactGivenName}}<br>Last Name: {{contactFamilyName}}<br>Email: {{contactEmail}}<br>User ID: {{contactUserId}}<br>Role: {{contactUserRole}}<br><br>Subject: {{contactSubject}}<br><br>Message: {{contactMessage}}<br><br>Regards,<br><br>{{sig}}",
+            "published": true
+        },
+        {
             "type": "content",
             "encoding": "markdown",
             "value": "This page is to speed up regression testing of question behaviors. **Changing anything on this page is liable to break the automated testing**. Do so in the knowledge *you* will have to fix it . . . `git blame` is a powerful tool!"

@@ -83,7 +83,7 @@ export function buildValuePresenter<V, D extends Content = Content>(
     return VP;
 }
 
-const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
+export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
     if (!editing) {
         if (!doc.value) {
             const entryType = getEntryType(doc);
@@ -98,9 +98,9 @@ const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
             case "markdown":
                 return <TrustedMarkdown markdown={doc.value} />;
             case "plain":
-                return <div>{value}</div>;
+                return <pre>{doc.value}</pre>;
             default:
-                return <div>{`<${doc.encoding}> ${value}`}</div>;
+                return <div>{`<${doc.encoding}> ${doc.value}`}</div>;
         }
     } else {
         const encoding = doc.encoding === "markdown" ? [markdown()]
