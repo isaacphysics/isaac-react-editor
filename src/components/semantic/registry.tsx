@@ -25,6 +25,7 @@ import {
 import { AccordionPresenter } from "./AccordionPresenter";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
 import { CodeSnippetPresenter } from "./CodeSnippetPresenter";
+import { VideoPresenter } from "./VideoPresenter";
 
 export type TYPES =
     | "content"
@@ -42,6 +43,8 @@ export type TYPES =
     | "hints"
     | "figure"
     | "codeSnippet"
+    | "image"
+    | "video"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -105,6 +108,11 @@ const codeSnippet: RegistryEntry = {
     name: "Code Snippet",
     bodyPresenter: CodeSnippetPresenter,
 };
+const video: RegistryEntry = {
+    name: "Video",
+    bodyPresenter: VideoPresenter,
+};
+
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
     isaacConceptPage: page,
@@ -140,7 +148,9 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     isaacSymbolicLogicQuestion: {...question, headerPresenter: LogicQuestionPresenter},
     logicFormula: choice,
     figure,
+    image: figure,
     codeSnippet,
+    video,
 };
 
 export function getEntryType(doc: Content) {

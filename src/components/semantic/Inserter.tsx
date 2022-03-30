@@ -20,7 +20,7 @@ const blockTypes = {
     }},
     "glossary term": {type: "glossaryTerm", encoding: "markdown", value: ""},
     "figure": {type: "figure", encoding: "markdown", value: ""},
-    "video": {type: "video", encoding: "markdown", value: ""},
+    "video": {type: "video", encoding: "markdown", src: "https://www.youtube.com/watch?v=<video_id>"},
     "tabs": {type: "content", layout: "tabs", encoding: "markdown", children: []},
     "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
 };

@@ -14,7 +14,7 @@ import { PresenterProps } from "./registry";
 // TODO: Part of the metadata editable world
 
 export function FigurePresenter(props: PresenterProps<Figure>) {
-    const {doc, update} = props;
+    const {doc} = props;
 
     const figureNumbering = useContext(FigureNumberingContext);
     const figureNumber = figureNumbering[doc.id as string];
@@ -25,10 +25,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             <div className={styles.figureImage}>
                 {doc.src}
             </div>
-            <div className={styles.figureCaption}>
+            {doc.type === "figure" && <div className={styles.figureCaption}>
                 <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>
                 <ContentValueOrChildrenPresenter {...props} />
-            </div>
+            </div>}
         </div>
     </>;
 }
