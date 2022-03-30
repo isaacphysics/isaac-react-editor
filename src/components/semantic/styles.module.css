@@ -38,24 +38,42 @@
     flex-grow: 1;
 }
 
-.box:hover > .boxHeader .boxDelete {
+.box:hover > .boxHeader button {
     display: block;
 }
 
-.boxDelete {
+.boxHeader button {
     position: absolute;
-    top: -4px;
-    right: 0;
     opacity: 0.5;
     display: none;
     height: 35px;
     border: none;
     background: none;
     z-index: 1000;
+    transition: transform 0.2s;
 }
 
-.boxDelete:hover {
+.boxHeader:hover button {
     opacity: 1;
+}
+
+.boxHeader button:hover {
+    transform: scale(150%);
+}
+
+.boxUp {
+    right: 66px;
+    top: -10px;
+}
+
+.boxDown {
+    right: 31px;
+    top: -10px;
+}
+
+.boxDelete {
+    right: -4px;
+    top: -8px;
 }
 
 .boxDeleteHovered {

@@ -78,7 +78,14 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
             newDoc.children.splice(index, 1);
             keyList.current.splice(index, 1);
             update(newDoc);
-        }}/>);
+        }} shift={{up: index > 0, down: index < (doc.children?.length ?? 0) - 1, by: (amount) => {
+                const newDoc = deriveNewDoc(doc);
+                const [d] = newDoc.children.splice(index, 1);
+                const [k] = keyList.current.splice(index, 1);
+                newDoc.children.splice(index + amount, 0, d);
+                keyList.current.splice(index, 0, k);
+                update(newDoc);
+        }}}/>);
     });
     addInserter(doc.children?.length || 0, doc.children?.length === 0);
     return <>
