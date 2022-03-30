@@ -30,7 +30,7 @@ import { VideoPresenter } from "./VideoPresenter";
 import { GlossaryTermPresenter } from "./GlossaryTermPresenter";
 import { EmailTemplatePresenter } from "./EmailTemplatePresenter";
 import { AnvilAppPresenter } from "./AnvilAppPresenter";
-import { QuizPagePresenter, QuizSectionPresenter } from "./PagePresenter";
+import { EventPagePresenter, QuizPagePresenter, QuizSectionPresenter } from "./PagePresenter";
 
 export type TYPES =
     | "content"
@@ -143,11 +143,16 @@ const isaacQuizSection = {
     ...content,
     headerPresenter: QuizSectionPresenter,
 };
+const isaacEventPage = {
+    ...page,
+    name: "Event Page",
+    headerPresenter: EventPagePresenter,
+};
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
     isaacConceptPage: page,
-    isaacEventPage: page,
+    isaacEventPage,
     isaacFastTrackQuestionPage: page,
     isaacQuestionPage: page,
     isaacQuiz,

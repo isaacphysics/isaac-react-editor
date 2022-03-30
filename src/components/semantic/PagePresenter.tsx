@@ -1,10 +1,11 @@
 import React from "react";
 
-import { IsaacQuiz, IsaacQuizSection } from "../../isaac-data-types";
+import { IsaacEventPage, IsaacQuiz, IsaacQuizSection } from "../../isaac-data-types";
 
 import { PresenterProps } from "./registry";
 import { SemanticDocProp } from "./SemanticDocProp";
 import { EditableTitleProp } from "./EditableDocProp";
+import { Button } from "reactstrap";
 
 export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
     return <>
@@ -16,5 +17,18 @@ export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
 export function QuizSectionPresenter(props: PresenterProps<IsaacQuizSection>) {
     return <>
         <h4><EditableTitleProp {...props} label="Title" /></h4>
+    </>;
+}
+
+export function EventPagePresenter(props: PresenterProps<IsaacEventPage>) {
+    const {doc} = props
+    return <>
+        {doc.location && <>
+            <Button color="link">
+                {doc.location.address?.addressLine1}, {doc.location.address?.county}
+            </Button>
+            <br />
+        </>}
+        <SemanticDocProp {...props} prop="eventThumbnail" name="Thumbnail"/>
     </>;
 }

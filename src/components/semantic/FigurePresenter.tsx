@@ -22,7 +22,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         <h2><EditableTitleProp {...props} placeHolder="Figure title" hideWhenEmpty/></h2>
         <h3><EditableSubtitleProp {...props} placeHolder="Figure subtitle" hideWhenEmpty/></h3>
         <div className={styles.figureWrapper}>
-            <div className={styles.figureImage}>
+            <div className={styles.figureImage} title={doc.altText}>
                 {doc.src}
             </div>
             {doc.type === "figure" && <div className={styles.figureCaption}>
