@@ -12,16 +12,28 @@
 
 .isEditingWrapper {
     margin-bottom: 0.5rem;
+    display: flex;
 }
 
 .controlWrapper {
     display: inline-flex;
     flex-direction: column;
+    flex-grow: 1;
 }
 
 .controlWrapper :global(.form-control) {
     display: inline-block;
     width: auto;
+}
+
+.labelledInput {
+    display: inline-flex;
+    flex-grow: 1;
+    align-items: baseline;
+}
+
+.labelledInput input {
+    flex-grow: 1;
 }
 
 .feedback {

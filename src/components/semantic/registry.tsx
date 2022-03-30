@@ -31,6 +31,7 @@ import { GlossaryTermPresenter } from "./GlossaryTermPresenter";
 import { EmailTemplatePresenter } from "./EmailTemplatePresenter";
 import { AnvilAppPresenter } from "./AnvilAppPresenter";
 import { EventPagePresenter, QuizPagePresenter, QuizSectionPresenter } from "./PagePresenter";
+import { PodPresenter } from "./PodPresenter";
 
 export type TYPES =
     | "content"
@@ -54,6 +55,7 @@ export type TYPES =
     | "emailTemplate"
     | "anvilApp"
     | "isaacQuizSection"
+    | "isaacPod"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -148,6 +150,10 @@ const isaacEventPage = {
     name: "Event Page",
     headerPresenter: EventPagePresenter,
 };
+const isaacPod = {
+    name: "Pod",
+    bodyPresenter: PodPresenter,
+};
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
@@ -193,6 +199,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     emailTemplate,
     anvilApp,
     isaacQuizSection,
+    isaacPod,
 };
 
 export function getEntryType(doc: Content) {

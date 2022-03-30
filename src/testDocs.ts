@@ -579,7 +579,7 @@ export const testQuiz = {
     "visibleToStudents": true
 } as unknown as Content;
 
-const testDoc = {
+export const testDoc = {
     "type": "isaacQuestionPage",
     "encoding": "markdown",
     "title": "Regression Test Page",
@@ -1650,4 +1650,23 @@ export const testEvent = {
         }
     ],
     "published": true
+} as unknown as Content;
+
+export const testPod = {
+    "type": "isaacPod",
+    "tags": [
+        "physics"
+    ],
+    "encoding": "markdown",
+    "image": {
+        "type": "image",
+        "src": "/assets/phy/events/teacher.jpg",
+        "altText": "Image of students problem solving together."
+    },
+    "title": "GCSE Boards for Lessons",
+    "value": "Use these boards as they are, customise them, or create your own boards to meet your own needs.",
+    "id": "06_buckley_material",
+    "published": true,
+    "author": "td424",
+    "url": "/pages/pre_made_gameboards#gcse_example"
 } as unknown as Content;
