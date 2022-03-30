@@ -2,12 +2,22 @@ import React, { useState } from "react";
 import { Button } from "reactstrap";
 
 import { Box } from "./SemanticItem";
-import { InsertButton, InserterProps } from "./ListChildrenPresenter";
+import { generate, InsertButton, InserterProps } from "./ListChildrenPresenter";
 import styles from "./inserter.module.css";
 
 const blockTypes = {
-    "Content": {type: "content", encoding: "markdown", value: ""},
-    "Figure": {type: "figure", encoding: "markdown", value: ""},
+    "content": {type: "content", encoding: "markdown", value: ""},
+    "code snippet": {type: "codeSnippet", encoding: "markdown", value: ""},
+    "question": {type: "isaacQuestion", encoding: "markdown", value: "", id: generate, 	answer: {
+        "type": "content",
+        "value": "",
+        "encoding": "markdown"
+    }},
+    "glossary term": {type: "glossaryTerm", encoding: "markdown", value: ""},
+    "figure": {type: "figure", encoding: "markdown", value: ""},
+    "video": {type: "video", encoding: "markdown", value: ""},
+    "tabs": {type: "content", layout: "tabs", encoding: "markdown", children: []},
+    "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
 };
 
 export function Inserter({insert, forceOpen}: InserterProps) {

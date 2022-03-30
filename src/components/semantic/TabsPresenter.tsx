@@ -128,24 +128,24 @@ export function TabsPresenter({hideTitles, ...props}: PresenterProps & {hideTitl
         showTitles,
     };
 
-    const currentChild = doc.children?.[index] as Content;
+    const currentChild = doc.children?.[index] as Content | undefined;
     const updateCurrentChild = (newContent: Content) => {
         const newDoc = deriveNewDoc(doc);
         newDoc.children[index] = newContent;
         update(newDoc);
     };
-    const currentChildProps = {doc: currentChild, update: updateCurrentChild};
+    const currentChildProps = {doc: currentChild as Content, update: updateCurrentChild};
 
     return <div className={styles.wrapper}>
         <TabsHeader {...allProps} />
         <TabsMain {...allProps} back="◀" forward="▶" contentHeader={
-            showTitles ? <div className={styles.meta}>
+            showTitles && currentChild ? <div className={styles.meta}>
                 <h2><EditableTitleProp ref={editTitleRef} {...currentChildProps}
                                        placeHolder="Tab title" hideWhenEmpty/></h2>
                 <h3><EditableSubtitleProp {...currentChildProps} hideWhenEmpty/></h3>
             </div> : undefined
         } extraButtons={<>
-            {allProps.showTitles && !currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set tab title</Button>}
+            {showTitles && currentChild && !currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set tab title</Button>}
         </>}/>
     </div>;
 }

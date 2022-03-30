@@ -4,7 +4,7 @@ import { Choice, Content } from "../../isaac-data-types";
 
 import { InsertButton, InserterProps } from "./ListChildrenPresenter";
 
-function ChoiceInserter<T extends Choice>(empty: T) {
+export function ChoiceInserter<T extends Choice>(empty: T) {
     // noinspection UnnecessaryLocalVariableJS
     const ChoiceInserter = ({insert, position}: InserterProps) =>
         <InsertButton onClick={() => insert({...empty, correct: position === 0} as Content)}/>;
@@ -40,6 +40,6 @@ const emptyChoices = [
     {...emptyChoice, type: "logicFormula", pythonExpression: "", requiresExactMatch: false},
 ];
 
-export const INSERTER_MAP: Partial<Record<CHOICE_TYPES, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {
-    return [choice.type as CHOICE_TYPES, ChoiceInserter(choice)];
+export const CHOICE_INSERTER_MAP: Record<string, FunctionComponent<InserterProps>> = Object.fromEntries(emptyChoices.map((choice) => {
+    return [`choices$${choice.type}`, ChoiceInserter(choice)];
 }));

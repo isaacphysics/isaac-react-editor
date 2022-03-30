@@ -2,18 +2,14 @@ import React, { FunctionComponent, useRef, useState } from "react";
 
 import styles from "./styles.module.css";
 
-import {
-    ValuePresenter,
-    ValuePresenterRef,
-    ValueRef,
-    ValueWrapper
-} from "./BaseValuePresenter";
+import { ValuePresenter, ValuePresenterRef, ValueRef, ValueWrapper } from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
 import { AccordionPresenter } from "./AccordionPresenter";
 import {
     AnswerPresenter,
     ChemistryQuestionPresenter,
-    FreeTextQuestionInstructions, LogicQuestionPresenter,
+    FreeTextQuestionInstructions,
+    LogicQuestionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -30,6 +26,7 @@ import {
 } from "./ContentValueOrChildrenPresenter";
 import { FigurePresenter } from "./FigurePresenter";
 import { CHOICE_TYPES } from "./ChoiceInserter";
+import { ListChildrenPresenter } from "./ListChildrenPresenter";
 
 export type TYPES =
     | "content"
@@ -62,6 +59,7 @@ interface RegistryEntry {
     headerPresenter?: Presenter;
     bodyPresenter?: ValuePresenter;
     footerPresenter?: Presenter;
+    blankValue?: string;
 }
 
 const contentEntry: RegistryEntry = {
@@ -71,8 +69,8 @@ const contentEntry: RegistryEntry = {
 };
 
 const choicesEntry: RegistryEntry = {
-    ...contentEntry,
     name: "Choices",
+    bodyPresenter: ListChildrenPresenter,
 };
 
 const choiceEntry: RegistryEntry = {
@@ -104,11 +102,13 @@ const questionEntry: RegistryEntry = {
     name: "Question",
     bodyPresenter: BoxedContentValueOrChildrenPresenter,
     footerPresenter: QuestionBodyPresenter,
+    blankValue: "Enter question body here",
 };
 
 const figureEntry: RegistryEntry = {
     name: "Figure",
     bodyPresenter: FigurePresenter,
+    blankValue: "Enter caption here",
 };
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
@@ -179,10 +179,14 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, val
 };
 
 
+export function getEntryType(doc: Content) {
+    const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
+    return REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
+}
+
 export function SemanticItem({doc, update, onDelete, name, className}: SemanticItemProps) {
     const valueRef = useRef<ValuePresenterRef>(null);
-    const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
-    const entryType = REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
+    const entryType = getEntryType(doc);
 
     const MetadataPresenter = entryType.headerPresenter;
     const metadata = MetadataPresenter ? <MetadataPresenter doc={doc} update={update} /> : null;

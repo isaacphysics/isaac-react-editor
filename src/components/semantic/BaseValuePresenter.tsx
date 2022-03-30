@@ -11,7 +11,7 @@ import { markdown } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { Button } from "reactstrap";
 
-import { PresenterProps } from "./SemanticItem";
+import { getEntryType, PresenterProps } from "./SemanticItem";
 import styles from "./value.module.css";
 import { Content } from "../../isaac-data-types";
 import { TrustedHtml } from "../../isaac/TrustedHtml";
@@ -86,16 +86,11 @@ export function buildValuePresenter<V, D extends Content = Content>(
 const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
     if (!editing) {
         if (!doc.value) {
-            switch (doc.type) {
-                case "figure":
-                    return <p>
-                        <em>Enter caption here</em>
-                    </p>;
-                default:
-                    return <p>
-                        <em>Enter content here</em>
-                    </p>;
-            }
+            const entryType = getEntryType(doc);
+            const blankValue = entryType.blankValue || "Enter content here";
+            return <p>
+                <em>{blankValue}</em>
+            </p>;
         }
         switch (doc.encoding) {
             case "html":

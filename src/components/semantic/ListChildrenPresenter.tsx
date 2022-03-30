@@ -6,8 +6,10 @@ import { Content } from "../../isaac-data-types";
 import { PresenterProps, SemanticItem } from "./SemanticItem";
 import { Inserter } from "./Inserter";
 import styles from "./styles.module.css";
-import { CHOICE_TYPES, INSERTER_MAP } from "./ChoiceInserter";
+import { CHOICE_INSERTER_MAP, ChoiceInserter } from "./ChoiceInserter";
+import { generateGuid } from "../../utils/strings";
 
+export const generate = Symbol("generate id") as unknown as string;
 export interface InserterProps {
     insert: (newContent: Content) => void;
     forceOpen: boolean;
@@ -33,6 +35,10 @@ const extractKey = (doc: Content, index: number) => `${doc.type}@${index}: ${Mat
 
 const UNINITIALISED = [] as string[];
 
+const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
+    ...CHOICE_INSERTER_MAP,
+    isaacQuiz: ChoiceInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []})
+}
 export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const keyList = useRef(UNINITIALISED);
     if (keyList.current === UNINITIALISED) {
@@ -42,11 +48,17 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const result: JSX.Element[] = [];
 
     function addInserter(index: number, forceOpen: boolean) {
-        const UseInserter = (doc.type === "choices" && INSERTER_MAP[doc.layout as CHOICE_TYPES]) || Inserter;
+        const UseInserter = INSERTER_MAP[`${doc.type}$${doc.layout}`] || INSERTER_MAP[`${doc.type}`] || Inserter;
         // There is no optimal solution here: we want to keep inserter state between boxes, but if a box is deleted,
         // there is no general solution for keeping an inserter open neighbouring the deleted box.
         const key = `__insert_${keyList.current[index] ?? "last"}`;
         result.push(<UseInserter key={key} position={index} forceOpen={forceOpen} insert={(newContent) => {
+            if (newContent.id === generate) {
+                newContent.id = generateGuid();
+                if (newContent.type === "isaacQuizSection") {
+                    newContent.id = newContent.id?.substring(0, 8);
+                }
+            }
             const newDoc = deriveNewDoc(doc);
             newDoc.children.splice(index, 0, newContent);
             keyList.current.splice(index, 0, extractKey(newContent, index));

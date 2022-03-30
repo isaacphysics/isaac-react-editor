@@ -165,13 +165,13 @@ export function AccordionPresenter(props: PresenterProps) {
 
     const editTitleRef = useRef<EditableTextRef>(null);
 
-    const currentChild = doc.children?.[index] as Content;
+    const currentChild = doc.children?.[index] as Content | undefined;
     const updateCurrentChild = (newContent: Content) => {
         const newDoc = deriveNewDoc(doc);
         newDoc.children[index] = newContent;
         update(newDoc);
     };
-    const currentChildProps = {doc: currentChild, update: updateCurrentChild};
+    const currentChildProps = {doc: currentChild as Content, update: updateCurrentChild};
 
     const currentChildDisplay = currentChild?.display as Display;
     const setCurrentChildDisplay = (display: Display | undefined) => updateCurrentChild({
@@ -195,26 +195,28 @@ export function AccordionPresenter(props: PresenterProps) {
         <div className={styles.wrapper}>
             <TabsHeader {...allProps} />
             <TabsMain {...allProps} back="▲" forward="▼" contentHeader={
-                <div className={styles.meta}>
-                    <h2><EditableTitleProp ref={editTitleRef} {...currentChildProps} placeHolder="Section title" hideWhenEmpty /></h2>
-                    <h3><EditableSubtitleProp {...currentChildProps} hideWhenEmpty /></h3>
-                    <div className={styles.audienceDisplayControls}>
-                        {currentChildDisplay === undefined &&
-                            <Button onClick={() => {
-                                setCurrentChildDisplay({
-                                    audience: [],
-                                    nonAudience: []
-                                });
-                            }}>
-                                Override Display
-                            </Button>
-                        }
-                        {currentChildDisplay !== undefined &&
-                            <AudienceDisplayControl key={index} display={currentChildDisplay} set={setCurrentChildDisplay} title="Display Override" />
-                        }
+                currentChild ? <>
+                    <div className={styles.meta}>
+                        <h2><EditableTitleProp ref={editTitleRef} {...currentChildProps} placeHolder="Section title" hideWhenEmpty /></h2>
+                        <h3><EditableSubtitleProp {...currentChildProps} hideWhenEmpty /></h3>
+                        <div className={styles.audienceDisplayControls}>
+                            {currentChildDisplay === undefined &&
+                                <Button onClick={() => {
+                                    setCurrentChildDisplay({
+                                        audience: [],
+                                        nonAudience: []
+                                    });
+                                }}>
+                                    Override Display
+                                </Button>
+                            }
+                            {currentChildDisplay !== undefined &&
+                                <AudienceDisplayControl key={index} display={currentChildDisplay} set={setCurrentChildDisplay} title="Display Override" />
+                            }
+                        </div>
                     </div>
-                </div>
-            } extraButtons={<>
+                </> : undefined
+            } extraButtons={currentChild ? <>
                 {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
                 <EditableText onSave={(newLevel) => {
                     updateCurrentChild({
@@ -222,7 +224,7 @@ export function AccordionPresenter(props: PresenterProps) {
                         level: newLevel ? parseInt(newLevel, 10) : undefined,
                     });
                 }} text={currentChild.level?.toString()} label="Section level" hasError={hasErrorInLevel} {...props} />
-            </>}/>
+            </> : undefined}/>
         </div>
     </>;
 }
