@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Input } from "reactstrap";
 
-import { PresenterProps } from "./SemanticItem";
 import styles from "./accordion.module.css";
 import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { EditableText, EditableTextRef } from "./EditableText";
 import { TabsHeader, TabsMain, TabsProps } from "./TabsPresenter";
 import { deriveNewDoc } from "./ListChildrenPresenter";
 import { Content } from "../../isaac-data-types";
+import { PresenterProps } from "./registry";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {

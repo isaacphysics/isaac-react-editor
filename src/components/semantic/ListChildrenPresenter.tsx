@@ -3,11 +3,12 @@ import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
 
-import { PresenterProps, SemanticItem } from "./SemanticItem";
+import { SemanticItem } from "./SemanticItem";
 import { Inserter } from "./Inserter";
 import styles from "./styles.module.css";
 import { CHOICE_INSERTER_MAP, ChoiceInserter } from "./ChoiceInserter";
 import { generateGuid } from "../../utils/strings";
+import { PresenterProps } from "./registry";
 
 export const generate = Symbol("generate id") as unknown as string;
 export interface InserterProps {

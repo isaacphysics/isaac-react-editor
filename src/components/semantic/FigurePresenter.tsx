@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 
 import { Figure } from "../../isaac-data-types";
 
-import { PresenterProps } from "./SemanticItem";
 import {
     EditableSubtitleProp,
     EditableTitleProp,
@@ -10,6 +9,7 @@ import {
 import styles from "./figure.module.css";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { FigureNumberingContext } from "../../isaac/IsaacTypes";
+import { PresenterProps } from "./registry";
 
 // TODO: Part of the metadata editable world
 

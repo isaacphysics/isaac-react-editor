@@ -2,148 +2,9 @@ import React, { FunctionComponent, useRef, useState } from "react";
 
 import styles from "./styles.module.css";
 
-import { ValuePresenter, ValuePresenterRef, ValueRef, ValueWrapper } from "./BaseValuePresenter";
+import { ValuePresenterRef, ValueRef, ValueWrapper } from "./BaseValuePresenter";
 import { Content } from "../../isaac-data-types";
-import { AccordionPresenter } from "./AccordionPresenter";
-import {
-    AnswerPresenter,
-    ChemistryQuestionPresenter,
-    FreeTextQuestionInstructions,
-    LogicQuestionPresenter,
-    MultipleChoiceQuestionPresenter,
-    NumericQuestionPresenter,
-    QUESTION_TYPES,
-    QuestionBodyPresenter,
-    QuickQuestionPresenter,
-    StringMatchQuestionPresenter,
-    SymbolicQuestionPresenter
-} from "./QuestionPresenters";
-import { TabsPresenter } from "./TabsPresenter";
-import { ChoicePresenter } from "./ChoicePresenter";
-import {
-    BoxedContentValueOrChildrenPresenter,
-    ContentValueOrChildrenPresenter
-} from "./ContentValueOrChildrenPresenter";
-import { FigurePresenter } from "./FigurePresenter";
-import { CHOICE_TYPES } from "./ChoiceInserter";
-import { ListChildrenPresenter } from "./ListChildrenPresenter";
-
-export type TYPES =
-    | "content"
-    | "content$accordion"
-    | "content$tabs"
-    | "isaacConceptPage"
-    | "isaacQuestionPage"
-    | "isaacFastTrackQuestionPage"
-    | "isaacEventPage"
-    | "isaacTopicSummaryPage"
-    | "page"
-    | "choices"
-    | "choices$freeTextRule"
-    | "isaacQuiz"
-    | "hints"
-    | "figure"
-    | QUESTION_TYPES
-    | CHOICE_TYPES
-;
-
-export interface PresenterProps<D extends Content = Content> {
-    doc: D;
-    update: <T extends D>(newContent: T) => void;
-}
-
-export type Presenter<D extends Content = Content> = FunctionComponent<PresenterProps<D>>;
-
-interface RegistryEntry {
-    name?: string;
-    headerPresenter?: Presenter;
-    bodyPresenter?: ValuePresenter;
-    footerPresenter?: Presenter;
-    blankValue?: string;
-}
-
-const contentEntry: RegistryEntry = {
-    headerPresenter: undefined,
-    bodyPresenter: ContentValueOrChildrenPresenter,
-    footerPresenter: undefined,
-};
-
-const choicesEntry: RegistryEntry = {
-    name: "Choices",
-    bodyPresenter: ListChildrenPresenter,
-};
-
-const choiceEntry: RegistryEntry = {
-    name: "Choice",
-    footerPresenter: ChoicePresenter,
-};
-
-const pageEntry: RegistryEntry = {
-    ...contentEntry,
-    name: "Page",
-};
-
-const accordionEntry: RegistryEntry = {
-    name: "Accordion",
-    bodyPresenter: AccordionPresenter,
-}
-
-const tabsEntry: RegistryEntry = {
-    name: "Tabs",
-    bodyPresenter: TabsPresenter,
-}
-
-const hintsEntry: RegistryEntry = {
-    name: "Hints",
-    bodyPresenter: (props) => <TabsPresenter {...props} hideTitles />,
-}
-
-const questionEntry: RegistryEntry = {
-    name: "Question",
-    bodyPresenter: BoxedContentValueOrChildrenPresenter,
-    footerPresenter: QuestionBodyPresenter,
-    blankValue: "Enter question body here",
-};
-
-const figureEntry: RegistryEntry = {
-    name: "Figure",
-    bodyPresenter: FigurePresenter,
-    blankValue: "Enter caption here",
-};
-
-export const REGISTRY: Record<TYPES, RegistryEntry> = {
-    content: contentEntry,
-    isaacConceptPage: pageEntry,
-    isaacEventPage: pageEntry,
-    isaacFastTrackQuestionPage: pageEntry,
-    isaacQuestionPage: pageEntry,
-    isaacQuiz: pageEntry,
-    isaacTopicSummaryPage: pageEntry,
-    page: pageEntry,
-    content$accordion: accordionEntry,
-    content$tabs: tabsEntry,
-    // Quick questions don't have choices or hints
-    isaacQuestion: {...questionEntry, headerPresenter: QuickQuestionPresenter, footerPresenter: AnswerPresenter},
-    isaacMultiChoiceQuestion: {...questionEntry, headerPresenter: MultipleChoiceQuestionPresenter},
-    choices: choicesEntry,
-    choices$freeTextRule: {...choicesEntry, footerPresenter: FreeTextQuestionInstructions},
-    choice: choiceEntry,
-    isaacNumericQuestion: {...questionEntry, headerPresenter: NumericQuestionPresenter},
-    quantity: choiceEntry,
-    isaacSymbolicQuestion: {...questionEntry, headerPresenter: SymbolicQuestionPresenter},
-    formula: choiceEntry,
-    isaacSymbolicChemistryQuestion: {...questionEntry, headerPresenter: ChemistryQuestionPresenter},
-    chemicalFormula: choiceEntry,
-    isaacStringMatchQuestion: {...questionEntry, headerPresenter: StringMatchQuestionPresenter},
-    stringChoice: choiceEntry,
-    isaacFreeTextQuestion: {...questionEntry, headerPresenter: StringMatchQuestionPresenter},
-    freeTextRule: choiceEntry,
-    hints: hintsEntry,
-    isaacSymbolicLogicQuestion: {...questionEntry, headerPresenter: LogicQuestionPresenter},
-    logicFormula: choiceEntry,
-    figure: figureEntry,
-};
-
+import { getEntryType } from "./registry";
 
 export interface SemanticItemProps {
     doc: Content;
@@ -178,11 +39,6 @@ export const Box: FunctionComponent<BoxProps> = ({name, onDelete, className, val
     </ValueWrapper>;
 };
 
-
-export function getEntryType(doc: Content) {
-    const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
-    return REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
-}
 
 export function SemanticItem({doc, update, onDelete, name, className}: SemanticItemProps) {
     const valueRef = useRef<ValuePresenterRef>(null);

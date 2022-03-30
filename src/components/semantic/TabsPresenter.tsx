@@ -3,12 +3,13 @@ import React, { useRef, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
-import { PresenterProps, SemanticItem } from "./SemanticItem";
+import { SemanticItem } from "./SemanticItem";
 import styles from "./tabs.module.css";
 import { deriveNewDoc } from "./ListChildrenPresenter";
 import { EditableIDProp, EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { EditableTextRef } from "./EditableText";
 import { safeLowercase } from "../../utils/strings";
+import { PresenterProps } from "./registry";
 
 export type TabsProps = PresenterProps & {
     index: number;

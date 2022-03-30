@@ -7,7 +7,12 @@ import styles from "./inserter.module.css";
 
 const blockTypes = {
     "content": {type: "content", encoding: "markdown", value: ""},
-    "code snippet": {type: "codeSnippet", encoding: "markdown", value: ""},
+    "code snippet": {
+        type: "codeSnippet",
+        language: "pseudocode",
+        code: "",
+        disableHighlighting: false,
+    },
     "question": {type: "isaacQuestion", encoding: "markdown", value: "", id: generate, 	answer: {
         "type": "content",
         "value": "",

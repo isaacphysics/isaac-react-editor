@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 
-import { PresenterProps, SemanticItem } from "./SemanticItem";
+import { SemanticItem } from "./SemanticItem";
 import {
     EditableDocPropFor,
     EditableIDProp,
@@ -24,6 +24,7 @@ import { SemanticDocProp } from "./SemanticDocProp";
 import { EditableText } from "./EditableText";
 import { CheckboxDocProp } from "./CheckboxDocProp";
 import { CHOICE_TYPES } from "./ChoiceInserter";
+import { PresenterProps } from "./registry";
 
 export type QUESTION_TYPES =
     | "isaacQuestion"

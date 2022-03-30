@@ -11,11 +11,11 @@ import { markdown } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { Button } from "reactstrap";
 
-import { getEntryType, PresenterProps } from "./SemanticItem";
 import styles from "./value.module.css";
 import { Content } from "../../isaac-data-types";
 import { TrustedHtml } from "../../isaac/TrustedHtml";
 import { TrustedMarkdown } from "../../isaac/TrustedMarkdown";
+import { getEntryType, PresenterProps } from "./registry";
 
 export interface ValuePresenterRef {
     startEdit: () => void;

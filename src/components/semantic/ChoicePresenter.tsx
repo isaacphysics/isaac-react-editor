@@ -1,7 +1,6 @@
 import React, { MutableRefObject, useImperativeHandle, useRef, } from "react";
 import { Button, Input, Label } from "reactstrap";
 
-import { PresenterProps } from "./SemanticItem";
 import {
     ChemicalFormula,
     Choice,
@@ -22,6 +21,7 @@ import { TrustedHtml } from "../../isaac/TrustedHtml";
 import { EditableValueProp } from "./EditableDocProp";
 import { EditableTextRef } from "./EditableText";
 import { CHOICE_TYPES } from "./ChoiceInserter";
+import { PresenterProps } from "./registry";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {

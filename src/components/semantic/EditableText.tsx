@@ -9,7 +9,7 @@ import React, {
     useRef,
     useState
 } from "react";
-import { Button, FormFeedback, Input } from "reactstrap";
+import { Button, FormFeedback, Input, Label } from "reactstrap";
 
 import styles from "./editable.module.css";
 import { safeLowercase } from "../../utils/strings";
@@ -29,7 +29,8 @@ export type EditableTextProps = {
     hasError?: (newText: string | undefined) => string | undefined;
     label?: string;
     noSupressSaves?: boolean;
-    hideWhenEmpty?: boolean;
+    hideWhenEmpty?: boolean
+    block?: boolean;
 };
 
 export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
@@ -81,6 +82,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  label,
                                  noSupressSaves,
                                  hideWhenEmpty,
+                                 block,
                              }, ref) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string>();
@@ -181,62 +183,73 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
         return null;
     }
 
-    const labelElement = label && <>{selected ?
-        <em>{label}:</em> : label} </>;
+    const labelElement = label && <><em>{label}:</em> </>;
     const labelLC = safeLowercase(label);
     const placeHolderLC = safeLowercase(placeHolder);
 
+    const Wrap = block ? "div" : "span";
     if (state.isEditing) {
-        return <span ref={wrapperRef} className={styles.isEditingWrapper}>
+        return <Wrap ref={wrapperRef} className={`${styles.isEditingWrapper} ${multiLine ? styles.multiLine : ""}`}>
             <span className={styles.controlWrapper}>
                 <span>
-                    {labelElement}
                     {multiLine ?
-                        <Input type="textarea"
-                            /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                               autoFocus
-                               value={state.value ?? ""}
-                               onChange={e => setCurrent(e.target.value)}
-                               onKeyDown={handleKey}
-                               placeholder={placeHolder}
-                               onBlur={onBlur}/>
+                        <>
+                            <div>{labelElement}</div>
+                            <Input type="textarea"
+                                /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                                   autoFocus
+                                   value={state.value ?? ""}
+                                   onChange={e => setCurrent(e.target.value)}
+                                   onKeyDown={handleKey}
+                                   placeholder={placeHolder}
+                                   onBlur={onBlur}/>
+                        </>
                         :
-                        <Input type="text"
-                            /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                               autoFocus
-                               value={state.value ?? ""}
-                               onChange={e => setCurrent(e.target.value)}
-                               onKeyDown={handleKey}
-                               placeholder={placeHolder}
-                               onBlur={onBlur}
-                               invalid={!!errorMessage}
-                        />
+                        <>
+                            {labelElement}
+                            <Input type="text"
+                                /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                                   autoFocus
+                                   value={state.value ?? ""}
+                                   onChange={e => setCurrent(e.target.value)}
+                                   onKeyDown={handleKey}
+                                   placeholder={placeHolder}
+                                   onBlur={onBlur}
+                                   invalid={!!errorMessage}
+                            />                        </>
+
                     }
                 </span>
                 {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
             </span>
             <Button onClick={cancel}>Cancel</Button>
             <Button onClick={() => save()}>Save</Button>
-        </span>
+        </Wrap>
     }
     if (nonEmpty) {
         return multiLine ?
-            <span>
+            <Wrap className={`${styles.notEditingWrapper} ${styles.multiLine}`}>
                 <button className={styles.startEdit} onClick={startEdit}>
                     {labelElement}
-                    {text === undefined ? <i>{placeHolder}</i> : escapedNewLineToLineBreakTag(text)}
+                    <pre>
+                        {text === undefined ? <i>{placeHolder}</i> : escapedNewLineToLineBreakTag(text)}
+                    </pre>
                 </button>
-            </span>
+            </Wrap>
             :
-            <button className={styles.startEdit} onClick={startEdit}>
-                {labelElement}
-                {text === undefined ?
-                    <i>{placeHolder}</i> : text}
-                {onDelete.current &&
-                    <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
-            </button>;
+            <Wrap className={styles.notEditingWrapper}>
+                <button className={styles.startEdit} onClick={startEdit}>
+                    {labelElement}
+                    {text === undefined ?
+                        <i>{placeHolder}</i> : text}
+                    {onDelete.current &&
+                        <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
+                </button>
+            </Wrap>;
     }
-    return <Button onClick={startEdit}>Set {labelLC || placeHolderLC}</Button>
+    return <Wrap className={styles.notEditingWrapper}>
+        <Button onClick={startEdit}>Set {labelLC || placeHolderLC}</Button>
+    </Wrap>;
 });
 
 EditableText.displayName = "EditableText";

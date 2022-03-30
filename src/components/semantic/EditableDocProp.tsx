@@ -1,8 +1,8 @@
-import { PresenterProps } from "./SemanticItem";
 import { Content } from "../../isaac-data-types";
 import { EditableText, EditableTextProps, EditableTextRef } from "./EditableText";
 import React, { forwardRef } from "react";
 import { KeysWithValsOfType } from "../../utils/types";
+import { PresenterProps } from "./registry";
 
 type EditableDocProps<D extends Content> =
     & PresenterProps<D>
