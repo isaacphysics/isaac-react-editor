@@ -22,7 +22,7 @@ converter.renderer.rules.link_open = function(tokens: LinkOpenToken[], idx/* opt
 };
 
 
-export function TrustedMarkdown({markdown}: {markdown: string}) {
+export const TrustedMarkdown = React.memo(({markdown}: {markdown: string}) => {
     // Couple of markdown tweaks we need to handle from TrustedMarkdown.tsx
     const regexRules = {
         "[$1]($2)": /\\link{([^}]*)}{([^}]*)}/g,
@@ -37,4 +37,6 @@ export function TrustedMarkdown({markdown}: {markdown: string}) {
     );
 
     return <TrustedHtml html={converter.render(regexProcessedMarkdown)} span />;
-}
+});
+
+TrustedMarkdown.displayName = "TrustedMarkdown";

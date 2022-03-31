@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { FigureNumberingContext } from "./IsaacTypes";
 import { katexify } from "./LaTeX";
 
-export const TrustedHtml = ({html, span, className}: {html: string; span?: boolean; className?: string}) => {
+export const TrustedHtml = React.memo(({html, span, className}: {html: string; span?: boolean; className?: string}) => {
     const booleanNotation = null;
     const screenReaderHoverText = true;
 
@@ -13,4 +13,6 @@ export const TrustedHtml = ({html, span, className}: {html: string; span?: boole
 
     const ElementType = span ? "span" : "div";
     return <ElementType className={className} dangerouslySetInnerHTML={{__html: html}} />;
-};
+});
+
+TrustedHtml.displayName = "TrustedHtml";
