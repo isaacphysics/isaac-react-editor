@@ -9,7 +9,7 @@ import { defaultGithubContext, processCode } from "./services/github";
 import { EditorScreen } from "./screens/EditorScreen";
 import { HistoryRouter } from './components/HistoryRouter';
 import { SemanticRoot } from "./components/semantic/SemanticRoot";
-import { testError } from "./testDocs";
+import { testDoc } from "./testDocs";
 
 
 export const AppContext = createContext({
@@ -30,8 +30,8 @@ function RedirectTo({path}: {path: string}) {
 }
 
 function TestEditor() {
-    const [doc, update] = useState(testError);
-    return <SemanticRoot doc={doc} update={(newContent) => update(newContent)}/>;
+    const [doc, update] = useState(testDoc);
+    return <SemanticRoot doc={doc} update={update}/>;
 }
 
 function App() {

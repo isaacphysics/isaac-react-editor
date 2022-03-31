@@ -7,7 +7,7 @@ import { InsertButton, InserterProps } from "./ListChildrenPresenter";
 export function ChoiceInserter<T extends Choice>(empty: T) {
     // noinspection UnnecessaryLocalVariableJS
     const ChoiceInserter = ({insert, position}: InserterProps) =>
-        <InsertButton onClick={() => insert({...empty, correct: position === 0} as Content)}/>;
+        <InsertButton onClick={() => insert(position, {...empty, correct: position === 0} as Content)}/>;
     return ChoiceInserter;
 }
 

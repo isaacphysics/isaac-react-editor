@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
 import { SemanticItem } from "./SemanticItem";
 import {
@@ -11,7 +11,7 @@ import {
 import styles from "./question.module.css";
 import { Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import {
-    ChoiceQuestion, IsaacGraphSketcherQuestion,
+    ChoiceQuestion, Content, IsaacGraphSketcherQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
@@ -25,6 +25,7 @@ import { EditableText } from "./EditableText";
 import { CheckboxDocProp } from "./CheckboxDocProp";
 import { CHOICE_TYPES } from "./ChoiceInserter";
 import { PresenterProps } from "./registry";
+import { useFixedRef } from "../../utils/hooks";
 
 export type QUESTION_TYPES =
     | "isaacQuestion"
@@ -134,18 +135,20 @@ export function QuickQuestionPresenter(props: PresenterProps) {
 
 export function HintsPresenter({doc, update}: PresenterProps) {
     const question = doc as IsaacQuestionBase;
+    const docRef = useFixedRef(doc);
     const hints = useMemo(() => {
         return {
             type: "hints",
             children: question.hints,
         };
     }, [question.hints]);
-    return <SemanticItem doc={hints} update={(newHints) => {
+    const childUpdate = useCallback((newHints: Content) => {
         update({
-            ...question,
+            ...docRef.current,
             hints: newHints.children,
         });
-    }} />;
+    }, [docRef, update]);
+    return <SemanticItem doc={hints} update={childUpdate} />;
 }
 
 const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
@@ -170,12 +173,14 @@ export function ChoicesPresenter({doc, update}: PresenterProps) {
             children: question.choices,
         };
     }, [question.type, question.choices]);
-    return <SemanticItem doc={choices} update={(newChoices) => {
+    const docRef = useFixedRef(doc);
+    const childUpdate = useCallback((newChoices: Content) => {
         update({
-            ...question,
+            ...docRef.current,
             choices: newChoices.children,
         });
-    }} />;
+    }, [docRef, update]);
+    return <SemanticItem doc={choices} update={childUpdate} />;
 }
 
 export function QuestionBodyPresenter(props: PresenterProps) {

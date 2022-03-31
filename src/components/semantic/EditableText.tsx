@@ -9,7 +9,7 @@ import React, {
     useRef,
     useState
 } from "react";
-import { Button, FormFeedback, Input, Label } from "reactstrap";
+import { Button, FormFeedback, Input } from "reactstrap";
 
 import styles from "./editable.module.css";
 import { safeLowercase } from "../../utils/strings";

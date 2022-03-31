@@ -1,5 +1,5 @@
-/* eslint-disable no-irregular-whitespace */ // For convenient construction of non-breaking spaces in custom strings
-import React, { useRef, useState } from "react";
+/* eslint-disable no-irregular-whitespace */  // For convenient construction of non-breaking spaces in custom strings
+import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
@@ -10,8 +10,11 @@ import { EditableIDProp, EditableSubtitleProp, EditableTitleProp } from "./Edita
 import { EditableTextRef } from "./EditableText";
 import { safeLowercase } from "../../utils/strings";
 import { PresenterProps } from "./registry";
+import { useFixedRef } from "../../utils/hooks";
 
-export type TabsProps = PresenterProps & {
+export type TabsProps = {
+    docRef: MutableRefObject<Content>;
+    update: (newContent: Content) => void;
     index: number;
     setIndex: (newIndex: number) => void;
     emptyDescription: string;
@@ -21,12 +24,12 @@ export type TabsProps = PresenterProps & {
     showTitles: boolean;
 };
 
-export function TabsHeader({doc, update, index, setIndex, elementName, styles, suppressHeaderNames, showTitles}: TabsProps) {
+export function TabsHeader({docRef, update, index, setIndex, elementName, styles, suppressHeaderNames, showTitles}: TabsProps) {
     const elementNameLC = safeLowercase(elementName);
     return <div className={styles.buttons}>
         <div className={styles.buttonsShifter}>
             <div className={styles.buttonsSpacer}/>
-            {doc.children?.map((child: Content, i) => {
+            {docRef.current.children?.map((child: Content, i) => {
                 return <Button key={child.id || `__index__${i}`}
                                outline
                                color={index === i ? "primary" : undefined}
@@ -44,7 +47,7 @@ export function TabsHeader({doc, update, index, setIndex, elementName, styles, s
                         e.preventDefault();
                     }}
                     onClick={() => {
-                        const newDoc = deriveNewDoc(doc);
+                        const newDoc = deriveNewDoc(docRef);
                         newDoc.children.push({type: "content", children: []} as Content);
                         update(newDoc);
                         setIndex(newDoc.children.length - 1);
@@ -63,42 +66,44 @@ type TabsMainProps = TabsProps & {
     extraButtons?: JSX.Element;
 };
 
-export function TabsMain({doc, update, index, setIndex, emptyDescription, elementName, styles, suppressHeaderNames, showTitles, back, forward, contentHeader, extraButtons}: TabsMainProps) {
+export function TabsMain({docRef, update, index, setIndex, emptyDescription, elementName, styles, suppressHeaderNames, showTitles, back, forward, contentHeader, extraButtons}: TabsMainProps) {
     const elementNameLC = safeLowercase(elementName);
 
-    const shift = (by: number) => {
-        const newDoc = deriveNewDoc(doc);
+    const shift = useCallback((by: number) => {
+        const newDoc = deriveNewDoc(docRef);
         const [item] = newDoc.children.splice(index, 1);
         newDoc.children.splice(index + by, 0, item);
         update(newDoc);
         setIndex(index + by);
-    };
+    }, [docRef, index, setIndex, update]);
 
-    const currentChild = doc.children?.[index] as Content;
-    const updateCurrentChild = (newContent: Content) => {
-        const newDoc = deriveNewDoc(doc);
+    const currentChild = docRef.current.children?.[index] as Content;
+    const updateCurrentChild = useCallback((newContent: Content) => {
+        const newDoc = deriveNewDoc(docRef);
         newDoc.children[index] = newContent;
         update(newDoc);
-    };
+    }, [docRef, index, update]);
+    const doDelete = useCallback(() => {
+        if (window.confirm(`Are you sure you want to delete this ${elementNameLC}?`)) {
+            const newDoc = deriveNewDoc(docRef);
+            newDoc.children.splice(index, 1);
+            update(newDoc);
+            const lastIndex = newDoc.children.length - 1;
+            if (index > lastIndex) {
+                setIndex(lastIndex);
+            }
+        }
+    }, [docRef, elementNameLC, index, setIndex, update]);
+
     return <div className={styles.main}>
         {currentChild && <React.Fragment key={currentChild.id || `__index__${index}`}>
             <div className={styles.header}>
                 <EditableIDProp doc={currentChild} update={updateCurrentChild} label={`${elementName} ID`}/>
                 {extraButtons}
                 <Button disabled={index <= 0} onClick={() => shift(-1)}>{back}</Button>
-                <Button disabled={index >= (doc.children?.length ?? 1) - 1}
+                <Button disabled={index >= (docRef.current.children?.length ?? 1) - 1}
                         onClick={() => shift(1)}>{forward}</Button>
-                <Button color="danger" onClick={() => {
-                    if (window.confirm(`Are you sure you want to delete this ${elementNameLC}?`)) {
-                        const newDoc = deriveNewDoc(doc);
-                        newDoc.children.splice(index, 1);
-                        update(newDoc);
-                        const lastIndex = newDoc.children.length - 1;
-                        if (index > lastIndex) {
-                            setIndex(lastIndex);
-                        }
-                    }
-                }}>Delete {elementNameLC}</Button>
+                <Button color="danger" onClick={doDelete}>Delete {elementNameLC}</Button>
             </div>
             {contentHeader}
             <SemanticItem className={styles.hideMargins} doc={currentChild} update={updateCurrentChild}/>
@@ -111,15 +116,32 @@ export function TabsMain({doc, update, index, setIndex, emptyDescription, elemen
     </div>;
 }
 
+export function useCurrentChild(docRef: React.MutableRefObject<Content>, update: <T extends Content>(newContent: T) => void, index: number) {
+    const currentChild = docRef.current.children?.[index] as Content | undefined;
+    const updateCurrentChild = useCallback((newContent: Content) => {
+        const newDoc = deriveNewDoc(docRef);
+        newDoc.children[index] = newContent;
+        update(newDoc);
+    }, [docRef, index, update]);
+    const currentChildProps = useMemo(() => ({
+            doc: currentChild as Content,
+            update: updateCurrentChild
+        }),
+        [currentChild, updateCurrentChild]);
+    return {currentChild, updateCurrentChild, currentChildProps};
+}
+
 export function TabsPresenter({hideTitles, ...props}: PresenterProps & {hideTitles?: boolean}) {
     const {doc, update} = props;
     const [index, setIndex] = useState(0);
+    const docRef = useFixedRef(doc);
 
     const editTitleRef = useRef<EditableTextRef>(null);
 
     const showTitles = !hideTitles;
     const allProps: TabsProps = {
-        ...props,
+        docRef,
+        update,
         index,
         setIndex,
         emptyDescription: "These tabs are empty.",
@@ -129,13 +151,10 @@ export function TabsPresenter({hideTitles, ...props}: PresenterProps & {hideTitl
         showTitles,
     };
 
-    const currentChild = doc.children?.[index] as Content | undefined;
-    const updateCurrentChild = (newContent: Content) => {
-        const newDoc = deriveNewDoc(doc);
-        newDoc.children[index] = newContent;
-        update(newDoc);
-    };
-    const currentChildProps = {doc: currentChild as Content, update: updateCurrentChild};
+    const {
+        currentChild,
+        currentChildProps
+    } = useCurrentChild(docRef, update, index);
 
     return <div className={styles.wrapper}>
         <TabsHeader {...allProps} />

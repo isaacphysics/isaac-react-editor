@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Box } from "./SemanticItem";
@@ -34,18 +34,20 @@ const blockTypes = {
     "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
 };
 
-export function Inserter({insert, forceOpen}: InserterProps) {
+export function Inserter({insert, forceOpen, position}: InserterProps) {
     const [isInserting, setInserting] = useState(false);
 
     const isOpen = forceOpen || isInserting;
+    const onDelete = useMemo(() => forceOpen ? undefined : () => setInserting(false),
+        [forceOpen]);
     return isOpen ?
-        <Box name="?" onDelete={forceOpen ? undefined : () => setInserting(false)}>
+        <Box name="?" onDelete={onDelete}>
             <div className={styles.wrapper}>
                 Please choose a block type:
                 <br />
                 {Object.entries(blockTypes).map(([name, empty]) =>
                     <Button key={name} color="link" onClick={() => {
-                        insert({...empty});
+                        insert(position, {...empty});
                         setInserting(false);
                     }}>{name}</Button>
                 )}

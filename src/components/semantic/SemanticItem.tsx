@@ -80,6 +80,8 @@ function SemanticItemInner(props: SemanticItemProps) {
     </Box>;
 }
 
+const SemanticItemInnerMemo = React.memo(SemanticItemInner);
+
 const empty = Symbol("empty") as unknown as string;
 function JSONEditor({doc, update}: PresenterProps) {
     const value = useRef(empty);
@@ -131,6 +133,6 @@ export class SemanticItem extends React.Component<SemanticItemProps, { hasError:
                 }} />
             </Box>;
         }
-        return <SemanticItemInner {...this.props} />;
+        return <SemanticItemInnerMemo {...this.props} />;
     }
 }

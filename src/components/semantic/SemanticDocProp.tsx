@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import { Content, ContentBase } from "../../isaac-data-types";
 
 import { SemanticItem, SemanticItemProps } from "./SemanticItem";
+import { useFixedRef } from "../../utils/hooks";
 
 type SemanticDocProps<K extends string> =
     & SemanticItemProps
@@ -12,10 +13,12 @@ type SemanticDocProps<K extends string> =
 
 export const SemanticDocProp = <K extends string>({doc, update, prop, ...rest}: SemanticDocProps<K>) => {
     const subDoc = doc[prop] as Content;
-    return <SemanticItem doc={subDoc} update={(newContent) => {
+    const docRef = useFixedRef(doc);
+    const childUpdate = useCallback((newContent: Content) => {
         update({
-            ...doc,
+            ...docRef.current,
             [prop]: newContent,
         });
-    }} {...rest} />
+    }, [docRef, update, prop]);
+    return <SemanticItem doc={subDoc} update={childUpdate} {...rest} />
 };

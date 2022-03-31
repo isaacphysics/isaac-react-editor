@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { MutableRefObject, useCallback, useMemo, useRef } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
@@ -9,10 +9,11 @@ import styles from "./styles.module.css";
 import { CHOICE_INSERTER_MAP, ChoiceInserter } from "./ChoiceInserter";
 import { generateGuid } from "../../utils/strings";
 import { PresenterProps } from "./registry";
+import { useFixedRef } from "../../utils/hooks";
 
 export const generate = Symbol("generate id") as unknown as string;
 export interface InserterProps {
-    insert: (newContent: Content) => void;
+    insert: (index: number, newContent: Content) => void;
     forceOpen: boolean;
     position: number;
 }
@@ -25,10 +26,10 @@ export function InsertButton(props: { onClick: () => void }) {
     </div>;
 }
 
-export function deriveNewDoc(doc: Content) {
+export function deriveNewDoc(doc: MutableRefObject<Content>) {
     return {
-        ...doc,
-        children: doc.children ? [...doc.children] : [],
+        ...doc.current,
+        children: doc.current.children ? [...doc.current.children] : [],
     };
 }
 
@@ -40,6 +41,47 @@ const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
     ...CHOICE_INSERTER_MAP,
     isaacQuiz: ChoiceInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []})
 }
+
+interface ListChildProps {
+    docRef: MutableRefObject<Content>;
+    update: (newContent: Content) => void;
+    child: Content;
+    index: number;
+    keyList: MutableRefObject<string[]>;
+}
+
+function ListChild({child, docRef, update, index, keyList}: ListChildProps) {
+    const childUpdate = useCallback((newContent: Content) => {
+        const newDoc = deriveNewDoc(docRef);
+        newDoc.children[index] = newContent;
+        update(newDoc);
+    }, [docRef, index, update]);
+
+    const onDelete = useCallback(() => {
+        const newDoc = deriveNewDoc(docRef);
+        newDoc.children.splice(index, 1);
+        keyList.current.splice(index, 1);
+        update(newDoc);
+    }, [docRef, index, keyList, update]);
+
+    const by = useCallback((amount: number) => {
+        const newDoc = deriveNewDoc(docRef);
+        const [d] = newDoc.children.splice(index, 1);
+        const [k] = keyList.current.splice(index, 1);
+        newDoc.children.splice(index + amount, 0, d);
+        keyList.current.splice(index, 0, k);
+        update(newDoc);
+    }, [docRef, index, keyList, update]);
+    const up = index > 0;
+    const down = index < (docRef.current.children?.length ?? 0) - 1;
+    const shift = useMemo(() => ({
+        up,
+        down,
+        by,
+    }), [by, down, up]);
+    return <SemanticItem doc={child} update={childUpdate} onDelete={onDelete} shift={shift}/>;
+}
+
 export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const keyList = useRef(UNINITIALISED);
     if (keyList.current === UNINITIALISED) {
@@ -48,44 +90,38 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
     }
     const result: JSX.Element[] = [];
 
+    const docRef = useFixedRef(doc);
+
+    const insert = useCallback((index: number, newContent: Content) => {
+        if (newContent.id === generate) {
+            newContent.id = generateGuid();
+            if (newContent.type === "isaacQuizSection") {
+                newContent.id = newContent.id?.substring(0, 8);
+            }
+        }
+        const newDoc = deriveNewDoc(docRef);
+        newDoc.children.splice(index, 0, newContent);
+        keyList.current.splice(index, 0, extractKey(newContent, index));
+        update(newDoc);
+    }, [docRef, update]);
+
     function addInserter(index: number, forceOpen: boolean) {
         const UseInserter = INSERTER_MAP[`${doc.type}$${doc.layout}`] || INSERTER_MAP[`${doc.type}`] || Inserter;
         // There is no optimal solution here: we want to keep inserter state between boxes, but if a box is deleted,
         // there is no general solution for keeping an inserter open neighbouring the deleted box.
         const key = `__insert_${keyList.current[index] ?? "last"}`;
-        result.push(<UseInserter key={key} position={index} forceOpen={forceOpen} insert={(newContent) => {
-            if (newContent.id === generate) {
-                newContent.id = generateGuid();
-                if (newContent.type === "isaacQuizSection") {
-                    newContent.id = newContent.id?.substring(0, 8);
-                }
-            }
-            const newDoc = deriveNewDoc(doc);
-            newDoc.children.splice(index, 0, newContent);
-            keyList.current.splice(index, 0, extractKey(newContent, index));
-            update(newDoc);
-        }} />);
+        result.push(<UseInserter key={key} position={index} forceOpen={forceOpen} insert={insert} />);
     }
 
     doc.children?.forEach((child, index) => {
         addInserter(index, false);
-        result.push(<SemanticItem key={keyList.current[index]} doc={child as Content} update={(newContent) => {
-            const newDoc = deriveNewDoc(doc);
-            newDoc.children[index] = newContent;
-            update(newDoc);
-        }} onDelete={() => {
-            const newDoc = deriveNewDoc(doc);
-            newDoc.children.splice(index, 1);
-            keyList.current.splice(index, 1);
-            update(newDoc);
-        }} shift={{up: index > 0, down: index < (doc.children?.length ?? 0) - 1, by: (amount) => {
-                const newDoc = deriveNewDoc(doc);
-                const [d] = newDoc.children.splice(index, 1);
-                const [k] = keyList.current.splice(index, 1);
-                newDoc.children.splice(index + amount, 0, d);
-                keyList.current.splice(index, 0, k);
-                update(newDoc);
-        }}}/>);
+        result.push(<ListChild key={keyList.current[index]}
+                               child={child as Content}
+                               docRef={docRef}
+                               update={update}
+                               index={index}
+                               keyList={keyList}
+        />);
     });
     addInserter(doc.children?.length || 0, doc.children?.length === 0);
     return <>

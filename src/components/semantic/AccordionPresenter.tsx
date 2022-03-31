@@ -4,10 +4,9 @@ import { Button, Input } from "reactstrap";
 import styles from "./accordion.module.css";
 import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { EditableText, EditableTextRef } from "./EditableText";
-import { TabsHeader, TabsMain, TabsProps } from "./TabsPresenter";
-import { deriveNewDoc } from "./ListChildrenPresenter";
-import { Content } from "../../isaac-data-types";
+import { TabsHeader, TabsMain, TabsProps, useCurrentChild } from "./TabsPresenter";
 import { PresenterProps } from "./registry";
+import { useFixedRef } from "../../utils/hooks";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {
@@ -152,9 +151,11 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
 export function AccordionPresenter(props: PresenterProps) {
     const [index, setIndex] = useState(0);
     const {doc, update} = props;
+    const docRef = useFixedRef(doc);
 
     const allProps: TabsProps = {
-        ...props,
+        docRef,
+        update,
         index,
         setIndex,
         emptyDescription: "This accordion is empty.",
@@ -164,14 +165,11 @@ export function AccordionPresenter(props: PresenterProps) {
     };
 
     const editTitleRef = useRef<EditableTextRef>(null);
-
-    const currentChild = doc.children?.[index] as Content | undefined;
-    const updateCurrentChild = (newContent: Content) => {
-        const newDoc = deriveNewDoc(doc);
-        newDoc.children[index] = newContent;
-        update(newDoc);
-    };
-    const currentChildProps = {doc: currentChild as Content, update: updateCurrentChild};
+    const {
+        currentChild,
+        updateCurrentChild,
+        currentChildProps
+    } = useCurrentChild(docRef, update, index);
 
     const currentChildDisplay = currentChild?.display as Display;
     const setCurrentChildDisplay = (display: Display | undefined) => updateCurrentChild({
