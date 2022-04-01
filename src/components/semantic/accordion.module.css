@@ -23,7 +23,7 @@
 .buttons {
     position: sticky;
     min-width: 110px;
-    top: 10px;
+    top: -20px;
     align-self: flex-start;
 }
 

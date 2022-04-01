@@ -23,6 +23,7 @@
     padding: 0.5em;
     position: relative;
     color: #444;
+    border: 0;
 }
 
 .boxLabel:before {
@@ -42,7 +43,7 @@
     display: block;
 }
 
-.boxHeader button {
+.boxHeader button:not(:first-child) {
     position: absolute;
     opacity: 0.5;
     display: none;
@@ -53,11 +54,11 @@
     transition: transform 0.2s;
 }
 
-.boxHeader:hover button {
+.boxHeader:hover button:not(:first-child) {
     opacity: 1;
 }
 
-.boxHeader button:hover {
+.boxHeader button:not(:first-child):hover {
     transform: scale(150%);
 }
 
