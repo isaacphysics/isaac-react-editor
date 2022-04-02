@@ -11,8 +11,10 @@ import React, {
 } from "react";
 import { Button, FormFeedback, Input } from "reactstrap";
 
-import styles from "./editable.module.css";
 import { safeLowercase } from "../../utils/strings";
+import { LaTeX } from "../../isaac/LaTeX";
+
+import styles from "./editable.module.css";
 
 export interface SaveOptions {
     movement?: number;
@@ -31,6 +33,7 @@ export type EditableTextProps = {
     noSupressSaves?: boolean;
     hideWhenEmpty?: boolean
     block?: boolean;
+    latex?: boolean;
 };
 
 export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
@@ -83,6 +86,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  noSupressSaves,
                                  hideWhenEmpty,
                                  block,
+                                 latex,
                              }, ref) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string>();
@@ -231,9 +235,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
             <Wrap className={`${styles.notEditingWrapper} ${styles.multiLine}`}>
                 <button className={styles.startEdit} onClick={startEdit}>
                     {labelElement}
-                    <pre>
-                        {text === undefined ? <i>{placeHolder}</i> : escapedNewLineToLineBreakTag(text)}
-                    </pre>
+                    {text === undefined ? <i>{placeHolder}</i> : latex ? <LaTeX markup={text} /> : escapedNewLineToLineBreakTag(text)}
                 </button>
             </Wrap>
             :
@@ -241,7 +243,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                 <button className={styles.startEdit} onClick={startEdit}>
                     {labelElement}
                     {text === undefined ?
-                        <i>{placeHolder}</i> : text}
+                        <i>{placeHolder}</i> : latex ? <LaTeX markup={text} /> : text}
                     {onDelete.current &&
                         <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
                 </button>

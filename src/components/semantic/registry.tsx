@@ -30,7 +30,12 @@ import { VideoPresenter } from "./VideoPresenter";
 import { GlossaryTermPresenter } from "./GlossaryTermPresenter";
 import { EmailTemplatePresenter } from "./EmailTemplatePresenter";
 import { AnvilAppPresenter } from "./AnvilAppPresenter";
-import { EventPagePresenter, QuizPagePresenter, QuizSectionPresenter } from "./PagePresenter";
+import {
+    EventPagePresenter,
+    PagePresenter,
+    QuizPagePresenter,
+    QuizSectionPresenter
+} from "./PagePresenter";
 import { PodPresenter } from "./PodPresenter";
 
 export type TYPES =
@@ -88,10 +93,6 @@ const choice: RegistryEntry = {
     name: "Choice",
     footerPresenter: ChoicePresenter,
 };
-const page: RegistryEntry = {
-    ...content,
-    name: "Page",
-};
 const accordion: RegistryEntry = {
     name: "Accordion",
     bodyPresenter: AccordionPresenter,
@@ -127,14 +128,24 @@ const glossaryTerm: RegistryEntry = {
     name: "Glossary term",
     bodyPresenter: GlossaryTermPresenter,
 };
+const anvilApp: RegistryEntry = {
+    name: "Anvil app",
+    bodyPresenter: AnvilAppPresenter,
+};
+const isaacPod = {
+    name: "Pod",
+    bodyPresenter: PodPresenter,
+};
+
+const page: RegistryEntry = {
+    ...content,
+    name: "Page",
+    headerPresenter: PagePresenter,
+};
 const emailTemplate: RegistryEntry = {
     ...page,
     name: "Email template",
     bodyPresenter: EmailTemplatePresenter,
-};
-const anvilApp: RegistryEntry = {
-    name: "Anvil app",
-    bodyPresenter: AnvilAppPresenter,
 };
 const isaacQuiz = {
     ...page,
@@ -149,10 +160,6 @@ const isaacEventPage = {
     ...page,
     name: "Event Page",
     headerPresenter: EventPagePresenter,
-};
-const isaacPod = {
-    name: "Pod",
-    bodyPresenter: PodPresenter,
 };
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {

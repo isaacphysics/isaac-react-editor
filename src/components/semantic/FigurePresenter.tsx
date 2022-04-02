@@ -1,34 +1,34 @@
 import React, { useContext } from "react";
 
 import { Figure } from "../../isaac-data-types";
+import { FigureNumberingContext } from "../../isaac/IsaacTypes";
 
-import {
-    EditableSubtitleProp,
-    EditableTitleProp,
-} from "./EditableDocProp";
 import styles from "./figure.module.css";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
-import { FigureNumberingContext } from "../../isaac/IsaacTypes";
 import { PresenterProps } from "./registry";
-
-// TODO: Part of the metadata editable world
+import { BaseValuePresenter } from "./BaseValuePresenter";
 
 export function FigurePresenter(props: PresenterProps<Figure>) {
-    const {doc} = props;
+    const {doc, update} = props;
 
     const figureNumbering = useContext(FigureNumberingContext);
     const figureNumber = figureNumbering[doc.id as string];
     return <>
-        <h2><EditableTitleProp {...props} placeHolder="Figure title" hideWhenEmpty/></h2>
-        <h3><EditableSubtitleProp {...props} placeHolder="Figure subtitle" hideWhenEmpty/></h3>
         <div className={styles.figureWrapper}>
             <div className={styles.figureImage} title={doc.altText}>
                 {doc.src}
             </div>
-            {doc.type === "figure" && <div className={styles.figureCaption}>
-                <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>
-                <ContentValueOrChildrenPresenter {...props} />
-            </div>}
+            <div className={styles.figureCaption}>
+                {doc.type === "figure" && <>
+                    <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>
+                    <ContentValueOrChildrenPresenter {...props} />
+                </>}
+                {doc.attribution && <>
+                    <BaseValuePresenter doc={{value: doc.attribution, encoding: "markdown"}} update={(newContent) => {
+                        update({...doc, attribution: newContent.value});
+                    }}/>
+                </>}
+            </div>
         </div>
     </>;
 }

@@ -7,7 +7,7 @@ import { useFixedRef } from "../../utils/hooks";
 
 type SemanticDocProps<K extends string> =
     & SemanticItemProps
-    & {doc: {[k in K]?: ContentBase | undefined}}
+    & {doc: {[k in K]?: ContentBase | undefined}} // FIXME: this type doesn't actually restrict doc
     & { prop: K };
 
 

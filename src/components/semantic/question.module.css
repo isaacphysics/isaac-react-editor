@@ -1,5 +1,6 @@
 .questionType {
     float: right;
+    margin-left: 1em;
 }
 
 .checkboxLabel {

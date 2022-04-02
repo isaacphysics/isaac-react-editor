@@ -1,11 +1,13 @@
+import React, { useContext } from "react";
 import katex from "katex";
 import he from "he";
+import { escapeHtml } from "remarkable/lib/common/utils";
 
 import 'katex/dist/contrib/mhchem.js';
 
 import renderA11yString from "./katex-a11y";
 
-import { BooleanNotation, FigureNumbersById } from "./IsaacTypes";
+import { BooleanNotation, FigureNumberingContext, FigureNumbersById } from "./IsaacTypes";
 
 type MathJaxMacro = string|[string, number];
 
@@ -307,3 +309,13 @@ export function katexify(html: string, booleanNotation : BooleanNotation | null,
     output += html.substring(index, html.length);
     return output;
 }
+
+export function LaTeX({markup, className}: {markup: string, className?: string}) {
+    const figureNumbers = useContext(FigureNumberingContext);
+
+    const escapedMarkup = escapeHtml(markup);
+    const katexHtml = katexify(escapedMarkup, null, false, figureNumbers);
+
+    return <span dangerouslySetInnerHTML={{__html: katexHtml}} className={className} />
+}
+

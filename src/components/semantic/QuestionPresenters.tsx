@@ -114,9 +114,7 @@ export function QuestionMetaPresenter(props: PresenterProps) {
         <div className={styles.questionType}>
             <QuestionTypeSelector {...props} />
         </div>
-        <h2><EditableTitleProp {...props} placeHolder="Question title"/></h2>
-        <h3><EditableSubtitleProp {...props} placeHolder="Question subtitle"
-                             hideWhenEmpty/></h3>
+        <h4><EditableTitleProp {...props} placeHolder="Question title"/></h4>
         <h6><EditableIDProp {...props} label="Question ID"/></h6>
     </div>;
 }
@@ -201,8 +199,8 @@ export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     </>;
 }
 
-const EditableSignificantFiguresMin = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMin");
-const EditableSignificantFiguresMax = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMax");
+const EditableSignificantFiguresMin = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMin", {label: "from"});
+const EditableSignificantFiguresMax = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMax", {label: "to"});
 const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuestion>) => {
     return <EditableText
         onSave={(newText) => {
@@ -213,9 +211,10 @@ const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuesti
         }}
         text={doc.availableUnits?.join(" | ")}
         label="Available units"
+        block
         />;
 };
-const EditableDisplayUnit = EditableDocPropFor<IsaacNumericQuestion>("displayUnit");
+const EditableDisplayUnit = EditableDocPropFor<IsaacNumericQuestion>("displayUnit",  {label: "Display unit", block: true});
 
 export function NumericQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
@@ -229,16 +228,16 @@ export function NumericQuestionPresenter(props: PresenterProps) {
         {!question.disregardSignificantFigures && <div className={styles.questionLabel}>
             Significant figures
             {" "}
-            <EditableSignificantFiguresMin doc={question} update={update} label="from" />
+            <EditableSignificantFiguresMin doc={question} update={update} />
             {" "}
-            <EditableSignificantFiguresMax doc={question} update={update} label="to" />
+            <EditableSignificantFiguresMax doc={question} update={update} />
         </div>}
         <div>
             <CheckboxDocProp doc={question} update={update} prop="requireUnits" label="Require choice of units" />
         </div>
         {question.requireUnits ?
             <EditableAvailableUnits doc={question} update={update} />
-        :   <EditableDisplayUnit doc={question} update={update} label="Display unit" />}
+        :   <EditableDisplayUnit doc={question} update={update} />}
         <div className={styles.questionLabel} /> {/* For spacing */}
     </>;
 }
@@ -254,9 +253,10 @@ const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQue
         }}
         text={doc.availableSymbols?.map(unit => unit.trim()).join(", ")}
         label="Available symbols"
+        latex
     />;
 };
-const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed");
+const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed", {latex: true});
 
 const availableMetaSymbols = [
     ["_trigs", "Trigs"],
@@ -384,12 +384,5 @@ export function LogicQuestionPresenter(props: PresenterProps) {
         <div className={styles.editableFullwidth}>
             <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
         </div>
-    </>;
-}
-
-// TODO: delete me
-export function GraphSketcherQuestionPresenter(props: PresenterProps<IsaacGraphSketcherQuestion>) {
-    return <>
-        <QuestionMetaPresenter {...props} />
     </>;
 }

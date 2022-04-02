@@ -1,28 +1,38 @@
 import React from "react";
 
-import { IsaacEventPage, IsaacQuiz, IsaacQuizSection } from "../../isaac-data-types";
+import { Content, IsaacEventPage, IsaacQuiz, IsaacQuizSection } from "../../isaac-data-types";
 
 import { PresenterProps } from "./registry";
 import { SemanticDocProp } from "./SemanticDocProp";
-import { EditableTitleProp } from "./EditableDocProp";
+import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { Button } from "reactstrap";
+
+export function PagePresenter(props: PresenterProps<Content>) {
+    return <>
+        <h1><EditableTitleProp {...props} placeHolder="Page title" /></h1>
+        <h2><EditableSubtitleProp {...props} placeHolder="Page subtitle" hideWhenEmpty/></h2>
+    </>;
+
+}
 
 export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
     return <>
+        <PagePresenter {...props} />
         <SemanticDocProp {...props} prop="rubric" name="Rubric" />
-        <h3>Quiz Sections</h3>
+        <h2>Quiz Sections</h2>
     </>;
 }
 
 export function QuizSectionPresenter(props: PresenterProps<IsaacQuizSection>) {
     return <>
-        <h4><EditableTitleProp {...props} label="Title" /></h4>
+        <h3><EditableTitleProp {...props} label="Title" /></h3>
     </>;
 }
 
 export function EventPagePresenter(props: PresenterProps<IsaacEventPage>) {
     const {doc} = props
     return <>
+        <PagePresenter {...props} />
         {doc.location && <>
             <Button color="link">
                 {doc.location.address?.addressLine1}, {doc.location.address?.county}

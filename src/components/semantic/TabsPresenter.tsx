@@ -160,9 +160,8 @@ export function TabsPresenter({hideTitles, ...props}: PresenterProps & {hideTitl
         <TabsHeader {...allProps} />
         <TabsMain {...allProps} back="◀" forward="▶" contentHeader={
             showTitles && currentChild ? <div className={styles.meta}>
-                <h2><EditableTitleProp ref={editTitleRef} {...currentChildProps}
-                                       placeHolder="Tab title" hideWhenEmpty/></h2>
-                <h3><EditableSubtitleProp {...currentChildProps} hideWhenEmpty/></h3>
+                <h3><EditableTitleProp ref={editTitleRef} {...currentChildProps}
+                                       placeHolder="Tab title" hideWhenEmpty /></h3>
             </div> : undefined
         } extraButtons={<>
             {showTitles && currentChild && !currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set tab title</Button>}

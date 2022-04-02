@@ -12,8 +12,16 @@
 
 .isEditingWrapper {
     margin-bottom: 0.5rem;
+}
+
+div.isEditingWrapper {
     display: flex;
 }
+
+span.isEditingWrapper {
+    display: inline-flex;
+}
+
 
 .controlWrapper {
     display: inline-flex;

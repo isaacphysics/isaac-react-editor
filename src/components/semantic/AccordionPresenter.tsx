@@ -195,8 +195,7 @@ export function AccordionPresenter(props: PresenterProps) {
             <TabsMain {...allProps} back="▲" forward="▼" contentHeader={
                 currentChild ? <>
                     <div className={styles.meta}>
-                        <h2><EditableTitleProp ref={editTitleRef} {...currentChildProps} placeHolder="Section title" hideWhenEmpty /></h2>
-                        <h3><EditableSubtitleProp {...currentChildProps} hideWhenEmpty /></h3>
+                        <h3><EditableTitleProp ref={editTitleRef} {...currentChildProps} placeHolder="Section title" hideWhenEmpty /></h3>
                         <div className={styles.audienceDisplayControls}>
                             {currentChildDisplay === undefined &&
                                 <Button onClick={() => {

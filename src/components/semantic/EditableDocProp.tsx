@@ -4,14 +4,15 @@ import React, { forwardRef } from "react";
 import { KeysWithValsOfType } from "../../utils/types";
 import { PresenterProps } from "./registry";
 
+type CustomTextProps = Omit<EditableTextProps, "onSave" | "text">;
 type EditableDocProps<D extends Content> =
     & PresenterProps<D>
-    & Omit<EditableTextProps, "onSave" | "text">;
+    & CustomTextProps;
 
 export const EditableDocPropFor = <
     D extends Content,
     K extends KeysWithValsOfType<D, string | undefined> = KeysWithValsOfType<D, string | undefined>,
->(prop: K) => {
+>(prop: K, defaultProps?: CustomTextProps) => {
     const typedRender = <D extends Content>({doc, update, ...rest}: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
         return <EditableText
             onSave={(newText) => {
@@ -23,21 +24,22 @@ export const EditableDocPropFor = <
             /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
             // @ts-ignore
             text={doc[prop]}
+            {...defaultProps}
             {...rest}
             ref={ref} />
     };
     return forwardRef(typedRender);
 };
 
-export const EditableIDProp = EditableDocPropFor("id");
-export const EditableTitleProp = EditableDocPropFor("title");
-export const EditableSubtitleProp = EditableDocPropFor("subtitle");
-export const EditableValueProp = EditableDocPropFor("value");
+export const EditableIDProp = EditableDocPropFor("id", {block: true});
+export const EditableTitleProp = EditableDocPropFor("title", {latex: true, block: true});
+export const EditableSubtitleProp = EditableDocPropFor("subtitle", {block: true});
+export const EditableValueProp = EditableDocPropFor("value", {block: true});
 
 export const NumberDocPropFor = <
     D extends Content,
     K extends KeysWithValsOfType<D, number | undefined> = KeysWithValsOfType<D, number | undefined>,
-    >(prop: K) => {
+    >(prop: K, defaultProps?: CustomTextProps) => {
     const typedRender = <D extends Content>({doc, update, ...rest}: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
         return <EditableText
             hasError={(newText) => {
@@ -58,6 +60,7 @@ export const NumberDocPropFor = <
             /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
             // @ts-ignore
             text={doc[prop]?.toString()}
+            {...defaultProps}
             {...rest}
             ref={ref} />
     };

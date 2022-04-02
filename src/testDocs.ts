@@ -1496,7 +1496,8 @@ export const testDoc = {
                             "src": "figures/123_tab_highlight.PNG",
                             "id": "fig4",
                             "title": "",
-                            "altText": "This is figure AltText."
+                            "altText": "This is figure AltText.",
+                            "attribution": "Made by Robin at $\\Lambda Cambridge$"
                         },
                         {
                             "type": "content",

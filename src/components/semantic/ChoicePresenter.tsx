@@ -158,9 +158,7 @@ export const GraphChoicePresenter = buildValuePresenter(
 
             return <pre>{doc.graphSpec}</pre>;
         } else {
-            return <>
-                <LabeledInput value={value} prop="graphSpec" label="Graph spec" type="textarea" className={styles.graphSpec} />
-            </>;
+            return <LabeledInput value={value} prop="graphSpec" label="Graph spec" type="textarea" className={styles.graphSpec} />;
         }
     },
     (doc: GraphChoice) => ({graphSpec: doc.graphSpec}),
@@ -178,10 +176,10 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     graphChoice: GraphChoicePresenter,
 };
 
-export function ChoicePresenter(props: PresenterProps) {
+export function ChoicePresenter(props: PresenterProps<Choice>) {
     const choiceValueRef = useRef<ValuePresenterRef>(null);
 
-    const choice = props.doc as Choice;
+    const choice = props.doc;
     const ChoiceValuePresenter = CHOICE_REGISTRY[choice.type as CHOICE_TYPES] ?? BaseValuePresenter;
     return <div className={styles.choice}>
         <Button onClick={() => {

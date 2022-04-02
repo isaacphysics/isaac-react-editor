@@ -77,6 +77,7 @@
 .header {
     text-align: right;
     padding: 0.5em;
+    padding-bottom: 0;
 }
 
 .main .header > * { /* For specificity */
@@ -88,9 +89,14 @@
 }
 
 .meta {
-    padding: 0 1em;
+    margin: 0.5em 0;
+    padding: 0 0.5em 0 1em;
     z-index: 2;
     position: relative;
+}
+
+.meta h3 {
+    margin-bottom: 0;
 }
 
 .meta::after {
@@ -102,8 +108,6 @@
 .audienceDisplayControls {
     float: right;
     position: relative;
-    top: -0.5em;
-    right: -0.5em;
 }
 
 .audienceDisplayControls :global(.form-control) {
