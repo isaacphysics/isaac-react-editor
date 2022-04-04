@@ -78,7 +78,7 @@ function ListChild({child, docRef, update, index, keyList}: ListChildProps) {
                 // do the scroll on the rendering is done. This sadly has a slightly jerky visual
                 // effect, but it works, so it'll do.
                 window.requestIdleCallback(() => {
-                    window.scrollBy({top: shift, behavior: "instant" as ScrollBehavior});
+                    window.scrollBy({top: shift, behavior: "smooth"});
                 });
             }
         }
