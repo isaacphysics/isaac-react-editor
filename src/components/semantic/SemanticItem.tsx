@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef, useState } from "react";
+import React, { FunctionComponent, useRef, useState, MouseEvent } from "react";
 import { Alert } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
@@ -12,7 +12,7 @@ import styles from "./styles.module.css";
 export interface Shift {
     up: boolean;
     down: boolean;
-    by: (amount: number) => void;
+    by: (amount: number, e: MouseEvent) => void;
 }
 
 export interface SemanticItemProps {
@@ -40,11 +40,11 @@ export const Box: FunctionComponent<BoxProps> = ({name, onClick,  onDelete, shif
             {name && <button className={styles.boxLabel} onClick={onClick} disabled={!onClick}>{name}</button>}
             <span className={styles.boxSpacer}/>
             {shift && shift.up && <button className={styles.boxUp}
-                                          onClick={() => shift?.by(-1)}>
+                                          onClick={(e) => shift?.by(-1, e)}>
                 ▲
             </button>}
             {shift && shift.down && <button className={styles.boxDown}
-                                            onClick={() => shift?.by(1)}>
+                                            onClick={(e) => shift?.by(1, e)}>
                     ▼
             </button>}
             {onDelete && <button className={styles.boxDelete}

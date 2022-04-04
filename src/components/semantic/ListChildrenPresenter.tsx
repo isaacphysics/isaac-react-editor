@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useCallback, useMemo, useRef } from "react";
+import React, { MutableRefObject, useCallback, useMemo, useRef, MouseEvent } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
@@ -64,7 +64,25 @@ function ListChild({child, docRef, update, index, keyList}: ListChildProps) {
         update(newDoc);
     }, [docRef, index, keyList, update]);
 
-    const by = useCallback((amount: number) => {
+    const by = useCallback((amount: number, e: MouseEvent) => {
+        const elementToMove = (e.target as HTMLElement)?.parentElement?.parentElement;
+        if (elementToMove) {
+            const sibling = amount > 0 ? "nextElementSibling" : "previousElementSibling";
+            const otherElement = elementToMove[sibling]?.[sibling] as HTMLElement|null;
+            if (otherElement) {
+                const otherHeight = otherElement.scrollHeight;
+                const gap = 18; // 1em margin plus 1px top and bottom borders
+                const shift = (otherHeight + gap) * amount;
+                // Since the browser maintains scroll position in its own way, doing the scroll
+                // before React has repainted leads to weird shifts when going downwards, so we'll
+                // do the scroll on the rendering is done. This sadly has a slightly jerky visual
+                // effect, but it works, so it'll do.
+                window.requestIdleCallback(() => {
+                    window.scrollBy({top: shift, behavior: "instant" as ScrollBehavior});
+                });
+            }
+        }
+
         const newDoc = deriveNewDoc(docRef);
         const [d] = newDoc.children.splice(index, 1);
         const [k] = keyList.current.splice(index, 1);
