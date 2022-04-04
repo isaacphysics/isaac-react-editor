@@ -35,6 +35,35 @@
     width: 0;
 }
 
+.metaLabel {
+    background: #ddd;
+    padding: 0.5em;
+    position: absolute;
+    right: 100px;
+    color: #444;
+    border: 0;
+}
+
+.metaLabel:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-bottom: 0.5em solid white;
+    border-left: 0.5em solid transparent;
+    width: 0;
+}
+
+.metaLabel:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    border-bottom: 0.5em solid white;
+    border-right: 0.5em solid transparent;
+    width: 0;
+}
+
 .boxSpacer {
     flex-grow: 1;
 }
@@ -43,7 +72,7 @@
     display: block;
 }
 
-.boxHeader button:not(:first-child) {
+.iconButton {
     position: absolute;
     opacity: 0.5;
     display: none;
@@ -54,27 +83,27 @@
     transition: transform 0.2s;
 }
 
-.boxHeader:hover button:not(:first-child) {
+.boxHeader:hover .iconButton {
     opacity: 1;
 }
 
-.boxHeader button:not(:first-child):hover {
+.iconButton:hover {
     transform: scale(150%);
 }
 
 .boxUp {
     right: 66px;
-    top: -10px;
+    top: -9px;
 }
 
 .boxDown {
     right: 31px;
-    top: -10px;
+    top: -9px;
 }
 
 .boxDelete {
     right: -4px;
-    top: -8px;
+    top: -7px;
 }
 
 .boxDeleteHovered {
@@ -89,6 +118,12 @@
 
 .boxDeleteHovered > *:not(:first-child) {
     opacity: 0.4;
+}
+
+.metadata {
+    margin: -0.5em -1em 1em;
+    padding: 0 1em 0.5em;
+    border-bottom: #eee 1px solid;
 }
 
 .box:hover > .inserter {

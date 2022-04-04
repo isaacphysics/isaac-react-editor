@@ -37,6 +37,7 @@ import {
     QuizSectionPresenter
 } from "./PagePresenter";
 import { PodPresenter } from "./PodPresenter";
+import { defaultMeta, MetaItemKey } from "./Metadata";
 
 export type TYPES =
     | "content"
@@ -47,6 +48,7 @@ export type TYPES =
     | "isaacFastTrackQuestionPage"
     | "isaacEventPage"
     | "isaacTopicSummaryPage"
+    | "isaacPageFragment"
     | "page"
     | "choices"
     | "choices$freeTextRule"
@@ -78,6 +80,7 @@ interface RegistryEntry {
     bodyPresenter?: ValuePresenter;
     footerPresenter?: Presenter;
     blankValue?: string;
+    metadata?: MetaItemKey[];
 }
 
 const content: RegistryEntry = {
@@ -111,18 +114,21 @@ const question: RegistryEntry = {
     footerPresenter: QuestionBodyPresenter,
     blankValue: "Enter question body here",
 };
+const mediaMeta: MetaItemKey[] = [...defaultMeta, "altText", "attribution"];
 const figure: RegistryEntry = {
     name: "Figure",
     bodyPresenter: FigurePresenter,
     blankValue: "Enter caption here",
-};
-const codeSnippet: RegistryEntry = {
-    name: "Code Snippet",
-    bodyPresenter: CodeSnippetPresenter,
+    metadata: mediaMeta,
 };
 const video: RegistryEntry = {
     name: "Video",
     bodyPresenter: VideoPresenter,
+    metadata: mediaMeta,
+};
+const codeSnippet: RegistryEntry = {
+    name: "Code Snippet",
+    bodyPresenter: CodeSnippetPresenter,
 };
 const glossaryTerm: RegistryEntry = {
     name: "Glossary term",
@@ -131,46 +137,76 @@ const glossaryTerm: RegistryEntry = {
 const anvilApp: RegistryEntry = {
     name: "Anvil app",
     bodyPresenter: AnvilAppPresenter,
+    metadata: [...defaultMeta, "appId", "appAccessKey"],
 };
-const isaacPod = {
+const isaacPod: RegistryEntry = {
     name: "Pod",
     bodyPresenter: PodPresenter,
+    metadata: [...defaultMeta, "published"]
+};
+const emailTemplate: RegistryEntry = {
+    ...content,
+    name: "Email template",
+    bodyPresenter: EmailTemplatePresenter,
+    metadata: [...defaultMeta, "published"]
+};
+const isaacWildcard: RegistryEntry = {
+    metadata: [...defaultMeta, "description", "url"],
 };
 
-const page: RegistryEntry = {
+const pageMeta: MetaItemKey[] = ["audience", ...defaultMeta, "relatedContent"];
+const pageMetaTail: MetaItemKey[] = ["published", "deprecated"];
+const basePage: RegistryEntry = {
     ...content,
     name: "Page",
     headerPresenter: PagePresenter,
+    metadata: pageMeta,
 };
-const emailTemplate: RegistryEntry = {
-    ...page,
-    name: "Email template",
-    bodyPresenter: EmailTemplatePresenter,
+const contentPage: RegistryEntry = {
+    ...basePage,
+    metadata: [...pageMeta, ...pageMetaTail, "summary"],
 };
-const isaacQuiz = {
-    ...page,
+const isaacTopicSummaryPage: RegistryEntry = {
+    ...contentPage,
+    metadata: [...contentPage.metadata ?? [], "linkedGameboards"],
+};
+const isaacQuestionPage: RegistryEntry = {
+    ...basePage,
+    metadata: [...pageMeta, "attribution", "level", "supersededBy", ...pageMetaTail],
+};
+const isaacConceptPage: RegistryEntry = {
+    ...isaacQuestionPage,
+    metadata: [...isaacQuestionPage.metadata ?? [], "summary"]
+};
+const isaacEventPage: RegistryEntry = {
+    ...basePage,
+    name: "Event Page",
+    headerPresenter: EventPagePresenter,
+    metadata: [...pageMeta, ...pageMetaTail, "emailEventDetails", "emailConfirmedBookingText", "emailWaitingListBookingText", "date", "end_date", "bookingDeadline", "prepWorkDeadline", "numberOfPlaces", "eventStatus", "location", "isaacGroupToken", "allowGroupReservations", "groupReservationLimit", "preResources", "postResources"],
+};
+
+const isaacQuiz:RegistryEntry = {
+    ...content,
     name: "Quiz",
     headerPresenter: QuizPagePresenter,
+    metadata: [...defaultMeta, "level", "visibleToStudents", "hiddenFromTeachers", "published"],
 };
 const isaacQuizSection = {
     ...content,
     headerPresenter: QuizSectionPresenter,
 };
-const isaacEventPage = {
-    ...page,
-    name: "Event Page",
-    headerPresenter: EventPagePresenter,
-};
+
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
-    isaacConceptPage: page,
+    page: contentPage,
+    isaacTopicSummaryPage: isaacTopicSummaryPage,
+    isaacPageFragment: contentPage,
+    isaacConceptPage,
+    isaacQuestionPage,
+    isaacFastTrackQuestionPage: isaacQuestionPage,
     isaacEventPage,
-    isaacFastTrackQuestionPage: page,
-    isaacQuestionPage: page,
     isaacQuiz,
-    isaacTopicSummaryPage: page,
-    page,
     content$accordion: accordion,
     content$tabs: tabs,
     hints,

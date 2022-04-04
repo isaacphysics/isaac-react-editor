@@ -1,0 +1,17 @@
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+    margin-bottom: 0.5em;
+    align-items: baseline;
+}
+
+.label {
+    text-align: right;
+}
+
+.row :global(.form-check-input) {
+    position: static;
+    margin: 0;
+}
