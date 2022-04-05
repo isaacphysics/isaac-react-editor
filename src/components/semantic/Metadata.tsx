@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
-import { Col, Form, FormText, Input, Label, Row } from "reactstrap";
+import { Col, Form, FormText, Input, Label } from "reactstrap";
 import { InputType } from "reactstrap/lib/Input";
 
 import { Content } from "../../isaac-data-types";
@@ -11,6 +11,7 @@ import { MetaItems } from "./metaItems";
 interface MetaOptions {
     hasWarning?: (value: string) => string | undefined;
     type?: InputType;
+    presenter?: React.FunctionComponent<MetaItemPresenterProps>;
     defaultValue?: any;
 }
 type MetaItem = string | [string, MetaOptions];
@@ -45,21 +46,23 @@ function checkWarning(options: MetaOptions, newValue: string, setWarning: (value
     }
 }
 
-function MetaItemPresenter({doc, update, prop, name, options}: PresenterProps & {prop: string; name: string; options: MetaOptions}) {
-    const docProp = doc[prop as keyof Content] as string ?? options.defaultValue ?? "";
-    const [warning, setWarning] = useState<string>();
+export type MetaItemPresenterProps<D extends Content = Content> =
+    PresenterProps<D>
+    & {
+       prop: string;
+        name: string;
+        options: MetaOptions
+    }
+;
 
-    const [value, setValue] = useState(docProp);
-    useEffect(() => {
-        setValue(docProp);
-        checkWarning(options, docProp, setWarning);
-    }, [docProp, options]);
+function MetaItemPresenter({doc, update, prop, name, options}: MetaItemPresenterProps) {
+    const value = (doc[prop as keyof Content] as string || options.defaultValue) ?? "";
+    const [warning, setWarning] = useState<string>();
 
     const onChange = (newValue: string) => {
         if (options.type === "number") {
             newValue = parseInt(newValue, 10) as unknown as string;
         }
-        setValue(newValue);
         checkWarning(options, newValue, setWarning);
         update({
             ...doc,
@@ -86,12 +89,13 @@ export function MetadataPresenter(props: PresenterProps & { metadata: MetaItemKe
     return <Form>
         {metadata.map((prop) => {
             const [name, options] = getMetaItem(prop);
+            const Presenter = options.presenter ?? MetaItemPresenter;
             return <Label key={prop} className={styles.row}>
                 <Col xs={2} className={styles.label}>
                     {name}
                 </Col>
                 <Col xs={10}>
-                    <MetaItemPresenter {...rest} prop={prop} name={name} options={options} />
+                    <Presenter {...rest} prop={prop} name={name} options={options} />
                 </Col>
             </Label>;
         })}
