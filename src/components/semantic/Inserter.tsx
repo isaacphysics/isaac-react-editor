@@ -2,8 +2,9 @@ import React, { useMemo, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Box } from "./SemanticItem";
-import { generate, InsertButton, InserterProps } from "./ListChildrenPresenter";
+import { InsertButton, InserterProps } from "./ListChildrenPresenter";
 import styles from "./inserter.module.css";
+import { generate } from "../../utils/keyedListHook";
 
 const blockTypes = {
     "content": {type: "content", encoding: "markdown", value: ""},
