@@ -1,12 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Input } from "reactstrap";
 
 import styles from "./accordion.module.css";
-import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
-import { EditableText, EditableTextRef } from "./EditableText";
-import { TabsHeader, TabsMain, TabsProps, useCurrentChild } from "./TabsPresenter";
+import { EditableTitleProp } from "./EditableDocProp";
+import { EditableText } from "./EditableText";
+import { TabsHeader, TabsMain, useTabs } from "./TabsPresenter";
 import { PresenterProps } from "./registry";
-import { useFixedRef } from "../../utils/hooks";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {
@@ -149,30 +148,23 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
 }
 
 export function AccordionPresenter(props: PresenterProps) {
-    const [index, setIndex] = useState(0);
     const {doc, update} = props;
-    const docRef = useFixedRef(doc);
-
-    const allProps: TabsProps = {
-        docRef,
-        update,
-        index,
-        setIndex,
+    const {
+        editTitleRef,
+        currentChild,
+        allProps,
+        currentChildProps
+    } = useTabs(props, {
         emptyDescription: "This accordion is empty.",
         elementName: "Section",
         styles,
         showTitles: false,
-    };
+    });
 
-    const editTitleRef = useRef<EditableTextRef>(null);
-    const {
-        currentChild,
-        updateCurrentChild,
-        currentChildProps
-    } = useCurrentChild(docRef, update, index);
+    const {keyList, index, updateChild} = allProps;
 
     const currentChildDisplay = currentChild?.display as Display;
-    const setCurrentChildDisplay = (display: Display | undefined) => updateCurrentChild({
+    const setCurrentChildDisplay = (display: Display | undefined) => updateChild({
         ...currentChild,
         display
     });
@@ -208,7 +200,7 @@ export function AccordionPresenter(props: PresenterProps) {
                                 </Button>
                             }
                             {currentChildDisplay !== undefined &&
-                                <AudienceDisplayControl key={index} display={currentChildDisplay} set={setCurrentChildDisplay} title="Display Override" />
+                                <AudienceDisplayControl key={keyList[index]} display={currentChildDisplay} set={setCurrentChildDisplay} title="Display Override" />
                             }
                         </div>
                     </div>
@@ -216,7 +208,7 @@ export function AccordionPresenter(props: PresenterProps) {
             } extraButtons={currentChild ? <>
                 {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
                 <EditableText onSave={(newLevel) => {
-                    updateCurrentChild({
+                    updateChild({
                         ...currentChild,
                         level: newLevel ? parseInt(newLevel, 10) : undefined,
                     });
