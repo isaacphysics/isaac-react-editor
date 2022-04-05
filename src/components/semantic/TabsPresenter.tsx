@@ -98,7 +98,7 @@ export function TabsMain({docRef, update, index, setIndex, emptyDescription, ele
     return <div className={styles.main}>
         {currentChild && <React.Fragment key={currentChild.id || `__index__${index}`}>
             <div className={styles.header}>
-                <EditableIDProp doc={currentChild} update={updateCurrentChild} label={`${elementName} ID`}/>
+                <EditableIDProp doc={currentChild} update={updateCurrentChild} label={`${elementName} ID`} block={false} />
                 {extraButtons}
                 <Button disabled={index <= 0} onClick={() => shift(-1)}>{back}</Button>
                 <Button disabled={index >= (docRef.current.children?.length ?? 1) - 1}
