@@ -1,3 +1,39 @@
+/**
+ * The main entry point for the editor is SemanticItem.
+ *
+ * SemanticItem displays each item based on a set of "presenters" for each type (and layout) of content.
+ * Each item is displayed with various optional features:
+ * - name label (like "Accordion")
+ * - delete button
+ * - buttons for moving that item up/down within a list
+ * - metadata editing toggle
+ *
+ * Each item is configured in registry.tsx based on the type (and optionally layout) of the content.
+ * We overload layout for some internal purposes such as recording the correct type of choice when
+ * presenting a list of choices.
+ *
+ * The body of each item is made up of 3 presenters:
+ * - a header presenter (showing things like title and subtitle)
+ * - a body presenter (which functions like ContentValueOrChildren in the front-end)
+ * - a footer presenter (e.g. for answers in questions)
+ *
+ * Each presenter receives the whole Content object (making it easier for e.g. the ListChildrenPresenter
+ * to do different things with different types of content), and an update function.
+ *
+ * The body of an item can also show a metadata block ahead of the header which is configured with
+ * the metadata field in the registry (and is less directly customisable).
+ *
+ * Clicking on the name label toggles a JSON editor to directly edit the content. The JSON editor is
+ * also shown in the case of any error with parsing the JSON or an error in a Presenter.
+ *
+ * Clicking elsewhere in the header or empty space of the item starts editing the value (if possible)
+ * This was to make it easier to click empty values to initiate editing.
+ *
+ * Each item is passed an update function which is used to save changes. Each time a sub-presenter
+ * is created for a piece of sub-content (e.g. for each child in children), an update function is
+ * created that bubbles up the update to that child. In this way, Presenter has a uniform interface.
+ */
+
 import React, { FunctionComponent, MouseEvent, useRef, useState } from "react";
 import { Alert } from "reactstrap";
 
