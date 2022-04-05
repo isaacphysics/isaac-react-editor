@@ -3,15 +3,23 @@
     flex-wrap: wrap;
     margin-right: -15px;
     margin-left: -15px;
-    margin-bottom: 0.5em;
     align-items: baseline;
+    margin-bottom: 0;
 }
 
 .label {
     text-align: right;
 }
 
+.row :global(.form-control), .row :global(.btn) {
+    margin-bottom: 0.5em;
+}
+
 .row :global(.form-check-input) {
     position: static;
-    margin: 0;
+    margin: 12px 0 calc(13px + 0.5em);
+}
+
+.row :global(.btn-link.btn-sm) {
+    text-decoration: none !important;
 }

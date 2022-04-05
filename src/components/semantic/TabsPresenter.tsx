@@ -27,7 +27,7 @@ export type TabsProps = {
     currentChild: Content | undefined;
     doInsert: (newContent: Content) => void;
     doShift: (amount: number) => void;
-    updateChild: (newContent: Content) => void;
+    updateCurrentChild: (newContent: Content) => void;
     doRemove: () => void;
     keyList: string[];
     index: number;
@@ -74,7 +74,7 @@ type TabsMainProps = TabsProps & {
     extraButtons?: JSX.Element;
 };
 
-export function TabsMain({docRef, currentChild, updateChild, doRemove, doShift, keyList, index, emptyDescription, elementName, styles, suppressHeaderNames, showTitles, back, forward, contentHeader, extraButtons}: TabsMainProps) {
+export function TabsMain({docRef, currentChild, updateCurrentChild, doRemove, doShift, keyList, index, emptyDescription, elementName, styles, suppressHeaderNames, showTitles, back, forward, contentHeader, extraButtons}: TabsMainProps) {
     const elementNameLC = safeLowercase(elementName);
     const doDelete = useCallback(() => {
         if (window.confirm(`Are you sure you want to delete this ${elementNameLC}?`)) {
@@ -85,7 +85,7 @@ export function TabsMain({docRef, currentChild, updateChild, doRemove, doShift, 
     return <div className={styles.main}>
         {currentChild && <React.Fragment key={keyList[index]}>
             <div className={styles.header}>
-                <EditableIDProp doc={currentChild} update={updateChild} label={`${elementName} ID`} block={false} />
+                <EditableIDProp doc={currentChild} update={updateCurrentChild} label={`${elementName} ID`} block={false} />
                 {extraButtons}
                 <Button disabled={index <= 0} onClick={() => doShift(-1)}>{back}</Button>
                 <Button disabled={index >= (docRef.current.children?.length ?? 1) - 1}
@@ -93,7 +93,7 @@ export function TabsMain({docRef, currentChild, updateChild, doRemove, doShift, 
                 <Button color="danger" onClick={doDelete}>Delete {elementNameLC}</Button>
             </div>
             {contentHeader}
-            <SemanticItem className={styles.hideMargins} doc={currentChild} update={updateChild}/>
+            <SemanticItem className={styles.hideMargins} doc={currentChild} update={updateCurrentChild}/>
         </React.Fragment>}
         {!currentChild && <div className={styles.empty}>
             {emptyDescription}
@@ -115,7 +115,7 @@ export function useTabs({doc, update, hideTitles}: TabsPresenterProps, settings:
     const {
         insert,
         keyList,
-        update: updateChildren,
+        updateChild,
         shiftBy,
         remove
     } = useKeyedList(doc?.children, deriveNewList, update);
@@ -125,7 +125,7 @@ export function useTabs({doc, update, hideTitles}: TabsPresenterProps, settings:
         insert(newIndex, newChild);
         setIndex(newIndex);
     }, [docRef, insert]);
-    const updateChild = useWithIndex(updateChildren, index);
+    const updateCurrentChild = useWithIndex(updateChild, index);
     const doShift = useCallback((amount: number) => {
         shiftBy(index, amount);
         setIndex(index + amount);
@@ -145,9 +145,9 @@ export function useTabs({doc, update, hideTitles}: TabsPresenterProps, settings:
     const allProps: TabsProps = {
         docRef,
         currentChild,
+        updateCurrentChild,
         doInsert,
         doShift,
-        updateChild,
         doRemove,
         keyList,
         index,
@@ -157,9 +157,9 @@ export function useTabs({doc, update, hideTitles}: TabsPresenterProps, settings:
 
     const currentChildProps = useMemo(() => ({
         doc: currentChild as Content,
-        update: updateChild
+        update: updateCurrentChild
     }),
-    [currentChild, updateChild]);
+    [currentChild, updateCurrentChild]);
 
     return {editTitleRef, currentChild, allProps, currentChildProps};
 }

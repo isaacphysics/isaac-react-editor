@@ -45,7 +45,7 @@ export function useKeyedList<T, D>(items: T[] | undefined, deriveNewList: () => 
             keyList.current.splice(index, 0, k);
             update(newDoc);
         }, [deriveNewList, update]),
-        update: useCallback((index: number, newValue: T) => {
+        updateChild: useCallback((index: number, newValue: T) => {
             const [newDoc, newList] = deriveNewList();
             newList[index] = newValue;
             update(newDoc);

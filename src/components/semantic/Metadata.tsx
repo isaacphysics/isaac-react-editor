@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import { Col, Form, FormText, Input, Label } from "reactstrap";
 import { InputType } from "reactstrap/lib/Input";
 
@@ -9,10 +9,11 @@ import styles from "./metadata.module.css";
 import { MetaItems } from "./metaItems";
 
 interface MetaOptions {
-    hasWarning?: (value: string) => string | undefined;
+    hasWarning?: (value: unknown) => string | undefined;
     type?: InputType;
     presenter?: React.FunctionComponent<MetaItemPresenterProps>;
     defaultValue?: any;
+    options?: Record<string, string>;
 }
 type MetaItem = string | [string, MetaOptions];
 
@@ -35,8 +36,8 @@ function getMetaItem(item: MetaItemKey): [string, MetaOptions] {
     return [metaItem, {}];
 }
 
-function checkWarning(options: MetaOptions, newValue: string, setWarning: (value: (string | undefined)) => void) {
-    if (options.hasWarning) {
+function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void) {
+    if (options?.hasWarning) {
         const warning = options.hasWarning(newValue);
         if (warning) {
             setWarning(warning);
@@ -49,19 +50,25 @@ function checkWarning(options: MetaOptions, newValue: string, setWarning: (value
 export type MetaItemPresenterProps<D extends Content = Content> =
     PresenterProps<D>
     & {
-       prop: string;
+        prop: string;
         name: string;
-        options: MetaOptions
+        options?: MetaOptions
     }
 ;
 
-function MetaItemPresenter({doc, update, prop, name, options}: MetaItemPresenterProps) {
-    const value = (doc[prop as keyof Content] as string || options.defaultValue) ?? "";
+export function MetaItemPresenter({doc, update, prop, name, options}: MetaItemPresenterProps) {
     const [warning, setWarning] = useState<string>();
 
-    const onChange = (newValue: string) => {
-        if (options.type === "number") {
-            newValue = parseInt(newValue, 10) as unknown as string;
+    let value = (doc[prop as keyof Content] as string || options?.defaultValue) ?? "";
+    switch (options?.type) {
+        case "datetime-local": value = new Date(value).toJSON()?.slice(0, -8); break;
+    }
+
+    const onChange = (value: string) => {
+        let newValue: unknown = value;
+        switch (options?.type) {
+            case "number": newValue = parseInt(value, 10); break;
+            case "datetime-local": newValue = new Date(value).valueOf(); break;
         }
         checkWarning(options, newValue, setWarning);
         update({
@@ -74,11 +81,16 @@ function MetaItemPresenter({doc, update, prop, name, options}: MetaItemPresenter
     const checkedOnChange = (e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked as unknown as string);
 
     return <>
-        <Input type={options.type ?? "text"}
-               value={options.type !== "checkbox" ? value : undefined}
-               checked={options.type === "checkbox" ? value as unknown as boolean : undefined}
-               onChange={options.type !== "checkbox" ? valueOnChange : checkedOnChange}
+        <Input type={options?.type ?? "text"}
+               value={options?.type !== "checkbox" ? value : undefined}
+               checked={options?.type === "checkbox" ? value as unknown as boolean : undefined}
+               onChange={options?.type !== "checkbox" ? valueOnChange : checkedOnChange}
                invalid={!!warning}
+               // eslint-disable-next-line react/no-children-prop
+               children={options?.options && Object.entries(options?.options).map(([key, label]) =>
+                   <option key={key} value={key}>{label}</option>
+               )}
+               placeholder={name}
         />
         {warning && <FormText>{warning}</FormText>}
     </>;

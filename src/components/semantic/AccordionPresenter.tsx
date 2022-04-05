@@ -161,10 +161,10 @@ export function AccordionPresenter(props: PresenterProps) {
         showTitles: false,
     });
 
-    const {keyList, index, updateChild} = allProps;
+    const {keyList, index, updateCurrentChild} = allProps;
 
     const currentChildDisplay = currentChild?.display as Display;
-    const setCurrentChildDisplay = (display: Display | undefined) => updateChild({
+    const setCurrentChildDisplay = (display: Display | undefined) => updateCurrentChild({
         ...currentChild,
         display
     });
@@ -208,7 +208,7 @@ export function AccordionPresenter(props: PresenterProps) {
             } extraButtons={currentChild ? <>
                 {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
                 <EditableText onSave={(newLevel) => {
-                    updateChild({
+                    updateCurrentChild({
                         ...currentChild,
                         level: newLevel ? parseInt(newLevel, 10) : undefined,
                     });

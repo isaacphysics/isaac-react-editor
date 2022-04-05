@@ -1600,57 +1600,66 @@ export const testDoc = {
 } as unknown as Content;
 
 export const testEvent = {
-    "id": "09122015swanwick",
     "layout": "1-col",
-    "title": "Student Workshop",
-    "subtitle": "Problem Solving with Vectors",
+    "title": "Teacher CPD Workshop",
+    "subtitle": "Embedding isaacphysics.org into your teaching",
     "tags": [
-        "student",
-        "vectors"
-    ],
+    "embed",
+    "facetoface",
+    "teacher"
+],
     "author": "allydavies",
-    "location": {
-        "latitude": 53.0741903941314,
-        "longitude": -1.39697638852278,
-        "address": {
-            "town": "Swanwick",
-            "county": "Derbyshire",
-            "postalCode": "DE55 1AE",
-            "addressLine2": "Derby Road",
-            "addressLine1": "Swanwick Hall School"
-        }
-    },
     "eventThumbnail": {
-        "src": "../../images/vectors.jpg",
+    "src": "../../images/teacher.jpg",
         "type": "image",
-        "altText": "Free body diagrams.",
+        "altText": "Photo of teacher",
         "id": "eventThumbnail"
-    },
-    "date": 1449678600000,
-    "numberOfPlaces": 40,
-    "eventStatus": "CLOSED",
+},
+    "date": 1547049600000,
+    "numberOfPlaces": "25",
+    "eventStatus": "OPEN",
     "preResources": [
-        {
-            "title": "Event brochure",
-            "url": "somewhere/interesting.pdf"
-        }
-    ],
+    {
+        "title": "Teacher Taster Board - GCSE",
+        "url": "https://isaacphysics.org/assignment/teacher_gcse_taster"
+    },
+    {
+        "title": "Teacher Taster Board - A-Level",
+        "url": "https://isaacphysics.org/assignment/teacher_taster_alevel"
+    }
+],
     "postResources": [
-        {
-            "title": "Event brochure",
-            "url": "somewhere/interesting.pdf"
-        }
-    ],
+    {
+        "title": "Event brochure",
+        "url": "somewhere/interesting.pdf"
+    }
+],
     "encoding": "markdown",
     "type": "isaacEventPage",
     "children": [
-        {
-            "type": "content",
-            "value": "#### Event details \n\n### Are you...\n* aiming for A* to B grade in A-Level Physics and Maths?\n* hoping to study Physics, Engineering or Maths at a top university?\n* keen to improve your problem solving skills?\n\n### Aims\nThis free workshop aims to develop each student's confidence and problem solving skills in a core area of physics by tackling a range of examples from idealised problems through to real-world situations.\n\nStudents will be guided through the problem solving process, and will solve a range of unusual problems using vectors with help and guidance from teachers.\n\n### Target Audience\nAS and A2 students, who are aiming to achieve A* to B grades in both Physics and Maths A level.\n\n### Timetable\n16:15  Refreshments and starter problems<br>\n16:30  Introductory Session <br>\n16:45  Problem Solving Session <br>\n18:15  Plenary / close & feedback forms<br> \n18:30  End\n\n### Preparation\nGuidance and pre-workshop tasks will be emailed upon registration. Read and follow the instructions to secure your place.\n\n### Bring with you\nStudents should bring to the workshop:\n\n* written solutions to the pre-workshop questions,\n* a pen, pencil, plenty of paper and a calculator.\n\n### Registering for the event\nStudents are welcome to attend with or without their teachers, but any teachers and students who wish to attend must register.  \n\n<div style=\"width:100%; text-align:left;\" ><iframe  src=\"//eventbrite.co.uk/tickets-external?eid=19163191622&ref=etckt\" frameborder=\"0\" height=\"250\" width=\"100%\" vspace=\"0\" hspace=\"0\" marginheight=\"5\" marginwidth=\"5\" scrolling=\"auto\" allowtransparency=\"true\"></iframe><div style=\"font-family:Helvetica, Arial; font-size:10px; padding:5px 0 5px; margin:2px; width:100%; text-align:left;\" ><a class=\"powered-by-eb\" style=\"color: #dddddd; text-decoration: none;\" target=\"_blank\" href=\"http://www.eventbrite.co.uk/r/etckt\">Powered by Eventbrite</a></div></div>\n",
-            "encoding": "markdown"
-        }
-    ],
-    "published": true
+    {
+        "type": "content",
+        "value": "#### Event details\n\n### Aims\n* introduce the range of free resources available at isaacphysics.org, from core physics mastery to problem solving questions and stretch & challenge resources;\n* lead you through using the Isaac Physics teacher tools: creating class groups, setting homework and downloading marks for free;\n* learn how to select sets of questions tailored to your students' needs;\n* provide guidance on how best to embed the resources into your department's teaching.\n\n\n### Target Audience\nRecommended for teachers of GCSE Physics and A level Physics.<br>\n\n### Cost\nFree!<br>\nNote that isaacphysics.org is also free; there is no charge to schools, teachers or students.\n\n### Feedback from previous Teacher CPD events\n\"The resources are fantastic, and I've really benefited from the chance to talk to other teachers and experts.\"\n\n\"I have taught since 2003. This is by far the best INSET I have ever attended.\"\n\n### Provisional Timetable \n<table class=\"table\">\n<style>\ntd\n{border:none!important;\nbackground:white!important;\ncolor:black!important;\npadding:0px!important}\ntable\n{border:none!important;\nborder-collapse:collapse!important;\nbackground:white!important;\ncolor:black!important;\npadding:0px!important}\n</style>\n\n<tr><td>15:45 &nbsp</td><td>Arrive (tea/coffee provided)</td></tr>\n<tr><td>16:00 &nbsp</td><td>Welcome and Introduction</td></tr>\n<tr><td>16:05 &nbsp</td><td>isaacphysics.org: Setting assignments and downloading marks</td></tr>\n<tr><td>16:30 &nbsp</td><td>isaacphysics.org: Selecting questions for lessons</td></tr>\n<tr><td>17:00 &nbsp</td><td>isaacphysics.org: Embedding Isaac in your Teaching Schemes</td></tr>\n<tr><td>17:45 &nbsp</td><td>End</td></tr>\n\n\n</table>\n\n### Bring with you\nDetails of how to prepare for the CPD and what you should bring with you will be given in the booking confirmation email. Please look carefully in your spam/junk folders if you do not find this email within 24 hours of booking.",
+        "encoding": "markdown"
+    }
+],
+    "location": {
+    "latitude": "52.325073",
+        "longitude": "-2.064950",
+        "address": {
+        "town": "Bromsgrove",
+            "county": "Worcestershire",
+            "postalCode": "B60 3NL",
+            "addressLine2": "Charford Road",
+            "addressLine1": "South Bromsgrove High"
+    }
+},
+    "published": true,
+    "id": "cpd09012019bromsgrove",
+    "emailEventDetails": "<p>You are not expected to complete these questions, but do take a look at them to see examples of the types and range of questions available on isaacphysics.org. Please choose your board according to what you teach.</p>\n\n<b>Arrival details</b><br>\n\n<p>If you arrive before 3:45, please do not try to park onsite; there is on-street parking available near the entrance of the school. If arriving after 3:45, the entrance to the school site is shown with <https://goo.gl/maps/NHfBsAVw4CG2\" target=\"_blank\"> this google map pin</a>.</p>\n\n<p>Arrival/contact information is available on the school's website here:\n\n<a href=\"https://www.southbromsgrove.worcs.sch.uk/contactus\" target=\"_blank\"> https://www.southbromsgrove.worcs.sch.uk/contactus</a></p>\n\n<p>On arrival, please report to reception; you'll be met by one of the teaching staff.</p>\n\n<b>Bring with you</b><br>\n\n<p>Please bring the following with you on the day:</p>\n\n<ol>\n<li>Pen, pencil, calculator, plenty of paper - you will be working through some physics problems.</li>\n<li>Laptop / tablet (WiFi enabled) - we will be using / discussing our online resources and tools. </li>\n<li>Teaching schemes / materials - you will be adding Isaac assignments to your GCSE / A-level teaching schemes.</li>\n</ol>\n\nIn case of emergency on the day of the event, please call 07926 359204.",
+    "end_date": 1547055900000,
+    "bookingDeadline": 1546905540000,
+    "isaacGroupToken": "33FXXC"
 } as unknown as Content;
 
 export const testPod = {

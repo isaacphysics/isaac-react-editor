@@ -35,11 +35,11 @@ interface ListChildProps {
     child: Content;
     index: number;
     shiftBy: (index: number, amount: number) => void;
-    update: (index: number, newValue: Content) => void;
+    updateChild: (index: number, newValue: Content) => void;
     remove: (index: number) => void;
 }
 
-function ListChild({child, docRef, index, shiftBy, update, remove}: ListChildProps) {
+function ListChild({child, docRef, index, shiftBy, updateChild, remove}: ListChildProps) {
     const by = useCallback((amount: number, e: MouseEvent) => {
         const elementToMove = (e.target as HTMLElement)?.parentElement?.parentElement;
         if (elementToMove) {
@@ -67,9 +67,9 @@ function ListChild({child, docRef, index, shiftBy, update, remove}: ListChildPro
         down,
         by,
     }), [by, down, up]);
-    const doUpdate = useWithIndex(update, index);
-    const doRemove = useWithIndex(remove, index);
-    return <SemanticItem doc={child} update={doUpdate} onDelete={doRemove} shift={shift}/>;
+    const update = useWithIndex(updateChild, index);
+    const onDelete = useWithIndex(remove, index);
+    return <SemanticItem doc={child} update={update} onDelete={onDelete} shift={shift}/>;
 }
 
 export function deriveNewDoc(doc: MutableRefObject<Content>) {

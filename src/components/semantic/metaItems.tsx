@@ -1,22 +1,34 @@
-import React from "react";
-import { Input } from "reactstrap";
+import React, { useCallback } from "react";
+import { Button, Col, Input, Label, Row } from "reactstrap";
 
-import { Content, IsaacQuiz } from "../../isaac-data-types";
+import {
+    Content,
+    ExternalReference,
+    IsaacEventPage,
+    IsaacQuiz,
+    Location
+} from "../../isaac-data-types";
+import { useFixedRef } from "../../utils/hooks";
+import { useKeyedList } from "../../utils/keyedListHook";
 
-import { asMetaItems, MetaItemPresenterProps } from "./Metadata";
+import { asMetaItems, MetaItemPresenter, MetaItemPresenterProps } from "./Metadata";
+
+import styles from "./metadata.module.css";
 
 const TITLE_MAX_LENGTH = 32;
 
 export const MetaItems = asMetaItems({
     id: ["ID", {
-        hasWarning: (id) => {
+        hasWarning: (value) => {
+            const id = value as string;
             if (!id.match(/^[a-z0-9_-]+$/)) {
                 return "Please alter this ID, as it does not match our required style";
             }
         }
     }],
     title: ["Title", {
-        hasWarning: (title) => {
+        hasWarning: (value) => {
+            const title = value as string;
             if (title.length > TITLE_MAX_LENGTH) {
                 return "This title is a little long, consider rephrasing 🙂";
             }
@@ -28,8 +40,8 @@ export const MetaItems = asMetaItems({
     appAccessKey: "Access Key",
     attribution: "Attribution",
     supersededBy: "Superseded By",
-    level: ["Level", {type: "number", hasWarning: (value: string) => {
-        const level = value as unknown as number; // Already parsed by virtue of type: "number"
+    level: ["Level", {type: "number", hasWarning: (value) => {
+        const level = value as number; // Already parsed by virtue of type: "number"
         if (isNaN(level) || level < 1 || level > 6) {
             return "Level must be a number between 1 and 6."
         }
@@ -50,19 +62,39 @@ export const MetaItems = asMetaItems({
     emailEventDetails: ["Email Event Details", {type: "textarea"}],
     emailConfirmedBookingText: ["Email Confirmed Booking Text", {type: "textarea"}],
     emailWaitingListBookingText: ["Email Waiting List Booking Text", {type: "textarea"}],
-    date: ["Start Date", {type: "date"}],
-    end_date: ["End Date", {type: "date"}],
-    bookingDeadline: ["Booking Deadline", {type: "date"}],
-    prepWorkDeadline: ["Prep-work Deadline", {type: "date"}],
+    date: ["Start Date", {type: "datetime-local"}],
+    end_date: ["End Date", {type: "datetime-local"}],
+    bookingDeadline: ["Booking Deadline", {type: "datetime-local"}],
+    prepWorkDeadline: ["Prep-work Deadline", {type: "datetime-local"}],
     numberOfPlaces: ["Number of places", {type: "number"}],
-    eventStatus: ["Status", {/*type: EventStatus*/}],
-    location: ["Location", {/*type: Location */}],
+    eventStatus: ["Status", {type: "select", options: {
+        OPEN: "Open",
+        CANCELLED: "Cancelled",
+        CLOSED: "Closed",
+        WAITING_LIST_ONLY: "Waiting List Only",
+    }}],
+    location: ["Location", {presenter: LocationMetaPresenter}],
     isaacGroupToken: "Isaac Group Token",
-    allowGroupReservations: ["Reservations Enabled", {type: "checkbox"}],
-    groupReservationLimit: ["Per-teacher Limit", {type: "number", defaultValue: 10}],
-    preResources: ["Pre-Resources", {/*type: Resources*/}],
-    postResources: ["Post-Resources", {/*type: Resources*/}],
+    reservations: ["Reservations", {presenter: ReservationsMetaPresenter}],
+    preResources: ["Pre-Resources", {presenter: ResourcesMetaPresenter}],
+    postResources: ["Post-Resources", {presenter: ResourcesMetaPresenter}],
 });
+
+function ReservationsMetaPresenter(props: MetaItemPresenterProps<IsaacEventPage>) {
+    return <Row className={styles.row}>
+        <Col xs={1}>Enabled</Col>
+        <Col xs={1}>
+            <MetaItemPresenter {...props} prop="allowGroupReservations" name="Reservations Enabled" options={{type: "checkbox"}} />
+        </Col>
+        {props.doc.allowGroupReservations && <>
+            <Col xs={3} className={styles.label}>Per-teacher Limit</Col>
+            <Col xs={5} style={{height: "46px"}}>
+                <MetaItemPresenter {...props} prop="groupReservationLimit" name="Per-teacher Limit" options={{type: "number", defaultValue: 10}} />
+            </Col>
+        </>}
+    </Row>;
+}
+
 
 function VisibleToStudents({doc, update}: MetaItemPresenterProps<IsaacQuiz>) {
     const onChange = (visibleToStudents: boolean) => {
@@ -103,3 +135,100 @@ function HiddenFromTeachers({doc, update}: MetaItemPresenterProps<IsaacQuiz>) {
     return <Input type="checkbox" checked={!!doc.hiddenFromRoles?.includes("TEACHER")} onChange={(e) => onChange(e.target.checked)} />;
 }
 
+function LocationMetaPresenter({doc, update, prop}: MetaItemPresenterProps) {
+    const docRef = useFixedRef(doc);
+    const location = doc[prop as keyof Content] as Location;
+
+    const locationUpdate = useCallback((location: Content) => {
+        update({
+            ...docRef.current,
+            [prop]: location,
+        })
+    }, [docRef, prop, update]);
+    const locationProps = {doc: location as Content, update: locationUpdate};
+
+    const address = location.address ?? {};
+    const addressUpdate = useCallback((address: Content) => {
+        update({
+            ...docRef.current,
+            [prop]: {
+                ...docRef.current[prop as keyof Content] as Location,
+                address,
+            },
+        })
+    }, [docRef, prop, update]);
+    const addressProps = {doc: address as Content, update: addressUpdate};
+
+    return <>
+        <MetaItemPresenter {...addressProps} prop="addressLine1" name="Address Line 1" />
+        <MetaItemPresenter {...addressProps} prop="addressLine2" name="Address Line 2" />
+        <MetaItemPresenter {...addressProps} prop="town" name="Town" />
+        <MetaItemPresenter {...addressProps} prop="county" name="County" />
+        <MetaItemPresenter {...addressProps} prop="postalCode" name="Postal Code" />
+        <MetaItemPresenter {...addressProps} prop="country" name="Country" />
+        <Row>
+            <Col xs={5}>
+                <Label>
+                    Longitude
+                    <MetaItemPresenter {...locationProps} prop="longitude" name="Longitude" />
+                </Label>
+            </Col>
+            <Col xs={5}>
+                <Label>
+                    Latitude
+                    <MetaItemPresenter {...locationProps} prop="latitude" name="Latitude" />
+                </Label>
+            </Col>
+        </Row>
+    </>;
+}
+
+function ResourcesMetaPresenter({doc, update, prop, name}: MetaItemPresenterProps) {
+    const docRef = useFixedRef(doc);
+
+    const deriveNewList: () => [Content, ExternalReference[]] = useCallback(() => {
+        const newList = [...(docRef.current[prop as keyof Content] as ExternalReference[] ?? [])];
+        const newDoc = {
+            ...docRef.current,
+            [prop]: newList,
+        };
+        return [newDoc, newList];
+    }, [docRef, prop]);
+    const {insert, keyList, updateChild, shiftBy, remove} = useKeyedList(doc[prop as keyof Content] as ExternalReference[], deriveNewList, update);
+
+    const resources = doc[prop as keyof Content] as ExternalReference[];
+
+    return <>
+        <Row>
+            <Col xs={5}>
+                Title
+            </Col>
+            <Col xs={5}>
+                URL
+            </Col>
+        </Row>
+        {resources.map((resource, index) => {
+            const updateResource = (newContent: ExternalReference) => updateChild(index, newContent);
+            return <Row key={keyList[index]}>
+                <Col xs={5}>
+                    <MetaItemPresenter doc={resource}
+                                       update={updateResource}
+                                       prop="title" name="Title"/>
+                </Col>
+                <Col xs={5}>
+                    <MetaItemPresenter doc={resource}
+                                       update={updateResource}
+                                       prop="url" name="URL"/>
+                </Col>
+                <Col xs={2}>
+                    <Button color="link" size="sm" onClick={() => shiftBy(index, -1)} disabled={index <= 0}>▲</Button>
+                    <Button color="link" size="sm" onClick={() => shiftBy(index, 1)} disabled={index >= resources.length - 1}>▼</Button>
+                    <Button color="link" size="sm" onClick={() => remove(index)}>❌</Button>
+                </Col>
+            </Row>;
+        })}
+        <Button onClick={() => insert(resources.length, {title:"Event brochure", url:"somewhere/interesting.pdf"})}>
+            Add {name.substring(0, name.length - 1)}
+        </Button>
+    </>;
+}
