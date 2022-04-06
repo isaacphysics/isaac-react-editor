@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from "react";
-import { Col, Form, FormText, Input, Label } from "reactstrap";
+import { Col, Form, FormText, Input, Label, Row } from "reactstrap";
 import { InputType } from "reactstrap/lib/Input";
 
 import { Content } from "../../isaac-data-types";
@@ -50,13 +50,14 @@ function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWa
 export type MetaItemPresenterProps<D extends Content = Content> =
     PresenterProps<D>
     & {
+        id?: string;
         prop: string;
         name: string;
         options?: MetaOptions
     }
 ;
 
-export function MetaItemPresenter({doc, update, prop, name, options}: MetaItemPresenterProps) {
+export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaItemPresenterProps) {
     const [warning, setWarning] = useState<string>();
 
     let value = (doc[prop as keyof Content] as string || options?.defaultValue) ?? "";
@@ -91,25 +92,28 @@ export function MetaItemPresenter({doc, update, prop, name, options}: MetaItemPr
                    <option key={key} value={key}>{label}</option>
                )}
                placeholder={name}
+               id={id}
         />
         {warning && <FormText>{warning}</FormText>}
     </>;
 }
 
+let metaLabelId = 0;
 export function MetadataPresenter(props: PresenterProps & { metadata: MetaItemKey[] }) {
     const {metadata, ...rest} = props;
     return <Form>
         {metadata.map((prop) => {
             const [name, options] = getMetaItem(prop);
             const Presenter = options.presenter ?? MetaItemPresenter;
-            return <Label key={prop} className={styles.row}>
+            const id = `meta-label-${metaLabelId++}`;
+            return <Row key={prop} className={styles.row}>
                 <Col xs={2} className={styles.label}>
-                    {name}
+                    <Label for={id}>{name}</Label>
                 </Col>
                 <Col xs={10}>
-                    <Presenter {...rest} prop={prop} name={name} options={options} />
+                    <Presenter {...rest} prop={prop} id={id} name={name} options={options} />
                 </Col>
-            </Label>;
+            </Row>;
         })}
     </Form>;
 }
