@@ -110,7 +110,7 @@ function SemanticItemInner(props: SemanticItemProps) {
     const valueRef = useRef<ValuePresenterRef>(null);
 
     const [jsonMode, setJsonMode] = useState(false);
-    const [showMeta, setShowMeta] = useState(true);
+    const [showMeta, setShowMeta] = useState(false);
 
     const entryType = getEntryType(doc);
 

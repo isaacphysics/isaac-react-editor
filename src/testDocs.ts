@@ -588,6 +588,161 @@ export const testDoc = {
     "author": "jsharkey13",
     "children": [
         {
+            "type": "isaacCard",
+            "value": "test1",
+            "encoding": "markdown",
+            "image": {
+                "src": "/assets/phy/logo.svg",
+                "type": "image",
+                "altText": "Photo of odd shaped apple"
+            },
+            "clickUrl": "/events",
+            "verticalContent": true,
+            "disabled": true,
+            "title": "Single isaac Card",
+            "subtitle": "Some information about the event. This box has a lot more text so the other boxes in the deck should grow to align. Even more information about the event.",
+            "tags": [
+                "physics"
+            ]
+        },
+        {
+            "type": "isaacCardDeck",
+            "value": "test\n",
+            "encoding": "markdown",
+            "cards": [
+                {
+                    "type": "isaacCard",
+                    "value": "test\n",
+                    "encoding": "markdown",
+                    "image": {
+                        "src": "/assets/phy/logo.svg",
+                        "type": "image",
+                        "altText": "Photo of odd shaped apple"
+                    },
+                    "clickUrl": "/events",
+                    "verticalContent": false,
+                    "disabled": false,
+                    "title": "Test Card",
+                    "subtitle": "Some information about the event",
+                    "tags": [
+                        "physics"
+                    ]
+                },
+                {
+                    "type": "isaacCard",
+                    "tags": [
+                        "physics"
+                    ],
+                    "encoding": "markdown",
+                    "title": "Card X",
+                    "value": "Card x",
+                    "image": {
+                        "src": "",
+                        "type": "image",
+                        "altText": ""
+                    },
+                    "clickUrl": "",
+                    "verticalContent": true,
+                    "disabled": false,
+                    "subtitle": "Blank link"
+                },
+                {
+                    "type": "isaacCard",
+                    "value": "test\n",
+                    "encoding": "markdown",
+                    "image": {
+                        "src": "/assets/phy/logo.svg",
+                        "type": "image",
+                        "altText": "Photo of odd shaped apple"
+                    },
+                    "clickUrl": "/events",
+                    "verticalContent": false,
+                    "disabled": true,
+                    "title": "Test Card",
+                    "subtitle": "Some information about the event. This box has a lot more text so the other boxes in the deck should grow to align. Even more information about the event.",
+                    "tags": [
+                        "physics"
+                    ]
+                }
+            ],
+            "title": "Test Card Deck",
+            "subtitle": "Some information about the events",
+            "tags": [
+                "physics"
+            ]
+        },
+        {
+            "type": "content",
+            "value": "",
+            "encoding": "markdown"
+        },
+        {
+            "type": "isaacCardDeck",
+            "value": "test\n",
+            "encoding": "markdown",
+            "cards": [
+                {
+                    "type": "isaacCard",
+                    "value": "test\n",
+                    "encoding": "markdown",
+                    "image": {
+                        "src": "/assets/phy/logo.svg",
+                        "type": "image",
+                        "altText": "Photo of odd shaped apple"
+                    },
+                    "clickUrl": "/events",
+                    "verticalContent": true,
+                    "disabled": false,
+                    "title": "Test Card",
+                    "subtitle": "Some information about the event",
+                    "tags": [
+                        "physics"
+                    ]
+                },
+                {
+                    "type": "isaacCard",
+                    "value": "test\n",
+                    "encoding": "markdown",
+                    "image": {
+                        "src": "/assets/phy/logo.svg",
+                        "type": "image",
+                        "altText": "Photo of odd shaped apple"
+                    },
+                    "clickUrl": "/events",
+                    "verticalContent": true,
+                    "disabled": false,
+                    "title": "Test Card",
+                    "subtitle": "Some information about the event",
+                    "tags": [
+                        "physics"
+                    ]
+                },
+                {
+                    "type": "isaacCard",
+                    "value": "test\n",
+                    "encoding": "markdown",
+                    "image": {
+                        "src": "/assets/phy/logo.svg",
+                        "type": "image",
+                        "altText": "Photo of odd shaped apple"
+                    },
+                    "clickUrl": "/events",
+                    "verticalContent": true,
+                    "disabled": true,
+                    "title": "Test Card",
+                    "subtitle": "Some information about the event. This box has a lot more text so the other boxes in the deck should grow to align. Even more information about the event.",
+                    "tags": [
+                        "physics"
+                    ]
+                }
+            ],
+            "title": "Test Card Deck Vertical",
+            "subtitle": "Some information about the event",
+            "tags": [
+                "physics"
+            ]
+        },
+        {
             "type": "anvilApp",
             "appId": "SMOE3VGUJXYQCXA4",
             "appAccessKey": "QEOWRDHYIVB2KY2I4S4HI66K"

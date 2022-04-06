@@ -4,7 +4,7 @@ import { Choice, Content } from "../../isaac-data-types";
 
 import { InsertButton, InserterProps } from "./ListChildrenPresenter";
 
-export function ChoiceInserter<T extends Choice>(empty: T) {
+function ChoiceInserter<T extends Choice>(empty: T) {
     // noinspection UnnecessaryLocalVariableJS
     const ChoiceInserter = ({insert, position}: InserterProps) =>
         <InsertButton onClick={() => insert(position, {...empty, correct: position === 0} as Content)}/>;

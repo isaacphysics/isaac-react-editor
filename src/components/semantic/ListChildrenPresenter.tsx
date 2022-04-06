@@ -2,14 +2,15 @@ import React, { MouseEvent, MutableRefObject, useCallback, useMemo } from "react
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
-
-import { SemanticItem } from "./SemanticItem";
-import { Inserter } from "./Inserter";
-import styles from "./styles.module.css";
-import { CHOICE_INSERTER_MAP, ChoiceInserter } from "./ChoiceInserter";
-import { PresenterProps } from "./registry";
 import { useFixedRef } from "../../utils/hooks";
 import { generate, useKeyedList, useWithIndex } from "../../utils/keyedListHook";
+
+import { CHOICE_INSERTER_MAP } from "./ChoiceInserter";
+import { Inserter } from "./Inserter";
+import { SemanticItem } from "./SemanticItem";
+import { PresenterProps } from "./registry";
+
+import styles from "./styles.module.css";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
@@ -25,10 +26,32 @@ export function InsertButton(props: { onClick: () => void }) {
     </div>;
 }
 
+export function PlainInserter<T>(empty: T) {
+    // noinspection UnnecessaryLocalVariableJS
+    const PlainInserter = ({insert, position}: InserterProps) =>
+        <InsertButton onClick={() => insert(position, empty as Content)}/>;
+    return PlainInserter;
+}
+
 const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
     ...CHOICE_INSERTER_MAP,
-    isaacQuiz: ChoiceInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []})
-}
+    isaacQuiz: PlainInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []}),
+    cardDeckCards: PlainInserter({
+        "type": "isaacCard",
+        "tags": undefined,
+        "encoding": "markdown",
+        "title": "",
+        "subtitle": "",
+        "image": {
+            "src": "",
+            "type": "image",
+            "altText": ""
+        },
+        "clickUrl": "",
+        "verticalContent": false,
+        "disabled": false
+    }),
+};
 
 interface ListChildProps {
     docRef: MutableRefObject<Content>;

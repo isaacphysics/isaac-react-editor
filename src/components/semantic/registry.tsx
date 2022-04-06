@@ -38,6 +38,8 @@ import {
 } from "./PagePresenter";
 import { PodPresenter } from "./PodPresenter";
 import { defaultMeta, MetaItemKey } from "./Metadata";
+import { CardDeckPresenter, CardPresenter } from "./CardPresenter";
+import { MetaItems } from "./metaItems";
 
 export type TYPES =
     | "content"
@@ -63,6 +65,8 @@ export type TYPES =
     | "anvilApp"
     | "isaacQuizSection"
     | "isaacPod"
+    | "isaacCard"
+    | "isaacCardDeck"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -153,6 +157,14 @@ const emailTemplate: RegistryEntry = {
 const isaacWildcard: RegistryEntry = {
     metadata: [...defaultMeta, "description", "url"],
 };
+const isaacCard: RegistryEntry = {
+    name: "Card",
+    bodyPresenter: CardPresenter,
+};
+const isaacCardDeck: RegistryEntry = {
+    name: "Card Deck",
+    bodyPresenter: CardDeckPresenter,
+};
 
 const pageMeta: MetaItemKey[] = ["audience", ...defaultMeta, "relatedContent"];
 const pageMetaTail: MetaItemKey[] = ["published", "deprecated"];
@@ -235,7 +247,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
     graphChoice: choice,
     figure,
-    image: figure,
+    image: {...figure, name: "Image"},
     codeSnippet,
     video,
     glossaryTerm,
@@ -243,9 +255,17 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     anvilApp,
     isaacQuizSection,
     isaacPod,
+    isaacCard,
+    isaacCardDeck,
+};
+
+const unknown: RegistryEntry = {
+    ...content,
+    name: "Unknown",
+    metadata: Object.keys(MetaItems) as MetaItemKey[],
 };
 
 export function getEntryType(doc: Content) {
     const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
-    return REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || REGISTRY.content;
+    return REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || unknown;
 }
