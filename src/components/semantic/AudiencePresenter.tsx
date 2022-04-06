@@ -166,9 +166,9 @@ function conciseAudience(audience: AudienceContext): string {
     return safeJoin(result, " and ");
 }
 
-function conciseAudiences(audiences: AudienceContext[] | undefined) {
+function conciseAudiences(audiences: AudienceContext[] | undefined, type?: string) {
     if (audiences === undefined) {
-        return "None set";
+        return type === "accordion" ? "All" : "None set";
     }
     return safeJoin(audiences.map((audience) => conciseAudience(audience)), " or ");
 }
@@ -176,7 +176,7 @@ function conciseAudiences(audiences: AudienceContext[] | undefined) {
 function AudienceEditor({doc, update, possible}: PresenterProps<AudienceContext[]> & {possible: Possibilities}) {
     return <>
         {doc.map((audience, index) => {
-            return <div key={index}>
+            return <div key={index} className={styles.editorRow}>
                 (<AudienceContextPresenter doc={audience}
                                            update={(newAudience: AudienceContext) => {
                                                const audience = [...doc];
@@ -199,7 +199,7 @@ function AudienceEditor({doc, update, possible}: PresenterProps<AudienceContext[
     </>
 }
 
-export function AudiencePresenter({doc, update}: PresenterProps) {
+export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: string}) {
     const [editingAudience, setEditingAudience] = useState<AudienceContext[]>();
 
     function close() {
@@ -207,8 +207,8 @@ export function AudiencePresenter({doc, update}: PresenterProps) {
     }
 
     if (!editingAudience) {
-        return <div key="view" className={styles.wrapper}>
-            {conciseAudiences(doc.audience)}
+        return <div key="view" className={`${styles.wrapper} ${styles.view}`}>
+            {conciseAudiences(doc.audience, type)}
             <Button onClick={(e) => {
                 setEditingAudience(doc.audience ?? [defaultAudience()]);
             }}>
@@ -216,8 +216,8 @@ export function AudiencePresenter({doc, update}: PresenterProps) {
             </Button>
         </div>;
     } else {
-        return <div key="edit" className={styles.wrapper}>
-            <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(doc.type)} />
+        return <div key="edit" className={`${styles.wrapper} ${type === "accordion" ? styles.rightAlign : ""}`}>
+            <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(type)} />
             <Button color="primary" onClick={(e) => {
                 close();
                 update({...doc, audience: editingAudience});

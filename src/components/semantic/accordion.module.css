@@ -105,9 +105,30 @@
     display: table;
 }
 
-.audienceDisplayControls {
+.allAudienceControls {
     float: right;
     position: relative;
+    display: flex;
+    align-items: baseline;
+    flex-direction: column;
+}
+
+.audienceControls {
+    display: flex;
+    align-items: baseline;
+}
+
+.audienceControlsLabel {
+    margin-right: 0.5em;
+}
+
+.audienceDisplayEdit {
+    margin-left: 0.5em;
+    align-self: stretch;
+}
+
+.audienceDisplayControls {
+    margin-top: 0.5em;
 }
 
 .audienceDisplayControls :global(.form-control) {

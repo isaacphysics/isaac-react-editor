@@ -6,6 +6,7 @@ import { EditableTitleProp } from "./EditableDocProp";
 import { EditableText } from "./EditableText";
 import { TabsHeader, TabsMain, useTabs } from "./TabsPresenter";
 import { PresenterProps } from "./registry";
+import { AudiencePresenter } from "./AudiencePresenter";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {
@@ -107,7 +108,7 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
     }, [editing]);
     const titleText = <small>{title}{": "}</small>;
     if (!editing) {
-        return <>
+        return <div className={styles.audienceDisplayControls}>
             {titleText}
             {display && (display.audience.length !== 0 || display.nonAudience.length !== 0) ?
                 <span>
@@ -119,9 +120,9 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
             }
             &nbsp;&nbsp;
             <Button onClick={() => setEditing(true)}>Edit</Button>
-        </>;
+        </div>;
     }
-    return <>
+    return <div className={styles.audienceDisplayControls}>
         {titleText}
         <DisplayListEditor displayList={audience} setDisplayList={setAudience} name="Audience" displayOptions={audienceOptions} />
         <DisplayListEditor displayList={nonAudience} setDisplayList={setNonAudience} name="Non-Audience" displayOptions={nonAudienceOptions} />
@@ -144,7 +145,7 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
                 Clear
             </Button>
         </div>
-    </>;
+    </div>;
 }
 
 export function AccordionPresenter(props: PresenterProps) {
@@ -188,17 +189,21 @@ export function AccordionPresenter(props: PresenterProps) {
                 currentChild ? <>
                     <div className={styles.meta}>
                         <h3><EditableTitleProp ref={editTitleRef} {...currentChildProps} placeHolder="Section title" hideWhenEmpty /></h3>
-                        <div className={styles.audienceDisplayControls}>
-                            {currentChildDisplay === undefined &&
-                                <Button onClick={() => {
-                                    setCurrentChildDisplay({
-                                        audience: [],
-                                        nonAudience: []
-                                    });
-                                }}>
-                                    Override Display
-                                </Button>
-                            }
+                        <div className={styles.allAudienceControls}>
+                            <div className={styles.audienceControls}>
+                                <small className={styles.audienceControlsLabel}>Audience:</small>
+                                <AudiencePresenter {...currentChildProps} type="accordion" />
+                                {currentChildDisplay === undefined &&
+                                    <Button className={styles.audienceDisplayEdit} onClick={() => {
+                                        setCurrentChildDisplay({
+                                            audience: [],
+                                            nonAudience: []
+                                        });
+                                    }}>
+                                        Override Display
+                                    </Button>
+                                }
+                            </div>
                             {currentChildDisplay !== undefined &&
                                 <AudienceDisplayControl key={keyList[index]} display={currentChildDisplay} set={setCurrentChildDisplay} title="Display Override" />
                             }
