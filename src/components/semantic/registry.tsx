@@ -67,7 +67,7 @@ export type TYPES =
     | CHOICE_TYPES
 ;
 
-export interface PresenterProps<D extends Content = Content> {
+export interface PresenterProps<D = Content> {
     doc: D;
     update: <T extends D>(newContent: T) => void;
 }
