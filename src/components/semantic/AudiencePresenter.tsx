@@ -1,7 +1,14 @@
 import React, { Fragment, useState } from "react";
 import { Button } from "reactstrap";
 
-import { AudienceContext } from "../../isaac-data-types";
+import {
+    AudienceContext,
+    Difficulty,
+    ExamBoard,
+    RoleRequirement,
+    Stage
+} from "../../isaac-data-types";
+import { SITE } from "../../services/site";
 import { ExtractRecordArrayValue, isDefined } from "../../utils/types";
 
 import { PresenterProps } from "./registry";
@@ -13,18 +20,39 @@ function defaultAudience(): AudienceContext {
 
 type AudienceKey = keyof AudienceContext;
 type AudienceValue = ExtractRecordArrayValue<Required<AudienceContext>>;
-const audienceContextKeys: AudienceKey[] = ["stage", "examBoard", "difficulty", "role"];
-const optionsFor: Required<AudienceContext> = {
-    stage: ["year_7", "year_8", "year_9", "gcse", "a_level", "further_a", "university", "all"],
-    examBoard: ["aqa", "ocr", "cie", "edexcel", "eduqas", "wjec", "all"],
-    difficulty: ["practice_1", "practice_2", "practice_3", "challenge_1", "challenge_2", "challenge_3"],
-    role: ["logged_in", "teacher"],
-};
 
-function AudienceContextPresenter({doc, update}: PresenterProps<AudienceContext>) {
-    let unusedKeysAndFirstOption: [AudienceKey, AudienceValue][] =
-        audienceContextKeys.map((key) => {
-            return [key, optionsFor[key][0]];
+const phyStages: Stage[] = ["university", "further_a", "a_level", "gcse", "year_9", "year_8", "year_7"];
+const difficulties: Difficulty[] = ["practice_1", "practice_2", "practice_3", "challenge_1", "challenge_2", "challenge_3"];
+
+const csStages: Stage[] = ["a_level", "gcse"];
+const csExamBoards: ExamBoard[] = ["aqa", "ocr", "cie", "edexcel", "eduqas", "wjec"];
+
+const roles: RoleRequirement[] = ["logged_in", "teacher"]; //, "event_leader", "content_editor", "event_manager", "admin"];
+
+type Possibilities = Partial<Record<AudienceKey, AudienceValue[]>>;
+function getPossibleFields(type?: string): Possibilities {
+    if (SITE === "CS") {
+        switch (type) {
+            case "accordion":
+                return {stage: csStages, examBoard: csExamBoards, role: roles};
+            default:
+                return {stage: csStages, examBoard: csExamBoards, difficulty: difficulties};
+        }
+    } else { //if (SITE === "PHY") OR default
+        switch (type) {
+            case "accordion":
+                return {stage: phyStages};
+            default:
+                return {stage: phyStages, difficulty: difficulties};
+        }
+    }
+}
+
+function AudienceContextPresenter({doc, update, possible}: PresenterProps<AudienceContext> & {possible: Possibilities}) {
+    let unusedKeysAndFirstOption =
+        Object.keys(possible).map((k) => {
+            const key = k as AudienceKey;
+            return [key, possible[key as keyof typeof possible]?.[0]] as [AudienceKey, AudienceValue];
         });
 
     const filteredItems = Object.keys(doc).map((k) => {
@@ -32,7 +60,7 @@ function AudienceContextPresenter({doc, update}: PresenterProps<AudienceContext>
         const values = doc[key];
         if (values) {
             unusedKeysAndFirstOption = unusedKeysAndFirstOption.filter(([k]) => k !== key);
-            const unusedOptions = new Set(optionsFor[key]);
+            const unusedOptions = new Set(possible[key]);
             values.forEach((value) => unusedOptions.delete(value));
             return {
                 key,
@@ -127,7 +155,7 @@ function safeJoin(list: string[], joiner: string): string {
 }
 
 function conciseAudience(audience: AudienceContext): string {
-    const result = audienceContextKeys.map((k) => {
+    const result = Object.keys(audience).map((k) => {
         const key = k as keyof AudienceContext;
         const values = audience[key];
         if (values) {
@@ -145,7 +173,7 @@ function conciseAudiences(audiences: AudienceContext[] | undefined) {
     return safeJoin(audiences.map((audience) => conciseAudience(audience)), " or ");
 }
 
-function AudienceEditor({doc, update}: PresenterProps<AudienceContext[]>) {
+function AudienceEditor({doc, update, possible}: PresenterProps<AudienceContext[]> & {possible: Possibilities}) {
     return <>
         {doc.map((audience, index) => {
             return <div key={index}>
@@ -154,7 +182,9 @@ function AudienceEditor({doc, update}: PresenterProps<AudienceContext[]>) {
                                                const audience = [...doc];
                                                audience[index] = newAudience;
                                                update(audience);
-                                           }}/>)
+                                           }}
+                                           possible={possible}
+                />)
                 {doc.length > 1 && <Button outline size="sm" onClick={() => {
                     const audience = [...doc];
                     audience.splice(index, 1);
@@ -187,7 +217,7 @@ export function AudiencePresenter({doc, update}: PresenterProps) {
         </div>;
     } else {
         return <div key="edit" className={styles.wrapper}>
-            <AudienceEditor doc={editingAudience} update={setEditingAudience} />
+            <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(doc.type)} />
             <Button color="primary" onClick={(e) => {
                 close();
                 update({...doc, audience: editingAudience});
