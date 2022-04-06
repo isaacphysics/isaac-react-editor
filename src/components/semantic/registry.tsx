@@ -67,6 +67,7 @@ export type TYPES =
     | "isaacPod"
     | "isaacCard"
     | "isaacCardDeck"
+    | "isaacWildcard"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -154,9 +155,6 @@ const emailTemplate: RegistryEntry = {
     bodyPresenter: EmailTemplatePresenter,
     metadata: [...defaultMeta, "published"]
 };
-const isaacWildcard: RegistryEntry = {
-    metadata: [...defaultMeta, "description", "url"],
-};
 const isaacCard: RegistryEntry = {
     name: "Card",
     bodyPresenter: CardPresenter,
@@ -208,6 +206,12 @@ const isaacQuizSection = {
     headerPresenter: QuizSectionPresenter,
 };
 
+const isaacWildcard: RegistryEntry = {
+    name: "Wildcard",
+    headerPresenter: PagePresenter,
+    metadata: [...defaultMeta, "description", "url"],
+};
+
 
 export const REGISTRY: Record<TYPES, RegistryEntry> = {
     content,
@@ -219,6 +223,7 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     isaacFastTrackQuestionPage: isaacQuestionPage,
     isaacEventPage,
     isaacQuiz,
+    isaacWildcard,
     content$accordion: accordion,
     content$tabs: tabs,
     hints,

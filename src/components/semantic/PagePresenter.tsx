@@ -7,7 +7,7 @@ import { SemanticDocProp } from "./SemanticDocProp";
 import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { Button } from "reactstrap";
 
-export function PagePresenter(props: PresenterProps<Content>) {
+export function PagePresenter(props: PresenterProps) {
     return <>
         <h1><EditableTitleProp {...props} placeHolder="Page title" /></h1>
         <h2><EditableSubtitleProp {...props} placeHolder="Page subtitle" hideWhenEmpty/></h2>

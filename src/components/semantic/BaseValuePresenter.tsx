@@ -144,7 +144,6 @@ export const ValueWrapper: FunctionComponent<ValueWrapperProps> = ({
         if (e.target === e.currentTarget) {
             valueRef.current?.startEdit();
         }
-        console.log("ValueWrapper click", e);
     })}>
         {children}
     </div>;

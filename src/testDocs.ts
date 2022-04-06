@@ -588,6 +588,21 @@ export const testDoc = {
     "author": "jsharkey13",
     "children": [
         {
+            // This shouldn't really go here but :shrug:
+            "id": "sig_figs_wildcard",
+            "title": "Significant Figures",
+            "url": "/solving_problems#acc_solving_problems_sig_figs",
+            "description": "How to use significant figures",
+            "type": "isaacWildcard",
+            "author": "mjc209",
+            "published": true,
+            "tags": [
+                "chemistry",
+                "maths",
+                "physics"
+            ]
+        },
+        {
             "type": "isaacCard",
             "value": "test1",
             "encoding": "markdown",
