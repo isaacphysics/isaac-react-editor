@@ -16,6 +16,8 @@
 
 div.isEditingWrapper {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 span.isEditingWrapper {

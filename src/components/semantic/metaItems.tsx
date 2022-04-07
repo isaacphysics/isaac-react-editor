@@ -144,7 +144,7 @@ function HiddenFromTeachers({doc, update, ...rest}: MetaItemPresenterProps<Isaac
 
 function LocationMetaPresenter({doc, update, prop, id}: MetaItemPresenterProps) {
     const docRef = useFixedRef(doc);
-    const location = doc[prop as keyof Content] as Location;
+    const location = doc[prop as keyof Content] as Location ?? {};
 
     const locationUpdate = useCallback((location: Content) => {
         update({
@@ -203,7 +203,7 @@ function ResourcesMetaPresenter({doc, update, prop, name}: MetaItemPresenterProp
     }, [docRef, prop]);
     const {insert, keyList, updateChild, shiftBy, remove} = useKeyedList(doc[prop as keyof Content] as ExternalReference[], deriveNewList, update);
 
-    const resources = doc[prop as keyof Content] as ExternalReference[];
+    const resources = doc[prop as keyof Content] as ExternalReference[] | undefined;
 
     return <>
         <Row>
@@ -214,7 +214,7 @@ function ResourcesMetaPresenter({doc, update, prop, name}: MetaItemPresenterProp
                 URL
             </Col>
         </Row>
-        {resources.map((resource, index) => {
+        {resources?.map((resource, index) => {
             const updateResource = (newContent: ExternalReference) => updateChild(index, newContent);
             return <Row key={keyList[index]}>
                 <Col xs={5}>
@@ -234,7 +234,7 @@ function ResourcesMetaPresenter({doc, update, prop, name}: MetaItemPresenterProp
                 </Col>
             </Row>;
         })}
-        <Button onClick={() => insert(resources.length, {title:"Event brochure", url:"somewhere/interesting.pdf"})}>
+        <Button onClick={() => insert(resources?.length ?? 0, {title:"Event brochure", url:"somewhere/interesting.pdf"})}>
             Add {name.substring(0, name.length - 1)}
         </Button>
     </>;

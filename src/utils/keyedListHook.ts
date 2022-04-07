@@ -25,6 +25,9 @@ export function useKeyedList<T, D>(items: T[] | undefined, deriveNewList: () => 
                 if (newContent.type === "isaacQuizSection") {
                     newContent.id = newContent.id?.substring(0, 8);
                 }
+                if (newContent.type === "item" || newContent.type === "parsonsItem") {
+                    newContent.id = newContent.id?.substring(0, 4);
+                }
             }
             const [newDoc, newList] = deriveNewList();
             newList.splice(index, 0, newElement);

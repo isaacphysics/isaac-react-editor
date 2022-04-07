@@ -1,4 +1,4 @@
-import React, { MouseEvent, MutableRefObject, useCallback, useMemo } from "react";
+import React, { Fragment, MouseEvent, MutableRefObject, useCallback, useMemo } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
@@ -11,6 +11,7 @@ import { SemanticItem } from "./SemanticItem";
 import { PresenterProps } from "./registry";
 
 import styles from "./styles.module.css";
+import { ItemChoiceItemInserter } from "./QuestionPresenters";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
@@ -36,7 +37,7 @@ export function PlainInserter<T>(empty: T) {
 const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
     ...CHOICE_INSERTER_MAP,
     isaacQuiz: PlainInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []}),
-    cardDeckCards: PlainInserter({
+    isaacCardDeck$cards: PlainInserter({
         "type": "isaacCard",
         "tags": undefined,
         "encoding": "markdown",
@@ -51,6 +52,9 @@ const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
         "verticalContent": false,
         "disabled": false
     }),
+    isaacItemQuestion$items: PlainInserter({type: "item", id: generate, value: ""}),
+    isaacParsonsQuestion$items: PlainInserter({type: "parsonsItem", id: generate, value: "", indentation: 0}),
+    itemChoice$items$choice: Fragment, // Suppress display of item additions
 };
 
 interface ListChildProps {
@@ -60,9 +64,10 @@ interface ListChildProps {
     shiftBy: (index: number, amount: number) => void;
     updateChild: (index: number, newValue: Content) => void;
     remove: (index: number) => void;
+    layout: string | undefined;
 }
 
-function ListChild({child, docRef, index, shiftBy, updateChild, remove}: ListChildProps) {
+function ListChild({child, docRef, index, shiftBy, updateChild, remove, layout}: ListChildProps) {
     const by = useCallback((amount: number, e: MouseEvent) => {
         const elementToMove = (e.target as HTMLElement)?.parentElement?.parentElement;
         if (elementToMove) {
@@ -92,7 +97,7 @@ function ListChild({child, docRef, index, shiftBy, updateChild, remove}: ListChi
     }), [by, down, up]);
     const update = useWithIndex(updateChild, index);
     const onDelete = useWithIndex(remove, index);
-    return <SemanticItem doc={child} update={update} onDelete={onDelete} shift={shift}/>;
+    return <SemanticItem doc={child} update={update} onDelete={onDelete} shift={shift} layout={layout}/>;
 }
 
 export function deriveNewDoc(doc: MutableRefObject<Content>) {
@@ -127,6 +132,7 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
                                child={child as Content}
                                docRef={docRef}
                                index={index}
+                               layout={doc.layout}
                                {...rest}
         />);
     });

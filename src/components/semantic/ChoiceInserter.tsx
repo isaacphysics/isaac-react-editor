@@ -30,6 +30,8 @@ export type CHOICE_TYPES =
     | "logicFormula"
     | "graphChoice"
     | "regexPattern"
+    | "itemChoice"
+    | "parsonsChoice"
     ;
 
 const emptyChoices = [
@@ -42,6 +44,8 @@ const emptyChoices = [
     {...emptyChoice, type: "logicFormula", pythonExpression: "", requiresExactMatch: false},
     {...emptyChoice, type: "graphChoice", graphSpec: ""},
     {...emptyChoice, type: "regexPattern", matchWholeString: false, caseInsensitive: false, multiLineRegex: true},
+    {...emptyChoice, type: "itemChoice", children: []},
+    {...emptyChoice, type: "parsonsChoice", children: [], indentation: 0},
 ];
 
 export const CHOICE_INSERTER_MAP: Record<string, FunctionComponent<InserterProps>> = Object.fromEntries(emptyChoices.map((choice) => {

@@ -772,6 +772,203 @@ export const testDoc = {
             "layout": "accordion",
             "children": [
                 {
+                    "type": "content",
+                    "children": [
+                        {
+                            "value": "Which of the following sentences are true?",
+                            "encoding": "markdown",
+                            "type": "isaacItemQuestion",
+                            "items": [
+                                {
+                                    "type": "item",
+                                    "value": "This sentence is not true.",
+                                    "id": "c953"
+                                },
+                                {
+                                    "type": "item",
+                                    "value": "This sentence is true.",
+                                    "id": "f213"
+                                },
+                                {
+                                    "type": "item",
+                                    "value": "Both the above sentences are true.",
+                                    "id": "7897"
+                                },
+                                {
+                                    "type": "item",
+                                    "value": "None of these sentences are true.",
+                                    "id": "bcd3"
+                                }
+                            ],
+                            "randomiseItems": false,
+                            "choices": [
+                                {
+                                    "type": "itemChoice",
+                                    "items": [
+                                        {
+                                            "type": "item",
+                                            "id": "f213"
+                                        }
+                                    ],
+                                    "correct": true,
+                                    "explanation": {
+                                        "type": "content",
+                                        "children": [],
+                                        "encoding": "markdown"
+                                    }
+                                },
+                                {
+                                    "type": "itemChoice",
+                                    "items": [
+                                        {
+                                            "type": "item",
+                                            "id": "f213"
+                                        },
+                                        {
+                                            "type": "item",
+                                            "id": "c953"
+                                        },
+                                        {
+                                            "type": "item",
+                                            "id": "7897"
+                                        }
+                                    ],
+                                    "correct": true,
+                                    "explanation": {
+                                        "type": "content",
+                                        "children": [
+                                            {
+                                                "type": "content",
+                                                "value": "Sure, who needs logic anyway?",
+                                                "encoding": "markdown"
+                                            }
+                                        ],
+                                        "encoding": "markdown"
+                                    }
+                                },
+                                {
+                                    "type": "itemChoice",
+                                    "items": [
+                                        {
+                                            "type": "item",
+                                            "id": "c953"
+                                        },
+                                        {
+                                            "type": "item",
+                                            "id": "f213"
+                                        },
+                                        {
+                                            "type": "item",
+                                            "id": "7897"
+                                        },
+                                        {
+                                            "type": "item",
+                                            "id": "bcd3"
+                                        }
+                                    ],
+                                    "correct": false,
+                                    "explanation": {
+                                        "type": "content",
+                                        "children": [
+                                            {
+                                                "type": "content",
+                                                "value": "This is just being difficult . . .",
+                                                "encoding": "markdown"
+                                            }
+                                        ],
+                                        "encoding": "markdown"
+                                    }
+                                }
+                            ],
+                            "answer": {
+                                "type": "content",
+                                "value": "_Enter answer here_",
+                                "encoding": "markdown"
+                            },
+                            "id": "_regression_test_item_",
+                            "title": "Item Question"
+                        }
+                    ],
+                    "id": "acc_item_q"
+                },
+                {
+                    "type": "content",
+                    "children": [
+                        {
+                            "value": "Order the following sections alphabetically, indenting the letter `C` once!\n\n```\nA\nB\n    C\nD\n```",
+                            "encoding": "markdown",
+                            "type": "isaacParsonsQuestion",
+                            "items": [
+                                {
+                                    "type": "parsonsItem",
+                                    "indentation": 0,
+                                    "value": "D",
+                                    "id": "dddd"
+                                },
+                                {
+                                    "type": "parsonsItem",
+                                    "indentation": 0,
+                                    "value": "A",
+                                    "id": "aaaa"
+                                },
+                                {
+                                    "type": "parsonsItem",
+                                    "indentation": 0,
+                                    "value": "C",
+                                    "id": "cccc"
+                                },
+                                {
+                                    "type": "parsonsItem",
+                                    "indentation": 0,
+                                    "value": "B",
+                                    "id": "bbbb"
+                                }
+                            ],
+                            "choices": [
+                                {
+                                    "type": "parsonsChoice",
+                                    "items": [
+                                        {
+                                            "type": "parsonsItem",
+                                            "indentation": 0,
+                                            "id": "aaaa"
+                                        },
+                                        {
+                                            "type": "parsonsItem",
+                                            "indentation": 0,
+                                            "id": "bbbb"
+                                        },
+                                        {
+                                            "type": "parsonsItem",
+                                            "indentation": 1,
+                                            "id": "cccc"
+                                        },
+                                        {
+                                            "type": "parsonsItem",
+                                            "indentation": 0,
+                                            "id": "dddd"
+                                        }
+                                    ],
+                                    "correct": true,
+                                    "explanation": {
+                                        "type": "content",
+                                        "value": "Yay!",
+                                        "encoding": "markdown"
+                                    }
+                                }
+                            ],
+                            "answer": {
+                                "type": "content",
+                                "value": "_Enter answer here_",
+                                "encoding": "markdown"
+                            },
+                            "id": "_regression_test_parsons_",
+                            "title": "Parsons Question"
+                        }
+                    ],
+                    "id": "acc_parsons_q"
+                },
+                {
                     "value": "The answer to this question is `x_1 = 'squirrel'`, with either none or one space between the terms and the equality symbol, and with either ' or \" surrounding the string value",
                     "encoding": "markdown",
                     "type": "isaacRegexMatchQuestion",

@@ -41,10 +41,35 @@
     margin-left: 0.5em;
 }
 
-.center {
+.striped tr:nth-child(2n) {
+    background: #eee;
+}
+
+.striped th, .center {
     text-align: center;
 }
 
 .nowrap {
     white-space: nowrap;
+}
+
+.itemsHeaderRow {
+    margin-bottom: 1em; /* Without this margin, the first InserterButton cannot reposition itself correctly */
+}
+
+.itemsChoiceRow {
+    margin-top: -0.5em;
+    margin-bottom: 0.5em;
+}
+
+.itemsChoiceRow button {
+    width: 100%;
+    border: none !important;
+    background: none !important;
+    color: #000 !important;
+}
+
+.itemsChoiceInserter {
+    margin-top: 0.5em;
+    width: 100%;
 }

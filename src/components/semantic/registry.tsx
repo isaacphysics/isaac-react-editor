@@ -1,10 +1,12 @@
 import {
     AnswerPresenter,
-    FreeTextQuestionInstructions,
+    FreeTextQuestionInstructions, ItemChoiceItemPresenter,
+    ItemOrParsonsQuestionPresenter,
+    ItemPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
-    QuestionBodyPresenter,
+    QuestionFooterPresenter,
     QuestionMetaPresenter,
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
@@ -66,6 +68,9 @@ export type TYPES =
     | "isaacCard"
     | "isaacCardDeck"
     | "isaacWildcard"
+    | "item"
+    | "parsonsItem"
+    | "item$choice"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -97,7 +102,7 @@ const choices: RegistryEntry = {
 };
 const choice: RegistryEntry = {
     name: "Choice",
-    footerPresenter: ChoicePresenter,
+    bodyPresenter: ChoicePresenter,
 };
 const accordion: RegistryEntry = {
     name: "Accordion",
@@ -114,16 +119,24 @@ const hints: RegistryEntry = {
 const question: RegistryEntry = {
     name: "Question",
     bodyPresenter: BoxedContentValueOrChildrenPresenter,
-    footerPresenter: QuestionBodyPresenter,
+    footerPresenter: QuestionFooterPresenter,
     blankValue: "Enter question body here",
 };
 const isaacSymbolicQuestion = {
     ...question,
-    headerPresenter: SymbolicQuestionPresenter
+    headerPresenter: SymbolicQuestionPresenter,
 };
 const isaacStringMatchQuestion = {
     ...question,
-    headerPresenter: StringMatchQuestionPresenter
+    headerPresenter: StringMatchQuestionPresenter,
+};
+const isaacParsonsQuestion = {
+    ...question,
+    bodyPresenter: ItemOrParsonsQuestionPresenter,
+    footerPresenter: undefined,
+};
+const item = {
+    bodyPresenter: ItemPresenter,
 };
 
 const mediaMeta: MetaItemKey[] = [...defaultMeta, "altText", "attribution"];
@@ -260,6 +273,13 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     regexPattern: choice,
     isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
     graphChoice: choice,
+    isaacItemQuestion: isaacParsonsQuestion,
+    isaacParsonsQuestion: isaacParsonsQuestion,
+    itemChoice: choice,
+    parsonsChoice: choice,
+    item,
+    parsonsItem: item,
+    item$choice: {bodyPresenter: ItemChoiceItemPresenter},
     figure,
     image: {...figure, name: "Image"},
     codeSnippet,
@@ -279,7 +299,10 @@ const unknown: RegistryEntry = {
     metadata: Object.keys(MetaItems) as MetaItemKey[],
 };
 
-export function getEntryType(doc: Content) {
-    const typeWithLayout = `${doc.type}$${doc.layout}` as TYPES;
+export function getEntryType(doc: Content, layoutOverride?: string) {
+    const typeWithLayout = `${doc.type}$${layoutOverride || doc.layout}` as TYPES;
+    if (layoutOverride) {
+        console.log("layoutOverride", layoutOverride, doc, typeWithLayout, REGISTRY[typeWithLayout]);
+    }
     return REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || unknown;
 }

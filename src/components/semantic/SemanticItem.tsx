@@ -64,6 +64,7 @@ export interface SemanticItemProps {
     name?: string;
     className?: string;
     shift?: Shift;
+    layout?: string;
 }
 
 interface BoxProps {
@@ -105,14 +106,14 @@ export const Box: FunctionComponent<BoxProps> = ({name, onClick,  onDelete, shif
 };
 
 function SemanticItemInner(props: SemanticItemProps) {
-    const {doc, update, name, ...rest} = props;
+    const {doc, update, name, layout, ...rest} = props;
     const subProps = {doc, update};
     const valueRef = useRef<ValuePresenterRef>(null);
 
     const [jsonMode, setJsonMode] = useState(false);
     const [showMeta, setShowMeta] = useState(false);
 
-    const entryType = getEntryType(doc);
+    const entryType = getEntryType(doc, layout);
 
     const metadata = entryType.metadata;
     const meta = metadata && showMeta && !jsonMode && <div className={styles.metadata}>

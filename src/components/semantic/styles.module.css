@@ -8,6 +8,7 @@
     position: relative;
     width: 100%;
     min-height: 29px;
+    margin-top: -1px;
 }
 .box > .box {
     margin: 1em 0;
@@ -109,6 +110,7 @@
 .boxDeleteHovered {
     border-color: #dc3545;
     background: #dc354507;
+    z-index: 2;
 }
 
 .boxDeleteHovered > .boxHeader .boxLabel {

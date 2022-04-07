@@ -1,23 +1,33 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import { SemanticItem } from "./SemanticItem";
 import {
     EditableDocPropFor,
     EditableIDProp,
-    EditableTitleProp,
+    EditableTitleProp, EditableValueProp,
     NumberDocPropFor
 } from "./EditableDocProp";
 import styles from "./question.module.css";
-import { Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
+import {
+    Alert,
+    Button, Col,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownToggle,
+    Row
+} from "reactstrap";
 import {
     ChoiceQuestion,
     Content,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
+    IsaacParsonsQuestion,
     IsaacQuestionBase,
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
-    IsaacSymbolicQuestion
+    IsaacSymbolicQuestion,
+    Item, ItemChoice, ParsonsItem,
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
 import { EditableText } from "./EditableText";
@@ -25,6 +35,8 @@ import { CheckboxDocProp } from "./CheckboxDocProp";
 import { CHOICE_TYPES } from "./ChoiceInserter";
 import { PresenterProps } from "./registry";
 import { useFixedRef } from "../../utils/hooks";
+import { ListPresenterProp } from "./ListPresenterProp";
+import { BoxedContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 
 export type QUESTION_TYPES =
     | "isaacQuestion"
@@ -37,6 +49,8 @@ export type QUESTION_TYPES =
     | "isaacSymbolicLogicQuestion"
     | "isaacGraphSketcherQuestion"
     | "isaacRegexMatchQuestion"
+    | "isaacItemQuestion"
+    | "isaacParsonsQuestion"
 ;
 
 const QuestionTypes = {
@@ -160,8 +174,11 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacSymbolicLogicQuestion: "logicFormula",
     isaacGraphSketcherQuestion: "graphChoice",
     isaacRegexMatchQuestion: "regexPattern",
+    isaacItemQuestion: "itemChoice",
+    isaacParsonsQuestion: "parsonsChoice",
 };
 
+// FIXME: replace with ListPresenterProp
 export function ChoicesPresenter({doc, update}: PresenterProps) {
     const question = doc as ChoiceQuestion;
     const choices = useMemo(() => {
@@ -182,7 +199,7 @@ export function ChoicesPresenter({doc, update}: PresenterProps) {
     return <SemanticItem doc={choices} update={childUpdate} />;
 }
 
-export function QuestionBodyPresenter(props: PresenterProps) {
+export function QuestionFooterPresenter(props: PresenterProps) {
     return <>
         <ChoicesPresenter {...props} />
         <AnswerPresenter {...props} />
@@ -327,7 +344,7 @@ export function FreeTextQuestionInstructions() {
         <Alert color="info">
             A fuller set of instructions can be found <a href="https://github.com/isaacphysics/rutherford-content/wiki/Editor-Notes#free-text-questions" target="_">here</a>.
         </Alert>
-        <table className="table table-striped table-bordered">
+        <table className={styles.striped}>
             <thead><tr><th>Symbol</th><th>Description</th><th>Rule</th><th>✓️ Match</th><th>✗ Failed Match</th></tr></thead>
             <tbody>
             <tr>
@@ -361,4 +378,97 @@ export function FreeTextQuestionInstructions() {
             </tbody>
         </table>
     </div>;
+}
+
+interface ParsonsContextType {
+    items: ParsonsItem[] | undefined;
+    remainingItems: ParsonsItem[] | undefined;
+}
+
+export const ParsonsContext = createContext<ParsonsContextType>({items: undefined, remainingItems: undefined});
+
+export function ItemOrParsonsQuestionPresenter(props: PresenterProps<IsaacParsonsQuestion>) {
+    const {doc} = props;
+
+    return <>
+        {doc.type === "isaacParsonsQuestion" && <CheckboxDocProp {...props} prop="disableIndentation" label="Disable indentation" />}
+        <BoxedContentValueOrChildrenPresenter {...props} />
+        <h6>Items</h6>
+        <Row className={styles.itemsHeaderRow}>
+            <Col xs={3} className={styles.center}>
+                ID
+            </Col>
+            <Col xs={8} className={styles.center}>
+                Value
+            </Col>
+        </Row>
+        <ListPresenterProp {...props} prop="items" />
+        <ParsonsContext.Provider value={{items: doc.items, remainingItems: undefined}}>
+            <QuestionFooterPresenter {...props} />
+        </ParsonsContext.Provider>
+    </>;
+}
+
+export function ItemPresenter(props: PresenterProps<Item>) {
+    return <Row>
+        <Col xs={3}>
+            <EditableIDProp {...props} />
+        </Col>
+        <Col xs={8}>
+            <EditableValueProp {...props} multiLine />
+        </Col>
+    </Row>;
+}
+
+export function ItemRow({item}: {item: Item}) {
+    return <Row>
+        <Col xs={3}>
+            {item.id}
+        </Col>
+        <Col xs={9}>
+            {item.value}
+        </Col>
+    </Row>
+}
+
+export function ItemChoiceItemPresenter({doc, update}: PresenterProps<Item>) {
+    const [isOpen, setOpen] = useState(false);
+    const {items, remainingItems} = useContext(ParsonsContext);
+
+    const item = items?.find((item) => item.id === doc.id) ?? {
+        id: doc.id,
+        value: "Unknown item",
+    };
+
+    return <Dropdown className={styles.itemsChoiceRow}
+                     toggle={() => setOpen(toggle => !toggle)}
+                     isOpen={isOpen}>
+        <DropdownToggle outline>
+            <ItemRow item={item} />
+        </DropdownToggle>
+        <DropdownMenu>
+            <DropdownItem key={item.id} active>
+                <ItemRow item={item} />
+            </DropdownItem>
+            {remainingItems?.map((i) => {
+                return <DropdownItem key={i.id} onClick={() => {
+                    update({
+                        ...doc,
+                        id: i.id,
+                    });
+                }}>
+                    <ItemRow item={i} />
+                </DropdownItem>;
+            })}
+        </DropdownMenu>
+    </Dropdown>;
+}
+
+export function ItemChoiceItemInserter({doc, update, item}: PresenterProps<ItemChoice> & {item: Item}) {
+    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
+        update({
+            ...doc,
+            items: [...doc.items ?? [], item],
+        });
+    }}>Add</Button>;
 }

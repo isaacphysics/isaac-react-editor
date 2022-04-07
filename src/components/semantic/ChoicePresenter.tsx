@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useRef, } from "react";
+import React, { MutableRefObject, useContext, useRef, } from "react";
 import { Button, Input, Label } from "reactstrap";
 import { InputType } from "reactstrap/lib/Input";
 
@@ -7,7 +7,7 @@ import {
     Choice,
     Formula,
     FreeTextRule,
-    GraphChoice,
+    GraphChoice, ParsonsChoice,
     Quantity, RegexPattern,
     StringChoice
 } from "../../isaac-data-types";
@@ -25,6 +25,12 @@ import { CHOICE_TYPES } from "./ChoiceInserter";
 import { PresenterProps } from "./registry";
 
 import styles from "./choice.module.css";
+import { ListPresenterProp } from "./ListPresenterProp";
+import {
+    ItemChoiceItemInserter,
+    ParsonsContext,
+    QuestionFooterPresenter
+} from "./QuestionPresenters";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -182,6 +188,24 @@ export const GraphChoicePresenter = buildValuePresenter(
     ({graphSpec}, doc) => ({...doc, graphSpec}),
 );
 
+export const ParsonsChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) => {
+    const {doc} = props;
+
+    // And an option to add additional choices
+
+    // Plus an indent adjuster for Parsons
+    const {items} = useContext(ParsonsContext) ?? [];
+    const remainingItems = items?.filter(item => !doc.items?.find(i => i.id === item.id));
+
+    return <>
+        {doc.type === "itemChoice" && <CheckboxDocProp {...props} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
+        <ParsonsContext.Provider value={{items, remainingItems}}>
+            <ListPresenterProp {...props} prop="items" layout="choice" />
+            {remainingItems && remainingItems.length > 0 && <ItemChoiceItemInserter {...props} item={remainingItems[0]} />}
+        </ParsonsContext.Provider>
+    </>;
+}
+
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
     quantity: QuantityPresenter,
@@ -192,6 +216,8 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     logicFormula: FormulaPresenter,
     graphChoice: GraphChoicePresenter,
     regexPattern: RegexPatternPresenter,
+    itemChoice: ParsonsChoicePresenter,
+    parsonsChoice: ParsonsChoicePresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps<Choice>) {
