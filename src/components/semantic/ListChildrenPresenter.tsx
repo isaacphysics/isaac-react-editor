@@ -11,7 +11,6 @@ import { SemanticItem } from "./SemanticItem";
 import { PresenterProps } from "./registry";
 
 import styles from "./styles.module.css";
-import { ItemChoiceItemInserter } from "./QuestionPresenters";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
@@ -54,7 +53,7 @@ const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
     }),
     isaacItemQuestion$items: PlainInserter({type: "item", id: generate, value: ""}),
     isaacParsonsQuestion$items: PlainInserter({type: "parsonsItem", id: generate, value: "", indentation: 0}),
-    itemChoice$items$choice: Fragment, // Suppress display of item additions
+    itemChoice$items$choice: () => null, // Suppress display of item additions
 };
 
 interface ListChildProps {
@@ -72,11 +71,16 @@ function ListChild({child, docRef, index, shiftBy, updateChild, remove, layout}:
         const elementToMove = (e.target as HTMLElement)?.parentElement?.parentElement;
         if (elementToMove) {
             const sibling = amount > 0 ? "nextElementSibling" : "previousElementSibling";
-            const otherElement = elementToMove[sibling]?.[sibling] as HTMLElement|null;
+            let otherElement = elementToMove[sibling] as HTMLElement;
+            while (otherElement && otherElement?.className === styles.inserter) {
+                otherElement = otherElement[sibling] as HTMLElement;
+            }
             if (otherElement) {
                 const otherHeight = otherElement.scrollHeight;
-                const gap = 18; // 1em margin plus 1px top and bottom borders
-                const shift = (otherHeight + gap) * amount;
+                const calcGap = elementToMove.offsetTop < otherElement.offsetTop ?
+                    otherElement.offsetTop - (elementToMove.offsetTop + elementToMove.scrollHeight)
+                :   elementToMove.offsetTop - (otherElement.offsetTop + otherElement.scrollHeight);
+                const shift = (otherHeight + calcGap) * amount;
                 // Since the browser maintains scroll position in its own way, doing the scroll
                 // before React has repainted leads to weird shifts when going downwards, so we'll
                 // do the scroll on the rendering is done. This sadly has a slightly jerky visual
