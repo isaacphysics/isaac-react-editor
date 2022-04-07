@@ -4,20 +4,19 @@ import { SemanticItem } from "./SemanticItem";
 import {
     EditableDocPropFor,
     EditableIDProp,
-    EditableSubtitleProp,
     EditableTitleProp,
     NumberDocPropFor
 } from "./EditableDocProp";
 import styles from "./question.module.css";
 import { Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 import {
-    ChoiceQuestion, Content, IsaacGraphSketcherQuestion,
+    ChoiceQuestion,
+    Content,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
-    IsaacSymbolicChemistryQuestion, IsaacSymbolicLogicQuestion,
     IsaacSymbolicQuestion
 } from "../../isaac-data-types";
 import { SemanticDocProp } from "./SemanticDocProp";
@@ -37,6 +36,7 @@ export type QUESTION_TYPES =
     | "isaacFreeTextQuestion"
     | "isaacSymbolicLogicQuestion"
     | "isaacGraphSketcherQuestion"
+    | "isaacRegexMatchQuestion"
 ;
 
 const QuestionTypes = {
@@ -159,6 +159,7 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacFreeTextQuestion: "freeTextRule",
     isaacSymbolicLogicQuestion: "logicFormula",
     isaacGraphSketcherQuestion: "graphChoice",
+    isaacRegexMatchQuestion: "regexPattern",
 };
 
 export function ChoicesPresenter({doc, update}: PresenterProps) {
@@ -256,7 +257,7 @@ const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQue
         latex
     />;
 };
-const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed", {latex: true});
+const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed", {latex: true, label: "Formula seed", placeHolder: "Enter initial state here"});
 
 const availableMetaSymbols = [
     ["_trigs", "Trigs"],
@@ -273,12 +274,9 @@ function hasSymbol(availableSymbols: string[] | undefined, symbol: string) {
     return availableSymbols?.find(s => s === symbol);
 }
 
-export function SymbolicQuestionPresenter(props: PresenterProps) {
-    const {doc, update} = props;
-    const question = doc as IsaacSymbolicQuestion;
-
+function SymbolicMetaSymbols({doc, update}: PresenterProps<IsaacSymbolicQuestion>) {
     function toggle(symbol: string) {
-        const availableSymbols = [...question.availableSymbols ?? []];
+        const availableSymbols = [...doc.availableSymbols ?? []];
         const index = availableSymbols.indexOf(symbol);
         if (index !== -1) {
             availableSymbols.splice(index, 1);
@@ -290,37 +288,31 @@ export function SymbolicQuestionPresenter(props: PresenterProps) {
         });
     }
 
+    return <div className={styles.symbolicMetaButtons}>
+        {availableMetaSymbols.map(([symbol, label]) =>
+            <Button key={symbol}
+                    size="sm"
+                    color={hasSymbol(doc.availableSymbols, symbol) ? "primary" : "secondary"}
+                    onClick={() => toggle(symbol)}>
+                {label}
+            </Button>
+        )}
+    </div>;
+}
+
+export function SymbolicQuestionPresenter(props: PresenterProps<IsaacSymbolicQuestion>) {
+    const {doc} = props;
     return <>
         <QuestionMetaPresenter {...props} />
         <div className={styles.editableFullwidth}>
-            <EditableAvailableSymbols doc={question} update={update} />
+            <EditableAvailableSymbols {...props} />
         </div>
-        <div className={styles.symbolicMetaButtons}>
-            {availableMetaSymbols.map(([symbol, label]) => {
-                return <Button size="sm" key={symbol} color={hasSymbol(question.availableSymbols, symbol) ? "primary" : "secondary"} onClick={() => toggle(symbol)}>{label}</Button>
-            })}
-        </div>
+        {doc.type === "isaacSymbolicQuestion" && <SymbolicMetaSymbols {...props} />}
         <div className={styles.editableFullwidth}>
-            <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
+            <EditableFormulaSeed {...props}/>
         </div>
     </>;
 }
-
-export function ChemistryQuestionPresenter(props: PresenterProps) {
-    const {doc, update} = props;
-    const question = doc as IsaacSymbolicChemistryQuestion;
-
-    return <>
-        <QuestionMetaPresenter {...props} />
-        <div className={styles.editableFullwidth}>
-            <EditableAvailableSymbols doc={question} update={update} />
-        </div>
-        <div className={styles.editableFullwidth}>
-            <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
-        </div>
-    </>;
-}
-
 
 export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMatchQuestion>) {
     return <>
@@ -369,20 +361,4 @@ export function FreeTextQuestionInstructions() {
             </tbody>
         </table>
     </div>;
-
-}
-
-export function LogicQuestionPresenter(props: PresenterProps) {
-    const {doc, update} = props;
-    const question = doc as IsaacSymbolicLogicQuestion;
-
-    return <>
-        <QuestionMetaPresenter {...props} />
-        <div className={styles.editableFullwidth}>
-            <EditableAvailableSymbols doc={question} update={update} />
-        </div>
-        <div className={styles.editableFullwidth}>
-            <EditableFormulaSeed doc={question} update={update} label="Formula seed" />
-        </div>
-    </>;
 }

@@ -772,6 +772,60 @@ export const testDoc = {
             "layout": "accordion",
             "children": [
                 {
+                    "value": "The answer to this question is `x_1 = 'squirrel'`, with either none or one space between the terms and the equality symbol, and with either ' or \" surrounding the string value",
+                    "encoding": "markdown",
+                    "type": "isaacRegexMatchQuestion",
+                    "choices": [
+                        {
+                            "encoding": "markdown",
+                            "value": "^\\s*x\\_1\\s?=\\s?('squirrel'|\"squirrel\")\\s*$",
+                            "type": "regexPattern",
+                            "caseInsensitive": true,
+                            "matchWholeString": true,
+                            "explanation": {
+                                "type": "content",
+                                "children": [
+                                    {
+                                        "type": "content",
+                                        "value": "Well done!",
+                                        "encoding": "markdown"
+                                    }
+                                ],
+                                "encoding": "markdown"
+                            },
+                            "correct": true,
+                            "multiLineRegex": true
+                        },
+                        {
+                            "encoding": "markdown",
+                            "value": "(\"monkey\"|'monkey')",
+                            "type": "regexPattern",
+                            "matchWholeString": false,
+                            "caseInsensitive": true,
+                            "multiLineRegex": false,
+                            "explanation": {
+                                "type": "content",
+                                "children": [
+                                    {
+                                        "type": "content",
+                                        "value": "Wrong animal!",
+                                        "encoding": "markdown"
+                                    }
+                                ],
+                                "encoding": "markdown"
+                            }
+                        }
+                    ],
+                    "answer": {
+                        "type": "content",
+                        "value": "x_1 = 'squirrel'",
+                        "encoding": "markdown"
+                    },
+                    "id": "73486eda-b11c-462e-992c-30828e994fde",
+                    "title": "Question 1",
+                    "multiLineEntry": true
+                },
+                {
                     "type": "content",
                     "children": [
                         {

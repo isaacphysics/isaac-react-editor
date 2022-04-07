@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useImperativeHandle, useRef, } from "react";
+import React, { MutableRefObject, useRef, } from "react";
 import { Button, Input, Label } from "reactstrap";
 import { InputType } from "reactstrap/lib/Input";
 
@@ -6,11 +6,13 @@ import {
     ChemicalFormula,
     Choice,
     Formula,
-    FreeTextRule, GraphChoice,
-    Quantity,
+    FreeTextRule,
+    GraphChoice,
+    Quantity, RegexPattern,
     StringChoice
 } from "../../isaac-data-types";
-import styles from "./choice.module.css";
+import { TrustedHtml } from "../../isaac/TrustedHtml";
+
 import {
     BaseValuePresenter, buildValuePresenter, ValuePresenter, ValuePresenterProps,
     ValuePresenterRef,
@@ -18,11 +20,11 @@ import {
 } from "./BaseValuePresenter";
 import { SemanticDocProp } from "./SemanticDocProp";
 import { CheckboxDocProp } from "./CheckboxDocProp";
-import { TrustedHtml } from "../../isaac/TrustedHtml";
 import { EditableValueProp } from "./EditableDocProp";
-import { EditableTextRef } from "./EditableText";
 import { CHOICE_TYPES } from "./ChoiceInserter";
 import { PresenterProps } from "./registry";
+
+import styles from "./choice.module.css";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -116,14 +118,9 @@ export const ChemicalFormulaPresenter = buildValuePresenter(
 
 export const StringChoicePresenter = (props: ValuePresenterProps<StringChoice>) => {
     const {valueRef, ...rest} = props;
-    const editableRef = useRef<EditableTextRef>(null);
-    useImperativeHandle(valueRef, () => ({
-        startEdit: () => {
-            editableRef.current?.startEdit();
-        }
-    }));
+
     return <>
-        <EditableValueProp {...rest} placeHolder="Enter choice here" ref={editableRef} />
+        <EditableValueProp {...rest} placeHolder="Enter choice here" ref={valueRef} />
         <br />
         <br />
         <CheckboxDocProp {...rest} prop="caseInsensitive" label="Case insensitive" />
@@ -132,20 +129,40 @@ export const StringChoicePresenter = (props: ValuePresenterProps<StringChoice>) 
 
 export const FreeTextRulePresenter = (props: ValuePresenterProps<FreeTextRule>) => {
     const {valueRef, ...rest} = props;
-    const editableRef = useRef<EditableTextRef>(null);
-    useImperativeHandle(valueRef, () => ({
-        startEdit: () => {
-            editableRef.current?.startEdit();
-        }
-    }));
+
     return <>
-        <EditableValueProp {...rest} placeHolder="Matching rule" ref={editableRef} />
+        <EditableValueProp {...rest} placeHolder="Matching rule" ref={valueRef} />
         <br />
         <br />
         <CheckboxDocProp {...rest} prop="caseInsensitive" label="Case insensitive" />
         <CheckboxDocProp {...rest} prop="allowsAnyOrder" label="Any order" />
         <CheckboxDocProp {...rest} prop="allowsExtraWords" label="Extra words" />
         <CheckboxDocProp {...rest} prop="allowsMisspelling" label="Misspelling" />
+    </>;
+};
+
+export const RegexPatternPresenter = (props: ValuePresenterProps<RegexPattern>) => {
+    const {valueRef, ...rest} = props;
+
+    function regexHelper() {
+        let regex = props.doc.value ?? "";
+        if (props.doc.matchWholeString) {
+            // Add caret and dollar sign if the whole string should be matched
+            regex = "^" + regex + "$"
+        }
+        const flags = "g" + (props.doc.multiLineRegex ? "m" : "") + (props.doc.caseInsensitive ? "i" : "")
+        window.open(`https://regex101.com/?regex=${encodeURIComponent(regex)}&flags=${flags}&delimiter=@&flavor=java`)
+    }
+
+    return <>
+        <EditableValueProp {...rest} placeHolder="Matching rule" ref={valueRef} />
+        <br />
+        <CheckboxDocProp {...rest} prop="matchWholeString" label="Entire answer has to match this pattern exactly" />
+        <br />
+        <CheckboxDocProp {...rest} prop="caseInsensitive" label="Case insensitive" />
+        <CheckboxDocProp {...rest} prop="multiLineRegex" label="Multi-line regular expression" />
+        <br />
+        <Button onClick={regexHelper}>Test Regex</Button>
     </>;
 };
 
@@ -174,6 +191,7 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     freeTextRule: FreeTextRulePresenter,
     logicFormula: FormulaPresenter,
     graphChoice: GraphChoicePresenter,
+    regexPattern: RegexPatternPresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps<Choice>) {

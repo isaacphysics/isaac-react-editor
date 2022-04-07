@@ -1,8 +1,6 @@
 import {
     AnswerPresenter,
-    ChemistryQuestionPresenter,
     FreeTextQuestionInstructions,
-    LogicQuestionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -119,6 +117,15 @@ const question: RegistryEntry = {
     footerPresenter: QuestionBodyPresenter,
     blankValue: "Enter question body here",
 };
+const isaacSymbolicQuestion = {
+    ...question,
+    headerPresenter: SymbolicQuestionPresenter
+};
+const isaacStringMatchQuestion = {
+    ...question,
+    headerPresenter: StringMatchQuestionPresenter
+};
+
 const mediaMeta: MetaItemKey[] = [...defaultMeta, "altText", "attribution"];
 const figure: RegistryEntry = {
     name: "Figure",
@@ -239,16 +246,18 @@ export const REGISTRY: Record<TYPES, RegistryEntry> = {
     choice: choice,
     isaacNumericQuestion: {...question, headerPresenter: NumericQuestionPresenter},
     quantity: choice,
-    isaacSymbolicQuestion: {...question, headerPresenter: SymbolicQuestionPresenter},
+    isaacSymbolicQuestion,
     formula: choice,
-    isaacSymbolicChemistryQuestion: {...question, headerPresenter: ChemistryQuestionPresenter},
+    isaacSymbolicChemistryQuestion: isaacSymbolicQuestion,
     chemicalFormula: choice,
-    isaacStringMatchQuestion: {...question, headerPresenter: StringMatchQuestionPresenter},
-    stringChoice: choice,
-    isaacFreeTextQuestion: {...question, headerPresenter: StringMatchQuestionPresenter},
-    freeTextRule: choice,
-    isaacSymbolicLogicQuestion: {...question, headerPresenter: LogicQuestionPresenter},
+    isaacSymbolicLogicQuestion: isaacSymbolicQuestion,
     logicFormula: choice,
+    isaacStringMatchQuestion,
+    stringChoice: choice,
+    isaacFreeTextQuestion: isaacStringMatchQuestion,
+    freeTextRule: choice,
+    isaacRegexMatchQuestion: isaacStringMatchQuestion,
+    regexPattern: choice,
     isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
     graphChoice: choice,
     figure,
