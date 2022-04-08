@@ -24,10 +24,7 @@ import { EditableValueProp } from "../props/EditableDocProp";
 import { CHOICE_TYPES } from "../ChoiceInserter";
 import { PresenterProps } from "../registry";
 import { ListPresenterProp } from "../props/listProps";
-import {
-    ItemChoiceItemInserter,
-    ParsonsContext,
-} from "./QuestionPresenters";
+import { ItemsContext } from "./ItemOrParsonsQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
 
@@ -187,20 +184,17 @@ export const GraphChoicePresenter = buildValuePresenter(
     ({graphSpec}, doc) => ({...doc, graphSpec}),
 );
 
-export const ParsonsChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) => {
+export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) => {
     const {doc} = props;
 
-    // And an option to add additional choices
-
-    // Plus an indent adjuster for Parsons
-    const {items} = useContext(ParsonsContext) ?? [];
+    const {items} = useContext(ItemsContext) ?? [];
     const remainingItems = items?.filter(item => !doc.items?.find(i => i.id === item.id));
 
     return <>
         {doc.type === "itemChoice" && <CheckboxDocProp {...props} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
-        <ParsonsContext.Provider value={{items, remainingItems}}>
+        <ItemsContext.Provider value={{items, remainingItems}}>
             <ListPresenterProp {...props} prop="items" childTypeOverride="item$choice" />
-        </ParsonsContext.Provider>
+        </ItemsContext.Provider>
     </>;
 }
 
@@ -214,8 +208,8 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     logicFormula: FormulaPresenter,
     graphChoice: GraphChoicePresenter,
     regexPattern: RegexPatternPresenter,
-    itemChoice: ParsonsChoicePresenter,
-    parsonsChoice: ParsonsChoicePresenter,
+    itemChoice: ItemChoicePresenter,
+    parsonsChoice: ItemChoicePresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps<Choice>) {

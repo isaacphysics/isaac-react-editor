@@ -1,9 +1,6 @@
 import {
     AnswerPresenter,
-    FreeTextQuestionInstructions, ItemChoiceItemPresenter,
-    ItemOrParsonsQuestionPresenter,
-    ItemPresenter,
-    MultipleChoiceQuestionPresenter,
+    FreeTextQuestionInstructions, MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
     QuestionFooterPresenter,
@@ -11,7 +8,7 @@ import {
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
     SymbolicQuestionPresenter
-} from "./presenters/QuestionPresenters";
+} from "./presenters/questionPresenters";
 import { CHOICE_TYPES } from "./ChoiceInserter";
 import { TabsPresenter } from "./presenters/TabsPresenter";
 import React, { FunctionComponent } from "react";
@@ -40,6 +37,10 @@ import { PodPresenter } from "./presenters/PodPresenter";
 import { defaultMeta, MetaItemKey } from "./Metadata";
 import { CardDeckPresenter, CardPresenter } from "./presenters/CardPresenter";
 import { MetaItems } from "./metaItems";
+import {
+    ItemChoicePresenter, ItemOrParsonsQuestionPresenter,
+    ItemPresenter
+} from "./presenters/ItemOrParsonsQuestionPresenter";
 
 export type ContentType =
     | "content"
@@ -278,7 +279,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     parsonsChoice: choice,
     item,
     parsonsItem: item,
-    item$choice: {bodyPresenter: ItemChoiceItemPresenter},
+    item$choice: {bodyPresenter: ItemChoicePresenter},
     figure,
     image: {...figure, name: "Image"},
     codeSnippet,

@@ -25,7 +25,6 @@ import {
     IsaacStringMatchQuestion,
     IsaacSymbolicQuestion,
     Item,
-    ItemChoice,
     ParsonsItem,
 } from "../../../isaac-data-types";
 import { SemanticDocProp } from "../props/SemanticDocProp";
@@ -328,109 +327,4 @@ export function FreeTextQuestionInstructions() {
             </tbody>
         </table>
     </div>;
-}
-
-interface ParsonsContextType {
-    items: ParsonsItem[] | undefined;
-    remainingItems: ParsonsItem[] | undefined;
-}
-
-export const ParsonsContext = createContext<ParsonsContextType>({items: undefined, remainingItems: undefined});
-
-export function ItemOrParsonsQuestionPresenter(props: PresenterProps<IsaacParsonsQuestion>) {
-    const {doc} = props;
-
-    return <>
-        {doc.type === "isaacParsonsQuestion" && <CheckboxDocProp {...props} prop="disableIndentation" label="Disable indentation" />}
-        <BoxedContentValueOrChildrenPresenter {...props} />
-        <h6>Items</h6>
-        <Row className={styles.itemsHeaderRow}>
-            <Col xs={3} className={styles.center}>
-                ID
-            </Col>
-            <Col xs={8} className={styles.center}>
-                Value
-            </Col>
-        </Row>
-        <ListPresenterProp {...props} prop="items" />
-        <ParsonsContext.Provider value={{items: doc.items, remainingItems: undefined}}>
-            <QuestionFooterPresenter {...props} />
-        </ParsonsContext.Provider>
-    </>;
-}
-
-export function ItemPresenter(props: PresenterProps<Item>) {
-    return <Row>
-        <Col xs={3}>
-            <EditableIDProp {...props} />
-        </Col>
-        <Col xs={8}>
-            <EditableValueProp {...props} multiLine />
-        </Col>
-    </Row>;
-}
-
-export function ItemRow({item}: {item: Item}) {
-    return <Row>
-        <Col xs={3}>
-            {item.id}
-        </Col>
-        <Col xs={9}>
-            {item.value}
-        </Col>
-    </Row>
-}
-
-export function ItemChoiceItemPresenter({doc, update}: PresenterProps<Item>) {
-    const [isOpen, setOpen] = useState(false);
-    const {items, remainingItems} = useContext(ParsonsContext);
-
-    const item = items?.find((item) => item.id === doc.id) ?? {
-        id: doc.id,
-        value: "Unknown item",
-    };
-
-    return <Dropdown className={styles.itemsChoiceRow}
-                     toggle={() => setOpen(toggle => !toggle)}
-                     isOpen={isOpen}>
-        <DropdownToggle outline>
-            <ItemRow item={item} />
-        </DropdownToggle>
-        <DropdownMenu>
-            <DropdownItem key={item.id} active>
-                <ItemRow item={item} />
-            </DropdownItem>
-            {remainingItems?.map((i) => {
-                return <DropdownItem key={i.id} onClick={() => {
-                    update({
-                        ...doc,
-                        id: i.id,
-                    });
-                }}>
-                    <ItemRow item={i} />
-                </DropdownItem>;
-            })}
-        </DropdownMenu>
-    </Dropdown>;
-}
-
-export function ItemChoiceItemInserter({insert, position}: InserterProps) {
-    const {items, remainingItems} = useContext(ParsonsContext);
-
-    if (!items || !remainingItems) {
-        return null; // Shouldn't happen.
-    }
-
-    const usedCount = items.length - remainingItems.length;
-
-    if (position < usedCount) {
-        return null; // Only include an insert button at the end.
-    }
-    const item = remainingItems[0];
-    if (!item) {
-        return null; // No items remaining
-    }
-    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
-        insert(position, {type: item.type, id: item.id});
-    }}>Add</Button>;
 }

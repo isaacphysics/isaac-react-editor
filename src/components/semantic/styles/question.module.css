@@ -62,7 +62,7 @@
     margin-bottom: 0.5em;
 }
 
-.itemsChoiceRow button {
+.itemsChoiceRow button, .parsonsItem button {
     width: 100%;
     border: none !important;
     background: none !important;
@@ -72,4 +72,24 @@
 .itemsChoiceInserter {
     margin-top: 0.5em;
     width: 100%;
+}
+
+.parsonsItem {
+    border-left: 1px solid #eee;
+    position: relative;
+    margin-top: -1em;
+    margin-bottom: -1px;
+    padding-top: 0.5em;
+    padding-bottom: calc(1px + 0.5em);
+    margin-left: calc(-1em - 1px);
+    display: flex;
+    padding-right: 75px; /* Room for up/down/delete buttons */
+}
+
+.parsonsItem :nth-child(1) {
+    flex: 3;
+}
+
+.parsonsItem :nth-child(2) {
+    flex-basis: 80px;
 }

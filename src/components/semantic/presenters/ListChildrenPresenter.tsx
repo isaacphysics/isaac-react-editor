@@ -1,4 +1,4 @@
-import React, { Fragment, MouseEvent, MutableRefObject, useCallback, useMemo } from "react";
+import React, { MouseEvent, MutableRefObject, useCallback, useMemo } from "react";
 import { Button } from "reactstrap";
 
 import { Content } from "../../../isaac-data-types";
@@ -12,7 +12,7 @@ import { ContentType, PresenterProps } from "../registry";
 
 import styles from "../styles/semantic.module.css";
 import { ChildTypeOverride } from "../props/listProps";
-import { ItemChoiceItemInserter } from "./QuestionPresenters";
+import { ItemChoiceItemInserter } from "./ItemOrParsonsQuestionPresenter";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;

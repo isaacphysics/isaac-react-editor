@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Button, Input } from "reactstrap";
 
-import styles from "../styles/accordion.module.css";
 import { EditableTitleProp } from "../props/EditableDocProp";
-import { EditableText } from "../props/EditableText";
 import { TabsHeader, TabsMain, useTabs } from "./TabsPresenter";
 import { PresenterProps } from "../registry";
 import { AudiencePresenter } from "./AudiencePresenter";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
+
+import styles from "../styles/accordion.module.css";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {
@@ -216,12 +216,6 @@ export function AccordionPresenter(props: PresenterProps) {
             } extraButtons={currentChild ? <>
                 {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
                 <LevelProp doc={currentChild} update={updateCurrentChild} />
-                <EditableText onSave={(newLevel) => {
-                    updateCurrentChild({
-                        ...currentChild,
-                        level: newLevel ? parseInt(newLevel, 10) : undefined,
-                    });
-                }} text={currentChild.level?.toString()} label="Section level" hasError={hasErrorInLevel} {...props} />
             </> : undefined}/>
         </div>
     </>;

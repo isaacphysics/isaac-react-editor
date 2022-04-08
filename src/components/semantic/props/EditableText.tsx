@@ -9,7 +9,7 @@ import React, {
     useRef,
     useState
 } from "react";
-import { Button, FormFeedback, Input } from "reactstrap";
+import { Button, FormFeedback, Input, InputProps } from "reactstrap";
 
 import { safeLowercase } from "../../../utils/strings";
 import { LaTeX } from "../../../isaac/LaTeX";
@@ -34,6 +34,7 @@ export type EditableTextProps = {
     hideWhenEmpty?: boolean
     block?: boolean;
     latex?: boolean;
+    inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value">;
 };
 
 export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
@@ -87,6 +88,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  hideWhenEmpty,
                                  block,
                                  latex,
+                                 inputProps,
                              }, ref) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string>();
@@ -206,7 +208,9 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                    onChange={e => setCurrent(e.target.value)}
                                    onKeyDown={handleKey}
                                    placeholder={placeHolder}
-                                   onBlur={onBlur}/>
+                                   onBlur={onBlur}
+                                   {...inputProps}
+                            />
                         </>
                         :
                         <>
@@ -220,7 +224,9 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                    placeholder={placeHolder}
                                    onBlur={onBlur}
                                    invalid={!!errorMessage}
-                            />                        </>
+                                   {...inputProps}
+                            />
+                        </>
 
                     }
                 </span>

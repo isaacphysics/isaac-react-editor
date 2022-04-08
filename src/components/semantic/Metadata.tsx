@@ -8,7 +8,7 @@ import { PresenterProps } from "./registry";
 import styles from "./styles/metadata.module.css";
 import { MetaItems } from "./metaItems";
 
-interface MetaOptions {
+export interface MetaOptions {
     hasWarning?: (value: unknown) => string | undefined;
     type?: InputType;
     presenter?: React.FunctionComponent<MetaItemPresenterProps>;
@@ -60,7 +60,7 @@ export type MetaItemPresenterProps<D extends Content = Content> =
 export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaItemPresenterProps) {
     const [warning, setWarning] = useState<string>();
 
-    let value = (doc[prop as keyof Content] as string || options?.defaultValue) ?? "";
+    let value = (doc[prop as keyof Content] as string ?? options?.defaultValue) ?? "";
     switch (options?.type) {
         case "datetime-local": value = new Date(value).toJSON()?.slice(0, -8); break;
     }
