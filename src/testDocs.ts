@@ -588,6 +588,127 @@ export const testDoc = {
     "author": "jsharkey13",
     "children": [
         {
+            "value": "The inputs for this systems are the container's [drop-zone] temperature and [drop-zone] as well as the [drop-zone] temperature for the mixture inside.   \nThe output is the amount of [drop-zone] the heater should be on for.   \nTo work out the output you will need to find the [drop-zone] between the two temperatures, then [drop-zone] the result by the volume of the container.   ",
+            "encoding": "html",
+            "type": "isaacClozeQuestion",
+            "choices": [
+                {
+                    "type": "itemChoice",
+                    "items": [
+                        {
+                            "type": "item",
+                            "id": "1b18"
+                        },
+                        {
+                            "type": "item",
+                            "id": "1ac3"
+                        },
+                        {
+                            "type": "item",
+                            "id": "bfc2"
+                        },
+                        {
+                            "type": "item",
+                            "id": "3dc9"
+                        },
+                        {
+                            "type": "item",
+                            "id": "0d4f"
+                        },
+                        {
+                            "type": "item",
+                            "id": "911e"
+                        }
+                    ],
+                    "correct": true,
+                    "allowSubsetMatch": false,
+                    "explanation": {
+                        "type": "content",
+                        "children": [
+                            {
+                                "type": "content",
+                                "value": "Well done! You have correctly decomposed Rik's problem",
+                                "encoding": "markdown"
+                            }
+                        ],
+                        "encoding": "markdown"
+                    }
+                }
+            ],
+            "answer": {
+                "type": "content",
+                "value": "",
+                "encoding": "markdown"
+            },
+            "id": "ec02c5f0-22df-4385-bdf7-7d9c98a45d31",
+            "defaultFeedback": {
+                "type": "content",
+                "children": [
+                    {
+                        "type": "content",
+                        "value": "Try rereading through Rik's problem to spot the inputs, outputs and processes needed.",
+                        "encoding": "markdown"
+                    }
+                ],
+                "encoding": "markdown"
+            },
+            "items": [
+                {
+                    "type": "item",
+                    "value": "current",
+                    "id": "1b18"
+                },
+                {
+                    "type": "item",
+                    "value": "optimum",
+                    "id": "bfc2"
+                },
+                {
+                    "type": "item",
+                    "value": "time",
+                    "id": "3dc9"
+                },
+                {
+                    "type": "item",
+                    "value": "difference",
+                    "id": "0d4f"
+                },
+                {
+                    "type": "item",
+                    "value": "multiply",
+                    "id": "911e"
+                },
+                {
+                    "type": "item",
+                    "value": "volume",
+                    "id": "1ac3"
+                }
+            ],
+            "randomiseItems": false,
+            "hints": [
+                {
+                    "type": "content",
+                    "children": [
+                        {
+                            "type": "content",
+                            "value": "[glossary:glossary-page-d|decomposition]",
+                            "encoding": "markdown"
+                        }
+                    ]
+                },
+                {
+                    "type": "content",
+                    "children": [
+                        {
+                            "type": "content",
+                            "value": "### Goal\n\nPlace the correct words into the statement decomposing Rik's problem\n\n### Knowledge assumed\n\n[Input process output](/concepts/prog_pas_algorithm_design#ipo)",
+                            "encoding": "markdown"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             // This shouldn't really go here but :shrug:
             "id": "sig_figs_wildcard",
             "title": "Significant Figures",

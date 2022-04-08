@@ -53,6 +53,10 @@
     white-space: nowrap;
 }
 
+.itemsHeaderTitle {
+    margin-top: 1em;
+}
+
 .itemsHeaderRow {
     margin-bottom: 1em; /* Without this margin, the first InserterButton cannot reposition itself correctly */
 }

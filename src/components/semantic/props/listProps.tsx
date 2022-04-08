@@ -26,7 +26,7 @@ export function SemanticListProp<T extends ContentBase>(props: ListExtractorProp
 
 type ListExtractorProps<T> = PresenterProps<T> & {
     prop: keyof T;
-    type: string;
+    type: ContentType;
 };
 function useTypedListExtractor<T>({doc, update, prop, type}: ListExtractorProps<T>) {
     const docRef = useFixedRef(doc);

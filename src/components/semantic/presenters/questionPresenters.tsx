@@ -1,41 +1,33 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { useState } from "react";
 import {
     EditableDocPropFor,
     EditableIDProp,
     EditableTitleProp,
-    EditableValueProp
 } from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
 import {
     Alert,
     Button,
-    Col,
     Dropdown,
     DropdownItem,
     DropdownMenu,
     DropdownToggle,
-    Row
 } from "reactstrap";
 import {
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
-    IsaacParsonsQuestion,
     IsaacQuestionBase,
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
     IsaacSymbolicQuestion,
-    Item,
-    ParsonsItem,
 } from "../../../isaac-data-types";
 import { SemanticDocProp } from "../props/SemanticDocProp";
 import { EditableText } from "../props/EditableText";
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
 import { PresenterProps } from "../registry";
-import { ListPresenterProp, SemanticListProp } from "../props/listProps";
-import { BoxedContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
+import { SemanticListProp } from "../props/listProps";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { ChoicesPresenter } from "./ChoicesPresenter";
-import { InserterProps } from "./ListChildrenPresenter";
 
 export type QUESTION_TYPES =
     | "isaacQuestion"
@@ -50,9 +42,10 @@ export type QUESTION_TYPES =
     | "isaacRegexMatchQuestion"
     | "isaacItemQuestion"
     | "isaacParsonsQuestion"
+    | "isaacClozeQuestion"
 ;
 
-const QuestionTypes = {
+const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     isaacQuestion: {
         name: "Quick Question",
     },
@@ -144,15 +137,12 @@ export function QuickQuestionPresenter(props: PresenterProps) {
     </>;
 }
 
-export function HintsPresenter(props: PresenterProps<IsaacQuestionBase>) {
-    return <SemanticListProp {...props} prop="hints" type="hints" />;
-}
-
-export function QuestionFooterPresenter(props: PresenterProps) {
+export function QuestionFooterPresenter(props: PresenterProps<IsaacQuestionBase>) {
     return <>
         <ChoicesPresenter {...props} />
+        <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" />
         <AnswerPresenter {...props} />
-        <HintsPresenter {...props} />
+        <SemanticListProp {...props} prop="hints" type="hints" />
     </>;
 }
 

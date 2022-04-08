@@ -12,7 +12,7 @@ import { ContentType, PresenterProps } from "../registry";
 
 import styles from "../styles/semantic.module.css";
 import { ChildTypeOverride } from "../props/listProps";
-import { ItemChoiceItemInserter } from "./ItemOrParsonsQuestionPresenter";
+import { ItemChoiceItemInserter } from "./ItemQuestionPresenter";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
@@ -20,10 +20,13 @@ export interface InserterProps {
     position: number;
 }
 
-export function InsertButton(props: { onClick: () => void }) {
+export function InsertButton({onClick}: { onClick: () => void }) {
     return <div className={styles.inserter}>
         <div className={styles.inserterAdd}>
-            <Button color="link" size="lg" onClick={props.onClick}>➕</Button>
+            <Button color="link" size="lg" onClick={(e) => {
+                onClick();
+                e.currentTarget.blur();
+            }}>➕</Button>
         </div>
     </div>;
 }

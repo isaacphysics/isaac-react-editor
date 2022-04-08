@@ -16,6 +16,7 @@ export const ContentValueOrChildrenPresenter = (props: ValuePresenterProps) => {
     } else if (doc.children) {
         return <ListChildrenPresenter {...props} />;
     } else {
+        // TODO: show Inserter above and below this content and allow promotion to list
         return <BaseValuePresenter {...props} />;
     }
 };
@@ -30,6 +31,7 @@ export const BoxedContentValueOrChildrenPresenter = (props: ValuePresenterProps)
             <ListChildrenPresenter {...props} />
         </Box>;
     } else {
+        // TODO: as above, show Inserter above and below this content and allow promotion to list
         return <BaseValuePresenter {...props} />;
     }
 };

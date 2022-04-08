@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState } from "react";
 import { Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row } from "reactstrap";
 
-import { IsaacParsonsQuestion, Item, ParsonsItem } from "../../../isaac-data-types";
+import {
+    IsaacClozeQuestion,
+    IsaacParsonsQuestion,
+    Item,
+    ParsonsItem
+} from "../../../isaac-data-types";
 
 import { EditableIDProp, EditableValueProp } from "../props/EditableDocProp";
 import { QuestionFooterPresenter } from "./questionPresenters";
@@ -21,13 +26,24 @@ interface ItemsContextType {
 
 export const ItemsContext = createContext<ItemsContextType>({items: undefined, remainingItems: undefined});
 
-export function ItemOrParsonsQuestionPresenter(props: PresenterProps<IsaacParsonsQuestion>) {
-    const {doc} = props;
+function isParsonsQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is IsaacParsonsQuestion {
+    return doc.type === "isaacParsonsQuestion";
+}
+
+function isClozeQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is IsaacClozeQuestion {
+    return doc.type === "isaacClozeQuestion";
+}
+
+export function ItemQuestionPresenter(props: PresenterProps<IsaacParsonsQuestion | IsaacClozeQuestion>) {
+    const {doc, update} = props;
 
     return <>
-        {doc.type === "isaacParsonsQuestion" && <CheckboxDocProp {...props} prop="disableIndentation" label="Disable indentation" />}
+        {isParsonsQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" />}
+        {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" />}
+        {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="randomiseItems" label="Randomise items on question load" />}
         <BoxedContentValueOrChildrenPresenter {...props} />
-        <h6>Items</h6>
+        {isClozeQuestion(doc) && <ClozeQuestionInstructions />}
+        <h6 className={styles.itemsHeaderTitle}>Items</h6>
         <Row className={styles.itemsHeaderRow}>
             <Col xs={3} className={styles.center}>
                 ID
@@ -36,7 +52,7 @@ export function ItemOrParsonsQuestionPresenter(props: PresenterProps<IsaacParson
                 Value
             </Col>
         </Row>
-        <ListPresenterProp {...props} prop="items" />
+        <ListPresenterProp {...props} prop="items" childTypeOverride={isParsonsQuestion(doc) ? "parsonsItem" : "item"} />
         <ItemsContext.Provider value={{items: doc.items, remainingItems: undefined}}>
             <QuestionFooterPresenter {...props} />
         </ItemsContext.Provider>
@@ -144,4 +160,13 @@ export function ItemChoiceItemInserter({insert, position}: InserterProps) {
         }
         insert(position, newItem);
     }}>Add</Button>;
+}
+
+export function ClozeQuestionInstructions() {
+    return <>
+        <h3>Defining drop zones</h3>
+        <p>To place drop zones within question text, write [drop-zone] (with the square brackets) - this will then get replaced with a drop zone UI element when the question is rendered. If you want to place drop zones within LaTeX, escape it with the <code>\text</code> environment (but see disclaimer)</p>
+        <p>For the drop zones to work correctly, the question exposition must be HTML encoded - if you would like to use markdown please use a <a href={"https://markdowntohtml.com/"}>markdown to HTML converter</a>.</p>
+        <p><small>Disclaimer: drop zones will work in LaTeX for simple use cases, but for very complex and/or nested equations may not work as intended - in summary drop zones in LaTeX are not explicitly supported by us, but it can work for <em>most</em> use cases</small></p>
+    </>;
 }

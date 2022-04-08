@@ -21,7 +21,6 @@ import {
     ContentValueOrChildrenPresenter
 } from "./presenters/ContentValueOrChildrenPresenter";
 import { AccordionPresenter } from "./presenters/AccordionPresenter";
-import { ListChildrenPresenter } from "./presenters/ListChildrenPresenter";
 import { CodeSnippetPresenter } from "./presenters/CodeSnippetPresenter";
 import { VideoPresenter } from "./presenters/VideoPresenter";
 import { GlossaryTermPresenter } from "./presenters/GlossaryTermPresenter";
@@ -38,9 +37,9 @@ import { defaultMeta, MetaItemKey } from "./Metadata";
 import { CardDeckPresenter, CardPresenter } from "./presenters/CardPresenter";
 import { MetaItems } from "./metaItems";
 import {
-    ItemChoicePresenter, ItemOrParsonsQuestionPresenter,
+    ItemChoicePresenter, ItemQuestionPresenter,
     ItemPresenter
-} from "./presenters/ItemOrParsonsQuestionPresenter";
+} from "./presenters/ItemQuestionPresenter";
 
 export type ContentType =
     | "content"
@@ -53,8 +52,6 @@ export type ContentType =
     | "isaacTopicSummaryPage"
     | "isaacPageFragment"
     | "page"
-    | "choices"
-    | "choices$freeTextRule"
     | "isaacQuiz"
     | "hints"
     | "figure"
@@ -97,10 +94,6 @@ const content: RegistryEntry = {
     bodyPresenter: ContentValueOrChildrenPresenter,
     footerPresenter: undefined,
 };
-const choices: RegistryEntry = {
-    name: "Choices",
-    bodyPresenter: ListChildrenPresenter,
-};
 const choice: RegistryEntry = {
     name: "Choice",
     bodyPresenter: ChoicePresenter,
@@ -116,9 +109,10 @@ const tabs: RegistryEntry = {
 const hints: RegistryEntry = {
     name: "Hints",
     bodyPresenter: (props) => <TabsPresenter {...props} hideTitles/>,
-}
+};
 const question: RegistryEntry = {
     name: "Question",
+    headerPresenter: QuestionMetaPresenter,
     bodyPresenter: BoxedContentValueOrChildrenPresenter,
     footerPresenter: QuestionFooterPresenter,
     blankValue: "Enter question body here",
@@ -131,9 +125,9 @@ const isaacStringMatchQuestion = {
     ...question,
     headerPresenter: StringMatchQuestionPresenter,
 };
-const isaacParsonsQuestion = {
+const isaacItemQuestion = {
     ...question,
-    bodyPresenter: ItemOrParsonsQuestionPresenter,
+    bodyPresenter: ItemQuestionPresenter,
     footerPresenter: undefined,
 };
 const item = {
@@ -254,8 +248,6 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
         footerPresenter: AnswerPresenter
     },
     isaacMultiChoiceQuestion: {...question, headerPresenter: MultipleChoiceQuestionPresenter},
-    choices,
-    choices$freeTextRule: {...choices, footerPresenter: FreeTextQuestionInstructions},
     choice: choice,
     isaacNumericQuestion: {...question, headerPresenter: NumericQuestionPresenter},
     quantity: choice,
@@ -273,10 +265,11 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     regexPattern: choice,
     isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
     graphChoice: choice,
-    isaacItemQuestion: isaacParsonsQuestion,
-    isaacParsonsQuestion: isaacParsonsQuestion,
+    isaacItemQuestion,
+    isaacParsonsQuestion: isaacItemQuestion,
     itemChoice: choice,
     parsonsChoice: choice,
+    isaacClozeQuestion: isaacItemQuestion,
     item,
     parsonsItem: item,
     item$choice: {bodyPresenter: ItemChoicePresenter},

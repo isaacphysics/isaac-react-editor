@@ -10,9 +10,14 @@ type SemanticDocProps<K extends string> =
     & {doc: {[k in K]?: ContentBase | undefined}} // FIXME: this type doesn't actually restrict doc
     & { prop: K };
 
+const emptyContent = {
+    type: "content",
+    value: "",
+    encoding: "markdown",
+};
 
 export const SemanticDocProp = <K extends string>({doc, update, prop, ...rest}: SemanticDocProps<K>) => {
-    const subDoc = doc[prop] as Content;
+    const subDoc = doc[prop] as Content ?? emptyContent;
     const docRef = useFixedRef(doc);
     const childUpdate = useCallback((newContent: Content) => {
         update({
@@ -20,5 +25,5 @@ export const SemanticDocProp = <K extends string>({doc, update, prop, ...rest}: 
             [prop]: newContent,
         });
     }, [docRef, update, prop]);
-    return <SemanticItem doc={subDoc} update={childUpdate} {...rest} />
+    return <SemanticItem doc={subDoc} update={childUpdate} {...rest} />;
 };

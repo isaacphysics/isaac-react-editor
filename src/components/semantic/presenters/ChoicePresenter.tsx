@@ -24,7 +24,7 @@ import { EditableValueProp } from "../props/EditableDocProp";
 import { CHOICE_TYPES } from "../ChoiceInserter";
 import { PresenterProps } from "../registry";
 import { ListPresenterProp } from "../props/listProps";
-import { ItemsContext } from "./ItemOrParsonsQuestionPresenter";
+import { ItemsContext } from "./ItemQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
 
