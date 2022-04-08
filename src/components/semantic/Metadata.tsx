@@ -5,7 +5,7 @@ import { InputType } from "reactstrap/lib/Input";
 import { Content } from "../../isaac-data-types";
 
 import { PresenterProps } from "./registry";
-import styles from "./metadata.module.css";
+import styles from "./styles/metadata.module.css";
 import { MetaItems } from "./metaItems";
 
 interface MetaOptions {

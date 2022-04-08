@@ -1,16 +1,18 @@
 import React, { Fragment, MouseEvent, MutableRefObject, useCallback, useMemo } from "react";
 import { Button } from "reactstrap";
 
-import { Content } from "../../isaac-data-types";
-import { useFixedRef } from "../../utils/hooks";
-import { generate, useKeyedList, useWithIndex } from "../../utils/keyedListHook";
+import { Content } from "../../../isaac-data-types";
+import { useFixedRef } from "../../../utils/hooks";
+import { generate, useKeyedList, useWithIndex } from "../../../utils/keyedListHook";
 
-import { CHOICE_INSERTER_MAP } from "./ChoiceInserter";
-import { Inserter } from "./Inserter";
-import { SemanticItem } from "./SemanticItem";
-import { PresenterProps } from "./registry";
+import { CHOICE_INSERTER_MAP } from "../ChoiceInserter";
+import { Inserter } from "../Inserter";
+import { SemanticItem } from "../SemanticItem";
+import { ContentType, PresenterProps } from "../registry";
 
-import styles from "./styles.module.css";
+import styles from "../styles/semantic.module.css";
+import { ChildTypeOverride } from "../props/listProps";
+import { ItemChoiceItemInserter } from "./QuestionPresenters";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
@@ -33,10 +35,10 @@ export function PlainInserter<T>(empty: T) {
     return PlainInserter;
 }
 
-const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
+const INSERTER_MAP: Partial<Record<ContentType, React.FunctionComponent<InserterProps>>> = {
     ...CHOICE_INSERTER_MAP,
-    isaacQuiz: PlainInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []}),
-    isaacCardDeck$cards: PlainInserter({
+    isaacQuizSection: PlainInserter({type: "isaacQuizSection", id: generate, encoding: "markdown", children: []}),
+    isaacCard: PlainInserter({
         "type": "isaacCard",
         "tags": undefined,
         "encoding": "markdown",
@@ -51,9 +53,9 @@ const INSERTER_MAP: Record<string, React.FunctionComponent<InserterProps>> = {
         "verticalContent": false,
         "disabled": false
     }),
-    isaacItemQuestion$items: PlainInserter({type: "item", id: generate, value: ""}),
-    isaacParsonsQuestion$items: PlainInserter({type: "parsonsItem", id: generate, value: "", indentation: 0}),
-    itemChoice$items$choice: () => null, // Suppress display of item additions
+    item: PlainInserter({type: "item", id: generate, value: ""}),
+    parsonsItem: PlainInserter({type: "parsonsItem", id: generate, value: "", indentation: 0}),
+    item$choice: ItemChoiceItemInserter,
 };
 
 interface ListChildProps {
@@ -63,10 +65,10 @@ interface ListChildProps {
     shiftBy: (index: number, amount: number) => void;
     updateChild: (index: number, newValue: Content) => void;
     remove: (index: number) => void;
-    layout: string | undefined;
+    typeOverride: ContentType | undefined;
 }
 
-function ListChild({child, docRef, index, shiftBy, updateChild, remove, layout}: ListChildProps) {
+function ListChild({child, docRef, index, shiftBy, updateChild, remove, typeOverride}: ListChildProps) {
     const by = useCallback((amount: number, e: MouseEvent) => {
         const elementToMove = (e.target as HTMLElement)?.parentElement?.parentElement;
         if (elementToMove) {
@@ -101,7 +103,7 @@ function ListChild({child, docRef, index, shiftBy, updateChild, remove, layout}:
     }), [by, down, up]);
     const update = useWithIndex(updateChild, index);
     const onDelete = useWithIndex(remove, index);
-    return <SemanticItem doc={child} update={update} onDelete={onDelete} shift={shift} layout={layout}/>;
+    return <SemanticItem doc={child} update={update} onDelete={onDelete} shift={shift} typeOverride={typeOverride}/>;
 }
 
 export function deriveNewDoc(doc: MutableRefObject<Content>) {
@@ -111,7 +113,7 @@ export function deriveNewDoc(doc: MutableRefObject<Content>) {
     };
 }
 
-export function ListChildrenPresenter({doc, update}: PresenterProps) {
+export function ListChildrenPresenter({doc, update, childTypeOverride}: PresenterProps & ChildTypeOverride) {
     const docRef = useFixedRef(doc);
 
     const deriveNewList: () => [Content, Content[]] = useCallback(() => {
@@ -123,7 +125,7 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
     const result: JSX.Element[] = [];
 
     function addInserter(index: number, forceOpen: boolean) {
-        const UseInserter = INSERTER_MAP[`${doc.type}$${doc.layout}`] || INSERTER_MAP[`${doc.type}`] || Inserter;
+        const UseInserter = (childTypeOverride && INSERTER_MAP[childTypeOverride]) ?? Inserter;
         // There is no optimal solution here: we want to keep inserter state between boxes, but if a box is deleted,
         // there is no general solution for keeping an inserter open neighbouring the deleted box.
         const key = `__insert_${keyList[index] ?? "last"}`;
@@ -136,7 +138,7 @@ export function ListChildrenPresenter({doc, update}: PresenterProps) {
                                child={child as Content}
                                docRef={docRef}
                                index={index}
-                               layout={doc.layout}
+                               typeOverride={childTypeOverride}
                                {...rest}
         />);
     });

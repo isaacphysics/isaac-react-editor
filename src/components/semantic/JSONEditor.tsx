@@ -5,7 +5,7 @@ import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter, lintGutter } from "@codemirror/lint";
 
 import { PresenterProps } from "./registry";
-import styles from "./styles.module.css";
+import styles from "./styles/semantic.module.css";
 
 const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter()];
 const empty = Symbol("empty") as unknown as string;

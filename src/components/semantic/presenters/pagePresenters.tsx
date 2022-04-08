@@ -1,18 +1,18 @@
 import React from "react";
-
-import { Content, IsaacEventPage, IsaacQuiz, IsaacQuizSection } from "../../isaac-data-types";
-
-import { PresenterProps } from "./registry";
-import { SemanticDocProp } from "./SemanticDocProp";
-import { EditableSubtitleProp, EditableTitleProp } from "./EditableDocProp";
 import { Button } from "reactstrap";
+
+import { IsaacEventPage, IsaacQuiz, IsaacQuizSection } from "../../../isaac-data-types";
+
+import { PresenterProps } from "../registry";
+import { SemanticDocProp } from "../props/SemanticDocProp";
+import { EditableSubtitleProp, EditableTitleProp } from "../props/EditableDocProp";
+import { ListChildrenPresenter } from "./ListChildrenPresenter";
 
 export function PagePresenter(props: PresenterProps) {
     return <>
         <h1><EditableTitleProp {...props} placeHolder="Page title" /></h1>
         <h2><EditableSubtitleProp {...props} placeHolder="Page subtitle" hideWhenEmpty/></h2>
     </>;
-
 }
 
 export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
@@ -20,6 +20,7 @@ export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
         <PagePresenter {...props} />
         <SemanticDocProp {...props} prop="rubric" name="Rubric" />
         <h2>Quiz Sections</h2>
+        <ListChildrenPresenter {...props} childTypeOverride="isaacQuizSection" />
     </>;
 }
 

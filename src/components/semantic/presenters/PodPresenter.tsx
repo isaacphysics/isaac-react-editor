@@ -1,10 +1,10 @@
 import React from "react";
 
-import { IsaacPod } from "../../isaac-data-types";
+import { IsaacPod } from "../../../isaac-data-types";
 
-import { PresenterProps } from "./registry";
-import { EditableDocPropFor, EditableTitleProp, EditableValueProp } from "./EditableDocProp";
-import { SemanticDocProp } from "./SemanticDocProp";
+import { PresenterProps } from "../registry";
+import { EditableDocPropFor, EditableTitleProp, EditableValueProp } from "../props/EditableDocProp";
+import { SemanticDocProp } from "../props/SemanticDocProp";
 
 const EditableUrlProp = EditableDocPropFor<IsaacPod>("url");
 

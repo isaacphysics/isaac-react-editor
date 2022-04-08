@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 
-import { Figure } from "../../isaac-data-types";
-import { FigureNumberingContext } from "../../isaac/IsaacTypes";
+import { Figure } from "../../../isaac-data-types";
+import { FigureNumberingContext } from "../../../isaac/IsaacTypes";
 
-import styles from "./figure.module.css";
+import styles from "../styles/figure.module.css";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
-import { PresenterProps } from "./registry";
+import { PresenterProps } from "../registry";
 import { BaseValuePresenter } from "./BaseValuePresenter";
 
 export function FigurePresenter(props: PresenterProps<Figure>) {

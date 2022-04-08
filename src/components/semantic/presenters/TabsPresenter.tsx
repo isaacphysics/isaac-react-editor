@@ -2,17 +2,17 @@
 import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "reactstrap";
 
-import { Content } from "../../isaac-data-types";
-import { safeLowercase } from "../../utils/strings";
-import { useFixedRef } from "../../utils/hooks";
+import { Content } from "../../../isaac-data-types";
+import { safeLowercase } from "../../../utils/strings";
+import { useFixedRef } from "../../../utils/hooks";
 
-import { SemanticItem } from "./SemanticItem";
+import { SemanticItem } from "../SemanticItem";
 import { deriveNewDoc } from "./ListChildrenPresenter";
-import { EditableIDProp, EditableTitleProp } from "./EditableDocProp";
-import { EditableTextRef } from "./EditableText";
-import { PresenterProps } from "./registry";
-import styles from "./tabs.module.css";
-import { useKeyedList, useWithIndex } from "../../utils/keyedListHook";
+import { EditableIDProp, EditableTitleProp } from "../props/EditableDocProp";
+import { EditableTextRef } from "../props/EditableText";
+import { PresenterProps } from "../registry";
+import styles from "../styles/tabs.module.css";
+import { useKeyedList, useWithIndex } from "../../../utils/keyedListHook";
 
 export type TabsSettings = {
     emptyDescription: string;

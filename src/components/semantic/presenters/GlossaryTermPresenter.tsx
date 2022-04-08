@@ -1,11 +1,11 @@
 import React from "react";
 
-import { GlossaryTerm } from "../../isaac-data-types";
+import { GlossaryTerm } from "../../../isaac-data-types";
 
-import { PresenterProps } from "./registry";
-import styles from "./glossaryTerm.module.css"
-import { SemanticDocProp } from "./SemanticDocProp";
-import { EditableIDProp, EditableValueProp } from "./EditableDocProp";
+import { PresenterProps } from "../registry";
+import styles from "../styles/glossaryTerm.module.css"
+import { SemanticDocProp } from "../props/SemanticDocProp";
+import { EditableIDProp, EditableValueProp } from "../props/EditableDocProp";
 
 export function GlossaryTermPresenter(props: PresenterProps<GlossaryTerm>) {
     return <div className={styles.wrapper}>

@@ -11,37 +11,37 @@ import {
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
     SymbolicQuestionPresenter
-} from "./QuestionPresenters";
+} from "./presenters/QuestionPresenters";
 import { CHOICE_TYPES } from "./ChoiceInserter";
-import { TabsPresenter } from "./TabsPresenter";
+import { TabsPresenter } from "./presenters/TabsPresenter";
 import React, { FunctionComponent } from "react";
-import { ChoicePresenter } from "./ChoicePresenter";
+import { ChoicePresenter } from "./presenters/ChoicePresenter";
 import { Content } from "../../isaac-data-types";
-import { FigurePresenter } from "./FigurePresenter";
-import { ValuePresenter } from "./BaseValuePresenter";
+import { FigurePresenter } from "./presenters/FigurePresenter";
+import { ValuePresenter } from "./presenters/BaseValuePresenter";
 import {
     BoxedContentValueOrChildrenPresenter,
     ContentValueOrChildrenPresenter
-} from "./ContentValueOrChildrenPresenter";
-import { AccordionPresenter } from "./AccordionPresenter";
-import { ListChildrenPresenter } from "./ListChildrenPresenter";
-import { CodeSnippetPresenter } from "./CodeSnippetPresenter";
-import { VideoPresenter } from "./VideoPresenter";
-import { GlossaryTermPresenter } from "./GlossaryTermPresenter";
-import { EmailTemplatePresenter } from "./EmailTemplatePresenter";
-import { AnvilAppPresenter } from "./AnvilAppPresenter";
+} from "./presenters/ContentValueOrChildrenPresenter";
+import { AccordionPresenter } from "./presenters/AccordionPresenter";
+import { ListChildrenPresenter } from "./presenters/ListChildrenPresenter";
+import { CodeSnippetPresenter } from "./presenters/CodeSnippetPresenter";
+import { VideoPresenter } from "./presenters/VideoPresenter";
+import { GlossaryTermPresenter } from "./presenters/GlossaryTermPresenter";
+import { EmailTemplatePresenter } from "./presenters/EmailTemplatePresenter";
+import { AnvilAppPresenter } from "./presenters/AnvilAppPresenter";
 import {
     EventPagePresenter,
     PagePresenter,
     QuizPagePresenter,
     QuizSectionPresenter
-} from "./PagePresenter";
-import { PodPresenter } from "./PodPresenter";
+} from "./presenters/pagePresenters";
+import { PodPresenter } from "./presenters/PodPresenter";
 import { defaultMeta, MetaItemKey } from "./Metadata";
-import { CardDeckPresenter, CardPresenter } from "./CardPresenter";
+import { CardDeckPresenter, CardPresenter } from "./presenters/CardPresenter";
 import { MetaItems } from "./metaItems";
 
-export type TYPES =
+export type ContentType =
     | "content"
     | "content$accordion"
     | "content$tabs"
@@ -216,9 +216,8 @@ const isaacEventPage: RegistryEntry = {
 };
 
 const isaacQuiz:RegistryEntry = {
-    ...content,
     name: "Quiz",
-    headerPresenter: QuizPagePresenter,
+    bodyPresenter: QuizPagePresenter,
     metadata: [...defaultMeta, "level", "visibleToStudents", "hiddenFromTeachers", "published"],
 };
 const isaacQuizSection = {
@@ -233,7 +232,7 @@ const isaacWildcard: RegistryEntry = {
 };
 
 
-export const REGISTRY: Record<TYPES, RegistryEntry> = {
+export const REGISTRY: Record<ContentType, RegistryEntry> = {
     content,
     page: contentPage,
     isaacTopicSummaryPage: isaacTopicSummaryPage,
@@ -299,10 +298,10 @@ const unknown: RegistryEntry = {
     metadata: Object.keys(MetaItems) as MetaItemKey[],
 };
 
-export function getEntryType(doc: Content, layoutOverride?: string) {
-    const typeWithLayout = `${doc.type}$${layoutOverride || doc.layout}` as TYPES;
-    if (layoutOverride) {
-        console.log("layoutOverride", layoutOverride, doc, typeWithLayout, REGISTRY[typeWithLayout]);
+export function getEntryType(doc: ContentType | Content) {
+    if (typeof doc === "string") {
+        return REGISTRY[doc];
     }
-    return REGISTRY[typeWithLayout] || REGISTRY[doc.type as TYPES] || unknown;
+    const typeWithLayout = `${doc.type}$${doc.layout}` as ContentType;
+    return REGISTRY[typeWithLayout] || REGISTRY[doc.type as ContentType] || unknown;
 }

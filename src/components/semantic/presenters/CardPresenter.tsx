@@ -1,12 +1,12 @@
 import React from "react";
 
-import { IsaacCard, IsaacCardDeck } from "../../isaac-data-types";
+import { IsaacCard, IsaacCardDeck } from "../../../isaac-data-types";
 
-import { PresenterProps } from "./registry";
-import { CheckboxDocProp } from "./CheckboxDocProp";
-import { SemanticDocProp } from "./SemanticDocProp";
-import { EditableDocPropFor } from "./EditableDocProp";
-import { ListPresenterProp } from "./ListPresenterProp";
+import { PresenterProps } from "../registry";
+import { CheckboxDocProp } from "../props/CheckboxDocProp";
+import { SemanticDocProp } from "../props/SemanticDocProp";
+import { EditableDocPropFor } from "../props/EditableDocProp";
+import { ListPresenterProp } from "../props/listProps";
 
 const EditableURL = EditableDocPropFor<IsaacCard>("clickUrl");
 
@@ -22,5 +22,5 @@ export function CardPresenter(props: PresenterProps<IsaacCard>) {
 }
 
 export function CardDeckPresenter(props: PresenterProps<IsaacCardDeck>) {
-    return <ListPresenterProp {...props} prop="cards" />;
+    return <ListPresenterProp {...props} prop="cards" childTypeOverride="isaacCard" />;
 }

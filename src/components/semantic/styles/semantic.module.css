@@ -149,11 +149,14 @@
     z-index: 2;
     margin: -32px 0;
     left: calc(50% - 27px);
+    transition: transform 0.2s;
 }
 
 .inserterAdd button:hover {
     opacity: 1;
     text-decoration: none;
+    z-index: 3;
+    transform: scale(150%);
 }
 
 .editButtons {

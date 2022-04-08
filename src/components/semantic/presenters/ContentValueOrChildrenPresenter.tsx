@@ -6,7 +6,7 @@ import {
 import { Alert } from "reactstrap";
 
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
-import { Box } from "./SemanticItem";
+import { Box } from "../SemanticItem";
 
 export const ContentValueOrChildrenPresenter = (props: ValuePresenterProps) => {
     const {doc} = props;

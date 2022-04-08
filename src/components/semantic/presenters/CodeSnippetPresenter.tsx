@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
-import { CodeSnippet } from "../../isaac-data-types";
+import { CodeSnippet } from "../../../isaac-data-types";
 
-import { CheckboxDocProp } from "./CheckboxDocProp";
-import { EditableDocPropFor } from "./EditableDocProp";
-import { PresenterProps } from "./registry";
+import { CheckboxDocProp } from "../props/CheckboxDocProp";
+import { EditableDocPropFor } from "../props/EditableDocProp";
+import { PresenterProps } from "../registry";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
 const EditableCode = EditableDocPropFor<CodeSnippet>("code");

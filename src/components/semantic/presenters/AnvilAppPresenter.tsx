@@ -1,8 +1,8 @@
 import React from "react";
 
-import { AnvilApp } from "../../isaac-data-types";
+import { AnvilApp } from "../../../isaac-data-types";
 
-import { PresenterProps } from "./registry";
+import { PresenterProps } from "../registry";
 import { Alert } from "reactstrap";
 
 export function AnvilAppPresenter({doc}: PresenterProps<AnvilApp>) {

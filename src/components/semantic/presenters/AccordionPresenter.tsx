@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Button, Input } from "reactstrap";
 
-import styles from "./accordion.module.css";
-import { EditableTitleProp } from "./EditableDocProp";
-import { EditableText } from "./EditableText";
+import styles from "../styles/accordion.module.css";
+import { EditableTitleProp } from "../props/EditableDocProp";
+import { EditableText } from "../props/EditableText";
 import { TabsHeader, TabsMain, useTabs } from "./TabsPresenter";
-import { PresenterProps } from "./registry";
+import { PresenterProps } from "../registry";
 import { AudiencePresenter } from "./AudiencePresenter";
+import { NumberDocPropFor } from "../props/NumberDocPropFor";
 
 function hasErrorInLevel(newText: string | undefined) {
     if (newText) {
@@ -148,6 +149,8 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
     </div>;
 }
 
+const LevelProp = NumberDocPropFor("level", {hasError: hasErrorInLevel, label: "Section level"});
+
 export function AccordionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const {
@@ -212,6 +215,7 @@ export function AccordionPresenter(props: PresenterProps) {
                 </> : undefined
             } extraButtons={currentChild ? <>
                 {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
+                <LevelProp doc={currentChild} update={updateCurrentChild} />
                 <EditableText onSave={(newLevel) => {
                     updateCurrentChild({
                         ...currentChild,

@@ -1,7 +1,7 @@
 import { Input, Label } from "reactstrap";
-import styles from "./question.module.css";
+import styles from "../styles/question.module.css";
 import React from "react";
-import { PresenterProps } from "./registry";
+import { PresenterProps } from "../registry";
 
 type CheckboxDocProps<K extends keyof D, D> =
     & PresenterProps<D>

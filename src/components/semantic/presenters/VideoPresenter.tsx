@@ -1,12 +1,12 @@
 import React from "react";
 
-import { Video } from "../../isaac-data-types";
+import { Video } from "../../../isaac-data-types";
 
 import {
     EditableDocPropFor,
-} from "./EditableDocProp";
-import styles from "./figure.module.css";
-import { PresenterProps } from "./registry";
+} from "../props/EditableDocProp";
+import styles from "../styles/figure.module.css";
+import { PresenterProps } from "../registry";
 
 const EditableSrc = EditableDocPropFor<Video>("src");
 const EditableAltText = EditableDocPropFor<Video>("altText");

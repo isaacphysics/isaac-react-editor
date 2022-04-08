@@ -39,11 +39,11 @@ import { Alert } from "reactstrap";
 
 import { Content } from "../../isaac-data-types";
 
-import { ValuePresenterRef, ValueRef, ValueWrapper } from "./BaseValuePresenter";
-import { getEntryType } from "./registry";
+import { ValuePresenterRef, ValueRef, ValueWrapper } from "./presenters/BaseValuePresenter";
+import { ContentType, getEntryType } from "./registry";
 import { JSONEditor } from "./JSONEditor";
 
-import styles from "./styles.module.css";
+import styles from "./styles/semantic.module.css";
 import { MetadataPresenter } from "./Metadata";
 
 interface Shift {
@@ -64,7 +64,7 @@ export interface SemanticItemProps {
     name?: string;
     className?: string;
     shift?: Shift;
-    layout?: string;
+    typeOverride?: ContentType;
 }
 
 interface BoxProps {
@@ -106,14 +106,14 @@ export const Box: FunctionComponent<BoxProps> = ({name, onClick,  onDelete, shif
 };
 
 function SemanticItemInner(props: SemanticItemProps) {
-    const {doc, update, name, layout, ...rest} = props;
+    const {doc, update, name, typeOverride, ...rest} = props;
     const subProps = {doc, update};
     const valueRef = useRef<ValuePresenterRef>(null);
 
     const [jsonMode, setJsonMode] = useState(false);
     const [showMeta, setShowMeta] = useState(false);
 
-    const entryType = getEntryType(doc, layout);
+    const entryType = getEntryType(typeOverride ?? doc);
 
     const metadata = entryType.metadata;
     const meta = metadata && showMeta && !jsonMode && <div className={styles.metadata}>

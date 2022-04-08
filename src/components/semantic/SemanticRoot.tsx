@@ -5,7 +5,7 @@ import { FigureNumberingContext } from "../../isaac/IsaacTypes";
 import { useFigureNumbering } from "../../isaac/WithFigureNumbering";
 
 import { SemanticItem } from "./SemanticItem";
-import styles from "./styles.module.css";
+import styles from "./styles/semantic.module.css";
 
 interface SemanticRootProps {
     doc: Content;

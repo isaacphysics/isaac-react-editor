@@ -10,27 +10,26 @@ import {
     GraphChoice, ParsonsChoice,
     Quantity, RegexPattern,
     StringChoice
-} from "../../isaac-data-types";
-import { TrustedHtml } from "../../isaac/TrustedHtml";
+} from "../../../isaac-data-types";
+import { TrustedHtml } from "../../../isaac/TrustedHtml";
 
 import {
     BaseValuePresenter, buildValuePresenter, ValuePresenter, ValuePresenterProps,
     ValuePresenterRef,
     ValueWrapper
 } from "./BaseValuePresenter";
-import { SemanticDocProp } from "./SemanticDocProp";
-import { CheckboxDocProp } from "./CheckboxDocProp";
-import { EditableValueProp } from "./EditableDocProp";
-import { CHOICE_TYPES } from "./ChoiceInserter";
-import { PresenterProps } from "./registry";
-
-import styles from "./choice.module.css";
-import { ListPresenterProp } from "./ListPresenterProp";
+import { SemanticDocProp } from "../props/SemanticDocProp";
+import { CheckboxDocProp } from "../props/CheckboxDocProp";
+import { EditableValueProp } from "../props/EditableDocProp";
+import { CHOICE_TYPES } from "../ChoiceInserter";
+import { PresenterProps } from "../registry";
+import { ListPresenterProp } from "../props/listProps";
 import {
     ItemChoiceItemInserter,
     ParsonsContext,
-    QuestionFooterPresenter
 } from "./QuestionPresenters";
+
+import styles from "../styles/choice.module.css";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -200,8 +199,7 @@ export const ParsonsChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>
     return <>
         {doc.type === "itemChoice" && <CheckboxDocProp {...props} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
         <ParsonsContext.Provider value={{items, remainingItems}}>
-            <ListPresenterProp {...props} prop="items" layout="choice" />
-            {remainingItems && remainingItems.length > 0 && <ItemChoiceItemInserter {...props} item={remainingItems[0]} />}
+            <ListPresenterProp {...props} prop="items" childTypeOverride="item$choice" />
         </ParsonsContext.Provider>
     </>;
 }

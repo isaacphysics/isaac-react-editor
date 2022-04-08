@@ -11,10 +11,10 @@ import React, {
 } from "react";
 import { Button, FormFeedback, Input } from "reactstrap";
 
-import { safeLowercase } from "../../utils/strings";
-import { LaTeX } from "../../isaac/LaTeX";
+import { safeLowercase } from "../../../utils/strings";
+import { LaTeX } from "../../../isaac/LaTeX";
 
-import styles from "./editable.module.css";
+import styles from "../styles/editable.module.css";
 
 export interface SaveOptions {
     movement?: number;

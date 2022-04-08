@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
 
-import { Content, ContentBase } from "../../isaac-data-types";
+import { Content, ContentBase } from "../../../isaac-data-types";
 
-import { SemanticItem, SemanticItemProps } from "./SemanticItem";
-import { useFixedRef } from "../../utils/hooks";
+import { SemanticItem, SemanticItemProps } from "../SemanticItem";
+import { useFixedRef } from "../../../utils/hooks";
 
 type SemanticDocProps<K extends string> =
     & SemanticItemProps

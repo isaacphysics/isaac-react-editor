@@ -13,8 +13,8 @@ import { useKeyedList } from "../../utils/keyedListHook";
 
 import { asMetaItems, MetaItemPresenter, MetaItemPresenterProps } from "./Metadata";
 
-import styles from "./metadata.module.css";
-import { AudiencePresenter } from "./AudiencePresenter";
+import styles from "./styles/metadata.module.css";
+import { AudiencePresenter } from "./presenters/AudiencePresenter";
 
 const TITLE_MAX_LENGTH = 32;
 

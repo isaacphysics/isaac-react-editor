@@ -7,12 +7,12 @@ import {
     ExamBoard,
     RoleRequirement,
     Stage
-} from "../../isaac-data-types";
-import { SITE } from "../../services/site";
-import { ExtractRecordArrayValue, isDefined } from "../../utils/types";
+} from "../../../isaac-data-types";
+import { SITE } from "../../../services/site";
+import { ExtractRecordArrayValue, isDefined } from "../../../utils/types";
 
-import { PresenterProps } from "./registry";
-import styles from "./audience.module.css";
+import { PresenterProps } from "../registry";
+import styles from "../styles/audience.module.css";
 
 function defaultAudience(): AudienceContext {
     return {"stage": ["a_level"]};

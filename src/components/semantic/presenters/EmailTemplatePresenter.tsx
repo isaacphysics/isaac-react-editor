@@ -1,11 +1,11 @@
 import React from "react";
 
-import { EmailTemplate } from "../../isaac-data-types";
+import { EmailTemplate } from "../../../isaac-data-types";
 
-import { EditableDocPropFor } from "./EditableDocProp";
-import { PresenterProps } from "./registry";
+import { EditableDocPropFor } from "../props/EditableDocProp";
+import { PresenterProps } from "../registry";
 import { BaseValuePresenter } from "./BaseValuePresenter";
-import { Box } from "./SemanticItem";
+import { Box } from "../SemanticItem";
 
 const EditableSubject = EditableDocPropFor<EmailTemplate>("subject");
 

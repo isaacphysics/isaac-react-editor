@@ -1,16 +1,15 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
-
-import { SemanticItem } from "./SemanticItem";
+import React, { createContext, useContext, useState } from "react";
 import {
     EditableDocPropFor,
     EditableIDProp,
-    EditableTitleProp, EditableValueProp,
-    NumberDocPropFor
-} from "./EditableDocProp";
-import styles from "./question.module.css";
+    EditableTitleProp,
+    EditableValueProp
+} from "../props/EditableDocProp";
+import styles from "../styles/question.module.css";
 import {
     Alert,
-    Button, Col,
+    Button,
+    Col,
     Dropdown,
     DropdownItem,
     DropdownMenu,
@@ -18,8 +17,6 @@ import {
     Row
 } from "reactstrap";
 import {
-    ChoiceQuestion,
-    Content,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacParsonsQuestion,
@@ -27,16 +24,19 @@ import {
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
     IsaacSymbolicQuestion,
-    Item, ItemChoice, ParsonsItem,
-} from "../../isaac-data-types";
-import { SemanticDocProp } from "./SemanticDocProp";
-import { EditableText } from "./EditableText";
-import { CheckboxDocProp } from "./CheckboxDocProp";
-import { CHOICE_TYPES } from "./ChoiceInserter";
-import { PresenterProps } from "./registry";
-import { useFixedRef } from "../../utils/hooks";
-import { ListPresenterProp } from "./ListPresenterProp";
+    Item,
+    ItemChoice,
+    ParsonsItem,
+} from "../../../isaac-data-types";
+import { SemanticDocProp } from "../props/SemanticDocProp";
+import { EditableText } from "../props/EditableText";
+import { CheckboxDocProp } from "../props/CheckboxDocProp";
+import { PresenterProps } from "../registry";
+import { ListPresenterProp, SemanticListProp } from "../props/listProps";
 import { BoxedContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
+import { NumberDocPropFor } from "../props/NumberDocPropFor";
+import { ChoicesPresenter } from "./ChoicesPresenter";
+import { InserterProps } from "./ListChildrenPresenter";
 
 export type QUESTION_TYPES =
     | "isaacQuestion"
@@ -145,58 +145,8 @@ export function QuickQuestionPresenter(props: PresenterProps) {
     </>;
 }
 
-export function HintsPresenter({doc, update}: PresenterProps) {
-    const question = doc as IsaacQuestionBase;
-    const docRef = useFixedRef(doc);
-    const hints = useMemo(() => {
-        return {
-            type: "hints",
-            children: question.hints,
-        };
-    }, [question.hints]);
-    const childUpdate = useCallback((newHints: Content) => {
-        update({
-            ...docRef.current,
-            hints: newHints.children,
-        });
-    }, [docRef, update]);
-    return <SemanticItem doc={hints} update={childUpdate} />;
-}
-
-const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
-    isaacQuestion: null,
-    isaacMultiChoiceQuestion: "choice",
-    isaacNumericQuestion: "quantity",
-    isaacSymbolicQuestion: "formula",
-    isaacSymbolicChemistryQuestion: "chemicalFormula",
-    isaacStringMatchQuestion: "stringChoice",
-    isaacFreeTextQuestion: "freeTextRule",
-    isaacSymbolicLogicQuestion: "logicFormula",
-    isaacGraphSketcherQuestion: "graphChoice",
-    isaacRegexMatchQuestion: "regexPattern",
-    isaacItemQuestion: "itemChoice",
-    isaacParsonsQuestion: "parsonsChoice",
-};
-
-// FIXME: replace with ListPresenterProp
-export function ChoicesPresenter({doc, update}: PresenterProps) {
-    const question = doc as ChoiceQuestion;
-    const choices = useMemo(() => {
-        return {
-            type: "choices",
-            // NB: We are reusing layout here for this special component to represent the type of choice
-            layout: choicesType[question.type as QUESTION_TYPES] ?? "",
-            children: question.choices,
-        };
-    }, [question.type, question.choices]);
-    const docRef = useFixedRef(doc);
-    const childUpdate = useCallback((newChoices: Content) => {
-        update({
-            ...docRef.current,
-            choices: newChoices.children,
-        });
-    }, [docRef, update]);
-    return <SemanticItem doc={choices} update={childUpdate} />;
+export function HintsPresenter(props: PresenterProps<IsaacQuestionBase>) {
+    return <SemanticListProp {...props} prop="hints" type="hints" />;
 }
 
 export function QuestionFooterPresenter(props: PresenterProps) {
@@ -464,11 +414,23 @@ export function ItemChoiceItemPresenter({doc, update}: PresenterProps<Item>) {
     </Dropdown>;
 }
 
-export function ItemChoiceItemInserter({doc, update, item}: PresenterProps<ItemChoice> & {item: Item}) {
+export function ItemChoiceItemInserter({insert, position}: InserterProps) {
+    const {items, remainingItems} = useContext(ParsonsContext);
+
+    if (!items || !remainingItems) {
+        return null; // Shouldn't happen.
+    }
+
+    const usedCount = items.length - remainingItems.length;
+
+    if (position < usedCount) {
+        return null; // Only include an insert button at the end.
+    }
+    const item = remainingItems[0];
+    if (!item) {
+        return null; // No items remaining
+    }
     return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
-        update({
-            ...doc,
-            items: [...doc.items ?? [], item],
-        });
+        insert(position, {type: item.type, id: item.id});
     }}>Add</Button>;
 }

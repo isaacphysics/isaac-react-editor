@@ -2,7 +2,8 @@ import React, { FunctionComponent } from "react";
 
 import { Choice, Content } from "../../isaac-data-types";
 
-import { InsertButton, InserterProps } from "./ListChildrenPresenter";
+import { InsertButton, InserterProps } from "./presenters/ListChildrenPresenter";
+import { ContentType } from "./registry";
 
 function ChoiceInserter<T extends Choice>(empty: T) {
     // noinspection UnnecessaryLocalVariableJS
@@ -48,6 +49,6 @@ const emptyChoices = [
     {...emptyChoice, type: "parsonsChoice", children: [], indentation: 0},
 ];
 
-export const CHOICE_INSERTER_MAP: Record<string, FunctionComponent<InserterProps>> = Object.fromEntries(emptyChoices.map((choice) => {
-    return [`choices$${choice.type}`, ChoiceInserter(choice)];
+export const CHOICE_INSERTER_MAP: Partial<Record<ContentType, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {
+    return [choice.type as ContentType, ChoiceInserter(choice)];
 }));

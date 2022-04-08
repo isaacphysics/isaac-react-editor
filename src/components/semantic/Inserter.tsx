@@ -2,8 +2,8 @@ import React, { useMemo, useState } from "react";
 import { Button } from "reactstrap";
 
 import { Box } from "./SemanticItem";
-import { InsertButton, InserterProps } from "./ListChildrenPresenter";
-import styles from "./inserter.module.css";
+import { InsertButton, InserterProps } from "./presenters/ListChildrenPresenter";
+import styles from "./styles/inserter.module.css";
 import { generate } from "../../utils/keyedListHook";
 
 const blockTypes = {
