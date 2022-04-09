@@ -55,7 +55,7 @@ export const MetaItems = asMetaItems({
     published: ["Published", {type: "checkbox"}],
     altText: "Alt text",
     audience: ["Audience", {presenter: AudiencePresenter}],
-    deprecated: ["Deprecated", {type: "checkbox"}],
+    deprecated: ["Deprecated", {presenter: Deprecated}],
     description: "Description",
     url: "URL",
     relatedContent: ["Related content", {presenter: RelatedContentPresenter}],
@@ -104,6 +104,28 @@ function ReservationsMetaPresenter(props: MetaItemPresenterProps<IsaacEventPage>
             </Col>
         </>}
     </Row>;
+}
+
+const deprecatedTag = "nofilter";
+function Deprecated({doc, update, ...rest}: MetaItemPresenterProps<Content>) {
+    const onChange = (deprecated: boolean) => {
+        const oldTags = doc.tags ?? [];
+        let newTags = undefined;
+
+        if (deprecated && !oldTags.includes(deprecatedTag)) {
+            newTags = [...oldTags, deprecatedTag];
+        } else if (!deprecated && oldTags.includes(deprecatedTag)) {
+            newTags = oldTags.filter(tag => tag !== deprecatedTag);
+        }
+
+        update({
+            ...doc,
+            deprecated,
+            tags: newTags ?? doc.tags,
+        });
+    };
+
+    return <Input type="checkbox" {...rest} checked={!!doc.deprecated} onChange={(e) => onChange(e.target.checked)} />;
 }
 
 
