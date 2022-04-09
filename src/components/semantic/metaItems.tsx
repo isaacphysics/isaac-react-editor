@@ -16,6 +16,7 @@ import { TagsPresenter } from "./presenters/TagsPresenter";
 import { asMetaItems, MetaItemPresenter, MetaItemPresenterProps } from "./Metadata";
 
 import styles from "./styles/metadata.module.css";
+import { RelatedContentPresenter } from "./presenters/RelatedContentPresenter";
 
 const TITLE_MAX_LENGTH = 32;
 
@@ -56,7 +57,7 @@ export const MetaItems = asMetaItems({
     deprecated: ["Deprecated", {type: "checkbox"}],
     description: "Description",
     url: "URL",
-    relatedContent: ["Related content", {/*type: RelatedContent*/}],
+    relatedContent: ["Related content", {presenter: RelatedContentPresenter}],
     visibleToStudents: ["Visible to students", {presenter: VisibleToStudents}],
     hiddenFromTeachers: ["Hidden from teachers", {presenter: HiddenFromTeachers}],
     linkedGameboards: ["Linked gameboards", {/*type: LinkedGambeboards*/}],
