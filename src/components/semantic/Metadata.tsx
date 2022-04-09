@@ -12,7 +12,7 @@ export interface MetaOptions {
     hasWarning?: (value: unknown) => string | undefined;
     type?: InputType;
     presenter?: React.FunctionComponent<MetaItemPresenterProps>;
-    defaultValue?: any;
+    defaultValue?: unknown;
     options?: Record<string, string>;
 }
 type MetaItem = string | [string, MetaOptions];
@@ -26,7 +26,7 @@ export function asMetaItems<T extends Record<string, MetaItem>>(metaItems: T) {
 
 export type MetaItemKey = keyof typeof MetaItems;
 
-export const defaultMeta: MetaItemKey[] = ["id", "title", "subtitle", "author"];
+export const defaultMeta: MetaItemKey[] = ["tags", "id", "title", "subtitle", "author"];
 
 function getMetaItem(item: MetaItemKey): [string, MetaOptions] {
     const metaItem = MetaItems[item];

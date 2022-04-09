@@ -1,6 +1,6 @@
 import {
     AnswerPresenter,
-    FreeTextQuestionInstructions, MultipleChoiceQuestionPresenter,
+    MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
     QuestionFooterPresenter,

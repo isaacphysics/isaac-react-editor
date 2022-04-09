@@ -11,14 +11,16 @@ import {
 import { useFixedRef } from "../../utils/hooks";
 import { useKeyedList } from "../../utils/keyedListHook";
 
+import { AudiencePresenter } from "./presenters/AudiencePresenter";
+import { TagsPresenter } from "./presenters/TagsPresenter";
 import { asMetaItems, MetaItemPresenter, MetaItemPresenterProps } from "./Metadata";
 
 import styles from "./styles/metadata.module.css";
-import { AudiencePresenter } from "./presenters/AudiencePresenter";
 
 const TITLE_MAX_LENGTH = 32;
 
 export const MetaItems = asMetaItems({
+    tags: ["Tags", {presenter: TagsPresenter}],
     id: ["ID", {
         hasWarning: (value) => {
             const id = value as string;
