@@ -23,3 +23,7 @@
 .row :global(.btn-link.btn-sm) {
     text-decoration: none !important;
 }
+
+.groupReservationLimit {
+    height: 46px;
+}

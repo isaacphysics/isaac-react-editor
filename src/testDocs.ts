@@ -580,7 +580,7 @@ export const testQuiz = {
 } as unknown as Content;
 
 export const testDoc = {
-    "type": "isaacQuestionPage",
+    "type": "isaacTopicSummaryPage",
     "encoding": "markdown",
     "title": "Regression Test Page",
     "level": 0,

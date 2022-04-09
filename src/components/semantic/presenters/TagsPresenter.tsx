@@ -1,15 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Button, Input } from "reactstrap";
 import useSWR from "swr";
 
+import { stagingFetcher } from "../../../services/isaacApi";
+
 import { PresenterProps } from "../registry";
-import { Button, Input } from "reactstrap";
 
 import styles from "../styles/tags.module.css";
 
 export function TagsPresenter({doc, update}: PresenterProps) {
     const [searchString, setSearchString] = useState("");
     const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-    const {data: tagList} = useSWR<string[]>("content/tags");
+    const {data: tagList} = useSWR<string[]>(
+        "content/tags",
+        stagingFetcher,
+    );
     const [showTagList, setShowTagList] = useState(true);
     const [filteredTagList, setFilteredTagList] = useState<string[]>();
 

@@ -10,3 +10,8 @@
 .wrapper input {
     margin-bottom: 0.5em;
 }
+
+.gameboardButton {
+    min-width: 200px;
+    text-align: left;
+}

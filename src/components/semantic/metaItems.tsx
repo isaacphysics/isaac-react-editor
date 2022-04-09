@@ -13,10 +13,11 @@ import { useKeyedList } from "../../utils/keyedListHook";
 
 import { AudiencePresenter } from "./presenters/AudiencePresenter";
 import { TagsPresenter } from "./presenters/TagsPresenter";
+import { RelatedContentPresenter } from "./presenters/RelatedContentPresenter";
+import { LinkedGameboardsPresenter } from "./presenters/LinkedGameboardsPresenter";
 import { asMetaItems, MetaItemPresenter, MetaItemPresenterProps } from "./Metadata";
 
 import styles from "./styles/metadata.module.css";
-import { RelatedContentPresenter } from "./presenters/RelatedContentPresenter";
 
 const TITLE_MAX_LENGTH = 32;
 
@@ -60,7 +61,7 @@ export const MetaItems = asMetaItems({
     relatedContent: ["Related content", {presenter: RelatedContentPresenter}],
     visibleToStudents: ["Visible to students", {presenter: VisibleToStudents}],
     hiddenFromTeachers: ["Hidden from teachers", {presenter: HiddenFromTeachers}],
-    linkedGameboards: ["Linked gameboards", {/*type: LinkedGambeboards*/}],
+    linkedGameboards: ["Linked gameboards", {presenter: LinkedGameboardsPresenter}],
 
     // Events stuff
     emailEventDetails: ["Email Event Details", {type: "textarea"}],
@@ -98,7 +99,7 @@ function ReservationsMetaPresenter(props: MetaItemPresenterProps<IsaacEventPage>
             <Col xs={3} className={styles.label}>
                 <Label for={`${limitId}`}>Per-teacher Limit</Label>
             </Col>
-            <Col xs={5} style={{height: "46px"}}>
+            <Col xs={5} className={styles.groupReservationLimit}>
                 <MetaItemPresenter {...props} id={limitId} prop="groupReservationLimit" name="Per-teacher Limit" options={{type: "number", defaultValue: 10}} />
             </Col>
         </>}

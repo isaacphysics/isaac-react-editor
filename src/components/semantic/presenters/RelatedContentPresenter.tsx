@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { Button, Input } from "reactstrap";
 import useSWR from "swr";
 
 import { Content } from "../../../isaac-data-types";
+import { stagingFetcher } from "../../../services/isaacApi";
 
 import { PresenterProps } from "../registry";
-import { Button, Input } from "reactstrap";
 
 import styles from "../styles/tags.module.css";
 
@@ -32,7 +33,10 @@ function ContentDescription({content}: { content: Content }) {
 export function RelatedContentPresenter({doc, update}: PresenterProps) {
     const [searchString, setSearchString] = useState("");
 
-    const {data: relatedContent} = useSWR<{results: Content[]}>("search?query=" + encodeURIComponent(searchString) + "&types=isaacConceptPage,isaacQuestionPage");
+    const {data: relatedContent} = useSWR<{results: Content[]}>(
+        "search?query=" + encodeURIComponent(searchString) + "&types=isaacConceptPage,isaacQuestionPage",
+        stagingFetcher,
+    );
 
     function addRelatedContent(id: string) {
         if (doc.relatedContent?.includes(id)) {
