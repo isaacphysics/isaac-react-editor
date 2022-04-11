@@ -103,6 +103,7 @@ describe("can render existing docs without errors", () => {
     it.skip("Can render Computer Science content correctly", () => testFiles("../isaac-content-2/content"));
     it.skip("Can render Physics content correctly", () => testFiles("../rutherford-content/content"));
 
+    // Specific files with errors found previously
     testFile("../rutherford-content/content/questions/chemistry/foundations/atomic_structure/elements_reversal.json");
     testFile("../rutherford-content/content/questions/chemistry/inorganic/bonding/oxides.json");
     testFile("../rutherford-content/content/questions/physics/mechanics/kinematics/level1/glidepath.json");

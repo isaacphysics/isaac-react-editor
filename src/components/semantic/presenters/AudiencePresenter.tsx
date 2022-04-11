@@ -166,8 +166,8 @@ function conciseAudience(audience: AudienceContext): string {
     return safeJoin(result, " and ");
 }
 
-function conciseAudiences(audiences: AudienceContext[] | undefined, type?: string) {
-    if (audiences === undefined) {
+function conciseAudiences(audiences: AudienceContext[] | undefined | null, type?: string) {
+    if (audiences === undefined || audiences === null) {
         return type === "accordion" ? "All" : "None set";
     }
     return safeJoin(audiences.map((audience) => conciseAudience(audience)), " or ");
