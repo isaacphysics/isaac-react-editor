@@ -73,6 +73,8 @@
     "@types/he": "^1.1.2",
     "@types/js-cookie": "^3.0.1",
     "@types/katex": "^0.10.1",
-    "@types/remarkable": "^1.7.4"
+    "@types/react-test-renderer": "^17.0.1",
+    "@types/remarkable": "^1.7.4",
+    "react-test-renderer": "^16.14.0"
   }
 }
