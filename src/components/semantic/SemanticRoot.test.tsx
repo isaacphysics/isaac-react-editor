@@ -8,6 +8,7 @@ import { Content } from "../../isaac-data-types";
 import { SemanticItem } from "./SemanticItem";
 import { SemanticRoot } from "./SemanticRoot";
 import { PresenterProps } from "./registry";
+import styles from "./styles/semantic.module.css";
 
 // Imperfect, but present accordions and tabs as the original accordion/tab (to test that logic)
 // and *also* as a standard list so that all children get presented.
@@ -41,6 +42,15 @@ jest.mock("./presenters/TabsPresenter", () => {
     };
 });
 
+// Katex is slow to render and doesn't throw so won't surface any bugs in this test anyway.
+jest.mock("../../isaac/LaTeX", () => {
+    const original = jest.requireActual("../../isaac/LaTeX");
+    return {
+        ...original,
+        katexify: (html: string) => html,
+    };
+});
+
 
 function getFiles(dir: string): string[] {
     const subdirs = readdirSync(dir);
@@ -52,31 +62,41 @@ function getFiles(dir: string): string[] {
 }
 
 function renderDoc(doc: Content) {
-    TestRenderer.create(<SemanticRoot doc={doc} update={(newDoc) => {
+    const dom = TestRenderer.create(<SemanticRoot doc={doc} update={(newDoc) => {
         fail("update called");
     }}/>);
+
+    // Force metadata open everywhere it appears
+    const metadata = dom.root.findAllByProps({className: styles.metaLabel}, {deep: true});
+    TestRenderer.act(() =>
+        metadata?.forEach(metadata => {
+            metadata.props?.onClick();
+        })
+    );
+
+    return dom;
+}
+
+function buildTestFor(file: string) {
+    return () => {
+        const doc = JSON.parse(readFileSync(file).toString());
+
+        renderDoc(doc);
+
+        expect(errorLog).toEqual([]);
+    };
 }
 
 function testFiles(directory: string) {
     const files = getFiles(directory);
     files.forEach((file) => {
         if (!file.endsWith(".json")) return;
-        it(`renders ${file.substring(directory.length)} correctly`, () => {
-            const doc = JSON.parse(readFileSync(file).toString());
-            renderDoc(doc);
-
-            expect(errorLog).toEqual([]);
-        });
+        it(`renders ${file.substring(directory.length)} correctly`, buildTestFor(file));
     });
 }
 
 function testFile(file: string) {
-    it(`renders ${file} correctly`, () => {
-        const doc = JSON.parse(readFileSync(file).toString());
-        renderDoc(doc);
-
-        expect(errorLog).toEqual([]);
-    });
+    it(`renders ${file} correctly`, buildTestFor(file));
 }
 
 let errorLog: unknown[] = [];
@@ -100,11 +120,12 @@ describe("can render existing docs without errors", () => {
         expect(errorLog.length).toBeGreaterThan(0);
     });
 
-    it.skip("Can render Computer Science content correctly", () => testFiles("../isaac-content-2/content"));
-    it.skip("Can render Physics content correctly", () => testFiles("../rutherford-content/content"));
+    describe("Can render Computer Science content correctly", () => testFiles("../isaac-content-2/content"));
+    describe("Can render Physics content correctly", () => testFiles("../rutherford-content/content"));
 
-    // Specific files with errors found previously
-    testFile("../rutherford-content/content/questions/chemistry/foundations/atomic_structure/elements_reversal.json");
-    testFile("../rutherford-content/content/questions/chemistry/inorganic/bonding/oxides.json");
-    testFile("../rutherford-content/content/questions/physics/mechanics/kinematics/level1/glidepath.json");
+    it.skip("Checks specific files with errors found previously", () => {
+        testFile("../rutherford-content/content/questions/chemistry/foundations/atomic_structure/elements_reversal.json");
+        testFile("../rutherford-content/content/questions/chemistry/inorganic/bonding/oxides.json");
+        testFile("../rutherford-content/content/questions/physics/mechanics/kinematics/level1/glidepath.json");
+    });
 });

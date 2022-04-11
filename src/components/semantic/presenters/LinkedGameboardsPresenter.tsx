@@ -17,8 +17,6 @@ export function LinkedGameboardsPresenter({doc, update}: PresenterProps<IsaacTop
         liveFetcher,
     );
 
-    console.log(gameboard, error);
-
     function addGameboard(id: string) {
         if (doc.linkedGameboards?.includes(id)) {
             return;
