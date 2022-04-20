@@ -10,6 +10,14 @@ import { SemanticRoot } from "./SemanticRoot";
 import { PresenterProps } from "./registry";
 import styles from "./styles/semantic.module.css";
 
+// Katex is slow to render and doesn't throw so won't surface any bugs in this test anyway.
+jest.mock("../../isaac/LaTeX", () => {
+    return {
+        LaTeX: ({markup, className}: {markup: string, className?: string}) => <span dangerouslySetInnerHTML={{__html: markup}} className={className} />,
+        katexify: (html: string) => html,
+    };
+});
+
 // Imperfect, but present accordions and tabs as the original accordion/tab (to test that logic)
 // and *also* as a standard list so that all children get presented.
 jest.mock("./presenters/AccordionPresenter", () => {
@@ -39,15 +47,6 @@ jest.mock("./presenters/TabsPresenter", () => {
                 <ListChildrenPresenter {...props} />
             </>;
         },
-    };
-});
-
-// Katex is slow to render and doesn't throw so won't surface any bugs in this test anyway.
-jest.mock("../../isaac/LaTeX", () => {
-    const original = jest.requireActual("../../isaac/LaTeX");
-    return {
-        ...original,
-        katexify: (html: string) => html,
     };
 });
 
