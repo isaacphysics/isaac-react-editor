@@ -12,7 +12,7 @@ export function TagsPresenter({doc, update}: PresenterProps) {
     const [searchString, setSearchString] = useState("");
     const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
     const {data: tagList} = useSWR<string[]>(
-        "content/tags",
+        searchString !== "" ? "content/tags" : null,
         stagingFetcher,
     );
     const [showTagList, setShowTagList] = useState(true);

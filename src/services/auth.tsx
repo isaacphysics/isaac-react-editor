@@ -4,6 +4,8 @@ import Cookies from "js-cookie";
 
 import { GITHUB_TOKEN_COOKIE } from "./github";
 
+import styles from "../styles/editor.module.css";
+
 export interface Config {
     clientId: string;
     authCode: string;
@@ -12,11 +14,11 @@ export interface Config {
 }
 
 const configs: {[host: string]: Config} = {
-    "localhost:3000": {
-        clientId: "dedb469b757ebafa9ba2",
-        authCode: "S2b8x//dzuTJa1/uLCR6p7hzCNia6+IM0rMSWsovT7CtsUQJKIzAcpjpY2FU2gsT0LL5EQWek5L7u0Lzx6FGp2Chxo88tj43MnCUKrXchbujhp+Bv/ctuAQk/wQeydH8qXzVmkiRTHpVl1FBBqN+wX0K0qNf4Y6r0e+2XAly+aGSz8O8vhAHJDJy91weCPMAlXexuCGD9kmMPtNAzTPM6cuKyr5lEZ6Z",
-        OWNER: "lambdacambridge",
-        REPO: "isaac-cs-editor",
+    "localhost:8421": {
+        clientId: "f62f2bd4954bf930bc3f",
+        authCode: "/vFaDdbb7id6+cPgsIKTdvwk4lOLBkBpBsXDdBvZsnU0U/PBLxgzxDzmUfE/0OIWWvlxh7SigvVv1JzBffbEc2364W8GPmQt9QeuVW1juAHdvdT7kRrHv8LjEuxJP9ie9+BP3tXNWpVxdg7S3sbZA5ShBFOYxdr3izjn9L+cmzDT9YVKB+Grv8hvLcEFOy7KHeixa29HPY2pqtk6XHFqiwlDP+02AWmY",
+        OWNER: "isaacphysics",
+        REPO: "isaac-content-2",
     },
 };
 
@@ -54,8 +56,9 @@ export function LoginPrompt() {
 }
 
 export function LoadingScreen({message = "Logging in..."}: { message?: string }) {
-    return <div style={{display: "flex", alignContent: "center", alignItems: "center"}}>
-        <Spinner size="large"/>
+    return <div className={styles.centered}>
+        <Spinner size="large" />
+        <br />
         <h4>{message}</h4>
     </div>;
 }

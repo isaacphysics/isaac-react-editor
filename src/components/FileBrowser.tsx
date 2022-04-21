@@ -1,7 +1,14 @@
-import React, { ComponentProps, FunctionComponent, useContext, useState } from "react";
+import React, {
+    ComponentProps,
+    FunctionComponent,
+    useContext,
+    useState
+} from "react";
 import useSWR from "swr";
 import { ListGroup, ListGroupItem } from "reactstrap";
+
 import { AppContext } from "../App";
+import styles from "../styles/editor.module.css";
 
 type Entry = {
     type: "file";
@@ -16,7 +23,7 @@ type Entry = {
 interface FilesProps {
     at: string;
     name?: string;
-    initialOpen?: boolean
+    initialOpen?: boolean;
 }
 
 type FileItemProps = Exclude<ComponentProps<typeof ListGroupItem>, 'onClick'> & {
@@ -29,6 +36,7 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
     const {onClick: innerClick, path, isDir, ...rest} = props;
     const selectionContext = useContext(AppContext).selection;
     const isSelected = selectionContext.getSelection()?.path === path;
+
     const onClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
         event.stopPropagation();
         if (!isSelected) {
@@ -41,6 +49,7 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
         }
     }
     return <ListGroupItem action
+                          id={`fileItem-${path}`}
                           tag="button"
                           color={isSelected ? 'info' : undefined}
                           style={{paddingRight: 0}}
@@ -84,11 +93,11 @@ function Files({at, name, initialOpen}: FilesProps) {
                 setOpen(false);
             }
         }}>
-            - {name} <button onClick={(event) => {
+            - {name} <button className={styles.iconButton} onClick={(event) => {
             mutate();
             event.stopPropagation();
             event.preventDefault();
-        }}>Refresh</button>
+        }}>🔄</button>
             {content}
         </FileItem>;
     } else {
@@ -109,7 +118,7 @@ export const defaultSelectedContext: SelectedContext = {getSelection: () => null
 }};
 
 export function FileBrowser() {
-    return <div style={{overflowY: "auto"}}>
+    return <div className={styles.fileBrowser}>
         <Files at="" initialOpen={true}/>
     </div>;
 }

@@ -34,7 +34,7 @@ export function RelatedContentPresenter({doc, update}: PresenterProps) {
     const [searchString, setSearchString] = useState("");
 
     const {data: relatedContent} = useSWR<{results: Content[]}>(
-        "search?query=" + encodeURIComponent(searchString) + "&types=isaacConceptPage,isaacQuestionPage",
+        searchString !== "" ? "search?query=" + encodeURIComponent(searchString) + "&types=isaacConceptPage,isaacQuestionPage" : null,
         stagingFetcher,
     );
 

@@ -1,0 +1,51 @@
+.editorScreen {
+    display: flex;
+    justify-content: stretch;
+    height: 100vh;
+}
+
+.leftMenuWrapper {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    margin-right: 3px;
+    border-right: 1px solid #eee;
+}
+
+.leftMenuHeader {
+    text-align: right;
+    min-height: 30px;
+    background: #f5f5f5;
+}
+
+.fileBrowser {
+    flex: 1;
+    overflow: auto;
+}
+
+.semanticEditor {
+    overflow: auto;
+}
+
+.centered {
+    flex: 1;
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    justify-content: center;
+    align-content: center;
+}
+
+.iconButton {
+    float: right;
+    border: 1px solid #6c757d;
+    border-radius: 4px;
+    background: #fff;
+    margin: 0;
+    padding: 0 3px;
+    font-size: 14px;
+}
+
+.iconButton:hover {
+    background: #6c757d;
+}

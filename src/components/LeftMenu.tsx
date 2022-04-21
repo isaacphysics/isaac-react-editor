@@ -1,4 +1,4 @@
-import React, { ContextType, useContext, useState } from "react";
+import React, { ContextType, useContext, useLayoutEffect, useState } from "react";
 import useSWR from "swr";
 import { Modal } from "reactstrap";
 
@@ -6,6 +6,8 @@ import { AppContext } from "../App";
 import { encodeBase64 } from "../utils/base64";
 import { FileBrowser } from "./FileBrowser";
 import { fetcher } from "../services/github";
+
+import styles from "../styles/editor.module.css";
 
 
 /*function dirname(path: string | undefined) {
@@ -15,10 +17,9 @@ import { fetcher } from "../services/github";
 
 async function doSave(appContext: ContextType<typeof AppContext>, sha: string, mutate: (data?: unknown, update?: boolean) => void) {
     // Commit this to github
-    const fileText = appContext.editor.currentRef.current;
-    const fileJSON = JSON.parse(fileText);
-    const existingJSON = JSON.parse(appContext.editor.previousRef.current);
-    const isPublishedChange = fileJSON.published || existingJSON.published;
+    const fileJSON = appContext.editor.getCurrentDoc();
+    const alreadyPublished = appContext.editor.isAlreadyPublished();
+    const isPublishedChange = fileJSON.published || alreadyPublished;
     const path = appContext.selection.getSelection()?.path;
     const initialCommitMessage = `${isPublishedChange ? "* " : ""}Edited ${path}`;
 
@@ -30,7 +31,7 @@ async function doSave(appContext: ContextType<typeof AppContext>, sha: string, m
 
     const body = {
         message,
-        content: encodeBase64(fileText),
+        content: encodeBase64(JSON.stringify(fileJSON)),
         //branch: // TODO: handle branch here and also at fetcher
         sha: sha,
     }
@@ -40,7 +41,7 @@ async function doSave(appContext: ContextType<typeof AppContext>, sha: string, m
         body: JSON.stringify(body),
     });
 
-    appContext.editor.setDirty(false);
+    appContext.editor.loadNewDoc(fileJSON);
     mutate({...result.content, content: body.content}, false);
 }
 
@@ -52,14 +53,26 @@ export function LeftMenu() {
 
     const [previewOpen, setPreviewOpen] = useState(false);
 
-    return <div style={{
-        width: "300px",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        flexShrink: 0
-    }}>
-        <header style={{textAlign: "right", minHeight: "30px", background: "#f5f5f5"}}>
+    // Run this on first load only
+    useLayoutEffect(() => {
+        function tryAgain() {
+            const item = document.getElementById(`fileItem-${path}`);
+            if (item) {
+                item.scrollIntoView({block: "center"});
+            } else {
+                if (path === appContext.selection.getSelection()?.path) {
+                    setTimeout(tryAgain, 250);
+                }
+            }
+        }
+        if (path) {
+            tryAgain();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return <div className={styles.leftMenuWrapper}>
+        <header className={styles.leftMenuHeader}>
             {/*<button onClick={() => {
                 const selection = appContext.selection.getSelection();
                 const basePath = selection?.isDir ? selection?.path : dirname(selection?.path);
@@ -67,6 +80,13 @@ export function LeftMenu() {
             }}>
                 Add
             </button>*/}
+            <button className={styles.iconButton} onClick={() => {
+                const selection = appContext.selection.getSelection();
+                if (selection) {
+                    const item = document.getElementById(`fileItem-${selection.path}`);
+                    item?.scrollIntoView({block: "center"});
+                }
+            }}>🔍</button>
             {appContext.editor.getDirty() && <button onClick={() => doSave(appContext, data.sha, mutate)}>
                 Save
             </button>}
@@ -78,7 +98,7 @@ export function LeftMenu() {
         </header>
         <FileBrowser/>
         <Modal isOpen={previewOpen} onClosed={() => setPreviewOpen(false)}>
-            {previewOpen && <pre>{appContext.editor.currentRef.current}</pre>}
+            {previewOpen && <pre>{JSON.stringify(appContext.editor.getCurrentDoc(), null, 2)}</pre>}
         </Modal>
     </div>;
 }

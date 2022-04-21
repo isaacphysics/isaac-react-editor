@@ -1,5 +1,6 @@
 .outerWrapper {
     margin-bottom: 1em;
+    flex: 1;
 }
 
 .box {
@@ -141,6 +142,7 @@
 }
 
 .inserterAdd {
+    margin-top: 16px; /* This won't show but makes the -32px work correctly below. */
 }
 
 .inserterAdd button {

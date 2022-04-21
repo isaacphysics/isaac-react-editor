@@ -7,8 +7,11 @@ import { LeftMenu } from "../components/LeftMenu";
 import { AppContext, browserHistory } from "../App";
 import { defaultGithubContext, fetcher, User } from "../services/github";
 import { SemanticEditor } from "../components/SemanticEditor";
+import { Content } from "../isaac-data-types";
 
-function paramsToSelection(params: Readonly<Params>) {
+import styles from "../styles/editor.module.css";
+
+function paramsToSelection(params: Readonly<Params>): Selection {
     let path = params["*"];
     if (!path) {
         return null;
@@ -45,8 +48,8 @@ export function EditorScreen() {
     }
 
     const [dirty, setDirty] = useState(false);
-    const currentRef = useRef<string>("");
-    const previousRef = useRef<string>("");
+    const [currentContent, setCurrentContent] = useState<Content>({});
+    const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
     useEffect(() => {
         if (dirty) {
@@ -79,23 +82,31 @@ export function EditorScreen() {
             },
             editor: {
                 getDirty: () => dirty,
-                setDirty,
-                currentRef,
-                previousRef,
+                getCurrentDoc: () => currentContent,
+                setCurrentDoc: (content) => {
+                    setCurrentContent(content);
+                    setDirty(true);
+                },
+                loadNewDoc: (content) => {
+                    setDirty(false);
+                    setIsAlreadyPublished(!!content.published);
+                    setCurrentContent(content);
+                },
+                isAlreadyPublished: () => isAlreadyPublished,
             },
             github: {
                 branch: params.branch || defaultGithubContext.branch,
                 user: userRef.current,
             },
         });
-    }, [dirty, selection, params.branch, setSelection]);
+    }, [params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
-            <div style={{display: "flex"}}>
+            <div className={styles.editorScreen}>
                 <LeftMenu/>
                 {selection && !selection.isDir ? <SemanticEditor /> :
-                    <div style={{margin: "auto", alignSelf: "center"}}>
+                    <div className={styles.centered}>
                         Choose a file on the left to edit
                     </div>}
             </div>
