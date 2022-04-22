@@ -74,22 +74,66 @@
     flex: 1;
     overflow: auto auto;
     min-width: 300px;
-    padding-bottom: 30px;
     display: flex;
+}
+
+.fileBrowser > .fileBrowserList:after {
+    content: " ";
+    padding-bottom: 30px;
 }
 
 .fileBrowserList {
     flex: 1;
+    padding: 0 0 0 16px;
+}
+
+.fileBrowserItem:hover {
+    background: #fff;
 }
 
 .fileBrowserItem {
-    padding-right: 0;
+    padding: 0;
+    border: none !important;
+    white-space: nowrap;
 }
 .fileBrowserItemSelected, .fileBrowserItemSelected:focus {
-    background: #ddd;
+    font-weight: bold;
 }
 .fileBrowserItemSelected:hover {
-    background: #eee;
+    background: #fff;
+}
+
+.fileBrowserItem:before {
+    content: "🗎";
+    position: relative;
+    padding-left: 5px;
+    padding-right: 3px;
+    opacity: 0.5;
+}
+
+.fileBrowserClosedFolder, .fileBrowserOpenFolder {
+    position: relative;
+    padding: 0;
+    border: none !important;
+}
+
+.fileBrowserClosedFolder:hover, .fileBrowserOpenFolder:hover {
+    background: #fff;
+}
+
+.fileBrowserClosedFolder:before,  .fileBrowserOpenFolder:before {
+    content: "⌄";
+    position: relative;
+    top: -3px;
+    padding-left: 7px;
+    padding-right: 5px;
+    display: inline-block;
+}
+
+.fileBrowserClosedFolder:before {
+    transform: rotate(-90deg);
+    left: -5px;
+    top: 1px;
 }
 
 .semanticEditor {

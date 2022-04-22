@@ -49,7 +49,7 @@ export function pathToId(path: string) {
 }
 
 const FileItem: FunctionComponent<FileItemProps> = (props) => {
-    const {onClick: innerClick, path, isDir, ...rest} = props;
+    const {onClick: innerClick, path, isDir, className, ...rest} = props;
     const selectionContext = useContext(AppContext).selection;
     const isSelected = selectionContext.getSelection()?.path === path;
 
@@ -67,7 +67,7 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
     return <ListGroupItem action
                           id={pathToId(path)}
                           tag="button"
-                          className={`${styles.fileBrowserItem} ${isSelected ? styles.fileBrowserItemSelected : ""}`}
+                          className={`${className ?? ""} ${styles.fileBrowserItem} ${isSelected ? styles.fileBrowserItemSelected : ""}`}
                           onClick={onClick}
                           {...rest} />;
 };
@@ -90,12 +90,12 @@ function Files({at, name, initialOpen, menuRef}: FilesProps) {
     };
 
     if (!open) {
-        return <FileItem isDir path={at} onClick={() => setOpen(true)} onContextMenu={onContextMenu} menuRef={menuRef}>
-            +&nbsp;{name}
+        return <FileItem className={styles.fileBrowserClosedFolder} isDir path={at} onClick={() => setOpen(true)} onContextMenu={onContextMenu} menuRef={menuRef}>
+            {name}
         </FileItem>;
     }
 
-    const content = error ? <div><em>Error loading data, {error}</em></div> : data ?
+    const content = error ? <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div> : data ?
         <ListGroup flush className={styles.fileBrowserList}>
             {data.map((entry: Entry) => {
                 switch (entry.type) {
@@ -109,21 +109,21 @@ function Files({at, name, initialOpen, menuRef}: FilesProps) {
                             event.preventDefault();
                         };
                         return <FileItem key={entry.name} path={entry.path} name={entry.name} onContextMenu={fileOnContextMenu}>
-                            🗎&nbsp;{entry.name}
+                            {entry.name}
                         </FileItem>
                     default:
                         return null;
                 }
             })}
-        </ListGroup> : <div><Spinner size="sm" /> Loading...</div>;
+        </ListGroup> : <div className={styles.fileBrowserList}><Spinner size="sm" /> Loading...</div>;
 
     if (name) {
-        return <FileItem isDir path={at} onClick={(isSelected) => {
+        return <FileItem className={styles.fileBrowserOpenFolder}  isDir path={at} onClick={(isSelected) => {
             if (isSelected) {
                 setOpen(false);
             }
         }} menuRef={menuRef} onContextMenu={onContextMenu}>
-            -&nbsp;{name}
+            {name}
             {content}
         </FileItem>;
     } else {

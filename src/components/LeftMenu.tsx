@@ -45,6 +45,12 @@ async function doSave(appContext: ContextType<typeof AppContext>, sha: string, m
     mutate({...result.content, content: body.content}, false);
 }
 
+function scrollPathIntoView(path: string) {
+    const item = document.getElementById(pathToId(path));
+    item?.scrollIntoView({block: "center", inline: "start", behavior: "smooth"});
+    return item !== undefined;
+}
+
 export function LeftMenu() {
     const appContext = useContext(AppContext);
 
@@ -59,10 +65,8 @@ export function LeftMenu() {
     useLayoutEffect(() => {
         function tryAgain() {
             if (path) {
-                const item = document.getElementById(pathToId(path));
-                if (item) {
-                    item.scrollIntoView({block: "center"});
-                } else {
+                if (!scrollPathIntoView(path)) {
+                    // FIXME: stop trying if there is an error
                     if (path === appContext.selection.getSelection()?.path) {
                         setTimeout(tryAgain, 250);
                     }
@@ -86,8 +90,8 @@ export function LeftMenu() {
             <button className={styles.iconButton} onClick={() => {
                 const selection = appContext.selection.getSelection();
                 if (selection) {
-                    const item = document.getElementById(pathToId(selection.path));
-                    item?.scrollIntoView({block: "center"});
+                    const path = selection.path;
+                    scrollPathIntoView(path);
                 }
             }}>🔍</button>
             {appContext.editor.getDirty() && <button onClick={() => doSave(appContext, data.sha, mutate)}>
