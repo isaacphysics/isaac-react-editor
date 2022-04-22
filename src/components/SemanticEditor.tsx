@@ -46,7 +46,8 @@ export function SemanticEditor() {
             const decodedContent = decodeContent(data);
             appContext.editor.loadNewDoc(decodedContent);
         }
-    }, [appContext.editor, data]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [appContext.editor.loadNewDoc, data]);
 
     if (error) {
         return <div className={styles.centered}>

@@ -51,9 +51,9 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
     return <ListGroupItem action
                           id={`fileItem-${path}`}
                           tag="button"
-                          color={isSelected ? 'info' : undefined}
-                          style={{paddingRight: 0}}
-                          onClick={onClick} {...rest} />;
+                          className={`${styles.fileBrowserItem} ${isSelected ? styles.fileBrowserItemSelected : ""}`}
+                          onClick={onClick}
+                          {...rest} />;
 };
 
 function isOnSelectionPath(selectionContext: SelectedContext, at: string) {

@@ -23,8 +23,20 @@
     overflow: auto;
 }
 
+.fileBrowserItem {
+    padding-right: 0;
+}
+.fileBrowserItemSelected, .fileBrowserItemSelected:focus {
+    background: #ddd;
+}
+.fileBrowserItemSelected:hover {
+    background: #eee;
+}
+
 .semanticEditor {
     overflow: auto;
+    flex: 1;
+    display: flex;
 }
 
 .centered {

@@ -10,6 +10,7 @@
     width: 100%;
     min-height: 29px;
     margin-top: -1px;
+    border-top-left-radius: 0.5em;
 }
 .box > .box {
     margin: 1em 0;
@@ -19,51 +20,27 @@
     flex-direction: row;
     justify-content: space-between;
     margin: 0 -1em 1em;
+    border-top-left-radius: 0.5em;
 }
 .boxLabel {
-    background: #ddd;
+    background: #eee;
     padding: 0.5em;
     position: relative;
     color: #444;
     border: 0;
-}
-
-.boxLabel:before {
-    content: '';
-    position: absolute;
-    bottom: 0; right: 0;
-    border-bottom: 0.5em solid white;
-    border-left: 0.5em solid transparent;
-    width: 0;
+    border-bottom-right-radius: 0.5em;
+    border-top-left-radius: 0.5em;
 }
 
 .metaLabel {
-    background: #ddd;
+    background: #eee;
     padding: 0.5em;
     position: absolute;
     right: 100px;
     color: #444;
     border: 0;
-}
-
-.metaLabel:before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    border-bottom: 0.5em solid white;
-    border-left: 0.5em solid transparent;
-    width: 0;
-}
-
-.metaLabel:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    border-bottom: 0.5em solid white;
-    border-right: 0.5em solid transparent;
-    width: 0;
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
 }
 
 .boxSpacer {

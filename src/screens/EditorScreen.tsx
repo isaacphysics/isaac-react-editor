@@ -10,6 +10,7 @@ import { SemanticEditor } from "../components/SemanticEditor";
 import { Content } from "../isaac-data-types";
 
 import styles from "../styles/editor.module.css";
+import { useLocation } from "react-router";
 
 function paramsToSelection(params: Readonly<Params>): Selection {
     let path = params["*"];
@@ -29,6 +30,7 @@ function paramsToSelection(params: Readonly<Params>): Selection {
 export function EditorScreen() {
     const params = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const selection = paramsToSelection(params);
     const setSelection = useCallback((selection: Selection) => {
@@ -39,8 +41,11 @@ export function EditorScreen() {
                 url += "/";
             }
         }
-        navigate(url);
-    }, [params.branch, navigate]);
+        if (url !== location.pathname) {
+            console.log("navigate", url);
+            navigate(url);
+        }
+    }, [params.branch, navigate, location.pathname]);
 
     const userRef = useRef<Promise<User>>(defaultGithubContext.user);
     if (userRef.current === defaultGithubContext.user) {
@@ -65,6 +70,15 @@ export function EditorScreen() {
         }
     }, [dirty]);
 
+    const setCurrentDoc = useCallback((content: Content) => {
+        setCurrentContent(content);
+        setDirty(true);
+    }, []);
+    const loadNewDoc = useCallback((content: Content) => {
+        setDirty(false);
+        setIsAlreadyPublished(!!content.published);
+        setCurrentContent(content);
+    }, []);
     const appContext = useMemo<ContextType<typeof AppContext>>(() => {
         return ({
             selection: {
@@ -83,15 +97,8 @@ export function EditorScreen() {
             editor: {
                 getDirty: () => dirty,
                 getCurrentDoc: () => currentContent,
-                setCurrentDoc: (content) => {
-                    setCurrentContent(content);
-                    setDirty(true);
-                },
-                loadNewDoc: (content) => {
-                    setDirty(false);
-                    setIsAlreadyPublished(!!content.published);
-                    setCurrentContent(content);
-                },
+                setCurrentDoc: setCurrentDoc,
+                loadNewDoc: loadNewDoc,
                 isAlreadyPublished: () => isAlreadyPublished,
             },
             github: {
@@ -99,7 +106,9 @@ export function EditorScreen() {
                 user: userRef.current,
             },
         });
-    }, [params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, loadNewDoc, params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+
+    console.log("currentContent", currentContent, appContext.editor.getCurrentDoc());
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>

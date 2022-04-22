@@ -35,9 +35,12 @@ export function EventPagePresenter(props: PresenterProps<IsaacEventPage>) {
     return <>
         <PagePresenter {...props} />
         {doc.location && <>
-            <Button color="link">
-                {doc.location.address?.addressLine1}, {doc.location.address?.county}
-            </Button>
+            {doc.location.address?.addressLine1 || doc.location.address?.county ?
+                <Button color="link">
+                    {doc.location.address?.addressLine1}, {doc.location.address?.county}
+                </Button>
+                : "Unknown location"
+            }
             <br />
         </>}
         <SemanticDocProp {...props} prop="eventThumbnail" name="Thumbnail"/>
