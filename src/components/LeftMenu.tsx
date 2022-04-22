@@ -4,7 +4,7 @@ import { Modal } from "reactstrap";
 
 import { AppContext } from "../App";
 import { encodeBase64 } from "../utils/base64";
-import { FileBrowser } from "./FileBrowser";
+import { FileBrowser, pathToId } from "./FileBrowser";
 import { fetcher } from "../services/github";
 
 import styles from "../styles/editor.module.css";
@@ -58,18 +58,18 @@ export function LeftMenu() {
     // Run this on first load only
     useLayoutEffect(() => {
         function tryAgain() {
-            const item = document.getElementById(`fileItem-${path}`);
-            if (item) {
-                item.scrollIntoView({block: "center"});
-            } else {
-                if (path === appContext.selection.getSelection()?.path) {
-                    setTimeout(tryAgain, 250);
+            if (path) {
+                const item = document.getElementById(pathToId(path));
+                if (item) {
+                    item.scrollIntoView({block: "center"});
+                } else {
+                    if (path === appContext.selection.getSelection()?.path) {
+                        setTimeout(tryAgain, 250);
+                    }
                 }
             }
         }
-        if (path) {
-            tryAgain();
-        }
+        tryAgain();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -86,7 +86,7 @@ export function LeftMenu() {
             <button className={styles.iconButton} onClick={() => {
                 const selection = appContext.selection.getSelection();
                 if (selection) {
-                    const item = document.getElementById(`fileItem-${selection.path}`);
+                    const item = document.getElementById(pathToId(selection.path));
                     item?.scrollIntoView({block: "center"});
                 }
             }}>🔍</button>
