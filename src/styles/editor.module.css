@@ -5,11 +5,38 @@
 }
 
 .leftMenuWrapper {
-    width: 300px;
     display: flex;
     flex-direction: column;
     margin-right: 3px;
     border-right: 1px solid #eee;
+    transition: width 0.3s;
+    position: relative;
+    overflow: clip;
+}
+
+.leftMenuOpen {
+    width: 300px;
+}
+
+.leftMenuClosed {
+    width: 0;
+}
+
+.leftMenuOpener {
+    position: fixed;
+    z-index: 10000;
+    bottom: 0;
+    left: 270px;
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    border: none;
+    background: #eee;
+    transition: left 0.3s;
+}
+
+.leftMenuClosed .leftMenuOpener {
+    left: 0;
 }
 
 .leftMenuHeader {
@@ -20,7 +47,14 @@
 
 .fileBrowser {
     flex: 1;
-    overflow: auto;
+    overflow: auto auto;
+    min-width: 300px;
+    padding-bottom: 30px;
+    display: flex;
+}
+
+.fileBrowserList {
+    flex: 1;
 }
 
 .fileBrowserItem {

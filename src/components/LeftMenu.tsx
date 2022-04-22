@@ -53,6 +53,8 @@ export function LeftMenu() {
 
     const [previewOpen, setPreviewOpen] = useState(false);
 
+    const [isOpen, setOpen] = useState(true);
+
     // Run this on first load only
     useLayoutEffect(() => {
         function tryAgain() {
@@ -71,7 +73,8 @@ export function LeftMenu() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return <div className={styles.leftMenuWrapper}>
+    return <div className={`${styles.leftMenuWrapper} ${isOpen ? styles.leftMenuOpen : styles.leftMenuClosed}`}>
+        <button className={styles.leftMenuOpener} onClick={() => setOpen(!isOpen)}>{isOpen ? "◀" : "▶"}</button>
         <header className={styles.leftMenuHeader}>
             {/*<button onClick={() => {
                 const selection = appContext.selection.getSelection();

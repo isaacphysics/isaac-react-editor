@@ -69,18 +69,18 @@ function Files({at, name, initialOpen}: FilesProps) {
 
     if (!open) {
         return <FileItem isDir path={at} onClick={() => setOpen(true)}>
-            + {name}
+            +&nbsp;{name}
         </FileItem>;
     }
 
     const content = error ? <div><em>Error loading data, {error}</em></div> : data ?
-        <ListGroup flush>
+        <ListGroup flush className={styles.fileBrowserList}>
             {data.map((entry: Entry) => {
                 switch (entry.type) {
                     case "dir":
                         return <Files key={entry.name} at={entry.path} name={entry.name}/>;
                     case "file":
-                        return <FileItem key={entry.name} path={entry.path}>🗎 {entry.name}</FileItem>
+                        return <FileItem key={entry.name} path={entry.path}>🗎&nbsp;{entry.name}</FileItem>
                     default:
                         return null;
                 }
@@ -93,7 +93,7 @@ function Files({at, name, initialOpen}: FilesProps) {
                 setOpen(false);
             }
         }}>
-            - {name} <button className={styles.iconButton} onClick={(event) => {
+            -&nbsp;{name} <button className={styles.iconButton} onClick={(event) => {
             mutate();
             event.stopPropagation();
             event.preventDefault();
