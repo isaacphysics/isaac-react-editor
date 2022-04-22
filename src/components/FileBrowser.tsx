@@ -2,26 +2,18 @@ import React, {
     ComponentProps,
     FunctionComponent,
     MutableRefObject,
-    useCallback,
-    useContext, useEffect,
-    useImperativeHandle,
+    useContext,
     useRef,
     useState
 } from "react";
 import useSWR from "swr";
-import {
-    ListGroup,
-    ListGroupItem, Spinner,
-} from "reactstrap";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import Portal from "reactstrap/src/Portal";
+import { ListGroup, ListGroupItem, Spinner, } from "reactstrap";
 
 import { AppContext } from "../App";
 import styles from "../styles/editor.module.css";
+import { PopupMenu, PopupMenuRef } from "./PopupMenu";
 
-type Entry = {
+export type Entry = {
     type: "file";
     name: string;
     path: string;
@@ -90,7 +82,7 @@ function Files({at, name, initialOpen, menuRef}: FilesProps) {
     };
 
     if (!open) {
-        return <FileItem className={styles.fileBrowserClosedFolder} isDir path={at} onClick={() => setOpen(true)} onContextMenu={onContextMenu} menuRef={menuRef}>
+        return <FileItem className={styles.fileBrowserClosedFolder} isDir path={at} onClick={() => setOpen(true)} onContextMenu={onContextMenu}>
             {name}
         </FileItem>;
     }
@@ -104,7 +96,7 @@ function Files({at, name, initialOpen, menuRef}: FilesProps) {
                     case "file":
                         // eslint-disable-next-line no-case-declarations
                         const fileOnContextMenu = (event: React.MouseEvent) => {
-                            menuRef.current?.open(event, {type: "file", path: at, name: name as string});
+                            menuRef.current?.open(event, entry);
                             event.stopPropagation();
                             event.preventDefault();
                         };
@@ -122,7 +114,7 @@ function Files({at, name, initialOpen, menuRef}: FilesProps) {
             if (isSelected) {
                 setOpen(false);
             }
-        }} menuRef={menuRef} onContextMenu={onContextMenu}>
+        }} onContextMenu={onContextMenu}>
             {name}
             {content}
         </FileItem>;
@@ -142,78 +134,6 @@ export type SelectedContext = {
 export const defaultSelectedContext: SelectedContext = {getSelection: () => null, setSelection: () => {
     throw new Error("setSelected called outside of Provider");
 }};
-
-type PopupEntry = Entry & {
-    refresh?: () => void;
-};
-
-interface PopupMenuRef {
-    open: (event: React.MouseEvent, item: PopupEntry) => void;
-}
-
-function MenuItem({onClick, text, close}: { onClick: () => void; text: string; close: () => void; }) {
-    return <li>
-        <button onClick={() => {
-            onClick();
-            close();
-        }}>{text}</button>
-    </li>;
-}
-
-function PopupMenu({menuRef}: {menuRef: MutableRefObject<PopupMenuRef | null>}) {
-    const [isOpen, setOpen] = useState(false);
-    const [anchorPoint, setAnchorPoint] = useState({ x: 0, y: 0 });
-    const [item, setItem] = useState<PopupEntry>(undefined as unknown as PopupEntry);
-    const insideRef = useRef<HTMLUListElement | null>(null);
-
-    const handleContextMenu = useCallback((event, item) => {
-        event.preventDefault();
-        setAnchorPoint({ x: event.pageX, y: event.pageY });
-        setOpen(true);
-        setItem(item);
-    }, [setAnchorPoint, setOpen]);
-
-    const closeOutside = useCallback((event: MouseEvent) => {
-        if (insideRef.current?.contains(event.target as Node)) {
-            return;
-        }
-        setOpen(false);
-        event.stopPropagation();
-        event.preventDefault();
-    }, []);
-    useEffect(() => {
-        if (isOpen) {
-            document.addEventListener("click", closeOutside, {capture: true});
-            return () => document.removeEventListener("click", closeOutside, {capture: true});
-        }
-    }, [isOpen, closeOutside]);
-
-    useImperativeHandle(menuRef, () => ({
-        open: handleContextMenu,
-    }), [handleContextMenu]);
-
-    const close = useCallback(() => {
-        setOpen(false);
-    }, []);
-
-    return isOpen ?
-        <Portal>
-            <ul
-                className={styles.leftMenuPopupMenu}
-                style={{
-                    top: anchorPoint.y,
-                    left: anchorPoint.x
-                }}
-                ref={insideRef}
-            >
-                {item.type === "dir" && <MenuItem close={close} onClick={() => item.refresh?.()} text="New"/>}
-                {item.type === "dir" && item.refresh && <MenuItem close={close} onClick={() => item.refresh?.()} text="Refresh"/>}
-                {item.type === "file" && <MenuItem close={close} onClick={() => 0} text="Save as..."/>}
-                {item.type === "file" && <MenuItem close={close} onClick={() => 0} text="Delete"/>}
-            </ul>
-        </Portal>
-    : null;
-}
 
 export function FileBrowser() {
     const menuRef = useRef<PopupMenuRef>(null);

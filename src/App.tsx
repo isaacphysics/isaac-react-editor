@@ -1,6 +1,7 @@
-import React, { createContext, useEffect, useState } from 'react';
-import { createBrowserHistory } from 'history';
-import { Route, Routes } from 'react-router-dom';
+import React, { createContext, MutableRefObject, useEffect, useState } from "react";
+import { createBrowserHistory } from "history";
+import { Route, Routes } from "react-router-dom";
+import { NavigateFunction } from "react-router";
 
 import { defaultSelectedContext } from "./components/FileBrowser";
 import { defaultEditorState } from "./components/SemanticEditor";
@@ -10,12 +11,19 @@ import { EditorScreen } from "./screens/EditorScreen";
 import { HistoryRouter } from './components/HistoryRouter';
 import { SemanticRoot } from "./components/semantic/SemanticRoot";
 import { testDoc } from "./testDocs";
+import { defaultDispatch } from "./services/commands";
+import { MenuModalRef } from "./screens/MenuModal";
 
 
 export const AppContext = createContext({
     selection: defaultSelectedContext,
     editor: defaultEditorState,
     github: defaultGithubContext,
+    dispatch: defaultDispatch,
+    navigate: (() => {
+        throw new Error("Can't navigate outside of AppContext");
+    }) as NavigateFunction,
+    menuModal: {current: null} as MutableRefObject<MenuModalRef | null>,
 });
 
 export const browserHistory = createBrowserHistory();

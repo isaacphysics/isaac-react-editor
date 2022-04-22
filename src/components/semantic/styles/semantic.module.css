@@ -1,6 +1,7 @@
 .outerWrapper {
     margin-bottom: 1em;
     flex: 1;
+    height: max-content;
 }
 
 .box {

@@ -11,6 +11,9 @@ import { Content } from "../isaac-data-types";
 
 import styles from "../styles/editor.module.css";
 import { useLocation } from "react-router";
+import { Action, doDispatch } from "../services/commands";
+import { MenuModal, MenuModalRef } from "./MenuModal";
+import { TopMenu } from "../components/TopMenu";
 
 function paramsToSelection(params: Readonly<Params>): Selection {
     let path = params["*"];
@@ -31,6 +34,7 @@ export function EditorScreen() {
     const params = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const menuRef = useRef<MenuModalRef>(null);
 
     const selection = paramsToSelection(params);
     const setSelection = useCallback((selection: Selection) => {
@@ -79,7 +83,12 @@ export function EditorScreen() {
         setIsAlreadyPublished(!!content.published);
         setCurrentContent(content);
     }, []);
+
     const appContext = useMemo<ContextType<typeof AppContext>>(() => {
+        function dispatch(action: Action) {
+            doDispatch(appContext, action);
+        }
+
         return ({
             selection: {
                 getSelection: () => selection,
@@ -105,20 +114,23 @@ export function EditorScreen() {
                 branch: params.branch || defaultGithubContext.branch,
                 user: userRef.current,
             },
+            dispatch,
+            navigate,
+            menuModal: menuRef,
         });
-    }, [setCurrentDoc, loadNewDoc, params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
-
-    console.log("currentContent", currentContent, appContext.editor.getCurrentDoc());
+    }, [setCurrentDoc, loadNewDoc, params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished, navigate]);
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
             <div className={styles.editorScreen}>
-                <LeftMenu/>
+                <LeftMenu />
+                <TopMenu />
                 {selection && !selection.isDir ? <SemanticEditor /> :
                     <div className={styles.centered}>
                         Choose a file on the left to edit
                     </div>}
             </div>
+            <MenuModal menuRef={menuRef} />
         </AppContext.Provider>
     </SWRConfig>;
 }
