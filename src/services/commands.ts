@@ -17,6 +17,7 @@ export const defaultDispatch: (action: Action) => void = () => {
 export type Action =
     | {type: "openInNewTab"; path: string}
     | {type: "new"; path: string}
+    | {type: "delete"; path: string; name: string; sha: string}
 ;
 
 type ActionFor<K> = Action & {type: K};
@@ -42,7 +43,6 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
                         content: encodedContent,
                     }),
                 });
-                console.log(data);
                 // Let the file browser know this file is there
                 await mutate(`repos/$OWNER/$REPO/contents/${action.path}`, (current: Entry[]) => {
                     console.log("mutate, current", current);
@@ -135,6 +135,37 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
     }
 }
 
+async function doDelete(context: ContextType<typeof AppContext>, action: ActionFor<"delete">) {
+    if (window.confirm("Do you really want to delete " + action.name + "?")) {
+        const path = action.path;
+        const name = action.name;
+        const basePath = path.substring(0, path.length - name.length - 1);
+
+        await fetcher(`repos/$OWNER/$REPO/contents/${path}`, {
+            method: "DELETE",
+            body: JSON.stringify({
+                message: "Deleting " + path,
+                branch: context.github.branch,
+                sha: action.sha,
+            }),
+        });
+
+        // Let the file browser know this file is no longer there
+        await mutate(`repos/$OWNER/$REPO/contents/${basePath}`, (current: Entry[]) => {
+            const newDir = [...current];
+            const position = newDir.findIndex((entry) => {
+                return name === entry.name;
+            });
+            if (position !== -1) {
+                newDir.splice(position, 1);
+                return newDir;
+            }
+            return current;
+        }, {revalidate: false}); // github asks for aggressive disk caching, which we need to override.
+        context.navigate(`/edit/${context.github.branch}/${basePath}/`);
+    }
+}
+
 export function doDispatch(context: ContextType<typeof AppContext>, action: Action) {
     switch (action.type) {
         case "openInNewTab":
@@ -142,6 +173,9 @@ export function doDispatch(context: ContextType<typeof AppContext>, action: Acti
             return;
         case "new":
             doNew(context, action);
+            return;
+        case "delete":
+            doDelete(context, action);
             return;
     }
 }

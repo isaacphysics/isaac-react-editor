@@ -13,7 +13,7 @@ function dirname(path: string | undefined) {
 
 function scrollPathIntoView(path: string) {
     const item = document.getElementById(pathToId(path));
-    item?.scrollIntoView({block: "center", inline: "start", behavior: "smooth"});
+    item?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
     return item !== undefined;
 }
 

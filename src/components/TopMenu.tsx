@@ -41,9 +41,9 @@ async function doSave(appContext: ContextType<typeof AppContext>, sha: string, m
     mutate({...result.content, content: body.content}, false);
 }
 
-function filePathToEntry(path: string | undefined): Entry {
+function filePathToEntry(path: string | undefined, sha: string): Entry {
     const name = path?.substring(path?.lastIndexOf("/") + 1) ?? "";
-    return {type: "file", path: path as string, name};
+    return {type: "file", path: path as string, name, sha};
 }
 
 export function TopMenu() {
@@ -56,7 +56,7 @@ export function TopMenu() {
     const [previewOpen, setPreviewOpen] = useState(false);
 
     return <div className={styles.topMenuWrapper}>
-        <button className={styles.iconButton} onClick={(event) => menuRef.current?.open(event, filePathToEntry(path))}>
+        <button className={styles.iconButton} onClick={(event) => menuRef.current?.open(event, filePathToEntry(path, data.sha))}>
             ☰ Menu
         </button>
         <div className={styles.flexFill} />

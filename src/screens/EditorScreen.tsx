@@ -46,7 +46,6 @@ export function EditorScreen() {
             }
         }
         if (url !== location.pathname) {
-            console.log("navigate", url);
             navigate(url);
         }
     }, [params.branch, navigate, location.pathname]);
@@ -124,8 +123,11 @@ export function EditorScreen() {
         <AppContext.Provider value={appContext}>
             <div className={styles.editorScreen}>
                 <LeftMenu />
-                <TopMenu />
-                {selection && !selection.isDir ? <SemanticEditor /> :
+                {selection && !selection.isDir ? <>
+                        <TopMenu />
+                        <SemanticEditor />
+                    </>
+                    :
                     <div className={styles.centered}>
                         Choose a file on the left to edit
                     </div>}

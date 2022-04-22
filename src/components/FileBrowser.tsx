@@ -17,20 +17,20 @@ export type Entry = {
     type: "file";
     name: string;
     path: string;
+    sha: string;
 } | {
     type: "dir";
     name: string;
     path: string;
+    sha: string;
 };
 
 interface FilesProps {
-    at: string;
-    name?: string;
-    initialOpen?: boolean;
+    entry?: Entry;
     menuRef: MutableRefObject<PopupMenuRef | null>;
 }
 
-type FileItemProps = Exclude<ComponentProps<typeof ListGroupItem>, 'onClick'> & {
+type FileItemProps = Omit<ComponentProps<typeof ListGroupItem>, "onClick"> & {
     path: string;
     onClick?: (isSelected: boolean) => void;
     isDir?: boolean;
@@ -66,61 +66,71 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
 
 function isOnSelectionPath(selectionContext: SelectedContext, at: string) {
     const selection = selectionContext.getSelection();
-    return selection && `${selection.path}/`.substring(0, at.length + 1) === `${at}/`;
+    return at === "" || (selection && `${selection.path}/`.substring(0, at.length + 1) === `${at}/`);
 }
 
-function Files({at, name, initialOpen, menuRef}: FilesProps) {
+function Files({entry, menuRef}: FilesProps) {
     const selectionContext = useContext(AppContext).selection;
-    const [open, setOpen] = useState(!!initialOpen || isOnSelectionPath(selectionContext, at));
+    const at = entry?.path ?? ""
+    const [open, setOpen] = useState(isOnSelectionPath(selectionContext, at));
 
     const {data, error, mutate} = useSWR(open ? `repos/$OWNER/$REPO/contents/${at}` : null);
 
+    const content =
+          !open ? null
+        : error ? <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div>
+        : data ?
+            <ListGroup flush className={styles.fileBrowserList}>
+                {data.map((entry: Entry) => {
+                    switch (entry.type) {
+                        case "dir":
+                            return <Files key={entry.name} entry={entry} menuRef={menuRef}/>;
+                        case "file":
+                            // eslint-disable-next-line no-case-declarations
+                            const fileOnContextMenu = (event: React.MouseEvent) => {
+                                menuRef.current?.open(event, entry);
+                                event.stopPropagation();
+                                event.preventDefault();
+                            };
+                            return <FileItem key={entry.name} path={entry.path} name={entry.name} onContextMenu={fileOnContextMenu}>
+                                {entry.name}
+                            </FileItem>
+                        default:
+                            return null;
+                    }
+                })}
+            </ListGroup>
+        : <div className={styles.fileBrowserList}><Spinner size="sm" /> Loading...</div>;
+
+    if (!entry) {
+        return content;
+    }
+
     const onContextMenu = (event: React.MouseEvent) => {
-        menuRef.current?.open(event, {type: "dir", path: at, name: name as string, refresh: open ? mutate : undefined});
+        menuRef.current?.open(event, {...entry, refresh: open ? mutate : undefined});
         event.stopPropagation();
         event.preventDefault();
     };
 
-    if (!open) {
-        return <FileItem className={styles.fileBrowserClosedFolder} isDir path={at} onClick={() => setOpen(true)} onContextMenu={onContextMenu}>
-            {name}
-        </FileItem>;
-    }
-
-    const content = error ? <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div> : data ?
-        <ListGroup flush className={styles.fileBrowserList}>
-            {data.map((entry: Entry) => {
-                switch (entry.type) {
-                    case "dir":
-                        return <Files key={entry.name} at={entry.path} name={entry.name} menuRef={menuRef}/>;
-                    case "file":
-                        // eslint-disable-next-line no-case-declarations
-                        const fileOnContextMenu = (event: React.MouseEvent) => {
-                            menuRef.current?.open(event, entry);
-                            event.stopPropagation();
-                            event.preventDefault();
-                        };
-                        return <FileItem key={entry.name} path={entry.path} name={entry.name} onContextMenu={fileOnContextMenu}>
-                            {entry.name}
-                        </FileItem>
-                    default:
-                        return null;
-                }
-            })}
-        </ListGroup> : <div className={styles.fileBrowserList}><Spinner size="sm" /> Loading...</div>;
-
-    if (name) {
-        return <FileItem className={styles.fileBrowserOpenFolder}  isDir path={at} onClick={(isSelected) => {
+    const onClick = (isSelected: boolean) => {
+        if (open) {
             if (isSelected) {
                 setOpen(false);
             }
-        }} onContextMenu={onContextMenu}>
-            {name}
-            {content}
-        </FileItem>;
-    } else {
-        return content;
-    }
+        } else {
+            setOpen(true);
+        }
+    };
+
+    return <FileItem className={open ? styles.fileBrowserOpenFolder : styles.fileBrowserClosedFolder}
+                     isDir
+                     path={at}
+                     onClick={onClick}
+                     onContextMenu={onContextMenu}
+    >
+        {entry.name}
+        {content}
+    </FileItem>;
 }
 
 export type Selection = {
@@ -138,7 +148,7 @@ export const defaultSelectedContext: SelectedContext = {getSelection: () => null
 export function FileBrowser() {
     const menuRef = useRef<PopupMenuRef>(null);
     return <div className={styles.fileBrowser}>
-        <Files at="" initialOpen={true} menuRef={menuRef} />
+        <Files menuRef={menuRef} />
         <PopupMenu menuRef={menuRef} />
     </div>;
 }

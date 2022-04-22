@@ -50,7 +50,6 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
         setAnchorPoint({x: event.pageX, y: event.pageY});
         setOpen(true);
         setItem(item);
-        console.log(event, item);
     }, [setAnchorPoint, setOpen]);
 
     const closeOutside = useCallback((event: MouseEvent) => {
@@ -101,7 +100,12 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
                     <MenuItem close={close} onClick={() => 0} text="Rename..."/>}
                 {item.type === "file" &&
                     <MenuItem close={close} onClick={() => 0} text="Save as..."/>}
-                {item.type === "file" && <MenuItem close={close} onClick={() => 0} text="Delete"/>}
+                {item.type === "file" && <MenuItem close={close} onClick={() => appContext.dispatch({
+                    type: "delete",
+                    path: item.path,
+                    name: item.name,
+                    sha: item.sha,
+                })} text="Delete"/>}
             </ul>
         </Portal>
         : null;
