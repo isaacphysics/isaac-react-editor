@@ -1,45 +1,14 @@
-import React, { ContextType, useContext, useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import useSWR from "swr";
 import { Modal } from "reactstrap";
 
 import { AppContext } from "../App";
-import { encodeBase64 } from "../utils/base64";
-import { fetcher } from "../services/github";
 
 import styles from "../styles/editor.module.css";
 import { PopupMenu, PopupMenuRef } from "./PopupMenu";
 import { Entry } from "./FileBrowser";
+import { doSave } from "../services/commands";
 
-
-async function doSave(appContext: ContextType<typeof AppContext>, sha: string, mutate: (data?: unknown, update?: boolean) => void) {
-    // Commit this to github
-    const fileJSON = appContext.editor.getCurrentDoc();
-    const alreadyPublished = appContext.editor.isAlreadyPublished();
-    const isPublishedChange = fileJSON.published || alreadyPublished;
-    const path = appContext.selection.getSelection()?.path;
-    const initialCommitMessage = `${isPublishedChange ? "* " : ""}Edited ${path}`;
-
-    const message = window.prompt("Enter your commit message", initialCommitMessage);
-
-    if (!message) {
-        return;
-    }
-
-    const body = {
-        message,
-        content: encodeBase64(JSON.stringify(fileJSON)),
-        //branch: // TODO: handle branch here and also at fetcher
-        sha: sha,
-    }
-
-    const result = await fetcher(`repos/$OWNER/$REPO/contents/${path}`, {
-        method: "PUT",
-        body: JSON.stringify(body),
-    });
-
-    appContext.editor.loadNewDoc(fileJSON);
-    mutate({...result.content, content: body.content}, false);
-}
 
 function filePathToEntry(path: string | undefined, sha: string): Entry {
     const name = path?.substring(path?.lastIndexOf("/") + 1) ?? "";

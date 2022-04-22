@@ -96,8 +96,12 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
                 {item.type === "dir" && <hr/>}
                 {item.type === "dir" && item.refresh &&
                     <MenuItem close={close} onClick={() => item.refresh?.()} text="Refresh"/>}
-                {item.type === "file" &&
-                    <MenuItem close={close} onClick={() => 0} text="Rename..."/>}
+                {item.type === "file" && <MenuItem close={close} onClick={() => appContext.dispatch({
+                    type: "rename",
+                    path: item.path,
+                    name: item.name,
+                    sha: item.sha,
+                })} text="Rename..."/>}
                 {item.type === "file" &&
                     <MenuItem close={close} onClick={() => 0} text="Save as..."/>}
                 {item.type === "file" && <MenuItem close={close} onClick={() => appContext.dispatch({
