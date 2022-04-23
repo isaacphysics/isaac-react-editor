@@ -19,18 +19,19 @@ export type Action =
     | {type: "new"; path: string}
     | {type: "delete"; path: string; name: string; sha: string}
     | {type: "rename"; path: string; name: string; sha: string}
+    | {type: "saveAs"; path: string; name: string}
 ;
 
 type ActionFor<K> = Action & {type: K};
 
-async function githubCreate(context: React.ContextType<typeof AppContext>, basePath: string, name: string, encodedContent: string) {
+async function githubCreate(context: React.ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string) {
     const path = `${basePath}/${name}`;
     const data = await fetcher(`repos/$OWNER/$REPO/contents/${path}`, {
         method: "PUT",
         body: JSON.stringify({
             message: "Creating " + path,
             branch: context.github.branch,
-            content: encodedContent,
+            content: encodeBase64(initialContent),
         }),
     });
     // Let the file browser know this file is there
@@ -56,9 +57,8 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
         const path = action.path;
 
         const doCreate = async (initialContent: string) => {
-            const encodedContent = encodeBase64(initialContent);
             try {
-                await githubCreate(context, action.path, name, encodedContent);
+                await githubCreate(context, action.path, name, initialContent);
                 context.navigate(`/edit/${context.github.branch}/${path}/${name}`);
             } catch (e) {
                 alert("Couldn't create file. Perhaps it already exists.");
@@ -199,7 +199,7 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
         const basePath = getBasePath(oldPath);
 
         try {
-            await githubCreate(context, basePath, newName, encodeBase64(JSON.stringify(context.editor.getCurrentDoc(), null, 2)));
+            await githubCreate(context, basePath, newName, JSON.stringify(context.editor.getCurrentDoc(), null, 2));
             try {
                 await githubDelete(context, oldPath, action.name, sha);
                 context.navigate(`/edit/${context.github.branch}/${basePath}/${newName}`)
@@ -211,6 +211,33 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
             console.log(e);
         }
     }
+}
+
+async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionFor<"saveAs">) {
+    let newName = window.prompt("Please type a new name for the file. If no extension is provided, \".json\" will be assumed", action.name);
+    if (newName && newName !== action.name) {
+        const oldPath = action.path;
+        if (newName.indexOf(".") === -1 && oldPath.toLowerCase().endsWith(".json"))
+            newName += ".json";
+        const basePath = getBasePath(oldPath);
+        const newPath = basePath + "/" + newName;
+        const alteredContent = {
+            ...context.editor.getCurrentDoc(),
+            author: (await context.github.user).login,
+            id: generateGuid(),
+            published: false,
+        };
+        context.editor.loadNewDoc(alteredContent); // Slightly dirty way to clear dirty flag
+        const content = JSON.stringify(alteredContent, null, 2);
+
+        githubCreate(context, basePath, newName, content).then(function(f) {
+            context.navigate(`/edit/${context.github.branch}/${newPath}`);
+        }).catch(function(e) {
+            window.alert("Could not create file. Perhaps it already exists.");
+            console.log(e);
+        });
+    }
+
 }
 
 export async function doSave(appContext: ContextType<typeof AppContext>, sha: string, mutate: (data?: unknown, update?: boolean) => void) {
@@ -258,6 +285,9 @@ export function doDispatch(context: ContextType<typeof AppContext>, action: Acti
             return;
         case "rename":
             doRename(context, action);
+            return;
+        case "saveAs":
+            doSaveAs(context,action);
             return;
     }
 }
