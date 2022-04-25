@@ -1,6 +1,7 @@
 import React, { ContextType, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SWRConfig } from "swr";
 import { Params, useNavigate, useParams } from "react-router-dom";
+import { Modal, Spinner } from "reactstrap";
 
 import { Selection } from "../components/FileBrowser";
 import { LeftMenu } from "../components/LeftMenu";
@@ -59,6 +60,8 @@ export function EditorScreen() {
     const [currentContent, setCurrentContent] = useState<Content>({});
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
+    const [actionRunning, setActionRunning] = useState(false);
+
     useEffect(() => {
         if (dirty) {
             const unblock = browserHistory.block((tx) => {
@@ -84,8 +87,13 @@ export function EditorScreen() {
     }, []);
 
     const appContext = useMemo<ContextType<typeof AppContext>>(() => {
-        function dispatch(action: Action) {
-            doDispatch(appContext, action);
+        async function dispatch(action: Action) {
+            try {
+                setActionRunning(true);
+                await doDispatch(appContext, action);
+            } finally {
+                setActionRunning(false);
+            }
         }
 
         return ({
@@ -133,6 +141,12 @@ export function EditorScreen() {
                     </div>}
             </div>
             <MenuModal menuRef={menuRef} />
+            <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent} >
+                <div className={styles.centered}>
+                    <Spinner size="lg" />
+                    <h2>Processing...</h2>
+                </div>
+            </Modal>
         </AppContext.Provider>
     </SWRConfig>;
 }

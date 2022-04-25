@@ -272,22 +272,22 @@ export async function doSave(appContext: ContextType<typeof AppContext>, sha: st
     return newContent;
 }
 
-export function doDispatch(context: ContextType<typeof AppContext>, action: Action) {
+export async function doDispatch(context: ContextType<typeof AppContext>, action: Action) {
     switch (action.type) {
         case "openInNewTab":
             window.open(`/edit/${context.github.branch}/${action.path}`, "_blank");
             return;
         case "new":
-            doNew(context, action);
+            await doNew(context, action);
             return;
         case "delete":
-            doDelete(context, action);
+            await doDelete(context, action);
             return;
         case "rename":
-            doRename(context, action);
+            await doRename(context, action);
             return;
         case "saveAs":
-            doSaveAs(context,action);
+            await doSaveAs(context,action);
             return;
     }
 }
