@@ -1,6 +1,8 @@
 import React, { MutableRefObject, useImperativeHandle, useState } from "react";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 
+import styles from "../styles/editor.module.css";
+
 interface ModalOption {
     caption: string;
     value: string;
@@ -37,7 +39,7 @@ export function MenuModal({menuRef}: {menuRef: MutableRefObject<MenuModalRef|nul
 
     return <Modal isOpen={isOpen}>
         <ModalHeader>{title}</ModalHeader>
-        <ModalBody>
+        <ModalBody className={styles.menuModalButtons}>
             <p>{body}</p>
             {/* eslint-disable-next-line react/prop-types */}
             {options.map(option => <Button key={option.value} onClick={() => {

@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-import useSWR from "swr";
 import { Alert, Spinner } from "reactstrap";
 
 import { AppContext } from "../App";
@@ -8,6 +7,7 @@ import { Content } from '../isaac-data-types';
 import { SemanticRoot } from "./semantic/SemanticRoot";
 
 import styles from "../styles/editor.module.css";
+import { useGithubContents } from "../services/github";
 
 
 export interface EditorState {
@@ -39,7 +39,7 @@ export function SemanticEditor() {
 
     const selection = appContext.selection.getSelection();
     const path = selection?.path;
-    const {data, error} = useSWR(selection && !selection.isDir ? `repos/$OWNER/$REPO/contents/${path}` : null);
+    const {data, error} = useGithubContents(appContext, selection && !selection.isDir && path);
 
     useEffect(() => {
         if (data) {

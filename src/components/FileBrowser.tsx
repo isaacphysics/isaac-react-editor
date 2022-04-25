@@ -6,12 +6,12 @@ import React, {
     useRef,
     useState
 } from "react";
-import useSWR from "swr";
 import { ListGroup, ListGroupItem, Spinner, } from "reactstrap";
 
 import { AppContext } from "../App";
 import styles from "../styles/editor.module.css";
 import { PopupMenu, PopupMenuRef } from "./PopupMenu";
+import { useGithubContents } from "../services/github";
 
 export type Entry = {
     type: "file";
@@ -70,11 +70,12 @@ function isOnSelectionPath(selectionContext: SelectedContext, at: string) {
 }
 
 function Files({entry, menuRef}: FilesProps) {
-    const selectionContext = useContext(AppContext).selection;
-    const at = entry?.path ?? ""
+    const appContext = useContext(AppContext);
+    const selectionContext = appContext.selection;
+    const at = entry?.path ?? "";
     const [open, setOpen] = useState(isOnSelectionPath(selectionContext, at));
 
-    const {data, error, mutate} = useSWR(open ? `repos/$OWNER/$REPO/contents/${at}` : null);
+    const {data, error, mutate} = useGithubContents(appContext, open && at);
 
     const content =
           !open ? null

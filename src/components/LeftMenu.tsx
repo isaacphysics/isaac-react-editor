@@ -4,12 +4,7 @@ import { AppContext } from "../App";
 import { FileBrowser, pathToId } from "./FileBrowser";
 
 import styles from "../styles/editor.module.css";
-
-
-function dirname(path: string | undefined) {
-    if (!path) return path;
-    return path.substring(0, path.lastIndexOf('/'));
-}
+import { dirname } from "../utils/strings";
 
 function scrollPathIntoView(path: string) {
     const item = document.getElementById(pathToId(path));
@@ -20,9 +15,11 @@ function scrollPathIntoView(path: string) {
 export function LeftMenu() {
     const appContext = useContext(AppContext);
 
-    const path = appContext.selection.getSelection()?.path;
+    const selection = appContext.selection.getSelection();
+    const path = selection?.path;
 
-    const [isOpen, setOpen] = useState(true);
+    const [isSetOpen, setOpen] = useState(true);
+    const isOpen = isSetOpen || selection === null || selection.isDir;
 
     // Run this on first load only
     useLayoutEffect(() => {
@@ -30,7 +27,7 @@ export function LeftMenu() {
             if (path) {
                 if (!scrollPathIntoView(path)) {
                     // FIXME: stop trying if there is an error
-                    if (path === appContext.selection.getSelection()?.path) {
+                    if (path === selection?.path) {
                         setTimeout(tryAgain, 250);
                     }
                 }
@@ -44,7 +41,6 @@ export function LeftMenu() {
         <button className={styles.leftMenuOpener} onClick={() => setOpen(!isOpen)}>◀</button>
         <header className={styles.leftMenuHeader}>
             <button className={styles.iconButton} onClick={() => {
-                const selection = appContext.selection.getSelection();
                 const basePath = selection?.isDir ? selection?.path : dirname(selection?.path);
                 if (basePath) {
                     appContext.dispatch({type: "new", path: basePath});
@@ -53,13 +49,12 @@ export function LeftMenu() {
                 New...
             </button>
             <button className={`${styles.iconButton} ${styles.sm}`} onClick={() => {
-                const selection = appContext.selection.getSelection();
                 if (selection) {
                     const path = selection.path;
                     scrollPathIntoView(path);
                 }
             }}>🔍</button>
         </header>
-        <FileBrowser/>
+        <FileBrowser />
     </div>;
 }

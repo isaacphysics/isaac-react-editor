@@ -8,3 +8,10 @@ export function generateGuid() {
         return v.toString(16);
     });
 }
+
+export function dirname(path: string): string;
+export function dirname(path: string | undefined): string | undefined;
+export function dirname(path: string | undefined) {
+    if (!path) return path;
+    return path.substring(0, path.lastIndexOf('/'));
+}

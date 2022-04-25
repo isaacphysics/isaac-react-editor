@@ -1,5 +1,4 @@
 import React, { useContext, useRef, useState } from "react";
-import useSWR from "swr";
 import { Modal } from "reactstrap";
 
 import { AppContext } from "../App";
@@ -7,7 +6,7 @@ import { AppContext } from "../App";
 import styles from "../styles/editor.module.css";
 import { PopupMenu, PopupMenuRef } from "./PopupMenu";
 import { Entry } from "./FileBrowser";
-import { doSave } from "../services/commands";
+import { githubSave, useGithubContents } from "../services/github";
 
 
 function filePathToEntry(path: string | undefined, sha: string): Entry {
@@ -20,7 +19,7 @@ export function TopMenu() {
     const appContext = useContext(AppContext);
 
     const path = appContext.selection.getSelection()?.path;
-    const {data, mutate} = useSWR(path && `repos/$OWNER/$REPO/contents/${path}`);
+    const {data, mutate} = useGithubContents(appContext, path);
 
     const [previewOpen, setPreviewOpen] = useState(false);
 
@@ -30,7 +29,7 @@ export function TopMenu() {
         </button>
         <div className={styles.flexFill} />
         {appContext.editor.getDirty() &&
-            <button className={styles.iconButton} onClick={() => doSave(appContext, data.sha, mutate)}>
+            <button className={styles.iconButton} onClick={() => githubSave(appContext, data.sha, mutate)}>
                 💾 Save
             </button>}
         {appContext.selection.getSelection() && <button className={styles.iconButton} onClick={() => {

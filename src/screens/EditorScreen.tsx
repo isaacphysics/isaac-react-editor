@@ -140,13 +140,13 @@ export function EditorScreen() {
                         Choose a file on the left to edit
                     </div>}
             </div>
-            <MenuModal menuRef={menuRef} />
             <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent} >
                 <div className={styles.centered}>
                     <Spinner size="lg" />
                     <h2>Processing...</h2>
                 </div>
             </Modal>
+            <MenuModal menuRef={menuRef} />
         </AppContext.Provider>
     </SWRConfig>;
 }
