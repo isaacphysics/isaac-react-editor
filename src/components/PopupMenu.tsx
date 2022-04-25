@@ -48,6 +48,9 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
     const handleContextMenu = useCallback((event, item) => {
         event.preventDefault();
         setAnchorPoint({x: event.pageX, y: event.pageY});
+        if (event.pageY + (insideRef.current?.clientHeight ?? 0) > window.innerHeight) {
+            setAnchorPoint({x: event.pageX, y: event.pageY - (insideRef.current?.clientHeight ?? 0)});
+        }
         setOpen(true);
         setItem(item);
     }, [setAnchorPoint, setOpen]);
@@ -62,9 +65,13 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
     }, []);
     useEffect(() => {
         if (isOpen) {
+            if (anchorPoint.y + (insideRef.current?.clientHeight ?? 0) > window.innerHeight) {
+                setAnchorPoint({x: anchorPoint.x, y: anchorPoint.y - (insideRef.current?.clientHeight ?? 0)});
+            }
             document.addEventListener("click", closeOutside, {capture: true});
             return () => document.removeEventListener("click", closeOutside, {capture: true});
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, closeOutside]);
 
     useImperativeHandle(menuRef, () => ({
