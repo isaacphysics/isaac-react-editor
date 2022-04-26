@@ -1,5 +1,4 @@
 import { ContextType } from "react";
-import { mutate } from "swr";
 
 import { AppContext } from "../App";
 import { dirname, generateGuid } from "../utils/strings";
@@ -18,6 +17,7 @@ export type Action =
     | {type: "delete"; path: string; name: string; sha: string}
     | {type: "rename"; path: string; name: string; sha: string}
     | {type: "saveAs"; path: string; name: string}
+    | {type: "save"}
 ;
 
 type ActionFor<K> = Action & {type: K};
@@ -121,7 +121,9 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
 async function doDelete(context: ContextType<typeof AppContext>, action: ActionFor<"delete">) {
     if (window.confirm("Do you really want to delete " + action.name + "?")) {
         await githubDelete(context, action.path, action.name, action.sha);
-        context.navigate(`/edit/${context.github.branch}/${dirname(action.path)}/`);
+        if (context.selection.getSelection()?.path === action.path) {
+            context.navigate(`/edit/${context.github.branch}/${dirname(action.path)}/`);
+        }
     }
 }
 
@@ -131,9 +133,7 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
         if (!window.confirm("This will save the current contents of this file. Are you sure you want to continue?")) {
             return;
         }
-        const newContent = await githubSave(context, action.sha, (newData, revalidate) => {
-            mutate(`repos/$OWNER/$REPO/contents/${action.path}`, newData, {revalidate});
-        });
+        const newContent = await githubSave(context);
         sha = newContent.sha;
     }
 
@@ -190,6 +190,13 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
 
 }
 
+async function doSave(context:  ContextType<typeof AppContext>) {
+    const selection = context.selection.getSelection();
+    if (selection) {
+        await githubSave(context);
+    }
+}
+
 export async function doDispatch(context: ContextType<typeof AppContext>, action: Action) {
     switch (action.type) {
         case "openInNewTab":
@@ -205,7 +212,10 @@ export async function doDispatch(context: ContextType<typeof AppContext>, action
             await doRename(context, action);
             return;
         case "saveAs":
-            await doSaveAs(context,action);
+            await doSaveAs(context, action);
+            return;
+        case "save":
+            await doSave(context);
             return;
     }
 }

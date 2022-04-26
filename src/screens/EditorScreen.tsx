@@ -1,5 +1,5 @@
 import React, { ContextType, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SWRConfig } from "swr";
+import { SWRConfig, useSWRConfig } from "swr";
 import { Params, useNavigate, useParams } from "react-router-dom";
 import { Modal, Spinner } from "reactstrap";
 
@@ -15,6 +15,7 @@ import { useLocation } from "react-router";
 import { Action, doDispatch } from "../services/commands";
 import { MenuModal, MenuModalRef } from "./MenuModal";
 import { TopMenu } from "../components/TopMenu";
+import { useFixedRef } from "../utils/hooks";
 
 function paramsToSelection(params: Readonly<Params>): Selection {
     let path = params["*"];
@@ -36,6 +37,8 @@ export function EditorScreen() {
     const navigate = useNavigate();
     const location = useLocation();
     const menuRef = useRef<MenuModalRef>(null);
+
+    const swrConfig = useSWRConfig();
 
     const selection = paramsToSelection(params);
     const setSelection = useCallback((selection: Selection) => {
@@ -120,12 +123,29 @@ export function EditorScreen() {
             github: {
                 branch: params.branch || defaultGithubContext.branch,
                 user: userRef.current,
+                cache: swrConfig.cache,
             },
             dispatch,
             navigate,
             menuModal: menuRef,
         });
-    }, [setCurrentDoc, loadNewDoc, params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished, navigate]);
+    }, [setCurrentDoc, loadNewDoc, params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished, navigate, swrConfig]);
+    const contextRef = useFixedRef(appContext);
+
+    const keydown = useCallback((event: KeyboardEvent) => {
+        if ((navigator.platform.indexOf("Mac") === 0 ? event.metaKey : event.ctrlKey) && event.key === "s") {
+            event.preventDefault();
+            event.stopPropagation();
+            if (contextRef.current.editor.getDirty()) {
+                contextRef.current.dispatch({type: "save"});
+            }
+        }
+    }, [contextRef]);
+
+    useEffect(() => {
+        document.body.addEventListener("keydown", keydown);
+        return () => document.body.removeEventListener("keydown", keydown);
+    }, [keydown]);
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>

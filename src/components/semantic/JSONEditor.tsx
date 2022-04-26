@@ -40,7 +40,7 @@ export function JSONEditor({doc, update, close}: PresenterProps & { close: () =>
             <Button color="primary" disabled={!valid} onClick={() => {
                 update(JSON.parse(value.current));
                 close();
-            }}>Save</Button>
+            }}>Set</Button>
         </div>
     </>;
 }

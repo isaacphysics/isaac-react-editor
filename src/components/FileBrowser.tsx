@@ -31,9 +31,8 @@ interface FilesProps {
 }
 
 type FileItemProps = Omit<ComponentProps<typeof ListGroupItem>, "onClick"> & {
-    path: string;
+    entry: Entry;
     onClick?: (isSelected: boolean) => void;
-    isDir?: boolean;
 };
 
 export function pathToId(path: string) {
@@ -41,14 +40,18 @@ export function pathToId(path: string) {
 }
 
 const FileItem: FunctionComponent<FileItemProps> = (props) => {
-    const {onClick: innerClick, path, isDir, className, ...rest} = props;
+    const {onClick: innerClick, entry, className, ...rest} = props;
     const selectionContext = useContext(AppContext).selection;
-    const isSelected = selectionContext.getSelection()?.path === path;
+    const selection = selectionContext.getSelection();
+    const isSelected = selection?.path === entry.path;
+
+    const {path} = entry;
+    const isDir = entry.type === "dir";
 
     const onClick = (event: React.MouseEvent) => {
         event.stopPropagation();
         if (!isSelected) {
-            if (!selectionContext.setSelection({path, isDir: !!isDir})) {
+            if (!selectionContext.setSelection({path, isDir})) {
                 return;
             }
         }
@@ -93,7 +96,7 @@ function Files({entry, menuRef}: FilesProps) {
                                 event.stopPropagation();
                                 event.preventDefault();
                             };
-                            return <FileItem key={entry.name} path={entry.path} name={entry.name} onContextMenu={fileOnContextMenu}>
+                            return <FileItem key={entry.name} entry={entry} onContextMenu={fileOnContextMenu}>
                                 {entry.name}
                             </FileItem>
                         default:
@@ -124,8 +127,7 @@ function Files({entry, menuRef}: FilesProps) {
     };
 
     return <FileItem className={open ? styles.fileBrowserOpenFolder : styles.fileBrowserClosedFolder}
-                     isDir
-                     path={at}
+                     entry={entry}
                      onClick={onClick}
                      onContextMenu={onContextMenu}
     >

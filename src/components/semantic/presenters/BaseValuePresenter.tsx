@@ -74,7 +74,7 @@ export function buildValuePresenter<V, D extends Content = Content>(
                         setEditing(false);
                         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                         update(save(value.current!, doc));
-                    }}>Save</Button>
+                    }}>Set</Button>
                 </div>
             </>;
         }

@@ -2,12 +2,12 @@ import React, { useContext, useRef, useState } from "react";
 import { Modal } from "reactstrap";
 
 import { AppContext } from "../App";
+import { useGithubContents } from "../services/github";
 
-import styles from "../styles/editor.module.css";
 import { PopupMenu, PopupMenuRef } from "./PopupMenu";
 import { Entry } from "./FileBrowser";
-import { githubSave, useGithubContents } from "../services/github";
 
+import styles from "../styles/editor.module.css";
 
 function filePathToEntry(path: string | undefined, sha: string): Entry {
     const name = path?.substring(path?.lastIndexOf("/") + 1) ?? "";
@@ -18,21 +18,21 @@ export function TopMenu() {
     const menuRef = useRef<PopupMenuRef>(null);
     const appContext = useContext(AppContext);
 
-    const path = appContext.selection.getSelection()?.path;
-    const {data, mutate} = useGithubContents(appContext, path);
+    const selection = appContext.selection.getSelection();
+    const {data} = useGithubContents(appContext, selection?.path);
 
     const [previewOpen, setPreviewOpen] = useState(false);
 
     return <div className={styles.topMenuWrapper}>
-        <button className={styles.iconButton} onClick={(event) => menuRef.current?.open(event, filePathToEntry(path, data.sha))}>
+        <button className={styles.iconButton} onClick={(event) => selection && menuRef.current?.open(event, filePathToEntry(selection.path, data.sha))}>
             ☰ Menu
         </button>
         <div className={styles.flexFill} />
         {appContext.editor.getDirty() &&
-            <button className={styles.iconButton} onClick={() => githubSave(appContext, data.sha, mutate)}>
+            <button className={styles.iconButton} onClick={() => appContext.dispatch({"type": "save"})}>
                 💾 Save
             </button>}
-        {appContext.selection.getSelection() && <button className={styles.iconButton} onClick={() => {
+        {selection && <button className={styles.iconButton} onClick={() => {
             setPreviewOpen(true);
         }}>
             Preview

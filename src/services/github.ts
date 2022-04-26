@@ -1,6 +1,6 @@
 import { ContextType } from "react";
 import Cookies from "js-cookie";
-import useSWR, { mutate } from "swr";
+import useSWR, { mutate, Cache } from "swr";
 
 import { Config, doAuth, getConfig } from "./auth";
 import { AppContext } from "../App";
@@ -67,6 +67,7 @@ export interface User {
 export const defaultGithubContext = {
     branch: "master",
     user: new Promise<User>((resolve) => resolve({login: "invalid-user" as string})),
+    cache: undefined as unknown as Cache,
 };
 
 export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string) {
@@ -117,7 +118,7 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
     }, {revalidate: false}); // github asks for aggressive disk caching, which we need to override.
 }
 
-export async function githubSave(context: ContextType<typeof AppContext>, sha: string, mutate: (data?: unknown, update?: boolean) => void) {
+export async function githubSave(context: ContextType<typeof AppContext>) {
     const fileJSON = context.editor.getCurrentDoc();
     const alreadyPublished = context.editor.isAlreadyPublished();
     const isPublishedChange = fileJSON.published || alreadyPublished;
@@ -129,6 +130,8 @@ export async function githubSave(context: ContextType<typeof AppContext>, sha: s
     if (!message) {
         return;
     }
+
+    const {sha} = context.github.cache.get(contentsPath(path, context.github.branch));
 
     const body = {
         message,
@@ -144,7 +147,7 @@ export async function githubSave(context: ContextType<typeof AppContext>, sha: s
 
     context.editor.loadNewDoc(fileJSON);
     const newContent = {...result.content, content: body.content};
-    mutate(newContent, false);
+    await mutate(contentsPath(path, context.github.branch), newContent, {revalidate: false});
 
     return newContent;
 }
