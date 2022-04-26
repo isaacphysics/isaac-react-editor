@@ -1,6 +1,6 @@
 import { ContextType } from "react";
 import Cookies from "js-cookie";
-import useSWR, { mutate, Cache } from "swr";
+import useSWR, { Cache, mutate } from "swr";
 
 import { Config, doAuth, getConfig } from "./auth";
 import { AppContext } from "../App";
@@ -10,11 +10,15 @@ import { dirname } from "../utils/strings";
 
 export const GITHUB_TOKEN_COOKIE = "github-token";
 
-export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> & {body: Record<string, unknown>}) => {
+export function githubReplaceWithConfig(path: string) {
     const config = getConfig();
-    const fullPath = "https://api.github.com/" + path.replace(/\$([A-Z_]+)/g, (_, match) => {
+    return path.replace(/\$([A-Z_]+)/g, (_, match) => {
         return config[match as keyof Config];
     });
+}
+
+export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> & {body: Record<string, unknown>}) => {
+    const fullPath = "https://api.github.com/" + githubReplaceWithConfig(path);
 
     const result = await fetch(fullPath, {
         ...options,
@@ -71,7 +75,7 @@ export interface User {
 
 export const defaultGithubContext = {
     branch: "master",
-    user: new Promise<User>((resolve) => resolve({login: "invalid-user" as string})),
+    user: {login: "invalid-user"} as User,
     cache: undefined as unknown as Cache,
 };
 

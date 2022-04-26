@@ -1,6 +1,6 @@
 import { SITE } from "./site";
 
-const StagingServer = {
+export const StagingServer = {
     "PHY": "https://staging.isaacphysics.org",
     "CS": "https://staging.isaaccomputerscience.org",
 }[SITE];

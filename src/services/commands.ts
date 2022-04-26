@@ -104,7 +104,7 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
                         } else {
                             const doc = {
                                 ...EMPTY_DOCUMENTS[option.value as ContentType],
-                                author: (await context.github.user).login,
+                                author: context.github.user.login,
                                 id: generateGuid(),
                             };
                             await doCreate(JSON.stringify(doc, null, 2));
@@ -177,16 +177,18 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
         try {
             alteredContent = {
                 ...context.editor.getCurrentDoc(),
-                author: (await context.github.user).login,
+                author: context.github.user.login,
                 id: generateGuid(),
                 published: false,
             };
         } catch {
             alteredContent = context.editor.getCurrentDocAsString();
         }
-        context.editor.loadNewDoc(alteredContent); // Slightly dirty way to clear dirty flag
+        context.editor.loadNewDoc(alteredContent);
 
-        githubCreate(context, basePath, newName, context.editor.getCurrentDocAsString()).then(function(f) {
+        const contentToSave = typeof alteredContent === "string" ? alteredContent : JSON.stringify(alteredContent, null, 2);
+
+        githubCreate(context, basePath, newName, contentToSave).then(function(f) {
             context.selection.setSelection({path: newPath, isDir: false}, true);
         }).catch(function(e) {
             window.alert("Could not create file. Perhaps it already exists.");

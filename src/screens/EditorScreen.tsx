@@ -7,7 +7,7 @@ import { Modal, Spinner } from "reactstrap";
 import { Selection } from "../components/FileBrowser";
 import { LeftMenu } from "../components/LeftMenu";
 import { AppContext, browserHistory } from "../App";
-import { defaultGithubContext, fetcher, User } from "../services/github";
+import { defaultGithubContext, fetcher } from "../services/github";
 import { SemanticEditor } from "../components/SemanticEditor";
 import { Content } from "../isaac-data-types";
 import { Action, doDispatch } from "../services/commands";
@@ -56,10 +56,10 @@ export function EditorScreen() {
         }
     }, [params.branch, navigate, location.pathname]);
 
-    const userRef = useRef<Promise<User>>(defaultGithubContext.user);
-    if (userRef.current === defaultGithubContext.user) {
-        userRef.current = fetcher("user");
-    }
+    const [user, setUser] = useState(defaultGithubContext.user);
+    useEffect(() => {
+        fetcher("user").then(setUser);
+    }, []);
 
     const [dirty, setDirty] = useState(false);
     const [currentContent, setCurrentContent] = useState<Content|string>({});
@@ -137,14 +137,14 @@ export function EditorScreen() {
             },
             github: {
                 branch: params.branch || defaultGithubContext.branch,
-                user: userRef.current,
+                user,
                 cache: swrConfig.cache,
             },
             dispatch,
             navigate,
             menuModal: menuRef,
         });
-    }, [setCurrentDoc, loadNewDoc, params.branch, selection, dirty, setSelection, currentContent, isAlreadyPublished, navigate, swrConfig]);
+    }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
     const contextRef = useFixedRef(appContext);
 
     const keydown = useCallback((event: KeyboardEvent) => {

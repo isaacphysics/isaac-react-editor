@@ -16,6 +16,9 @@ import { AppContext } from "../App";
 import { Entry } from "./FileBrowser";
 
 import styles from "../styles/editor.module.css";
+import { githubReplaceWithConfig } from "../services/github";
+import { Content } from "../isaac-data-types";
+import { StagingServer } from "../services/isaacApi";
 
 type PopupEntry = Entry & {
     refresh?: () => void;
@@ -25,17 +28,57 @@ export interface PopupMenuRef {
     open: (event: React.MouseEvent, item: PopupEntry) => void;
 }
 
+type MenuItemProps =
+    | {
+        close: () => void;
+        onClick: () => void;
+        href?: never;
+        text: string;
+    }
+    | {
+        close: () => void;
+        onClick?: never;
+        href: string;
+        text: string;
+    }
+;
+
 function MenuItem({
                       onClick,
+                      href,
                       text,
                       close
-                  }: { onClick: () => void; text: string; close: () => void; }) {
+                  }: MenuItemProps) {
     return <li>
         <button onClick={() => {
-            onClick();
+            if (onClick) {
+                onClick();
+            } else {
+                window.open(href, "_blank");
+            }
             close();
         }}>{text}</button>
     </li>;
+}
+
+function getPreviewLink(doc: Content) {
+    if (doc && doc.id) {
+        switch (doc.type) {
+        case "isaacConceptPage":
+            return `${StagingServer}/concepts/${doc.id}`;
+        case "isaacQuestionPage":
+        case "isaacFastTrackQuestionPage":
+            return `${StagingServer}/questions/${doc.id}`;
+        case "isaacTopicSummaryPage":
+            return `${StagingServer}/topics/${doc.id.slice("topic_summary_".length)}`;
+        case "isaacEventPage":
+            return `${StagingServer}/events/${doc.id}`;
+        case "page":
+            return `${StagingServer}/pages/${doc.id}`;
+        case "isaacQuiz":
+            return `${StagingServer}/quiz/preview/${doc.id}`;
+        }
+    }
 }
 
 export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | null> }) {
@@ -82,6 +125,18 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
         setOpen(false);
     }, []);
 
+    const isCurrentFile = item?.path === appContext.selection.getSelection()?.path;
+
+    let previewLink;
+    try {
+        // Preview only for currently selected document
+        if (isCurrentFile) {
+            previewLink = getPreviewLink(appContext.editor.getCurrentDoc());
+        }
+    } catch {
+        // No current doc so no preview
+    }
+
     return isOpen ?
         <Portal>
             <ul
@@ -95,31 +150,40 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
                 {item.type === "dir" && <MenuItem close={close} onClick={() => appContext.dispatch({
                     type: "new",
                     path: item.path
-                })} text="New..."/>}
+                })} text="New..." />}
                 <MenuItem close={close} onClick={() => appContext.dispatch({
                     type: "openInNewTab",
                     path: item.path
-                })} text="Open in new tab"/>
-                {item.type === "dir" && <hr/>}
-                {item.type === "dir" && item.refresh &&
-                    <MenuItem close={close} onClick={() => item.refresh?.()} text="Refresh"/>}
-                {item.type === "file" && <MenuItem close={close} onClick={() => appContext.dispatch({
+                })} text="Open in new tab" />
+                {item.type === "dir" && item.refresh && <>
+                    <hr />
+                    <MenuItem close={close} onClick={() => item.refresh?.()} text="Refresh"/>
+                </>}
+                {item.type === "file" && isCurrentFile && <MenuItem close={close} onClick={() => appContext.dispatch({
                     type: "rename",
                     path: item.path,
                     name: item.name,
                     sha: item.sha,
-                })} text="Rename..."/>}
-                {item.type === "file" && <MenuItem close={close} onClick={() => appContext.dispatch({
+                })} text="Rename..." />}
+                {item.type === "file" && isCurrentFile && <MenuItem close={close} onClick={() => appContext.dispatch({
                     type: "saveAs",
                     path: item.path,
                     name: item.name,
-                })} text="Save as..."/>}
+                })} text="Save as..." />}
                 {item.type === "file" && <MenuItem close={close} onClick={() => appContext.dispatch({
                     type: "delete",
                     path: item.path,
                     name: item.name,
                     sha: item.sha,
-                })} text="Delete"/>}
+                })} text="Delete" />}
+                {item.type === "file" && <hr />}
+                {item.type === "file" && <MenuItem close={close} href={
+                    `${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/blob")}/${appContext.github.branch}/${item.path}`
+                } text="View on github" />}
+                {item.type === "file" && <MenuItem close={close} href={`${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/issues/new")}?body=${encodeURIComponent(
+                        `Issue found in ${item.path} by ${appContext.github.user.login}.\n\n<Describe issue here>`
+                )}`} text="Report issue on github"/>}
+                {item.type === "file" && previewLink && <MenuItem close={close} href={previewLink} text="Preview on staging" />}
             </ul>
         </Portal>
         : null;
