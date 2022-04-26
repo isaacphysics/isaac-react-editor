@@ -124,9 +124,17 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
 }
 
 export async function githubSave(context: ContextType<typeof AppContext>) {
-    const fileJSON = context.editor.getCurrentDoc();
-    const alreadyPublished = context.editor.isAlreadyPublished();
-    const isPublishedChange = fileJSON.published || alreadyPublished;
+    let isPublishedChange;
+    let isContent;
+    try {
+        const fileJSON = context.editor.getCurrentDoc();
+        const alreadyPublished = context.editor.isAlreadyPublished();
+        isPublishedChange = fileJSON.published || alreadyPublished;
+        isContent = true;
+    } catch {
+        isPublishedChange = false;
+        isContent = false;
+    }
     const path = context.selection.getSelection()?.path as string;
     const initialCommitMessage = `${isPublishedChange ? "* " : ""}Edited ${path}`;
 
@@ -141,7 +149,7 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
     const body = {
         message,
         branch: context.github.branch,
-        content: encodeBase64(JSON.stringify(fileJSON, null, 2)),
+        content: encodeBase64(context.editor.getCurrentDocAsString()),
         sha: sha,
     }
 
@@ -150,7 +158,8 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
         body,
     });
 
-    context.editor.loadNewDoc(fileJSON);
+    // Clear dirty and update already published flags
+    context.editor.loadNewDoc(isContent ? context.editor.getCurrentDoc() : context.editor.getCurrentDocAsString());
     const newContent = {...result.content, content: body.content};
     await mutate(contentsPath(path, context.github.branch), newContent, {revalidate: false});
 

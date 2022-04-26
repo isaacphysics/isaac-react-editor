@@ -170,7 +170,7 @@
     display: flex;
 }
 
-.semanticEditor {
+.editorWrapper {
     overflow: auto;
     flex: 1;
     display: flex;
@@ -225,4 +225,13 @@
 
 .menuModalButtons button {
     margin: 0.2em;
+}
+
+.textEditor {
+    margin-top: 40px;
+    flex: 1;
+}
+
+.textEditor :global(.cm-focused) {
+    outline: none !important;
 }

@@ -8,19 +8,22 @@ import { SemanticRoot } from "./semantic/SemanticRoot";
 
 import styles from "../styles/editor.module.css";
 import { useGithubContents } from "../services/github";
+import { TopMenu } from "./TopMenu";
 
 
 export interface EditorState {
     getDirty: () => boolean;
     getCurrentDoc: () => Content;
-    setCurrentDoc: (newContent: Content) => void;
-    loadNewDoc: (newContent: Content) => void;
+    getCurrentDocAsString: () => string;
+    setCurrentDoc: (newContent: Content|string) => void;
+    loadNewDoc: (newContent: Content|string) => void;
     isAlreadyPublished: () => boolean;
 }
 
 export const defaultEditorState: EditorState = {
     getDirty: () => false,
     getCurrentDoc: () => ({}),
+    getCurrentDocAsString: () => "",
     setCurrentDoc: () => {
         throw new Error("setCurrentDoc called outside of AppContent");
     },
@@ -61,9 +64,9 @@ export function SemanticEditor() {
         </div>;
     }
 
-    return <div className={styles.semanticEditor}>
+    return <div className={styles.editorWrapper}>
+        <TopMenu />
         <SemanticRoot doc={appContext.editor.getCurrentDoc()} update={(newContent) => {
-            console.log("Top level update", newContent);
             appContext.editor.setCurrentDoc(newContent);
         }} />
     </div>;

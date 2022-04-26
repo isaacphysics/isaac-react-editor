@@ -1,6 +1,7 @@
 import React, { ContextType, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SWRConfig, useSWRConfig } from "swr";
 import { Params, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router";
 import { Modal, Spinner } from "reactstrap";
 
 import { Selection } from "../components/FileBrowser";
@@ -9,13 +10,13 @@ import { AppContext, browserHistory } from "../App";
 import { defaultGithubContext, fetcher, User } from "../services/github";
 import { SemanticEditor } from "../components/SemanticEditor";
 import { Content } from "../isaac-data-types";
+import { Action, doDispatch } from "../services/commands";
+import { useFixedRef } from "../utils/hooks";
+
+import { MenuModal, MenuModalRef } from "./MenuModal";
 
 import styles from "../styles/editor.module.css";
-import { useLocation } from "react-router";
-import { Action, doDispatch } from "../services/commands";
-import { MenuModal, MenuModalRef } from "./MenuModal";
-import { TopMenu } from "../components/TopMenu";
-import { useFixedRef } from "../utils/hooks";
+import { TextEditor } from "../components/TextEditor";
 
 function paramsToSelection(params: Readonly<Params>): Selection {
     let path = params["*"];
@@ -50,6 +51,7 @@ export function EditorScreen() {
             }
         }
         if (url !== location.pathname) {
+            setCurrentContent({});
             navigate(url);
         }
     }, [params.branch, navigate, location.pathname]);
@@ -60,7 +62,7 @@ export function EditorScreen() {
     }
 
     const [dirty, setDirty] = useState(false);
-    const [currentContent, setCurrentContent] = useState<Content>({});
+    const [currentContent, setCurrentContent] = useState<Content|string>({});
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
     const [actionRunning, setActionRunning] = useState(false);
@@ -79,13 +81,13 @@ export function EditorScreen() {
         }
     }, [dirty]);
 
-    const setCurrentDoc = useCallback((content: Content) => {
+    const setCurrentDoc = useCallback((content: Content|string) => {
         setCurrentContent(content);
         setDirty(true);
     }, []);
-    const loadNewDoc = useCallback((content: Content) => {
+    const loadNewDoc = useCallback((content: Content|string) => {
         setDirty(false);
-        setIsAlreadyPublished(!!content.published);
+        setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
         setCurrentContent(content);
     }, []);
 
@@ -102,8 +104,8 @@ export function EditorScreen() {
         return ({
             selection: {
                 getSelection: () => selection,
-                setSelection: (selection: Selection) => {
-                    if (dirty) {
+                setSelection: (selection: Selection, ignoreDirty?: boolean) => {
+                    if (!ignoreDirty && dirty) {
                         if (!window.confirm("You are currently editing, are you sure you want to discard your changes?")) {
                             return false;
                         }
@@ -115,7 +117,20 @@ export function EditorScreen() {
             },
             editor: {
                 getDirty: () => dirty,
-                getCurrentDoc: () => currentContent,
+                getCurrentDoc: () => {
+                    if (typeof currentContent === "string") {
+                        throw new Error("Current doc is a string");
+                    } else {
+                        return currentContent;
+                    }
+                },
+                getCurrentDocAsString: () => {
+                    if (typeof currentContent === "string") {
+                        return currentContent;
+                    } else {
+                        return JSON.stringify(currentContent, null, 2);
+                    }
+                },
                 setCurrentDoc: setCurrentDoc,
                 loadNewDoc: loadNewDoc,
                 isAlreadyPublished: () => isAlreadyPublished,
@@ -151,14 +166,15 @@ export function EditorScreen() {
         <AppContext.Provider value={appContext}>
             <div className={styles.editorScreen}>
                 <LeftMenu />
-                {selection && !selection.isDir ? <>
-                        <TopMenu />
+                {selection && !selection.isDir ?
+                    selection.path.endsWith(".json") ?
                         <SemanticEditor />
-                    </>
+                        : <TextEditor />
                     :
                     <div className={styles.centered}>
                         Choose a file on the left to edit
-                    </div>}
+                    </div>
+                }
             </div>
             <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent} >
                 <div className={styles.centered}>

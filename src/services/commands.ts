@@ -3,6 +3,7 @@ import { ContextType } from "react";
 import { AppContext } from "../App";
 import { dirname, generateGuid } from "../utils/strings";
 import { ContentType } from "../components/semantic/registry";
+import { Content } from "../isaac-data-types";
 
 import { githubSave, githubCreate, githubDelete } from "./github";
 import { EMPTY_DOCUMENTS } from "./emptyDocuments";
@@ -35,7 +36,7 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
         const doCreate = async (initialContent: string) => {
             try {
                 await githubCreate(context, action.path, name, initialContent);
-                context.navigate(`/edit/${context.github.branch}/${path}/${name}`);
+                context.selection.setSelection({path: `${path}/${name}`, isDir: false}, true);
             } catch (e) {
                 alert("Couldn't create file. Perhaps it already exists.");
                 console.error("Couldn't create file. Perhaps it already exists.", e);
@@ -122,7 +123,7 @@ async function doDelete(context: ContextType<typeof AppContext>, action: ActionF
     if (window.confirm("Do you really want to delete " + action.name + "?")) {
         await githubDelete(context, action.path, action.name, action.sha);
         if (context.selection.getSelection()?.path === action.path) {
-            context.navigate(`/edit/${context.github.branch}/${dirname(action.path)}/`);
+            context.selection.setSelection({path: dirname(action.path), isDir: true}, true);
         }
     }
 }
@@ -149,10 +150,10 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
         const basePath = dirname(oldPath);
 
         try {
-            await githubCreate(context, basePath, newName, JSON.stringify(context.editor.getCurrentDoc(), null, 2));
+            await githubCreate(context, basePath, newName, context.editor.getCurrentDocAsString());
             try {
                 await githubDelete(context, oldPath, action.name, sha);
-                context.navigate(`/edit/${context.github.branch}/${basePath}/${newName}`)
+                context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false}, true);
             } catch (e) {
                 console.error("Could not delete old file.", e);
             }
@@ -171,17 +172,22 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
             newName += ".json";
         const basePath = dirname(oldPath);
         const newPath = basePath + "/" + newName;
-        const alteredContent = {
-            ...context.editor.getCurrentDoc(),
-            author: (await context.github.user).login,
-            id: generateGuid(),
-            published: false,
-        };
-        context.editor.loadNewDoc(alteredContent); // Slightly dirty way to clear dirty flag
-        const content = JSON.stringify(alteredContent, null, 2);
 
-        githubCreate(context, basePath, newName, content).then(function(f) {
-            context.navigate(`/edit/${context.github.branch}/${newPath}`);
+        let alteredContent: Content | string;
+        try {
+            alteredContent = {
+                ...context.editor.getCurrentDoc(),
+                author: (await context.github.user).login,
+                id: generateGuid(),
+                published: false,
+            };
+        } catch {
+            alteredContent = context.editor.getCurrentDocAsString();
+        }
+        context.editor.loadNewDoc(alteredContent); // Slightly dirty way to clear dirty flag
+
+        githubCreate(context, basePath, newName, context.editor.getCurrentDocAsString()).then(function(f) {
+            context.selection.setSelection({path: newPath, isDir: false}, true);
         }).catch(function(e) {
             window.alert("Could not create file. Perhaps it already exists.");
             console.log(e);
