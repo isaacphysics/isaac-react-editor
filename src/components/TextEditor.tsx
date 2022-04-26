@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Alert, Spinner } from "reactstrap";
 import CodeMirror, { EditorView } from '@uiw/react-codemirror';
 
@@ -6,8 +6,9 @@ import { AppContext } from "../App";
 import { decodeBase64 } from "../utils/base64";
 import { useGithubContents } from "../services/github";
 
-import styles from "../styles/editor.module.css";
 import { TopMenu } from "./TopMenu";
+
+import styles from "../styles/editor.module.css";
 
 export function TextEditor() {
     const appContext = useContext(AppContext);
@@ -16,10 +17,23 @@ export function TextEditor() {
     const path = selection?.path;
     const {data, error} = useGithubContents(appContext, path);
 
+    const [invalid, setInvalid] = useState(false);
+
     useEffect(() => {
         if (data) {
-            const decodedContent = data && decodeBase64(data.content);
-            appContext.editor.loadNewDoc(decodedContent as string);
+            let decodedContent = null;
+            try {
+                decodedContent = decodeBase64(data.content) as string;
+            } catch {
+                // Ignore decoding error
+            }
+            // eslint-disable-next-line no-control-regex
+            if (decodedContent === null || decodedContent.match(/[\x00-\x08\x0B\x0C\x0E-\x1F]/)) {
+                setInvalid(true);
+            } else {
+                setInvalid(false);
+                appContext.editor.loadNewDoc(decodedContent as string);
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
@@ -34,6 +48,12 @@ export function TextEditor() {
         return <div className={styles.centered}>
             <Spinner size="large" />
         </div>;
+    }
+
+    if (invalid) {
+        return <div className={styles.centered}>
+            <Alert color="warning">This content does not appear to be text.</Alert>
+        </div>
     }
 
     return <div className={styles.editorWrapper}>
