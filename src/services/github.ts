@@ -26,7 +26,12 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
             ...options.body,
         }),
     });
-    return result.json();
+    const json = await result.json();
+    if (result.ok) {
+        return json;
+    } else {
+        throw json.message;
+    }
 };
 
 function contentsPath(path: string, branch?: string) {

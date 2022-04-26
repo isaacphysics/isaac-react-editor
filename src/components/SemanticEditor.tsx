@@ -51,7 +51,7 @@ export function SemanticEditor() {
 
     if (error) {
         return <div className={styles.centered}>
-            <Alert color="error">{error}</Alert>
+            <Alert color="danger">{error}</Alert>
         </div>;
     }
 
