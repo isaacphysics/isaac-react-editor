@@ -22,7 +22,10 @@ export interface ValuePresenterRef {
 }
 export type ValuePresenterProps<D extends Content = Content> =
     & PresenterProps<D>
-    & {valueRef?: MutableRefObject<ValuePresenterRef | null>}
+    & {
+        valueRef?: MutableRefObject<ValuePresenterRef | null>;
+        topLevel?: boolean;
+    }
 ;
 export type ValuePresenter<D extends Content = Content> = FunctionComponent<ValuePresenterProps<D>>;
 

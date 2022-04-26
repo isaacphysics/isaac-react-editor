@@ -14,10 +14,11 @@ import { InserterProps } from "./ListChildrenPresenter";
 import { PresenterProps } from "../registry";
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
 import { ListPresenterProp } from "../props/listProps";
-import { BoxedContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
+import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { MetaItemPresenter, MetaOptions } from "../Metadata";
 
 import styles from "../styles/question.module.css";
+import { Box } from "../SemanticItem";
 
 interface ItemsContextType {
     items: ParsonsItem[] | undefined;
@@ -41,18 +42,19 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacParsonsQuestion
         {isParsonsQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" />}
         {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" />}
         {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="randomiseItems" label="Randomise items on question load" />}
-        <BoxedContentValueOrChildrenPresenter {...props} />
+        <ContentValueOrChildrenPresenter {...props} topLevel />
         {isClozeQuestion(doc) && <ClozeQuestionInstructions />}
-        <h6 className={styles.itemsHeaderTitle}>Items</h6>
-        <Row className={styles.itemsHeaderRow}>
-            <Col xs={3} className={styles.center}>
-                ID
-            </Col>
-            <Col xs={8} className={styles.center}>
-                Value
-            </Col>
-        </Row>
-        <ListPresenterProp {...props} prop="items" childTypeOverride={isParsonsQuestion(doc) ? "parsonsItem" : "item"} />
+        <Box name="Items">
+            <Row className={styles.itemsHeaderRow}>
+                <Col xs={3} className={styles.center}>
+                    ID
+                </Col>
+                <Col xs={8} className={styles.center}>
+                    Value
+                </Col>
+            </Row>
+            <ListPresenterProp {...props} prop="items" childTypeOverride={isParsonsQuestion(doc) ? "parsonsItem" : "item"} />
+        </Box>
         <ItemsContext.Provider value={{items: doc.items, remainingItems: undefined}}>
             <QuestionFooterPresenter {...props} />
         </ItemsContext.Provider>

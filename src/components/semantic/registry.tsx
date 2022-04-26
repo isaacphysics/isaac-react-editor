@@ -16,10 +16,7 @@ import { ChoicePresenter } from "./presenters/ChoicePresenter";
 import { Content } from "../../isaac-data-types";
 import { FigurePresenter } from "./presenters/FigurePresenter";
 import { ValuePresenter } from "./presenters/BaseValuePresenter";
-import {
-    BoxedContentValueOrChildrenPresenter,
-    ContentValueOrChildrenPresenter
-} from "./presenters/ContentValueOrChildrenPresenter";
+import { ContentValueOrChildrenPresenter } from "./presenters/ContentValueOrChildrenPresenter";
 import { AccordionPresenter } from "./presenters/AccordionPresenter";
 import { CodeSnippetPresenter } from "./presenters/CodeSnippetPresenter";
 import { VideoPresenter } from "./presenters/VideoPresenter";
@@ -113,7 +110,7 @@ const hints: RegistryEntry = {
 const question: RegistryEntry = {
     name: "Question",
     headerPresenter: QuestionMetaPresenter,
-    bodyPresenter: BoxedContentValueOrChildrenPresenter,
+    bodyPresenter: ContentValueOrChildrenPresenter,
     footerPresenter: QuestionFooterPresenter,
     blankValue: "Enter question body here",
 };

@@ -21,7 +21,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             <div className={styles.figureCaption}>
                 {doc.type === "figure" && <>
                     <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>
-                    <ContentValueOrChildrenPresenter {...props} />
+                    <ContentValueOrChildrenPresenter {...props} topLevel />
                 </>}
                 {doc.attribution && <>
                     <BaseValuePresenter doc={{value: doc.attribution, encoding: "markdown"}} update={(newContent) => {

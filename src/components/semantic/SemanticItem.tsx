@@ -79,7 +79,7 @@ interface BoxProps {
 
 export const Box: FunctionComponent<BoxProps> = ({name, onClick,  onDelete, shift, metadata, className, valueRef, children}) => {
     const [deleteHovered, setDeleteHovered] = useState(false);
-    return <ValueWrapper className={`${styles.box} ${className ?? ""} ${deleteHovered ? styles.boxDeleteHovered : ""}`} valueRef={valueRef}>
+    return <ValueWrapper className={`${styles.box} ${name ? styles.named : ""} ${className ?? ""} ${deleteHovered ? styles.boxDeleteHovered : ""}`} valueRef={valueRef}>
         <div className={styles.boxHeader}>
             {name && <button className={styles.boxLabel} onClick={onClick} disabled={!onClick}>{name}</button>}
             {metadata && <button className={styles.metaLabel} onClick={() => metadata.toggle()}>{metadata.showMeta ? "Hide" : "Show"} metadata</button>}
@@ -124,7 +124,7 @@ function SemanticItemInner(props: SemanticItemProps) {
     const header = !jsonMode && HeaderPresenter ? <HeaderPresenter {...subProps} /> : null;
 
     const BodyPresenter = entryType.bodyPresenter;
-    const body = jsonMode ? <JSONEditor {...subProps} close={() => setJsonMode(false)} /> : BodyPresenter ? <BodyPresenter {...subProps} valueRef={valueRef} /> : null;
+    const body = jsonMode ? <JSONEditor {...subProps} close={() => setJsonMode(false)} /> : BodyPresenter ? <BodyPresenter {...subProps} valueRef={valueRef} topLevel={!!name || (!!doc.type && doc.type !== "content")} /> : null;
 
     const FooterPresenter = entryType.footerPresenter;
     const footer = !jsonMode && FooterPresenter ? <FooterPresenter {...subProps} /> : null;

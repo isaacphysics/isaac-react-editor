@@ -1,37 +1,31 @@
-import React from "react";
-import {
-    BaseValuePresenter,
-    ValuePresenterProps,
-} from "./BaseValuePresenter";
+import React, { useCallback, useMemo } from "react";
 import { Alert } from "reactstrap";
 
+import { Content } from "../../../isaac-data-types";
+
+import { BaseValuePresenter, ValuePresenterProps, } from "./BaseValuePresenter";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
-import { Box } from "../SemanticItem";
+
+function PromotableValuePresenter({doc: baseDoc, update: baseUpdate}: ValuePresenterProps) {
+    const doc = useMemo(() => ({type: "content", children: [{type: "content", encoding: baseDoc.encoding, value: baseDoc.value}]}), [baseDoc]);
+    const update = useCallback((newContent: Content) => {
+        if (newContent.children?.length === 1) {
+            baseUpdate(newContent.children[0]);
+        } else {
+            baseUpdate(newContent);
+        }
+    }, [baseUpdate]);
+
+    return <ListChildrenPresenter doc={doc} update={update} />;
+}
 
 export const ContentValueOrChildrenPresenter = (props: ValuePresenterProps) => {
-    const {doc} = props;
+    const {doc, topLevel} = props;
     if (doc.value && doc.children) {
-        return <Alert color="warning">Error: this item contains both a value and children; please
-            delete one.</Alert>;
+        return <Alert color="warning">Error: this item contains both a value and children; please delete one.</Alert>;
     } else if (doc.children) {
         return <ListChildrenPresenter {...props} />;
     } else {
-        // TODO: show Inserter above and below this content and allow promotion to list
-        return <BaseValuePresenter {...props} />;
-    }
-};
-
-export const BoxedContentValueOrChildrenPresenter = (props: ValuePresenterProps) => {
-    const {doc} = props;
-    if (doc.value && doc.children) {
-        return <Alert color="warning">Error: this item contains both a value and children; please
-            delete one.</Alert>;
-    } else if (doc.children) {
-        return <Box>
-            <ListChildrenPresenter {...props} />
-        </Box>;
-    } else {
-        // TODO: as above, show Inserter above and below this content and allow promotion to list
-        return <BaseValuePresenter {...props} />;
+        return topLevel ? <PromotableValuePresenter {...props} /> : <BaseValuePresenter {...props} />;
     }
 };
