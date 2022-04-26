@@ -81,12 +81,23 @@ export const defaultGithubContext = {
 
 export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string) {
     const path = `${basePath}/${name}`;
+
+    // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
+    // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
+    // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
+    let content;
+    try {
+        content = window.btoa(initialContent);
+    } catch (e) {
+        content = encodeBase64(initialContent);
+    }
+
     const data = await fetcher(contentsPath(path), {
         method: "PUT",
         body: {
             branch: context.github.branch,
             message: "Creating " + path,
-            content: encodeBase64(initialContent),
+            content,
         },
     });
 
@@ -100,6 +111,8 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
         newDir.splice(position, 0, data.content);
         return newDir;
     }, {revalidate: false}); // github asks for aggressive disk caching, which we need to override.
+
+    return data;
 }
 
 export async function githubDelete(context: ContextType<typeof AppContext>, path: string, name: string, sha: string) {
@@ -168,4 +181,28 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
     await mutate(contentsPath(path, context.github.branch), newContent, {revalidate: false});
 
     return newContent;
+}
+
+export async function githubUpload(context: ContextType<typeof AppContext>, basePath: string, name: string, content: string): Promise<string> {
+    const figurePath = `${basePath}/figures`;
+
+    let existingFigures;
+    try {
+        existingFigures = await fetcher(contentsPath(figurePath, context.github.branch));
+    } catch (e) {
+        existingFigures = [];
+    }
+
+    const figurePaths: string[] = existingFigures.map((f: { path: string; }) => f.path);
+    let i = 0;
+    let proposedName, proposedPath;
+    do {
+        proposedName = name.substring(0, name.lastIndexOf(".")) + ( i ? "_" + (i+1) : "") + name.substring(name.lastIndexOf("."));
+        proposedPath = figurePath + "/" + proposedName;
+        i++;
+    } while(figurePaths.includes(proposedPath))
+
+    const result = await githubCreate(context,  figurePath, proposedName, content);
+
+    return `figures/${result.content.name}`;
 }

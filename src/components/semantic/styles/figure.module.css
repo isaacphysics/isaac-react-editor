@@ -18,3 +18,10 @@
 .muted {
     color: #777;
 }
+
+.fileInput {
+    position: absolute;
+    left: -1000px;
+    top: -1000px;
+    visibility: hidden;
+}
