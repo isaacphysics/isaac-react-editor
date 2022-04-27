@@ -36,12 +36,15 @@
     background: #eee;
     transition: left 0.3s, transform 0.3s, color 0.3s;
     color: #aaa;
+    border-top-left-radius: 0.3em;
 }
 
 .leftMenuClosed .leftMenuOpener {
     left: 0;
     transform: rotate(180deg);
     color: #000;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0.3em;
 }
 
 .leftMenuHeader {
