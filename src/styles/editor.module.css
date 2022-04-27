@@ -154,23 +154,28 @@
 }
 
 .topMenuWrapper {
-    position: fixed;
+    position: absolute;
     top: 0;
     height: 40px;
-    left: 550px;
-    right: 250px;
+    left: 200px;
+    right: 150px;
     border-bottom-left-radius: 0.5em;
     border-bottom-right-radius: 0.5em;
     background: #f5f5f5;
     z-index: 100;
-    padding: 0 0.5em;
     display: flex;
 }
 
 .editorWrapper {
-    overflow: auto;
     flex: 1;
     display: flex;
+    height: 100%;
+    position: relative;
+}
+
+.editorScroller {
+    overflow: auto;
+    flex: 1;
 }
 
 .centered {
@@ -248,19 +253,29 @@
 
 .previewWrapper {
     flex: 1;
+    margin-left: 3px;
+    border-left: 1px solid #eee;
+}
+
+:global(.modal) .previewWrapper {
+    margin-left: 0;
+    border-left: none;
 }
 
 .previewTopMenu {
-    background: #eee;
-    height: 36px;
+    background: #f5f5f5;
+    height: 40px;
     text-align: right;
+}
+
+:global(.modal) .previewTopMenu {
     border-top-left-radius: 0.3em;
     border-top-right-radius: 0.3em;
 }
 
 .previewIframe {
     width: 100%;
-    height: calc(100% - 36px - 6px); /* Unclear why the extra 6px is needed */
+    height: calc(100% - 40px - 6px); /* Unclear why the extra 6px is needed */
     border: none;
     padding: 0;
     margin: 0;

@@ -10,6 +10,10 @@
     flex-grow: 1;
 }
 
+.figureImage button {
+    border: none;
+}
+
 .figureCaption {
     flex-basis: 0;
     flex-grow: 1;

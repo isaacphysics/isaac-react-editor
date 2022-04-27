@@ -46,6 +46,10 @@
     border-bottom-right-radius: 0.5em;
 }
 
+.outerWrapper > .box > .boxHeader > .metaLabel {
+    right: 0.5em;
+}
+
 .boxSpacer {
     flex-grow: 1;
 }

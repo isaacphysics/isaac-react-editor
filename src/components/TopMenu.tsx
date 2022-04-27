@@ -1,5 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
-import { Modal } from "reactstrap";
+import React, { useContext, useRef } from "react";
 
 import { AppContext } from "../App";
 import { useGithubContents } from "../services/github";
@@ -30,10 +29,10 @@ export function TopMenu({previewable}: {previewable?: boolean}) {
             <button className={styles.iconButton} onClick={() => appContext.dispatch({"type": "save"})}>
                 💾 Save
             </button>}
-        {selection && previewable && <button className={styles.iconButton} onClick={() => {
+        {selection && previewable && !appContext.preview.open && <button className={styles.iconButton} onClick={() => {
             appContext.preview.toggle();
         }}>
-            {appContext.preview.open ? "Close preview" : "Preview"}
+            Preview
         </button>}
         <PopupMenu menuRef={menuRef} />
     </div>;
