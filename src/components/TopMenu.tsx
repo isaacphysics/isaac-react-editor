@@ -14,14 +14,12 @@ function filePathToEntry(path: string | undefined, sha: string): Entry {
     return {type: "file", path: path as string, name, sha};
 }
 
-export function TopMenu() {
+export function TopMenu({previewable}: {previewable?: boolean}) {
     const menuRef = useRef<PopupMenuRef>(null);
     const appContext = useContext(AppContext);
 
     const selection = appContext.selection.getSelection();
     const {data} = useGithubContents(appContext, selection?.path);
-
-    const [previewOpen, setPreviewOpen] = useState(false);
 
     return <div className={styles.topMenuWrapper}>
         <button className={styles.iconButton} onClick={(event) => selection && menuRef.current?.open(event, filePathToEntry(selection.path, data.sha))}>
@@ -32,14 +30,11 @@ export function TopMenu() {
             <button className={styles.iconButton} onClick={() => appContext.dispatch({"type": "save"})}>
                 💾 Save
             </button>}
-        {selection && <button className={styles.iconButton} onClick={() => {
-            setPreviewOpen(true);
+        {selection && previewable && <button className={styles.iconButton} onClick={() => {
+            appContext.preview.toggle();
         }}>
-            Preview
+            {appContext.preview.open ? "Close preview" : "Preview"}
         </button>}
-        <Modal isOpen={previewOpen} onClosed={() => setPreviewOpen(false)}>
-            {previewOpen && <pre>{JSON.stringify(appContext.editor.getCurrentDoc(), null, 2)}</pre>}
-        </Modal>
         <PopupMenu menuRef={menuRef} />
     </div>;
 }

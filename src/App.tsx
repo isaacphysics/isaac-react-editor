@@ -13,6 +13,7 @@ import { SemanticRoot } from "./components/semantic/SemanticRoot";
 import { testDoc } from "./testDocs";
 import { defaultDispatch } from "./services/commands";
 import { MenuModalRef } from "./screens/MenuModal";
+import { defaultPreview } from "./components/Preview";
 
 
 export const AppContext = createContext({
@@ -24,6 +25,7 @@ export const AppContext = createContext({
         throw new Error("Can't navigate outside of AppContext");
     }) as NavigateFunction,
     menuModal: {current: null} as MutableRefObject<MenuModalRef | null>,
+    preview: defaultPreview,
 });
 
 export const browserHistory = createBrowserHistory();

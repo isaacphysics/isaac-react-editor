@@ -12,11 +12,12 @@ import { SemanticEditor } from "../components/SemanticEditor";
 import { Content } from "../isaac-data-types";
 import { Action, doDispatch } from "../services/commands";
 import { useFixedRef } from "../utils/hooks";
+import { TextEditor } from "../components/TextEditor";
+import { Preview, PreviewMode } from "../components/Preview";
 
 import { MenuModal, MenuModalRef } from "./MenuModal";
 
 import styles from "../styles/editor.module.css";
-import { TextEditor } from "../components/TextEditor";
 
 function paramsToSelection(params: Readonly<Params>): Selection {
     let path = params["*"];
@@ -40,6 +41,9 @@ export function EditorScreen() {
     const menuRef = useRef<MenuModalRef>(null);
 
     const swrConfig = useSWRConfig();
+
+    const [previewMode, setPreviewMode] = useState<PreviewMode>("modal");
+    const [previewOpen, setPreviewOpen] = useState(false);
 
     const selection = paramsToSelection(params);
     const setSelection = useCallback((selection: Selection) => {
@@ -143,8 +147,18 @@ export function EditorScreen() {
             dispatch,
             navigate,
             menuModal: menuRef,
+            preview: {
+                open: previewOpen,
+                toggle: () => {
+                    setPreviewOpen(!previewOpen);
+                },
+                mode: previewMode,
+                toggleMode: () => {
+                    setPreviewMode(previewMode === "modal" ? "panel" : "modal");
+                },
+            },
         });
-    }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
     const contextRef = useFixedRef(appContext);
 
     const keydown = useCallback((event: KeyboardEvent) => {
@@ -162,6 +176,8 @@ export function EditorScreen() {
         return () => document.body.removeEventListener("keydown", keydown);
     }, [keydown]);
 
+    const previewComponent = previewOpen ? <Preview /> : null;
+
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
             <div className={styles.editorScreen}>
@@ -175,8 +191,12 @@ export function EditorScreen() {
                         Choose a file on the left to edit
                     </div>
                 }
+                {previewOpen && previewMode === "panel" && previewComponent}
             </div>
-            <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent} >
+            <Modal isOpen={previewOpen && previewMode === "modal"} className={styles.previewModal} contentClassName={styles.previewModalContent}>
+                {previewComponent}
+            </Modal>
+            <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent}>
                 <div className={styles.centered}>
                     <Spinner size="lg" />
                     <h2>Processing...</h2>

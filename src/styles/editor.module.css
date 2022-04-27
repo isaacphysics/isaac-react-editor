@@ -191,12 +191,17 @@
     border: 1px solid #6c757d;
     border-radius: 4px;
     background: #fff;
-    margin: 5px;
+    margin: 5px 5px;
     padding: 0 6px;
+}
+
+.iconButton + .iconButton {
+    margin-left: 0;
 }
 
 .iconButton.sm {
     padding: 0 3px;
+    width: 24px;
 }
 
 .iconButton:hover {
@@ -231,4 +236,32 @@
 
 .textEditor :global(.cm-focused) {
     outline: none !important;
+}
+
+.previewModal {
+    max-width: calc(100% - 3.5em);
+}
+
+.previewModalContent {
+    height: calc(100vh - 3.5rem);
+}
+
+.previewWrapper {
+    flex: 1;
+}
+
+.previewTopMenu {
+    background: #eee;
+    height: 36px;
+    text-align: right;
+    border-top-left-radius: 0.3em;
+    border-top-right-radius: 0.3em;
+}
+
+.previewIframe {
+    width: 100%;
+    height: calc(100% - 36px - 6px); /* Unclear why the extra 6px is needed */
+    border: none;
+    padding: 0;
+    margin: 0;
 }

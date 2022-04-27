@@ -65,7 +65,7 @@ export function SemanticEditor() {
     }
 
     return <div className={styles.editorWrapper}>
-        <TopMenu />
+        <TopMenu previewable />
         <SemanticRoot doc={appContext.editor.getCurrentDoc()} update={(newContent) => {
             appContext.editor.setCurrentDoc(newContent);
         }} />
