@@ -2,11 +2,12 @@ import { ContextType } from "react";
 import Cookies from "js-cookie";
 import useSWR, { Cache, mutate } from "swr";
 
-import { Config, doAuth, getConfig } from "./auth";
+import { doAuth} from "./auth";
 import { AppContext } from "../App";
 import { encodeBase64 } from "../utils/base64";
 import { Entry } from "../components/FileBrowser";
 import { dirname } from "../utils/strings";
+import { Config, getConfig } from "./config";
 
 export const GITHUB_TOKEN_COOKIE = "github-token";
 

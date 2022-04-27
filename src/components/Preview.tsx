@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { Spinner } from "reactstrap";
 
 import { AppContext } from "../App";
 import { Content } from "../isaac-data-types";
+import { getConfig } from "../services/config";
 
 import styles from "../styles/editor.module.css";
-import { Spinner } from "reactstrap";
 
 export type PreviewMode = "modal" | "panel";
 
@@ -47,20 +48,23 @@ export function Preview() {
         // No doc currently
     }
 
+    const {previewServer} = getConfig();
+
     useEffect(() => {
         if (ready) {
+            const previewURL = new URL(previewServer);
             iframeRef.current?.contentWindow?.postMessage({
                 doc,
-            }, "http://localhost:3001");
+            }, previewURL.origin);
         }
-    }, [doc, ready]);
+    }, [doc, ready, previewServer]);
 
     return <div className={styles.previewWrapper}>
         <div className={styles.previewTopMenu}>
             <button className={`${styles.iconButton} ${styles.sm}`} onClick={() => appContext.preview.toggleMode()}>{appContext.preview.mode === "modal" ? "↘" : "↖"}</button>
             <button className={`${styles.iconButton} ${styles.sm}`} onClick={() => appContext.preview.toggle()}>✖</button>
         </div>
-        <iframe ref={iframeRef} className={`${styles.previewIframe} ${!ready ? styles.displayNone : ""}`} title="Isaac Preview" src="http://localhost:3001/" />
+        <iframe ref={iframeRef} className={`${styles.previewIframe} ${!ready ? styles.displayNone : ""}`} title="Isaac Preview" src={previewServer} />
         {!ready && <div className={styles.centered}><Spinner size="lg" /></div>}
     </div>;
 }

@@ -181,11 +181,14 @@ export function EditorScreen() {
     previewEverOpen.current = previewEverOpen.current || previewOpen;
     const previewComponent = previewEverOpen.current ? <Preview /> : null;
 
+    const hasFileOpen = selection && !selection.isDir;
+    const showPreview = !!hasFileOpen && previewOpen;
+
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
             <div className={styles.editorScreen}>
                 <LeftMenu />
-                {selection && !selection.isDir ?
+                {hasFileOpen ?
                     selection.path.endsWith(".json") ?
                         <SemanticEditor />
                         : <TextEditor />
@@ -194,13 +197,12 @@ export function EditorScreen() {
                         Choose a file on the left to edit
                     </div>
                 }
-                {previewMode === "panel" && <div className={previewOpen ? styles.flexFill : styles.displayNone}>
+                {previewMode === "panel" && <div className={showPreview ? styles.flexFill : styles.displayNone}>
                     {previewComponent}
                 </div>}
             </div>
             {previewMode === "modal" &&
-                <Modal isOpen={previewOpen} className={styles.previewModal}
-                       contentClassName={styles.previewModalContent}>
+                <Modal isOpen={showPreview} className={styles.previewModal} contentClassName={styles.previewModalContent}>
                     {previewComponent}
                 </Modal>
             }
