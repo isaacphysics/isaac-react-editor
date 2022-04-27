@@ -5,16 +5,25 @@ import { Content } from "../../../isaac-data-types";
 
 import { BaseValuePresenter, ValuePresenterProps, } from "./BaseValuePresenter";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
+import { useFixedRef } from "../../../utils/hooks";
 
 function PromotableValuePresenter({doc: baseDoc, update: baseUpdate}: ValuePresenterProps) {
+    const docRef = useFixedRef(baseDoc);
     const doc = useMemo(() => ({type: "content", children: [{type: "content", encoding: baseDoc.encoding, value: baseDoc.value}]}), [baseDoc]);
     const update = useCallback((newContent: Content) => {
         if (newContent.children?.length === 1) {
-            baseUpdate(newContent.children[0]);
+            baseUpdate({
+                ...docRef.current,
+                value: (newContent.children[0] as Content).value,
+            });
         } else {
-            baseUpdate(newContent);
+            baseUpdate({
+                ...docRef.current,
+                value: undefined,
+                children: newContent.children,
+            });
         }
-    }, [baseUpdate]);
+    }, [baseUpdate, docRef]);
 
     return <ListChildrenPresenter doc={doc} update={update} />;
 }
