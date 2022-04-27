@@ -190,6 +190,11 @@
 
 .flexFill {
     flex: 1;
+    display: flex;
+}
+
+.displayNone {
+    display: none;
 }
 
 .iconButton {
@@ -255,6 +260,8 @@
     flex: 1;
     margin-left: 3px;
     border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
 }
 
 :global(.modal) .previewWrapper {
@@ -274,9 +281,8 @@
 }
 
 .previewIframe {
-    width: 100%;
-    height: calc(100% - 40px - 6px); /* Unclear why the extra 6px is needed */
     border: none;
     padding: 0;
-    margin: 0;
+    margin: 0 3px;
+    flex: 1;
 }

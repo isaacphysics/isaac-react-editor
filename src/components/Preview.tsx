@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { AppContext } from "../App";
 import { Content } from "../isaac-data-types";
 
 import styles from "../styles/editor.module.css";
+import { Spinner } from "reactstrap";
 
 export type PreviewMode = "modal" | "panel";
 
@@ -23,6 +24,22 @@ export function Preview() {
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
+    const [ready, setReady] = useState(false);
+
+    useEffect(() => {
+        function messageHandler(event: MessageEvent) {
+            if ("ready" in event.data) {
+                setReady(true);
+                done();
+            }
+        }
+        function done() {
+            window.removeEventListener("message", messageHandler);
+        }
+        window.addEventListener("message", messageHandler);
+        return done;
+    }, []);
+
     let doc: Content|null = null;
     try {
         doc = appContext.editor.getCurrentDoc();
@@ -31,19 +48,19 @@ export function Preview() {
     }
 
     useEffect(() => {
-        setTimeout(() => {
-            console.log(iframeRef.current, iframeRef.current?.contentWindow);
+        if (ready) {
             iframeRef.current?.contentWindow?.postMessage({
                 doc,
             }, "http://localhost:3001");
-        }, 5000);
-    }, [doc]);
+        }
+    }, [doc, ready]);
 
     return <div className={styles.previewWrapper}>
         <div className={styles.previewTopMenu}>
             <button className={`${styles.iconButton} ${styles.sm}`} onClick={() => appContext.preview.toggleMode()}>{appContext.preview.mode === "modal" ? "↘" : "↖"}</button>
             <button className={`${styles.iconButton} ${styles.sm}`} onClick={() => appContext.preview.toggle()}>✖</button>
         </div>
-        <iframe ref={iframeRef} className={styles.previewIframe} title="Isaac Preview" src="http://localhost:3001/" />
+        <iframe ref={iframeRef} className={`${styles.previewIframe} ${!ready ? styles.displayNone : ""}`} title="Isaac Preview" src="http://localhost:3001/" />
+        {!ready && <div className={styles.centered}><Spinner size="lg" /></div>}
     </div>;
 }

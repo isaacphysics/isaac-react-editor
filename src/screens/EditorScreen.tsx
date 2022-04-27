@@ -42,7 +42,7 @@ export function EditorScreen() {
 
     const swrConfig = useSWRConfig();
 
-    const [previewMode, setPreviewMode] = useState<PreviewMode>("modal");
+    const [previewMode, setPreviewMode] = useState<PreviewMode>(window.innerWidth > 1400 ? "panel" : "modal");
     const [previewOpen, setPreviewOpen] = useState(false);
 
     const selection = paramsToSelection(params);
@@ -158,7 +158,7 @@ export function EditorScreen() {
                 },
             },
         });
-    }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
     const contextRef = useFixedRef(appContext);
 
     const keydown = useCallback((event: KeyboardEvent) => {
@@ -176,7 +176,10 @@ export function EditorScreen() {
         return () => document.body.removeEventListener("keydown", keydown);
     }, [keydown]);
 
-    const previewComponent = previewOpen ? <Preview /> : null;
+    // Once a preview is opened, keep it around so we don't have to slowly reload the IFRAME.
+    const previewEverOpen = useRef(false);
+    previewEverOpen.current = previewEverOpen.current || previewOpen;
+    const previewComponent = previewEverOpen.current ? <Preview /> : null;
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
@@ -191,11 +194,16 @@ export function EditorScreen() {
                         Choose a file on the left to edit
                     </div>
                 }
-                {previewOpen && previewMode === "panel" && previewComponent}
+                {previewMode === "panel" && <div className={previewOpen ? styles.flexFill : styles.displayNone}>
+                    {previewComponent}
+                </div>}
             </div>
-            <Modal isOpen={previewOpen && previewMode === "modal"} className={styles.previewModal} contentClassName={styles.previewModalContent}>
-                {previewComponent}
-            </Modal>
+            {previewMode === "modal" &&
+                <Modal isOpen={previewOpen} className={styles.previewModal}
+                       contentClassName={styles.previewModalContent}>
+                    {previewComponent}
+                </Modal>
+            }
             <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent}>
                 <div className={styles.centered}>
                     <Spinner size="lg" />
