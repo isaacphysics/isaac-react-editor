@@ -55,7 +55,6 @@ export function EditorScreen() {
             }
         }
         if (url !== location.pathname) {
-            setCurrentContent({});
             navigate(url);
         }
     }, [params.branch, navigate, location.pathname]);
@@ -71,6 +70,7 @@ export function EditorScreen() {
 
     const [actionRunning, setActionRunning] = useState(false);
 
+    const unblockRef = useRef<() => void>();
     useEffect(() => {
         if (dirty) {
             const unblock = browserHistory.block((tx) => {
@@ -81,6 +81,7 @@ export function EditorScreen() {
                 unblock();
                 tx.retry();
             });
+            unblockRef.current = unblock;
             return unblock;
         }
     }, [dirty]);
@@ -113,9 +114,10 @@ export function EditorScreen() {
                         if (!window.confirm("You are currently editing, are you sure you want to discard your changes?")) {
                             return false;
                         }
+                        setDirty(false);
+                        unblockRef.current?.();
                     }
                     setSelection(selection);
-                    setDirty(false);
                     return true;
                 },
             },

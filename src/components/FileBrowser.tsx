@@ -126,14 +126,16 @@ function Files({entry, menuRef}: FilesProps) {
         }
     };
 
-    return <FileItem className={open ? styles.fileBrowserOpenFolder : styles.fileBrowserClosedFolder}
+    return <>
+        <FileItem className={open ? styles.fileBrowserOpenFolder : styles.fileBrowserClosedFolder}
                      entry={entry}
                      onClick={onClick}
                      onContextMenu={onContextMenu}
-    >
-        {entry.name}
+        >
+            {entry.name}
+        </FileItem>
         {content}
-    </FileItem>;
+    </>;
 }
 
 export type Selection = {
