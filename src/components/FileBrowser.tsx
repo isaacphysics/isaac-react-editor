@@ -51,9 +51,7 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
     const onClick = (event: React.MouseEvent) => {
         event.stopPropagation();
         if (!isSelected) {
-            if (!selectionContext.setSelection({path, isDir}, true)) {
-                return;
-            }
+            selectionContext.setSelection({path, isDir});
         }
         if (innerClick) {
             innerClick(isSelected);
@@ -144,7 +142,7 @@ export type Selection = {
 } | null;
 export type SelectedContext = {
     getSelection: () => Selection;
-    setSelection: (selection: Selection, ignoreDirty?: boolean) => boolean;
+    setSelection: (selection: Selection) => void;
 }
 export const defaultSelectedContext: SelectedContext = {getSelection: () => null, setSelection: () => {
     throw new Error("setSelected called outside of Provider");

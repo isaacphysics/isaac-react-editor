@@ -36,7 +36,7 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
         const doCreate = async (initialContent: string) => {
             try {
                 await githubCreate(context, action.path, name, initialContent);
-                context.selection.setSelection({path: `${path}/${name}`, isDir: false}, true);
+                context.selection.setSelection({path: `${path}/${name}`, isDir: false});
             } catch (e) {
                 alert("Couldn't create file. Perhaps it already exists.");
                 console.error("Couldn't create file. Perhaps it already exists.", e);
@@ -123,7 +123,7 @@ async function doDelete(context: ContextType<typeof AppContext>, action: ActionF
     if (window.confirm("Do you really want to delete " + action.name + "?")) {
         await githubDelete(context, action.path, action.name, action.sha);
         if (context.selection.getSelection()?.path === action.path) {
-            context.selection.setSelection({path: dirname(action.path), isDir: true}, true);
+            context.selection.setSelection({path: dirname(action.path), isDir: true});
         }
     }
 }
@@ -153,7 +153,7 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
             await githubCreate(context, basePath, newName, context.editor.getCurrentDocAsString());
             try {
                 await githubDelete(context, oldPath, action.name, sha);
-                context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false}, true);
+                context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false});
             } catch (e) {
                 console.error("Could not delete old file.", e);
             }
@@ -189,7 +189,7 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
         const contentToSave = typeof alteredContent === "string" ? alteredContent : JSON.stringify(alteredContent, null, 2);
 
         githubCreate(context, basePath, newName, contentToSave).then(function(f) {
-            context.selection.setSelection({path: newPath, isDir: false}, true);
+            context.selection.setSelection({path: newPath, isDir: false});
         }).catch(function(e) {
             window.alert("Could not create file. Perhaps it already exists.");
             console.log(e);

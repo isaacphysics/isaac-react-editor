@@ -75,7 +75,7 @@ export function EditorScreen() {
         if (dirty) {
             const unblock = browserHistory.block((tx) => {
                 if (!window.confirm("You are currently editing, are you sure you want to discard your changes?")) {
-                    return; 
+                    return;
                 }
                 setDirty(false);
                 unblock();
@@ -109,17 +109,7 @@ export function EditorScreen() {
         return ({
             selection: {
                 getSelection: () => selection,
-                setSelection: (selection: Selection, ignoreDirty?: boolean) => {
-                    if (!ignoreDirty && dirty) {
-                        if (!window.confirm("You are currently editing, are you sure you want to discard your changes?")) {
-                            return false;
-                        }
-                        setDirty(false);
-                        unblockRef.current?.();
-                    }
-                    setSelection(selection);
-                    return true;
-                },
+                setSelection,
             },
             editor: {
                 getDirty: () => dirty,
