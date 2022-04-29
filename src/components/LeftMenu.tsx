@@ -5,11 +5,13 @@ import { FileBrowser, pathToId } from "./FileBrowser";
 
 import styles from "../styles/editor.module.css";
 import { dirname } from "../utils/strings";
+import { useGithubContents } from "../services/github";
+import { useFixedRef } from "../utils/hooks";
 
-function scrollPathIntoView(path: string) {
+function scrollPathIntoView(path: string, snap?: boolean) {
     const item = document.getElementById(pathToId(path));
-    item?.scrollIntoView({block: "start", inline: "start", behavior: "smooth"});
-    return item !== undefined;
+    item?.scrollIntoView({block: "start", inline: "start", behavior: snap ? "auto" : "smooth"});
+    return !!item;
 }
 
 export function LeftMenu() {
@@ -17,17 +19,25 @@ export function LeftMenu() {
 
     const selection = appContext.selection.getSelection();
     const path = selection?.path;
+    const pathRef = useFixedRef(path);
 
     const [isSetOpen, setOpen] = useState(true);
     const isOpen = isSetOpen || selection === null || selection.isDir;
+
+    const {error} = useGithubContents(appContext, path);
+    const errorRef = useFixedRef(error);
 
     // Run this on first load only
     useLayoutEffect(() => {
         function tryAgain() {
             if (path) {
-                if (!scrollPathIntoView(path)) {
-                    // FIXME: stop trying if there is an error
-                    if (path === selection?.path) {
+                if (!scrollPathIntoView(path, true)) {
+                    if (errorRef.current) {
+                        // Give up if there is an issue fetching path.
+                        return;
+                    }
+                    if (path === pathRef.current) {
+                        // Retry whilst we are still at this path.
                         setTimeout(tryAgain, 250);
                     }
                 }

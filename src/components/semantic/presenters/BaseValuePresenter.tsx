@@ -29,7 +29,6 @@ export type ValuePresenterProps<D extends Content = Content> =
 ;
 export type ValuePresenter<D extends Content = Content> = FunctionComponent<ValuePresenterProps<D>>;
 
-// TODO: It feels like the type-system could enforce that value should only be read when editing is true
 export interface ValueProps<V, D extends Content = Content> {
     doc: D;
     value: React.MutableRefObject<V | undefined>;

@@ -75,7 +75,7 @@ export function EditorScreen() {
         if (dirty) {
             const unblock = browserHistory.block((tx) => {
                 if (!window.confirm("You are currently editing, are you sure you want to discard your changes?")) {
-                    return;
+                    return; 
                 }
                 setDirty(false);
                 unblock();
