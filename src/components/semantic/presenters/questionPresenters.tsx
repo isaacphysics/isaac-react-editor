@@ -87,10 +87,10 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     },
 };
 
-function QuestionTypeSelector(props: PresenterProps) {
+function QuestionTypeSelector({doc, update}: PresenterProps) {
     const [isOpen, setOpen] = useState(false);
 
-    const questionType = QuestionTypes[props.doc.type as QUESTION_TYPES];
+    const questionType = QuestionTypes[doc.type as QUESTION_TYPES];
 
     return <Dropdown toggle={() => setOpen(toggle => !toggle)} isOpen={isOpen}>
         <DropdownToggle caret>
@@ -101,11 +101,47 @@ function QuestionTypeSelector(props: PresenterProps) {
                 const possibleType = QuestionTypes[key as QUESTION_TYPES];
                 return <DropdownItem key={key} active={questionType === possibleType} onClick={() => {
                     if (questionType !== possibleType) {
-                        // TODO: fixup question based on changes
-                        props.update({
-                            ...props.doc,
-                            type: key,
-                        });
+                        const newType = key;
+                        const newDoc = {...doc, type: newType} as IsaacQuickQuestion & IsaacNumericQuestion;
+                        if (newType === "isaacNumericQuestion" && !newDoc.hasOwnProperty("requireUnits")) {
+                            // Add the default value if it is missing
+                            newDoc.requireUnits = true;
+                            delete newDoc.displayUnit;
+                            newDoc.disregardSignificantFigures = false;
+                            delete newDoc.showConfidence;
+                            delete newDoc.randomiseChoices;
+                        } else if (newType === "isaacQuestion" && !newDoc.hasOwnProperty("showConfidence")) {
+                            newDoc.showConfidence = false;
+                            delete newDoc.requireUnits
+                            delete newDoc.disregardSignificantFigures
+                            delete newDoc.displayUnit;
+                            delete newDoc.randomiseChoices
+                        } else if (newType === "isaacMultiChoiceQuestion" && !newDoc.hasOwnProperty("randomiseChoices")) {
+                            // Add the default value if it is missing
+                            newDoc.randomiseChoices = true;
+                            delete newDoc.requireUnits
+                            delete newDoc.disregardSignificantFigures
+                            delete newDoc.displayUnit;
+                            delete newDoc.showConfidence
+                        } else {
+                            // Remove the requireUnits property as it is no longer applicable to this type of question
+                            delete newDoc.requireUnits;
+                            // Remove the disregardSignificantFigures property as it is no longer applicable to this type of question
+                            delete newDoc.disregardSignificantFigures;
+                            // Remove the displayUnit property as it is no longer applicable to this type of question
+                            delete newDoc.displayUnit;
+                            // Remove the randomiseChoices property as it is no longer applicable to this type of question
+                            delete newDoc.randomiseChoices;
+                            // Remove showConfidence property as it is no longer applicable to this type of question
+                            delete newDoc.showConfidence;
+                        }
+
+                        if (newType === "isaacQuestion") {
+                            // Remove the defaultFeedback property as it is not applicable to quick questions
+                            delete newDoc.defaultFeedback;
+                        }
+
+                        update(newDoc);
                     }
                 }}>
                     {possibleType.name}
