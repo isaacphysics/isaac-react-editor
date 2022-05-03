@@ -7,6 +7,7 @@ import styles from "../styles/editor.module.css";
 import { dirname } from "../utils/strings";
 import { useGithubContents } from "../services/github";
 import { useFixedRef } from "../utils/hooks";
+import { useNavigate } from "react-router-dom";
 
 function scrollPathIntoView(path: string, snap?: boolean) {
     const item = document.getElementById(pathToId(path));
@@ -16,6 +17,7 @@ function scrollPathIntoView(path: string, snap?: boolean) {
 
 export function LeftMenu() {
     const appContext = useContext(AppContext);
+    const navigate = useNavigate();
 
     const selection = appContext.selection.getSelection();
     const path = selection?.path;
@@ -50,6 +52,14 @@ export function LeftMenu() {
     return <div className={`${styles.leftMenuWrapper} ${isOpen ? styles.leftMenuOpen : styles.leftMenuClosed}`}>
         <button className={styles.leftMenuOpener} onClick={() => setOpen(!isOpen)}>◀</button>
         <header className={styles.leftMenuHeader}>
+            <button className={styles.iconButton} onClick={() => {
+                if (window.confirm("Are you sure you want to logout?")) {
+                    navigate("/logout");
+                }
+            }}>
+                Logout
+            </button>
+            <div className={styles.flexFill} />
             <button className={styles.iconButton} onClick={() => {
                 const basePath = selection?.isDir ? selection?.path : dirname(selection?.path);
                 if (basePath) {

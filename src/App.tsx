@@ -1,16 +1,14 @@
-import React, { createContext, MutableRefObject, useEffect, useState } from "react";
+import React, { createContext, MutableRefObject, useEffect } from "react";
 import { createBrowserHistory } from "history";
 import { Route, Routes } from "react-router-dom";
 import { NavigateFunction } from "react-router";
 
 import { defaultSelectedContext } from "./components/FileBrowser";
 import { defaultEditorState } from "./components/SemanticEditor";
-import { isLoggedIn, LoadingScreen, LoginPrompt, Logout } from "./services/auth";
+import { Closer, isLoggedIn, LoadingScreen, LoginPrompt, Logout } from "./services/auth";
 import { defaultGithubContext, processCode } from "./services/github";
 import { EditorScreen } from "./screens/EditorScreen";
 import { HistoryRouter } from './components/HistoryRouter';
-import { SemanticRoot } from "./components/semantic/SemanticRoot";
-import { testDoc } from "./testDocs";
 import { defaultDispatch } from "./services/commands";
 import { MenuModalRef } from "./screens/MenuModal";
 import { defaultPreview } from "./components/Preview";
@@ -39,11 +37,6 @@ function RedirectTo({path}: {path: string}) {
     return <LoadingScreen message="Beginning editing..." />;
 }
 
-function TestEditor() {
-    const [doc, update] = useState(testDoc);
-    return <SemanticRoot doc={doc} update={update}/>;
-}
-
 function App() {
     const loggedIn = isLoggedIn();
 
@@ -57,7 +50,7 @@ function App() {
     return code ? <LoadingScreen/> : <HistoryRouter history={browserHistory}>
         <Routes>
             <Route path="/logout" element={<Logout />} />
-            <Route path="test" element={<TestEditor/>} />
+            <Route path="/login_finished" element={<Closer />} />
             {!loggedIn && <Route path="*" element={<LoginPrompt />} />}
             {loggedIn && <>
                 <Route path="edit/:branch/*" element={<EditorScreen />} />

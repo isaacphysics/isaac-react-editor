@@ -7,10 +7,10 @@ import { GITHUB_TOKEN_COOKIE } from "./github";
 import styles from "../styles/editor.module.css";
 import { getConfig } from "./config";
 
-export function authorizationURL() {
+export function authorizationURL(target: string) {
     const config = getConfig();
 
-    return `https://gitHub.com/login/oauth/authorize?scope=repo&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(document.location.href)}`;
+    return `https://gitHub.com/login/oauth/authorize?scope=repo&client_id=${config.clientId}&redirect_uri=${encodeURIComponent(target)}`;
 }
 
 export async function doAuth(github_code: string) {
@@ -32,7 +32,7 @@ export async function doAuth(github_code: string) {
 
 export function LoginPrompt() {
     return <div>
-        You are not logged in. <a href={authorizationURL()}>Click here to log in.</a>
+        You are not logged in. <a href={authorizationURL(document.location.href)}>Click here to log in.</a>
     </div>;
 }
 
@@ -50,6 +50,13 @@ export function Logout() {
         window.location.replace("/");
     });
     return <LoadingScreen message="Logging out..."/>;
+}
+
+export function Closer() {
+    useEffect(() => {
+        window.close();
+    });
+    return <LoadingScreen message="You can now close this window" />;
 }
 
 export function isLoggedIn() {
