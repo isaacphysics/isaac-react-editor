@@ -1,0 +1,291 @@
+.editorScreen {
+    display: flex;
+    justify-content: stretch;
+    height: 100vh;
+}
+
+.leftMenuWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-right: 3px;
+    border-right: 1px solid #eee;
+    transition: width 0.3s;
+    position: relative;
+    overflow: clip;
+}
+
+.leftMenuOpen {
+    width: 300px;
+}
+
+.leftMenuClosed {
+    width: 0;
+    border-right: none;
+    margin-right: 0;
+}
+
+.leftMenuOpener {
+    position: fixed;
+    z-index: 1048;
+    bottom: 0;
+    left: 274px;
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+    border: none;
+    background: #eee;
+    transition: left 0.3s, transform 0.3s, color 0.3s;
+    color: #aaa;
+    border-top-left-radius: 0.3em;
+}
+
+.leftMenuClosed .leftMenuOpener {
+    left: 0;
+    transform: rotate(180deg);
+    color: #000;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0.3em;
+}
+
+.leftMenuHeader {
+    display: flex;
+    min-height: 40px;
+    background: #f5f5f5;
+}
+
+.leftMenuPopupMenu {
+    background-color: #fff;
+    border-radius: 2px;
+    padding: 3px 0;
+    height: auto;
+    margin: 0;
+    position: absolute;
+    list-style: none;
+    box-shadow: 0 0 20px 0 #ccc;
+    z-index: 1049;
+}
+
+.leftMenuPopupMenu li + li {
+    border-top: 1px solid rgba(0,0,0,0.1);
+}
+
+.leftMenuPopupMenu button {
+    border: none;
+    background-color: #fff;
+    width: 100%;
+    text-align: left;
+    padding-left: 0.5em;
+}
+
+.leftMenuPopupMenu button:hover {
+    background: #eee;
+}
+
+.leftMenuPopupMenu hr {
+    margin: 0.25em 0.5em;
+}
+
+.fileBrowser {
+    flex: 1;
+    overflow: auto auto;
+    min-width: 300px;
+    display: flex;
+}
+
+.fileBrowser > .fileBrowserList:after {
+    content: " ";
+    padding-bottom: 30px;
+}
+
+.fileBrowser > .fileBrowserList {
+    padding-left: 0;
+}
+
+.fileBrowserList {
+    flex: 1;
+    padding: 0 0 0 16px;
+}
+
+.fileBrowserItem:hover {
+    background: #fff;
+}
+
+.fileBrowserItem {
+    padding: 0;
+    border: none !important;
+    white-space: nowrap;
+}
+.fileBrowserItemSelected, .fileBrowserItemSelected:focus {
+    font-weight: bold;
+    background: #fff;
+}
+.fileBrowserItemSelected:hover {
+    background: #fff;
+}
+
+.fileBrowserItem:before {
+    content: "🗎";
+    position: relative;
+    padding-left: 5px;
+    padding-right: 3px;
+    opacity: 0.5;
+}
+
+.fileBrowserClosedFolder, .fileBrowserOpenFolder {
+    position: relative;
+    padding: 0;
+    border: none !important;
+}
+
+.fileBrowserClosedFolder:hover, .fileBrowserOpenFolder:hover {
+    background: #fff;
+}
+
+.fileBrowserClosedFolder:before,  .fileBrowserOpenFolder:before {
+    content: "⌄";
+    position: relative;
+    top: -3px;
+    padding-left: 7px;
+    padding-right: 5px;
+    display: inline-block;
+}
+
+.fileBrowserClosedFolder:before {
+    transform: rotate(-90deg);
+    left: -5px;
+    top: 1px;
+}
+
+.topMenuWrapper {
+    position: absolute;
+    top: 0;
+    height: 40px;
+    left: 200px;
+    right: 150px;
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+    background: #f5f5f5;
+    z-index: 100;
+    display: flex;
+}
+
+.editorWrapper {
+    flex: 1;
+    display: flex;
+    height: 100%;
+    position: relative;
+}
+
+.editorScroller {
+    overflow: auto;
+    flex: 1;
+}
+
+.centered {
+    flex: 1;
+    display: flex;
+    align-self: center;
+    justify-self: center;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+}
+
+.flexFill {
+    flex: 1;
+    display: flex;
+}
+
+.displayNone {
+    display: none;
+}
+
+.iconButton {
+    border: 1px solid #6c757d;
+    border-radius: 4px;
+    background: #fff;
+    margin: 5px 5px;
+    padding: 0 6px;
+}
+
+.iconButton + .iconButton {
+    margin-left: 0;
+}
+
+.iconButton.sm {
+    padding: 0 3px;
+    width: 24px;
+}
+
+.iconButton:hover {
+    background: #eee;
+}
+
+.actionsModalContent {
+    height: calc(100vh - 3.5rem);
+    background: none;
+    border: none;
+    color: #fff;
+}
+
+.actionsModalContent :global(.spinner-border) {
+    width: 50px;
+    height: 50px;
+}
+
+.actionsModalContent h2 {
+    padding-left: 20px;
+    padding-top: 10px;
+}
+
+.menuModalButtons button {
+    margin: 0.2em;
+}
+
+.textEditor {
+    margin-top: 40px;
+    flex: 1;
+}
+
+.textEditor :global(.cm-focused) {
+    outline: none !important;
+}
+
+.previewModal {
+    max-width: calc(100% - 3.5em);
+}
+
+.previewModalContent {
+    height: calc(100vh - 3.5rem);
+}
+
+.previewWrapper {
+    flex: 1;
+    margin-left: 3px;
+    border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+:global(.modal) .previewWrapper {
+    margin-left: 0;
+    border-left: none;
+}
+
+.previewTopMenu {
+    background: #f5f5f5;
+    height: 40px;
+    text-align: right;
+}
+
+:global(.modal) .previewTopMenu {
+    border-top-left-radius: 0.3em;
+    border-top-right-radius: 0.3em;
+}
+
+.previewIframe {
+    border: none;
+    padding: 0;
+    margin: 0 3px;
+    flex: 1;
+}

@@ -1,0 +1,99 @@
+.questionType {
+    float: right;
+    margin-left: 1em;
+}
+
+.checkboxLabel {
+    margin-left: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+.questionLabel {
+    margin-bottom: 0.5rem;
+}
+
+.editableFullwidth {
+    margin-bottom: 0.5em;
+}
+
+.editableFullwidth > span {
+    width: 100%
+}
+
+.editableFullwidth span {
+    display: inline-flex;
+    flex-grow: 1;
+}
+
+.editableFullwidth input {
+    flex-grow: 1;
+}
+
+.editableFullwidth span span span {
+    align-items: baseline;
+}
+
+.symbolicMetaButtons {
+    margin-bottom: 0.5em;
+}
+
+.symbolicMetaButtons button {
+    margin-left: 0.5em;
+}
+
+.striped tr:nth-child(2n) {
+    background: #eee;
+}
+
+.striped th, .center {
+    text-align: center;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.itemsHeaderTitle {
+    margin-top: 1em;
+}
+
+.itemsHeaderRow {
+    margin-bottom: 1em; /* Without this margin, the first InserterButton cannot reposition itself correctly */
+}
+
+.itemsChoiceRow {
+    margin-top: -0.5em;
+    margin-bottom: 0.5em;
+}
+
+.itemsChoiceRow button, .parsonsItem button {
+    width: 100%;
+    border: none !important;
+    background: none !important;
+    color: #000 !important;
+}
+
+.itemsChoiceInserter {
+    margin-top: 0.5em;
+    width: 100%;
+}
+
+.parsonsItem {
+    border-left: 1px solid #eee;
+    position: relative;
+    margin-top: -1em;
+    margin-bottom: -1px;
+    padding-top: 0.5em;
+    padding-bottom: calc(1px + 0.5em);
+    margin-left: calc(-1em - 1px);
+    display: flex;
+    padding-right: 75px; /* Room for up/down/delete buttons */
+}
+
+.parsonsItem :nth-child(1) {
+    flex: 3;
+}
+
+.parsonsItem :nth-child(2) {
+    flex-basis: 80px;
+}
