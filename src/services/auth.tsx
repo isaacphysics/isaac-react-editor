@@ -31,13 +31,18 @@ export async function doAuth(github_code: string) {
 }
 
 export function LoginPrompt() {
-    return <div>
-        You are not logged in. <a href={authorizationURL(document.location.href)}>Click here to log in.</a>
+    return <div className={`m-5 {styles.centered} {styles.flexFill}`}>
+        <h2 className={styles.centered}>Isaac Editor</h2>
+        <div className="text-center">
+            <a className="btn btn-primary w-25" href={authorizationURL(document.location.href)}>
+                Log in
+            </a>
+        </div>
     </div>;
 }
 
 export function LoadingScreen({message = "Logging in..."}: { message?: string }) {
-    return <div className={styles.centered}>
+    return <div className={`m-5 text-center {styles.centered} {styles.flexFill}`}>
         <Spinner size="large" />
         <br />
         <h4>{message}</h4>
