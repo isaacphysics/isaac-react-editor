@@ -101,9 +101,13 @@
     padding-left: 0;
 }
 
+.fileBrowserList .fileBrowserList {
+    margin: 0 0 0 15px;
+}
+
 .fileBrowserList {
-    flex: 1;
-    padding: 0 0 0 16px;
+    padding: 0 0 0 6px;
+    border-left: 1px solid lightgray;
 }
 
 .fileBrowserItem:hover {
@@ -142,18 +146,12 @@
 }
 
 .fileBrowserClosedFolder:before,  .fileBrowserOpenFolder:before {
-    content: "⌄";
+    content: "🗀";
     position: relative;
     top: -3px;
     padding-left: 7px;
     padding-right: 5px;
     display: inline-block;
-}
-
-.fileBrowserClosedFolder:before {
-    transform: rotate(-90deg);
-    left: -5px;
-    top: 1px;
 }
 
 .topMenuWrapper {
