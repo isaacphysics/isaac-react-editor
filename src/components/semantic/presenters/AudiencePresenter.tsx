@@ -209,7 +209,7 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
     if (!editingAudience) {
         return <div key="view" className={`${styles.wrapper} ${styles.view}`}>
             {conciseAudiences(doc.audience, type)}
-            <Button onClick={(e) => {
+            <Button size="sm" onClick={(e) => {
                 setEditingAudience(doc.audience ?? [defaultAudience()]);
             }}>
                 Edit
@@ -218,14 +218,14 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
     } else {
         return <div key="edit" className={`${styles.wrapper} ${type === "accordion" ? styles.rightAlign : ""}`}>
             <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(type)} />
-            <Button color="primary" onClick={(e) => {
+            <Button size="sm" color="primary" onClick={(e) => {
                 close();
                 update({...doc, audience: editingAudience});
             }}>Set</Button>
-            <Button onClick={() => {
+            <Button size="sm" onClick={() => {
                 close();
             }}>Cancel</Button>
-            <Button color="danger" onClick={() => {
+            <Button size="sm" color="danger" onClick={() => {
                 close();
                 update({...doc, audience: undefined});
             }}>Clear</Button>

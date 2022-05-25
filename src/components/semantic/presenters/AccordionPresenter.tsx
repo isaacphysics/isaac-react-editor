@@ -110,7 +110,7 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
                 : "default"
             }
             &nbsp;&nbsp;
-            <Button onClick={() => setEditing(true)}>Edit</Button>
+            <Button size="sm" onClick={() => setEditing(true)}>Edit</Button>
         </div>;
     }
     return <div className={styles.audienceDisplayControls}>
@@ -118,18 +118,18 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
         <DisplayListEditor displayList={audience} setDisplayList={setAudience} name="Audience" displayOptions={audienceOptions} />
         <DisplayListEditor displayList={nonAudience} setDisplayList={setNonAudience} name="Non-Audience" displayOptions={nonAudienceOptions} />
         <div className={styles.displayButtons}>
-            <Button color="primary" onClick={() => {
+            <Button size="sm" color="primary" onClick={() => {
                 setEditing(false);
                 set({audience, nonAudience});
             }}>
                 Set
             </Button> &nbsp;
-            <Button color="secondary" onClick={() => {
+            <Button size="sm" color="secondary" onClick={() => {
                 setEditing(false);
             }}>
                 Cancel
             </Button> &nbsp;
-            <Button color="danger" onClick={() => {
+            <Button size="sm" color="danger" onClick={() => {
                 setEditing(false);
                 set(undefined);
             }}>
@@ -185,7 +185,7 @@ export function AccordionPresenter(props: PresenterProps) {
                                 <small className={styles.audienceControlsLabel}>Audience:</small>
                                 <AudiencePresenter {...currentChildProps} type="accordion" />
                                 {currentChildDisplay === undefined &&
-                                    <Button className={styles.audienceDisplayEdit} onClick={() => {
+                                    <Button size="sm" className={styles.audienceDisplayEdit} onClick={() => {
                                         setCurrentChildDisplay({
                                             audience: [],
                                             nonAudience: []

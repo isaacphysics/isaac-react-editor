@@ -1,6 +1,6 @@
 /* eslint-disable no-irregular-whitespace */  // For convenient construction of non-breaking spaces in custom strings
 import React, { MutableRefObject, useCallback, useMemo, useRef, useState } from "react";
-import { Button } from "reactstrap";
+import {Button, ButtonGroup} from "reactstrap";
 
 import { Content } from "../../../isaac-data-types";
 import { safeLowercase } from "../../../utils/strings";
@@ -17,7 +17,7 @@ import { useKeyedList, useWithIndex } from "../../../utils/keyedListHook";
 export type TabsSettings = {
     emptyDescription: string;
     elementName: string;
-    styles: Record<"buttons"|"buttonsSpacer"|"buttonsFill"|"main"|"header"|"hideMargins"|"buttonsShifter"|"empty", string>;
+    styles: Record<"button"|"buttons"|"buttonsSpacer"|"buttonsFill"|"main"|"header"|"hideMargins"|"buttonsShifter"|"empty", string>;
     suppressHeaderNames?: boolean;
     showTitles: boolean;
 };
@@ -43,6 +43,7 @@ export function TabsHeader({docRef, doInsert, index, setIndex, elementName, styl
                 return <Button key={child.id || `__index__${i}`}
                                outline
                                color={index === i ? "primary" : undefined}
+                               className={styles.button}
                                onMouseDown={(e) => {
                                    e.preventDefault();
                                }}
@@ -53,6 +54,7 @@ export function TabsHeader({docRef, doInsert, index, setIndex, elementName, styl
             <Button key="__add"
                     outline
                     color="info"
+                    className={styles.button}
                     onMouseDown={(e) => {
                         e.preventDefault();
                     }}
@@ -87,10 +89,15 @@ export function TabsMain({docRef, currentChild, updateCurrentChild, doRemove, do
             <div className={styles.header}>
                 <EditableIDProp doc={currentChild} update={updateCurrentChild} label={`${elementName} ID`} block={false} />
                 {extraButtons}
-                <Button disabled={index <= 0} onClick={() => doShift(-1)}>{back}</Button>
-                <Button disabled={index >= (docRef.current.children?.length ?? 1) - 1}
-                        onClick={() => doShift(1)}>{forward}</Button>
-                <Button color="danger" onClick={doDelete}>Delete {elementNameLC}</Button>
+                <ButtonGroup>
+                    <Button size="sm" disabled={index <= 0} onClick={() => doShift(-1)}>
+                        {back}
+                    </Button>
+                    <Button size="sm" disabled={index >= (docRef.current.children?.length ?? 1) - 1} onClick={() => doShift(1)}>
+                        {forward}
+                    </Button>
+                </ButtonGroup>
+                <Button size="sm" color="danger" onClick={doDelete}>Delete {elementNameLC}</Button>
             </div>
             {contentHeader}
             <SemanticItem className={styles.hideMargins} doc={currentChild} update={updateCurrentChild}/>
@@ -190,7 +197,7 @@ export function TabsPresenter(props: TabsPresenterProps) {
                                        placeHolder="Tab title" hideWhenEmpty /></h3>
             </div> : undefined
         } extraButtons={<>
-            {showTitles && currentChild && !currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set tab title</Button>}
+            {showTitles && currentChild && !currentChild.title && <Button size="sm" onClick={() => editTitleRef.current?.startEdit()}>Set tab title</Button>}
         </>}/>
     </div>;
 }

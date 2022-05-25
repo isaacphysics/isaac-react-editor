@@ -84,15 +84,13 @@ export const Box: FunctionComponent<BoxProps> = ({name, onClick,  onDelete, shif
             {name && <button className={styles.boxLabel} onClick={onClick} disabled={!onClick}>{name}</button>}
             {metadata && <button className={styles.metaLabel} onClick={() => metadata.toggle()}>{metadata.showMeta ? "Hide" : "Show"} metadata</button>}
             <span className={styles.boxSpacer}/>
-            {shift && shift.up && <button className={`${styles.iconButton} ${styles.boxUp}`}
-                                          onClick={(e) => shift?.by(-1, e)}>
+            {shift?.up && <button className={`btn-sm ${styles.iconButton} ${styles.boxUp}`} onClick={e => shift.by(-1, e)}>
                 ▲
             </button>}
-            {shift && shift.down && <button className={`${styles.iconButton} ${styles.boxDown}`}
-                                            onClick={(e) => shift?.by(1, e)}>
-                    ▼
+            {shift?.down && <button className={`btn-sm ${styles.iconButton} ${styles.boxDown}`} onClick={e => shift.by(1, e)}>
+                ▼
             </button>}
-            {onDelete && <button className={`${styles.iconButton} ${styles.boxDelete}`}
+            {onDelete && <button className={`btn-sm ${styles.iconButton} ${styles.boxDelete}`}
                                  onMouseOver={() => setDeleteHovered(true)}
                                  onMouseOut={() => setDeleteHovered(false)}
                                  onFocus={() => setDeleteHovered(true)}

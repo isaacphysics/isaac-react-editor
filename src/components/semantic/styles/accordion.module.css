@@ -20,6 +20,10 @@
     margin-bottom: 1em;
 }
 
+.button {
+    min-width: 110px;
+}
+
 .buttons {
     position: sticky;
     min-width: 110px;
@@ -124,7 +128,6 @@
 
 .audienceDisplayEdit {
     margin-left: 0.5em;
-    align-self: stretch;
 }
 
 .audienceDisplayControls {
