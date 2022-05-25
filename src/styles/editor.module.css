@@ -53,16 +53,34 @@
     background: #f5f5f5;
 }
 
-.leftMenuPopupMenu {
+.popup {
+    position: absolute;
+    z-index: 1049;
     background-color: #fff;
     border-radius: 2px;
-    padding: 3px 0;
-    height: auto;
-    margin: 0;
-    position: absolute;
-    list-style: none;
     box-shadow: 0 0 20px 0 #ccc;
-    z-index: 1049;
+}
+
+.wordCount {
+    margin-left: 5px;
+}
+
+.cmPanelButton {
+    border: none;
+    background: none;
+}
+
+.glossaryTermGenerator {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    max-width: 400px;
+}
+
+.leftMenuPopupMenu {
+    list-style: none;
+    padding: 3px 0;
+    margin: 0;
+    height: auto;
 }
 
 .leftMenuPopupMenu li + li {

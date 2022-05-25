@@ -6,7 +6,7 @@ import React, {
     useRef,
     useState
 } from "react";
-import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { html } from '@codemirror/lang-html';
 import { Button } from "reactstrap";
@@ -16,6 +16,8 @@ import { Content } from "../../../isaac-data-types";
 import { TrustedHtml } from "../../../isaac/TrustedHtml";
 import { TrustedMarkdown } from "../../../isaac/TrustedMarkdown";
 import { getEntryType, PresenterProps } from "../registry";
+import { wordCounter } from "../../../utils/codeMirrorExtensions";
+import {PopupGlossaryTermSelect} from "../../popups/PopupGlossaryTermSelect";
 
 export interface ValuePresenterRef {
     startEdit: () => void;
@@ -86,6 +88,7 @@ export function buildValuePresenter<V, D extends Content = Content>(
 }
 
 export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
+    const codemirror = useRef<ReactCodeMirrorRef>(null);
     if (!editing) {
         if (!doc.value) {
             const entryType = getEntryType(doc);
@@ -96,9 +99,9 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
         }
         switch (doc.encoding) {
             case "html":
-                return <TrustedHtml html={doc.value} />;
+                return <TrustedHtml html={doc.value}/>;
             case "markdown":
-                return <TrustedMarkdown markdown={doc.value} />;
+                return <TrustedMarkdown markdown={doc.value}/>;
             case "plain":
                 return <pre>{doc.value}</pre>;
             default:
@@ -107,16 +110,21 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
     } else {
         const encoding = doc.encoding === "markdown" ? [markdown()]
             : doc.encoding === "html" ? [html()]
-            : [];
+                : [];
         return <CodeMirror
-                value={value.current}
-                // eslint-disable-next-line jsx-a11y/no-autofocus
-                autoFocus={true}
-                extensions={[...encoding, EditorView.lineWrapping]}
-                onChange={(newValue) => {
-                    value.current = newValue;
-                }}
-            />;
+            ref={codemirror}
+            value={value.current}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={true}
+            extensions={[...encoding, EditorView.lineWrapping, wordCounter()]}
+            onChange={(newValue) => {
+                value.current = newValue;
+            }}
+        >
+            <div className={"w-100 bg-light border-bottom p-1"}>
+                <PopupGlossaryTermSelect codemirror={codemirror} />
+            </div>
+        </CodeMirror>;
     }
 };
 

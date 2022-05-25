@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import { Alert, Spinner } from "reactstrap";
-import CodeMirror, { EditorView } from '@uiw/react-codemirror';
+import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
 
 import { AppContext } from "../App";
 import { decodeBase64 } from "../utils/base64";
@@ -9,6 +9,8 @@ import { useGithubContents } from "../services/github";
 import { TopMenu } from "./TopMenu";
 
 import styles from "../styles/editor.module.css";
+import { wordCounter } from "../utils/codeMirrorExtensions";
+import { PopupGlossaryTermSelect } from "./popups/PopupGlossaryTermSelect";
 
 export function TextEditor() {
     const appContext = useContext(AppContext);
@@ -18,6 +20,8 @@ export function TextEditor() {
     const {data, error} = useGithubContents(appContext, path);
 
     const [invalid, setInvalid] = useState(false);
+
+    const codemirror = useRef<ReactCodeMirrorRef>(null);
 
     useEffect(() => {
         if (data) {
@@ -59,15 +63,20 @@ export function TextEditor() {
     return <div className={styles.editorWrapper}>
         <TopMenu />
         <CodeMirror
+            ref={codemirror}
             key={path} // Force replacement of this component instead of updating when path changes
             className={styles.textEditor}
             value={appContext.editor.getCurrentDocAsString()}
             height="calc(100vh - 40px)"
             width="100%"
-            extensions={[EditorView.lineWrapping]}
+            extensions={[EditorView.lineWrapping, wordCounter()]}
             onChange={(value) => {
                 appContext.editor.setCurrentDoc(value);
             }}
-        />
+        >
+            <div className={"w-100 bg-light border-bottom p-1"}>
+                <PopupGlossaryTermSelect codemirror={codemirror} />
+            </div>
+        </CodeMirror>
     </div>;
 }

@@ -10,7 +10,7 @@ import { ListGroup, ListGroupItem, Spinner, } from "reactstrap";
 
 import { AppContext } from "../App";
 import styles from "../styles/editor.module.css";
-import { PopupMenu, PopupMenuRef } from "./PopupMenu";
+import { PopupMenu, PopupMenuRef } from "./popups/PopupMenu";
 import { useGithubContents } from "../services/github";
 
 export type Entry = {
