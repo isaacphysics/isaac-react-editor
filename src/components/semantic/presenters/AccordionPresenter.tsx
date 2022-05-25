@@ -1,22 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Button, Input } from "reactstrap";
+import React, {useEffect, useState} from "react";
+import {Button, Input} from "reactstrap";
 
-import { EditableTitleProp } from "../props/EditableDocProp";
-import { TabsHeader, TabsMain, useTabs } from "./TabsPresenter";
-import { PresenterProps } from "../registry";
-import { AudiencePresenter } from "./AudiencePresenter";
-import { NumberDocPropFor } from "../props/NumberDocPropFor";
+import {EditableTitleProp} from "../props/EditableDocProp";
+import {TabsHeader, TabsMain, useTabs} from "./TabsPresenter";
+import {PresenterProps} from "../registry";
+import {AudiencePresenter} from "./AudiencePresenter";
 
 import styles from "../styles/accordion.module.css";
-
-function hasErrorInLevel(newText: string | undefined) {
-    if (newText) {
-        const newLevel = parseInt(newText, 10);
-        if (isNaN(newLevel) || newLevel.toString(10) !== newText || newLevel < 1 || newLevel > 6) {
-            return "Level must be a number between 1 and 6";
-        }
-    }
-}
 
 type Display = { audience: string[]; nonAudience: string[] } | undefined;
 
@@ -149,8 +139,6 @@ function AudienceDisplayControl({display, set, title}: AudienceDisplayControlPro
     </div>;
 }
 
-const LevelProp = NumberDocPropFor("level", {hasError: hasErrorInLevel, label: "Section level"});
-
 export function AccordionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const {
@@ -215,7 +203,6 @@ export function AccordionPresenter(props: PresenterProps) {
                 </> : undefined
             } extraButtons={currentChild ? <>
                 {!currentChild.title && <Button onClick={() => editTitleRef.current?.startEdit()}>Set section title</Button>}
-                <LevelProp doc={currentChild} update={updateCurrentChild} />
             </> : undefined}/>
         </div>
     </>;
