@@ -123,12 +123,18 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
 }
 
 export async function githubDelete(context: ContextType<typeof AppContext>, path: string, name: string, sha: string) {
+    let wasPublished;
+    try {
+        wasPublished = context.editor.isAlreadyPublished();
+    } catch {
+        wasPublished = false;
+    }
     const basePath = dirname(path);
     await fetcher(contentsPath(path), {
         method: "DELETE",
         body: {
             branch: context.github.branch,
-            message: "Deleting " + path,
+            message: `${wasPublished ? "* " : ""}Deleting ${path}`,
             sha: sha,
         },
     });
