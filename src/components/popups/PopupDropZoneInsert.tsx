@@ -12,7 +12,9 @@ export const PopupDropZoneInsert = ({codemirror}: { codemirror: RefObject<ReactC
     const [valid, setValid] = useState<boolean>(true);
 
     const generateAndInsertDropZone = useCallback(() => {
-        codemirror.current?.view?.dispatch(codemirror.current?.view?.state.replaceSelection(`[drop-zone${(width || height) ? "|" : ""}${width ? `w-${width}` : ""}${height ? `h-${height}` : ""}]`));
+        codemirror.current?.view?.dispatch(
+            codemirror.current?.view?.state.replaceSelection(`[drop-zone${(width || height) ? "|" : ""}${width ? `w-${width}` : ""}${height ? `h-${height}` : ""}]`)
+        );
     }, [width, height, codemirror]);
 
     const ifValidNumericalInputThen = (f: (n: number | undefined) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {

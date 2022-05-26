@@ -1,7 +1,7 @@
 import React, {RefObject, useCallback, useMemo, useRef, useState} from "react";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
 import {Alert, Button, Container, Input, InputGroup, Label} from "reactstrap";
-import {ReactCodeMirrorRef, TransactionSpec} from "@uiw/react-codemirror";
+import {ReactCodeMirrorRef} from "@uiw/react-codemirror";
 import styles from "../../styles/editor.module.css";
 import useSWR from "swr";
 import {GlossaryTerm} from "../../isaac-data-types";
@@ -29,12 +29,9 @@ export const PopupGlossaryTermSelect = ({codemirror}: { codemirror: RefObject<Re
     const generateAndInsertGlossaryTerm = useCallback(() => {
         if (glossaryTerm) {
             const trimmedGlossaryTermText = glossaryTermText?.trim();
-            codemirror.current?.view?.dispatch({
-                changes: {
-                    from: codemirror.current?.view?.state?.selection.main.head,
-                    insert: `[glossary${isInlineTerm ? "-inline" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`
-                }
-            } as TransactionSpec);
+            codemirror.current?.view?.dispatch(
+                codemirror.current?.view?.state.replaceSelection(`[glossary${isInlineTerm ? "-inline" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`)
+            );
         }
     }, [glossaryTermText, glossaryTerm, isInlineTerm, codemirror]);
 
