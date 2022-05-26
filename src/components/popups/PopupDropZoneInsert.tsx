@@ -1,7 +1,7 @@
 import React, {RefObject, useCallback, useRef, useState} from "react";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
 import {Button, Container, Input, Label} from "reactstrap";
-import {ReactCodeMirrorRef, TransactionSpec} from "@uiw/react-codemirror";
+import {ReactCodeMirrorRef} from "@uiw/react-codemirror";
 import styles from "../../styles/editor.module.css";
 
 export const PopupDropZoneInsert = ({codemirror}: { codemirror: RefObject<ReactCodeMirrorRef> }) => {
