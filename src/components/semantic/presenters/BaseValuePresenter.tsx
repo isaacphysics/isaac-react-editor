@@ -17,7 +17,7 @@ import { TrustedHtml } from "../../../isaac/TrustedHtml";
 import { TrustedMarkdown } from "../../../isaac/TrustedMarkdown";
 import { getEntryType, PresenterProps } from "../registry";
 import { wordCounter } from "../../../utils/codeMirrorExtensions";
-import {PopupGlossaryTermSelect} from "../../popups/PopupGlossaryTermSelect";
+import {CodeMirrorMenu} from "../../CodeMirrorMenu";
 
 export interface ValuePresenterRef {
     startEdit: () => void;
@@ -121,9 +121,7 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
                 value.current = newValue;
             }}
         >
-            <div className={"w-100 bg-light border-bottom p-1"}>
-                <PopupGlossaryTermSelect codemirror={codemirror} />
-            </div>
+            <CodeMirrorMenu codemirror={codemirror} />
         </CodeMirror>;
     }
 };

@@ -2,7 +2,7 @@ import { SITE } from "./site";
 
 export const StagingServer = {
     "PHY": "https://staging.isaacphysics.org",
-    "CS": "https://staging.isaaccomputerscience.org",
+    "CS": "https://dev.isaaccomputerscience.org",
 }[SITE];
 
 const LiveServer = {

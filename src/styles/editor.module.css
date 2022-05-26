@@ -65,12 +65,16 @@
     margin-left: 5px;
 }
 
+.cmMenuBar .cmPanelButton + .cmPanelButton {
+    border-left: 1px solid rgba(0,0,0,0.2);
+}
+
 .cmPanelButton {
     border: none;
     background: none;
 }
 
-.glossaryTermGenerator {
+.cmPanelPopup {
     margin-top: 20px;
     margin-bottom: 20px;
     max-width: 400px;

@@ -10,7 +10,7 @@ import { TopMenu } from "./TopMenu";
 
 import styles from "../styles/editor.module.css";
 import { wordCounter } from "../utils/codeMirrorExtensions";
-import { PopupGlossaryTermSelect } from "./popups/PopupGlossaryTermSelect";
+import {CodeMirrorMenu} from "./CodeMirrorMenu";
 
 export function TextEditor() {
     const appContext = useContext(AppContext);
@@ -74,9 +74,7 @@ export function TextEditor() {
                 appContext.editor.setCurrentDoc(value);
             }}
         >
-            <div className={"w-100 bg-light border-bottom p-1"}>
-                <PopupGlossaryTermSelect codemirror={codemirror} />
-            </div>
+            <CodeMirrorMenu codemirror={codemirror} />
         </CodeMirror>
     </div>;
 }

@@ -1,11 +1,11 @@
 import React, {RefObject, useCallback, useMemo, useRef, useState} from "react";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
-import {Alert, Button, Col, Container, Input, InputGroup, Label, Row} from "reactstrap";
-import {ChangeDesc, ChangeSet, ReactCodeMirrorRef, TransactionSpec} from "@uiw/react-codemirror";
+import {Alert, Button, Container, Input, InputGroup, Label} from "reactstrap";
+import {ReactCodeMirrorRef, TransactionSpec} from "@uiw/react-codemirror";
 import styles from "../../styles/editor.module.css";
 import useSWR from "swr";
 import {GlossaryTerm} from "../../isaac-data-types";
-import {liveFetcher} from "../../services/isaacApi";
+import {stagingFetcher} from "../../services/isaacApi";
 import Select from "react-select";
 import {Item} from "../../utils/select";
 import {isDefined} from "../../utils/types";
@@ -15,12 +15,7 @@ export const PopupGlossaryTermSelect = ({codemirror}: { codemirror: RefObject<Re
 
     const {data: glossaryTerms} = useSWR<{results: GlossaryTerm[]}>(
         "glossary/terms?limit=10000",
-        liveFetcher,
-        {
-            //dedupingInterval: 600000, // Ten minutes
-            revalidateOnFocus: false,
-            revalidateOnMount: false
-        }
+        stagingFetcher
     );
 
     const glossaryTermOptions: Item<string>[] = useMemo(() =>
@@ -28,41 +23,41 @@ export const PopupGlossaryTermSelect = ({codemirror}: { codemirror: RefObject<Re
     , [glossaryTerms]);
 
     const [glossaryTermText, setGlossaryTermText] = useState<string>();
-    const [glossaryTermID, setGlossaryTermID] = useState<string | undefined>();
+    const [glossaryTerm, setGlossaryTerm] = useState<Item<string> | undefined>();
     const [isInlineTerm, setIsInlineTerm] = useState<boolean>(true);
 
     const generateAndInsertGlossaryTerm = useCallback(() => {
-        if (glossaryTermID) {
+        if (glossaryTerm) {
             const trimmedGlossaryTermText = glossaryTermText?.trim();
             codemirror.current?.view?.dispatch({
                 changes: {
                     from: codemirror.current?.view?.state?.selection.main.head,
-                    insert: `[glossary${isInlineTerm ? "-inline" : ""}:${glossaryTermID}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`
+                    insert: `[glossary${isInlineTerm ? "-inline" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`
                 }
             } as TransactionSpec);
         }
-    }, [glossaryTermText, glossaryTermID, isInlineTerm]);
+    }, [glossaryTermText, glossaryTerm, isInlineTerm, codemirror]);
 
     return <>
         <button className={styles.cmPanelButton} title={"Insert glossary term"} onClick={(event) => {
             popupRef.current?.open(event);
-        }}>Glossary term</button>
+        }}>Add glossary term</button>
         <Popup popUpRef={popupRef}>
-            <Container className={styles.glossaryTermGenerator}>
+            <Container className={styles.cmPanelPopup}>
                 <Label for={"glossary-term-id-select"}>Select glossary term:</Label>
                 <Select inputId="glossary-term-id-select"
-                        onChange={e => setGlossaryTermID(e?.value)}
+                        onChange={e => setGlossaryTerm(e ? {value: e.value, label: e.label} : undefined)}
                         options={glossaryTermOptions}
-                        placeholder={"Please select a term"} />
+                        placeholder={"Type to search terms"} />
                 <hr/>
                 <InputGroup className={"pl-4"}>
                     <Label for={"glossary-term-full-or-inline"}>Inline glossary term?</Label>
-                    <Input type={"checkbox"} id="glossary-term-full-or-inline" placeholder={"None"} onChange={e => setIsInlineTerm(e.target.checked)} checked={isInlineTerm}/>
+                    <Input type={"checkbox"} id="glossary-term-full-or-inline" onChange={e => setIsInlineTerm(e.target.checked)} checked={isInlineTerm}/>
                 </InputGroup>
                 {isInlineTerm ?
                     <>
                         <Label for={"term-text-input"}>Text to display:</Label>
-                        <Input id={"term-text-input"} onChange={(e) => setGlossaryTermText(e.target.value)} />
+                        <Input id={"term-text-input"} placeholder={glossaryTerm?.label ?? "None"} value={glossaryTermText} onChange={(e) => setGlossaryTermText(e.target.value)} />
                     </>
                     :
                     <Alert color={"warning"}>
@@ -71,8 +66,11 @@ export const PopupGlossaryTermSelect = ({codemirror}: { codemirror: RefObject<Re
                 }
                 <hr/>
                 <PopupCloseContext.Consumer>
-                    {close => <Button disabled={!glossaryTermID} onClick={() => {
+                    {close => <Button disabled={!glossaryTerm} onClick={() => {
                         generateAndInsertGlossaryTerm();
+                        setGlossaryTerm(undefined);
+                        setGlossaryTermText(undefined);
+                        setIsInlineTerm(true);
                         close?.();
                     }}>
                         Generate markup
