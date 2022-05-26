@@ -29,6 +29,9 @@ export const MetaItems = asMetaItems({
             if (!id.match(/^[a-z0-9_-]+$/)) {
                 return "Please alter this ID, as it does not match our required style";
             }
+            if (id) {
+                return "Please make sure not to alter the id of content once it has been published";
+            }
         }
     }],
     title: ["Title", {
@@ -52,7 +55,15 @@ export const MetaItems = asMetaItems({
         }
     }}],
     summary: "Summary",
-    published: ["Published", {type: "checkbox"}],
+    published: ["Published", {
+        type: "checkbox",
+        hasWarning: (value) => {
+            const published = value as boolean;
+            if (!published) {
+                return "Please do not un-publish content once it has been published";
+            }
+        }
+    }],
     altText: "Alt text",
     audience: ["Audience", {presenter: AudiencePresenter}],
     deprecated: ["Deprecated", {presenter: Deprecated}],
