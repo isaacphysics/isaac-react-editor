@@ -66,7 +66,7 @@ const emptyDocuments: Document[] = [
     {
         type: "isaacQuiz",
         encoding: "markdown",
-        title: "New Quiz",
+        title: "New Test",
         visibleToStudents: false,
         published: false,
         rubric: {

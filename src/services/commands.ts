@@ -70,7 +70,7 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
                             value: "isaacTopicSummaryPage"
                         },
                         {
-                            caption: "Quiz",
+                            caption: "Test",
                             value: "isaacQuiz"
                         },
                         {

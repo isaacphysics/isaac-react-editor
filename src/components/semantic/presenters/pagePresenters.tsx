@@ -19,7 +19,7 @@ export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
     return <>
         <PagePresenter {...props} />
         <SemanticDocProp {...props} prop="rubric" name="Rubric" />
-        <h2>Quiz Sections</h2>
+        <h2>Test Sections</h2>
         <ListChildrenPresenter {...props} childTypeOverride="isaacQuizSection" />
     </>;
 }

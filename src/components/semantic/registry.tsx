@@ -208,7 +208,7 @@ const isaacEventPage: RegistryEntry = {
 };
 
 const isaacQuiz:RegistryEntry = {
-    name: "Quiz",
+    name: "Test",
     bodyPresenter: QuizPagePresenter,
     metadata: [...defaultMeta, "level", "visibleToStudents", "hiddenFromTeachers", "published"],
 };
