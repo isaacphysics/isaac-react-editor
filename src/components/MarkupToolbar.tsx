@@ -44,10 +44,10 @@ export const MarkupToolbar = ({codemirror, encoding}: { codemirror: RefObject<Re
     }, [codemirror]);
 
     if (isMarkupEncoding(encoding)) {
-        const makeBold = emphTextWith(encodingSpecific("**", "<b>", encoding), encodingSpecific("**", "</b>", encoding));
-        const makeItalic = emphTextWith(encodingSpecific("*", "<i>", encoding), encodingSpecific("*", "</i>", encoding));
-        const makeStrikethrough = emphTextWith(encodingSpecific("~~", "<s>", encoding), encodingSpecific("~~", "</s>", encoding));
-        const makeCode = emphTextWith(encodingSpecific("`", "<pre>", encoding), encodingSpecific("`", "</pre>", encoding));
+        const makeBold = encodingSpecific(emphTextWith("**"), emphTextWith("<b>", "</b>"), encoding);
+        const makeItalic = encodingSpecific(emphTextWith("*"), emphTextWith("<i>", "</i>"), encoding);
+        const makeStrikethrough = encodingSpecific(emphTextWith("~~"), emphTextWith("<s>", "</s>"), encoding);
+        const makeCode = encodingSpecific(emphTextWith("`"), emphTextWith("<pre>", "</pre>"), encoding);
 
         return <div className={"d-flex w-100 bg-light border-bottom p-1 " + styles.cmMenuBar}>
             <button className={"ml-auto " + styles.cmPanelButton} title={"Bold"} aria-label={"Make highlighted text bold"} onClick={makeBold}>
