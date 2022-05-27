@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import { Button, Input } from "reactstrap";
+import React, {useState} from "react";
+import {Button, Input} from "reactstrap";
 import useSWR from "swr";
 
-import { Content } from "../../../isaac-data-types";
-import { stagingFetcher } from "../../../services/isaacApi";
+import {Content} from "../../../isaac-data-types";
+import {stagingFetcher} from "../../../services/isaacApi";
 
-import { PresenterProps } from "../registry";
+import {PresenterProps} from "../registry";
 
 import styles from "../styles/tags.module.css";
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 
 function readableContentType(type: string | undefined) {
     switch (type) {
@@ -54,7 +55,34 @@ export function RelatedContentPresenter({doc, update}: PresenterProps) {
     }
 
     return <div className={styles.wrapper}>
-        {doc.relatedContent?.map(id => <Button key={id} outline onClick={() => removeRelatedContent(id)}>{id} ➖</Button>)}
+        {doc.relatedContent && <DragDropContext onDragEnd={result => {
+            if (doc.relatedContent && result.destination) {
+                const reorderedRelatedContent = Array.from(doc.relatedContent);
+                const [removed] = reorderedRelatedContent.splice(result.source.index, 1);
+                reorderedRelatedContent.splice(result.destination.index, 0, removed);
+                update({...doc, relatedContent: reorderedRelatedContent});
+            }
+        }}>
+            <Droppable droppableId="droppable" direction="horizontal">
+                {(provided, snapshot) => <div
+                    ref={provided.innerRef} {...provided.droppableProps} className="d-flex"
+                    style={{backgroundColor: snapshot.isDraggingOver ? 'lightblue' : 'transparent'}}
+                >
+                    {doc.relatedContent?.map((id, index) => <Draggable key={id} draggableId={id} index={index}>
+                        {provided => <div
+                            ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
+                            style={provided.draggableProps.style} className="btn btn-outline-secondary mr-3"
+                        >
+                            𓃑
+                            <span className="ml-2">{id}</span>
+                            <button className="bg-transparent border-0 m-0 pr-0" onClick={() => removeRelatedContent(id)}>➖</button>
+                        </div>}
+                    </Draggable>)}
+                    {provided.placeholder}
+                </div>}
+            </Droppable>
+        </DragDropContext>}
+
         <Input value={searchString}
                onChange={(e) => setSearchString(e.target.value)}
                placeholder="Type to add related content..."
