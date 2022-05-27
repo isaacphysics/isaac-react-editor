@@ -7,6 +7,7 @@ import { PresenterProps } from "../registry";
 import { SemanticDocProp } from "../props/SemanticDocProp";
 import { EditableSubtitleProp, EditableTitleProp } from "../props/EditableDocProp";
 import { ListChildrenPresenter } from "./ListChildrenPresenter";
+import {EMPTY_DOCUMENTS} from "../../../services/emptyDocuments";
 
 export function PagePresenter(props: PresenterProps) {
     return <>
@@ -18,7 +19,11 @@ export function PagePresenter(props: PresenterProps) {
 export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
     return <>
         <PagePresenter {...props} />
-        <SemanticDocProp {...props} prop="rubric" name="Rubric" />
+        {props.doc.rubric ?
+            <SemanticDocProp {...props} prop="rubric" name="Rubric" onDelete={() => props.update({...props.doc, rubric: undefined})} /> :
+            <Button color="secondary" outline onClick={() => props.update({...props.doc, rubric: (EMPTY_DOCUMENTS['isaacQuiz'] as IsaacQuiz).rubric})}>
+                Add rubric
+            </Button>}
         <h2>Test Sections</h2>
         <ListChildrenPresenter {...props} childTypeOverride="isaacQuizSection" />
     </>;
