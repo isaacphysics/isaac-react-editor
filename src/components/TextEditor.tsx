@@ -10,7 +10,7 @@ import { TopMenu } from "./TopMenu";
 
 import styles from "../styles/editor.module.css";
 import { wordCounter } from "../utils/codeMirrorExtensions";
-import {CodeMirrorMenu} from "./CodeMirrorMenu";
+import {MarkupToolbar} from "./MarkupToolbar";
 
 export function TextEditor() {
     const appContext = useContext(AppContext);
@@ -74,7 +74,7 @@ export function TextEditor() {
                 appContext.editor.setCurrentDoc(value);
             }}
         >
-            <CodeMirrorMenu codemirror={codemirror} />
+            <MarkupToolbar codemirror={codemirror} encoding={appContext.editor.getCurrentDoc().encoding} />
         </CodeMirror>
     </div>;
 }

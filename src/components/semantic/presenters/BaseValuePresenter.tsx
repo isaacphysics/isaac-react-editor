@@ -17,7 +17,7 @@ import { TrustedHtml } from "../../../isaac/TrustedHtml";
 import { TrustedMarkdown } from "../../../isaac/TrustedMarkdown";
 import { getEntryType, PresenterProps } from "../registry";
 import { wordCounter } from "../../../utils/codeMirrorExtensions";
-import {CodeMirrorMenu} from "../../CodeMirrorMenu";
+import {MarkupToolbar} from "../../MarkupToolbar";
 
 export interface ValuePresenterRef {
     startEdit: () => void;
@@ -121,7 +121,7 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
                 value.current = newValue;
             }}
         >
-            <CodeMirrorMenu codemirror={codemirror} />
+            <MarkupToolbar codemirror={codemirror} encoding={doc.encoding} />
         </CodeMirror>;
     }
 };
