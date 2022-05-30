@@ -34,17 +34,17 @@
  * created that bubbles up the update to that child. In this way, Presenter has a uniform interface.
  */
 
-import React, { FunctionComponent, MouseEvent, useRef, useState } from "react";
-import { Alert } from "reactstrap";
+import React, {FunctionComponent, MouseEvent, useRef, useState} from "react";
+import {Alert} from "reactstrap";
 
-import { Content } from "../../isaac-data-types";
+import {Content} from "../../isaac-data-types";
 
-import { ValuePresenterRef, ValueRef, ValueWrapper } from "./presenters/BaseValuePresenter";
-import { ContentType, getEntryType } from "./registry";
-import { JSONEditor } from "./JSONEditor";
+import {ValuePresenterRef, ValueRef, ValueWrapper} from "./presenters/BaseValuePresenter";
+import {ContentType, getEntryType} from "./registry";
+import {JSONEditor} from "./JSONEditor";
 
 import styles from "./styles/semantic.module.css";
-import { MetadataPresenter } from "./Metadata";
+import {MetadataPresenter} from "./Metadata";
 
 interface Shift {
     up: boolean;
@@ -128,16 +128,24 @@ function SemanticItemInner(props: SemanticItemProps) {
     const footer = !jsonMode && FooterPresenter ? <FooterPresenter {...subProps} /> : null;
 
     // Render outline with type name
-    return <Box name={name || entryType.name}
-                {...rest}
-                valueRef={valueRef}
-                onClick={() => setJsonMode(true)}
-                metadata={metadata && !jsonMode ? {toggle: () => setShowMeta(!showMeta), showMeta} : undefined}>
+    const BoxedItem = <Box
+        name={name || entryType.name}
+        {...rest}
+        valueRef={valueRef}
+        onClick={() => setJsonMode(true)}
+        metadata={metadata && !jsonMode ? {toggle: () => setShowMeta(!showMeta), showMeta} : undefined}
+    >
         {meta}
         {header}
         {body}
         {footer}
     </Box>;
+
+    // Optionally wrap item in context provider so that children can refer to its nearest parent question or page etc.
+    const ContextProviderWrapper = entryType.contextProviderWrapper;
+    return ContextProviderWrapper ?
+        <ContextProviderWrapper value={doc}>{BoxedItem}</ContextProviderWrapper> :
+        BoxedItem;
 }
 
 const SemanticItemInnerMemo = React.memo(SemanticItemInner);

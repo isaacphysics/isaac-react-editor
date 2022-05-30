@@ -1,32 +1,39 @@
-import React, { MutableRefObject, useContext, useRef, } from "react";
-import { Button, Input, Label } from "reactstrap";
-import { InputType } from "reactstrap/lib/Input";
+import React, {MutableRefObject, useContext, useRef,} from "react";
+import {Button, Input, Label} from "reactstrap";
+import {InputType} from "reactstrap/lib/Input";
 
 import {
     ChemicalFormula,
     Choice,
     Formula,
     FreeTextRule,
-    GraphChoice, ParsonsChoice,
-    Quantity, RegexPattern,
+    GraphChoice,
+    IsaacNumericQuestion,
+    ParsonsChoice,
+    Quantity,
+    RegexPattern,
     StringChoice
 } from "../../../isaac-data-types";
-import { TrustedHtml } from "../../../isaac/TrustedHtml";
+import {TrustedHtml} from "../../../isaac/TrustedHtml";
 
 import {
-    BaseValuePresenter, buildValuePresenter, ValuePresenter, ValuePresenterProps,
+    BaseValuePresenter,
+    buildValuePresenter,
+    ValuePresenter,
+    ValuePresenterProps,
     ValuePresenterRef,
     ValueWrapper
 } from "./BaseValuePresenter";
-import { SemanticDocProp } from "../props/SemanticDocProp";
-import { CheckboxDocProp } from "../props/CheckboxDocProp";
-import { EditableValueProp } from "../props/EditableDocProp";
-import { CHOICE_TYPES } from "../ChoiceInserter";
-import { PresenterProps } from "../registry";
-import { ListPresenterProp } from "../props/listProps";
-import { ItemsContext } from "./ItemQuestionPresenter";
+import {SemanticDocProp} from "../props/SemanticDocProp";
+import {CheckboxDocProp} from "../props/CheckboxDocProp";
+import {EditableValueProp} from "../props/EditableDocProp";
+import {CHOICE_TYPES} from "../ChoiceInserter";
+import {PresenterProps} from "../registry";
+import {ListPresenterProp} from "../props/listProps";
+import {ItemsContext} from "./ItemQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
+import {QuestionContext} from "./questionPresenters";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -55,17 +62,22 @@ function LabeledInput<V extends Record<string, string | undefined>>({value, prop
 
 export const QuantityPresenter = buildValuePresenter(
     function QuantityValue({editing, doc, value}) {
+        const parentQuestionDoc = useContext(QuestionContext);
+        const displayUnit = parentQuestionDoc?.type === "isaacNumericQuestion" && (parentQuestionDoc as IsaacNumericQuestion).displayUnit;
         if (!editing) {
             if (doc.value === undefined || doc.value === "") {
-                return <em>Enter value and units here</em>;
+                return <em>{`Enter value${displayUnit ? "" : " and units"} here`}</em>;
             }
 
-            const html = "$\\quantity{" + (doc.value || "") + "}{" + (doc.units || "") + "}$";
+            const unit = displayUnit || "{" + (doc.units || "") + "}";
+            const html = "$\\quantity{" + (doc.value || "") + "}" + unit + "$";
             return <TrustedHtml html={html} />;
         } else {
             return <>
                 <LabeledInput value={value} prop="value" label="Quantity" />
-                <LabeledInput value={value} prop="units" label="Units" />
+                {displayUnit ?
+                    <TrustedHtml html={"$" + displayUnit + "$"} /> :
+                    <LabeledInput value={value} prop="units" label="Units" />}
             </>;
         }
     },

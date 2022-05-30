@@ -3,40 +3,33 @@ import {
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
+    QuestionContext,
     QuestionFooterPresenter,
     QuestionMetaPresenter,
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
     SymbolicQuestionPresenter
 } from "./presenters/questionPresenters";
-import { CHOICE_TYPES } from "./ChoiceInserter";
-import { TabsPresenter } from "./presenters/TabsPresenter";
-import React, { FunctionComponent } from "react";
-import { ChoicePresenter } from "./presenters/ChoicePresenter";
-import { Content } from "../../isaac-data-types";
-import { FigurePresenter } from "./presenters/FigurePresenter";
-import { ValuePresenter } from "./presenters/BaseValuePresenter";
-import { ContentValueOrChildrenPresenter } from "./presenters/ContentValueOrChildrenPresenter";
-import { AccordionPresenter } from "./presenters/AccordionPresenter";
-import { CodeSnippetPresenter } from "./presenters/CodeSnippetPresenter";
-import { VideoPresenter } from "./presenters/VideoPresenter";
-import { GlossaryTermPresenter } from "./presenters/GlossaryTermPresenter";
-import { EmailTemplatePresenter } from "./presenters/EmailTemplatePresenter";
-import { AnvilAppPresenter } from "./presenters/AnvilAppPresenter";
-import {
-    EventPagePresenter,
-    PagePresenter,
-    QuizPagePresenter,
-    QuizSectionPresenter
-} from "./presenters/pagePresenters";
-import { PodPresenter } from "./presenters/PodPresenter";
-import { defaultMeta, MetaItemKey } from "./Metadata";
-import { CardDeckPresenter, CardPresenter } from "./presenters/CardPresenter";
-import { MetaItems } from "./metaItems";
-import {
-    ItemChoicePresenter, ItemQuestionPresenter,
-    ItemPresenter
-} from "./presenters/ItemQuestionPresenter";
+import {CHOICE_TYPES} from "./ChoiceInserter";
+import {TabsPresenter} from "./presenters/TabsPresenter";
+import React, {FunctionComponent, Provider} from "react";
+import {ChoicePresenter} from "./presenters/ChoicePresenter";
+import {Content} from "../../isaac-data-types";
+import {FigurePresenter} from "./presenters/FigurePresenter";
+import {ValuePresenter} from "./presenters/BaseValuePresenter";
+import {ContentValueOrChildrenPresenter} from "./presenters/ContentValueOrChildrenPresenter";
+import {AccordionPresenter} from "./presenters/AccordionPresenter";
+import {CodeSnippetPresenter} from "./presenters/CodeSnippetPresenter";
+import {VideoPresenter} from "./presenters/VideoPresenter";
+import {GlossaryTermPresenter} from "./presenters/GlossaryTermPresenter";
+import {EmailTemplatePresenter} from "./presenters/EmailTemplatePresenter";
+import {AnvilAppPresenter} from "./presenters/AnvilAppPresenter";
+import {EventPagePresenter, PagePresenter, QuizPagePresenter, QuizSectionPresenter} from "./presenters/pagePresenters";
+import {PodPresenter} from "./presenters/PodPresenter";
+import {defaultMeta, MetaItemKey} from "./Metadata";
+import {CardDeckPresenter, CardPresenter} from "./presenters/CardPresenter";
+import {MetaItems} from "./metaItems";
+import {ItemChoicePresenter, ItemPresenter, ItemQuestionPresenter} from "./presenters/ItemQuestionPresenter";
 
 export type ContentType =
     | "content"
@@ -84,6 +77,7 @@ interface RegistryEntry {
     footerPresenter?: Presenter;
     blankValue?: string;
     metadata?: MetaItemKey[];
+    contextProviderWrapper?: Provider<Content | null>;
 }
 
 const content: RegistryEntry = {
@@ -113,6 +107,7 @@ const question: RegistryEntry = {
     bodyPresenter: ContentValueOrChildrenPresenter,
     footerPresenter: QuestionFooterPresenter,
     blankValue: "Enter question body here",
+    contextProviderWrapper: QuestionContext.Provider
 };
 const isaacSymbolicQuestion = {
     ...question,

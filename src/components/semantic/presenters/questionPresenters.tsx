@@ -1,33 +1,26 @@
-import React, { useState } from "react";
-import {
-    EditableDocPropFor,
-    EditableIDProp,
-    EditableTitleProp,
-} from "../props/EditableDocProp";
+import React, {useState} from "react";
+import {EditableDocPropFor, EditableIDProp, EditableTitleProp,} from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
+import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} from "reactstrap";
 import {
-    Alert,
-    Button,
-    Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownToggle,
-} from "reactstrap";
-import {
+    Content,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
     IsaacSymbolicQuestion,
+    Quantity,
 } from "../../../isaac-data-types";
-import { SemanticDocProp } from "../props/SemanticDocProp";
-import { EditableText } from "../props/EditableText";
-import { CheckboxDocProp } from "../props/CheckboxDocProp";
-import { PresenterProps } from "../registry";
-import { SemanticListProp } from "../props/listProps";
-import { NumberDocPropFor } from "../props/NumberDocPropFor";
-import { ChoicesPresenter } from "./ChoicesPresenter";
+import {SemanticDocProp} from "../props/SemanticDocProp";
+import {EditableText} from "../props/EditableText";
+import {CheckboxDocProp} from "../props/CheckboxDocProp";
+import {PresenterProps} from "../registry";
+import {SemanticListProp} from "../props/listProps";
+import {NumberDocPropFor} from "../props/NumberDocPropFor";
+import {ChoicesPresenter} from "./ChoicesPresenter";
+
+export const QuestionContext = React.createContext<Content | null>(null);
 
 export type QUESTION_TYPES =
     | "isaacQuestion"
@@ -226,7 +219,19 @@ export function NumericQuestionPresenter(props: PresenterProps) {
             <EditableSignificantFiguresMax doc={question} update={update} />
         </div>}
         <div>
-            <CheckboxDocProp doc={question} update={update} prop="requireUnits" label="Require choice of units" />
+            <CheckboxDocProp doc={question} update={newQuestion => {
+                if (newQuestion.requireUnits) {
+                    delete newQuestion.displayUnit;
+                } else {
+                    delete newQuestion.availableUnits;
+                    newQuestion.choices?.forEach(choice => {
+                        if (choice.type === "quantity") {
+                            delete (choice as Quantity).units;
+                        }
+                    })
+                }
+                update(newQuestion);
+            }} prop="requireUnits" label="Require choice of units" />
         </div>
         {question.requireUnits ?
             <EditableAvailableUnits doc={question} update={update} />
