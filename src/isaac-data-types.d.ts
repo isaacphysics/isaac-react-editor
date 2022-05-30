@@ -114,6 +114,8 @@ export interface IsaacParsonsQuestion extends IsaacItemQuestion {
     disableIndentation?: boolean;
 }
 
+export interface IsaacReorderQuestion extends IsaacItemQuestion { }
+
 export interface IsaacPod extends Content {
     image?: Image;
     url?: string;

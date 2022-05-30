@@ -20,6 +20,7 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacGraphSketcherQuestion: "graphChoice",
     isaacRegexMatchQuestion: "regexPattern",
     isaacItemQuestion: "itemChoice",
+    isaacReorderQuestion: "itemChoice",
     isaacParsonsQuestion: "parsonsChoice",
     isaacClozeQuestion: "itemChoice",
 };

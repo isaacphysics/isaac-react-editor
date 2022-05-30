@@ -2,8 +2,10 @@ import React, { createContext, useContext, useState } from "react";
 import { Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row } from "reactstrap";
 
 import {
-    IsaacClozeQuestion,
+    IsaacItemQuestion,
+    IsaacReorderQuestion,
     IsaacParsonsQuestion,
+    IsaacClozeQuestion,
     Item,
     ParsonsItem
 } from "../../../isaac-data-types";
@@ -35,7 +37,7 @@ function isClozeQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is
     return doc.type === "isaacClozeQuestion";
 }
 
-export function ItemQuestionPresenter(props: PresenterProps<IsaacParsonsQuestion | IsaacClozeQuestion>) {
+export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion>) {
     const {doc, update} = props;
 
     return <>
