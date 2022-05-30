@@ -121,7 +121,7 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
                 value.current = newValue;
             }}
         >
-            <MarkupToolbar codemirror={codemirror} encoding={doc.encoding} />
+            <MarkupToolbar codemirror={codemirror} encoding={doc.encoding} type={doc.type} />
         </CodeMirror>;
     }
 };

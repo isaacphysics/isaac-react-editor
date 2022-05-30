@@ -1,6 +1,6 @@
 import React, {RefObject, useCallback, useRef, useState} from "react";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
-import {Button, Container, Input, Label} from "reactstrap";
+import {Button, Container, Input, InputGroup, Label} from "reactstrap";
 import {ReactCodeMirrorRef} from "@uiw/react-codemirror";
 import styles from "../../styles/editor.module.css";
 
@@ -10,12 +10,14 @@ export const PopupDropZoneInsert = ({codemirror}: { codemirror: RefObject<ReactC
     const [width, setWidth] = useState<number>();
     const [height, setHeight] = useState<number>();
     const [valid, setValid] = useState<boolean>(true);
+    const [inLatex, setInLatex] = useState<boolean>(false);
 
     const generateAndInsertDropZone = useCallback(() => {
+        const dropZoneSyntax = `[drop-zone${(width || height) ? "|" : ""}${width ? `w-${width}` : ""}${height ? `h-${height}` : ""}]`;
         codemirror.current?.view?.dispatch(
-            codemirror.current?.view?.state.replaceSelection(`[drop-zone${(width || height) ? "|" : ""}${width ? `w-${width}` : ""}${height ? `h-${height}` : ""}]`)
+            codemirror.current?.view?.state.replaceSelection(inLatex ? `\\text{${dropZoneSyntax}}` : dropZoneSyntax)
         );
-    }, [width, height, codemirror]);
+    }, [width, height, inLatex, codemirror]);
 
     const ifValidNumericalInputThen = (f: (n: number | undefined) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const n = parseInt(e.target.value);
@@ -40,11 +42,17 @@ export const PopupDropZoneInsert = ({codemirror}: { codemirror: RefObject<ReactC
                 <Label for={"drop-zone-height"}>Height:</Label>
                 <Input id={"drop-zone-height"} placeholder={"Default"} onChange={ifValidNumericalInputThen(setHeight)} />
                 <hr/>
+                <InputGroup className={"pl-4"}>
+                    <Label for={"drop-zone-in-latex"}>Inside LaTeX?:</Label>
+                    <Input type={"checkbox"} id={"drop-zone-in-latex"} onChange={() => setInLatex(b => !b)} checked={inLatex} />
+                </InputGroup>
+                <hr/>
                 <PopupCloseContext.Consumer>
                     {close => <Button disabled={!valid} onClick={() => {
                         generateAndInsertDropZone();
                         setWidth(undefined);
                         setHeight(undefined);
+                        setInLatex(false);
                         close?.();
                     }}>
                         Generate drop zone

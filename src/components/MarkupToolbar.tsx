@@ -9,7 +9,7 @@ function isMarkupEncoding(encoding: string | undefined): encoding is "markdown" 
     return encoding === "markdown" || encoding === "html";
 }
 
-export const MarkupToolbar = ({codemirror, encoding}: { codemirror: RefObject<ReactCodeMirrorRef>, encoding: string | undefined }) => {
+export const MarkupToolbar = ({codemirror, encoding, type}: { codemirror: RefObject<ReactCodeMirrorRef>, encoding: string | undefined, type: string | undefined }) => {
 
     function encodingSpecific<T>(markdownChoice: T, htmlChoice: T, encoding: "markdown" | "html"): T {
         return {
@@ -50,22 +50,26 @@ export const MarkupToolbar = ({codemirror, encoding}: { codemirror: RefObject<Re
         const makeCode = encodingSpecific(emphTextWith("`"), emphTextWith("<pre>", "</pre>"), encoding);
 
         return <div className={"d-flex w-100 bg-light border-bottom p-1 " + styles.cmMenuBar}>
-            <button className={"ml-auto " + styles.cmPanelButton} title={"Bold"} aria-label={"Make highlighted text bold"} onClick={makeBold}>
+            <button className={"ml-auto " + styles.cmPanelButton} title={"Bold"}
+                    aria-label={"Make highlighted text bold"} onClick={makeBold}>
                 <b>B</b>
             </button>
-            <button className={styles.cmPanelButton} title={"Italic"} aria-label={"Make highlighted text italic"} onClick={makeItalic}>
+            <button className={styles.cmPanelButton} title={"Italic"} aria-label={"Make highlighted text italic"}
+                    onClick={makeItalic}>
                 <i>I</i>
             </button>
-            <button className={styles.cmPanelButton} title={"Strikethrough"} aria-label={"Strike-through highlighted text"} onClick={makeStrikethrough}>
+            <button className={styles.cmPanelButton} title={"Strikethrough"}
+                    aria-label={"Strike-through highlighted text"} onClick={makeStrikethrough}>
                 <s className={"d-inline"}>S</s>
             </button>
-            <button className={styles.cmPanelButton} title={"Code"} aria-label={"Format highlighted text as code"} onClick={makeCode}>
+            <button className={styles.cmPanelButton} title={"Code"} aria-label={"Format highlighted text as code"}
+                    onClick={makeCode}>
                 <pre className={"d-inline"}>&lt;&gt;</pre>
             </button>
             {encodingSpecific(
                 <>
-                    {SITE === "CS" && <PopupGlossaryTermSelect codemirror={codemirror} />}
-                    <PopupDropZoneInsert codemirror={codemirror} />
+                    {type === "isaacClozeQuestion" && <PopupDropZoneInsert codemirror={codemirror}/>}
+                    {SITE === "CS" && <PopupGlossaryTermSelect codemirror={codemirror}/>}
                 </>,
                 null,
                 encoding
