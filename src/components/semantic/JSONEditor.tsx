@@ -1,13 +1,13 @@
 import React, { useRef, useState } from "react";
 import { Button } from "reactstrap";
-import CodeMirror, { EditorView } from "@uiw/react-codemirror";
+import CodeMirror, {rectangularSelection, EditorView} from "@uiw/react-codemirror";
 import { json, jsonParseLinter } from "@codemirror/lang-json";
 import { linter, lintGutter } from "@codemirror/lint";
 
 import { PresenterProps } from "./registry";
 import styles from "./styles/semantic.module.css";
 
-const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter()];
+const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter(), rectangularSelection()];
 const empty = Symbol("empty") as unknown as string;
 
 export function JSONEditor({doc, update, close}: PresenterProps & { close: () => void }) {
