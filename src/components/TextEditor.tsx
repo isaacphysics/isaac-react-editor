@@ -60,6 +60,8 @@ export function TextEditor() {
         </div>
     }
 
+    const currentDoc = appContext.editor.getCurrentDoc();
+
     return <div className={styles.editorWrapper}>
         <TopMenu />
         <CodeMirror
@@ -74,7 +76,7 @@ export function TextEditor() {
                 appContext.editor.setCurrentDoc(value);
             }}
         >
-            <MarkupToolbar codemirror={codemirror} encoding={appContext.editor.getCurrentDoc().encoding} />
+            <MarkupToolbar codemirror={codemirror} encoding={currentDoc.encoding} type={currentDoc.type} />
         </CodeMirror>
     </div>;
 }
