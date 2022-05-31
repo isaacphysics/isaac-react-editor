@@ -1,3 +1,8 @@
+.wrapper {
+    margin-top: -1em;
+    text-align: center;
+}
+
 .outerWrapper {
     margin-bottom: 1em;
     flex: 1;
@@ -114,7 +119,7 @@
 }
 
 .box:hover > .inserter {
-    display: block;
+    display: block !important;
 }
 
 .inserter {
@@ -134,7 +139,7 @@
     position: absolute;
     z-index: 2;
     margin: -32px 0;
-    left: calc(50% - 27px);
+    left: calc(50% - 31px);
     transition: transform 0.2s;
 }
 
@@ -152,4 +157,68 @@
 
 .editButtons button {
     margin-left: 0.5em;
+}
+
+/* CSS for horizontal content layout option */
+
+.horizontal:not(.jsonMode) {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.horizontal > .box {
+    width: auto;
+    flex-basis: 25%;
+    flex-grow: 10;
+}
+
+.horizontal > .boxHeader {
+    width: 103%;
+}
+
+.horizontal > .box > .boxHeader > .iconButton {
+    transform: rotate(-90deg);
+}
+
+.horizontal > .inserter > .inserterAdd button {
+    z-index: 0;
+    top: calc(50% - 24px);
+    left: calc(50% - 31px);
+    margin: unset;
+}
+
+.horizontal > .inserter {
+    position: relative;
+    display: block;
+    opacity: 0;
+    flex-grow: 0.5;
+    min-width: 40px;
+}
+
+.horizontal > .box + .box {
+    margin-left: 20px;
+}
+
+.horizontal > .inserterBox {
+    max-width: 31%;
+}
+
+/* Make sure that the first and last inserters don't take up space unless hovering */
+.horizontal > .inserter {
+    margin-left: 0;
+    display: none;
+}
+.horizontal > .inserter ~ .inserter {
+    display: block;
+}
+.horizontal > .inserter:last-child { /* This selects "inserters that are last children of horizontal elements", meaning if an inserter is not the last child, then this breaks */
+    display: none;
+    margin-right: 0;
+}
+
+.horizontal:hover > .inserter {
+    opacity: 1;
+    flex-grow: 2.5;
 }

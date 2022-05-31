@@ -30,10 +30,13 @@ import {defaultMeta, MetaItemKey} from "./Metadata";
 import {CardDeckPresenter, CardPresenter} from "./presenters/CardPresenter";
 import {MetaItems} from "./metaItems";
 import {ItemChoicePresenter, ItemPresenter, ItemQuestionPresenter} from "./presenters/ItemQuestionPresenter";
+import styles from "./styles/semantic.module.css";
+import {ListChildrenPresenter} from "./presenters/ListChildrenPresenter";
 
 export type ContentType =
     | "content"
     | "content$accordion"
+    | "content$horizontal"
     | "content$tabs"
     | "isaacConceptPage"
     | "isaacQuestionPage"
@@ -78,6 +81,7 @@ interface RegistryEntry {
     blankValue?: string;
     metadata?: MetaItemKey[];
     contextProviderWrapper?: Provider<Content | null>;
+    className?: string;
 }
 
 const content: RegistryEntry = {
@@ -92,6 +96,11 @@ const choice: RegistryEntry = {
 const accordion: RegistryEntry = {
     name: "Accordion",
     bodyPresenter: AccordionPresenter,
+}
+const horizontal: RegistryEntry = {
+    name: "Side-by-side layout",
+    className: styles.horizontal,
+    bodyPresenter: ListChildrenPresenter,
 }
 const tabs: RegistryEntry = {
     name: "Tabs",
@@ -231,6 +240,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacQuiz,
     isaacWildcard,
     content$accordion: accordion,
+    content$horizontal: horizontal,
     content$tabs: tabs,
     hints,
     // Quick questions don't have choices or hints

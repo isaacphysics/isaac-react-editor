@@ -3,7 +3,7 @@ import { Button } from "reactstrap";
 
 import { Box } from "./SemanticItem";
 import { InsertButton, InserterProps } from "./presenters/ListChildrenPresenter";
-import styles from "./styles/inserter.module.css";
+import styles from "./styles/semantic.module.css";
 import { generate } from "../../utils/keyedListHook";
 
 const blockTypes = {
@@ -34,6 +34,8 @@ const blockTypes = {
     "video": {type: "video", encoding: "markdown", src: "https://www.youtube.com/watch?v=<video_id>"},
     "tabs": {type: "content", layout: "tabs", encoding: "markdown", children: []},
     "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
+    "side-by-side layout": {type: "content", layout: "horizontal", encoding: "markdown", children: []},
+    "callout": {type: "content", layout: "callout", encoding: "markdown", value: ""},
 };
 
 export function Inserter({insert, forceOpen, position}: InserterProps) {
@@ -43,7 +45,7 @@ export function Inserter({insert, forceOpen, position}: InserterProps) {
     const onDelete = useMemo(() => forceOpen ? undefined : () => setInserting(false),
         [forceOpen]);
     return isOpen ?
-        <Box name="?" onDelete={onDelete}>
+        <Box name="?" onDelete={onDelete} className={styles.inserterBox}>
             <div className={styles.wrapper}>
                 Please choose a block type:
                 <br />

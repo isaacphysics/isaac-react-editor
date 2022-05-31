@@ -45,6 +45,7 @@ import {JSONEditor} from "./JSONEditor";
 
 import styles from "./styles/semantic.module.css";
 import {MetadataPresenter} from "./Metadata";
+import classNames from "classnames";
 
 interface Shift {
     up: boolean;
@@ -130,6 +131,7 @@ function SemanticItemInner(props: SemanticItemProps) {
     // Render outline with type name
     const BoxedItem = <Box
         name={name || entryType.name}
+        className={classNames(entryType.className, {[styles.jsonMode]: jsonMode})}
         {...rest}
         valueRef={valueRef}
         onClick={() => setJsonMode(true)}
