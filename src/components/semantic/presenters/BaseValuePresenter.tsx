@@ -16,7 +16,7 @@ import { Content } from "../../../isaac-data-types";
 import { TrustedHtml } from "../../../isaac/TrustedHtml";
 import { TrustedMarkdown } from "../../../isaac/TrustedMarkdown";
 import { getEntryType, PresenterProps } from "../registry";
-import { wordCounter } from "../../../utils/codeMirrorExtensions";
+import {keyBindings, wordCounter} from "../../../utils/codeMirrorExtensions";
 import {MarkupToolbar} from "../../MarkupToolbar";
 
 export interface ValuePresenterRef {
@@ -116,7 +116,7 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
             value={value.current}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
-            extensions={[...encoding, EditorView.lineWrapping, wordCounter()]}
+            extensions={[...encoding, EditorView.lineWrapping, wordCounter(), keyBindings(doc.encoding)]}
             onChange={(newValue) => {
                 value.current = newValue;
             }}

@@ -9,7 +9,7 @@ import { useGithubContents } from "../services/github";
 import { TopMenu } from "./TopMenu";
 
 import styles from "../styles/editor.module.css";
-import { wordCounter } from "../utils/codeMirrorExtensions";
+import {keyBindings, wordCounter} from "../utils/codeMirrorExtensions";
 import {MarkupToolbar} from "./MarkupToolbar";
 
 export function TextEditor() {
@@ -60,6 +60,8 @@ export function TextEditor() {
         </div>
     }
 
+    const currentDoc = appContext.editor.getCurrentDoc();
+
     return <div className={styles.editorWrapper}>
         <TopMenu />
         <CodeMirror
@@ -69,12 +71,12 @@ export function TextEditor() {
             value={appContext.editor.getCurrentDocAsString()}
             height="calc(100vh - 40px)"
             width="100%"
-            extensions={[EditorView.lineWrapping, wordCounter()]}
+            extensions={[EditorView.lineWrapping, wordCounter(), keyBindings(currentDoc.encoding)]}
             onChange={(value) => {
                 appContext.editor.setCurrentDoc(value);
             }}
         >
-            <MarkupToolbar codemirror={codemirror} encoding={appContext.editor.getCurrentDoc().encoding} />
+            <MarkupToolbar codemirror={codemirror} encoding={currentDoc.encoding} type={currentDoc.type} />
         </CodeMirror>
     </div>;
 }
