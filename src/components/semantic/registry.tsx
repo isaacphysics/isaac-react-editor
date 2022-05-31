@@ -258,6 +258,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
     graphChoice: choice,
     isaacItemQuestion,
+    isaacReorderQuestion: isaacItemQuestion,
     isaacParsonsQuestion: isaacItemQuestion,
     itemChoice: choice,
     parsonsChoice: choice,

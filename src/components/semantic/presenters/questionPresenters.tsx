@@ -34,6 +34,7 @@ export type QUESTION_TYPES =
     | "isaacGraphSketcherQuestion"
     | "isaacRegexMatchQuestion"
     | "isaacItemQuestion"
+    | "isaacReorderQuestion"
     | "isaacParsonsQuestion"
     | "isaacClozeQuestion"
 ;
@@ -65,6 +66,9 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     },
     isaacItemQuestion: {
         name: "Item Question",
+    },
+    isaacReorderQuestion: {
+        name: "Reorder Question",
     },
     isaacParsonsQuestion: {
         name: "Parsons Question",
