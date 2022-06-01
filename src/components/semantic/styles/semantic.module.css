@@ -206,7 +206,6 @@
 
 /* Make sure that the first and last inserters don't take up space unless hovering */
 .horizontal > .inserter {
-    margin-left: 0;
     display: none;
 }
 .horizontal > .inserter ~ .inserter {
@@ -214,7 +213,6 @@
 }
 .horizontal > .inserter:last-child { /* This selects "inserters that are last children of horizontal elements", meaning if an inserter is not the last child, then this breaks */
     display: none;
-    margin-right: 0;
 }
 
 .horizontal:hover > .inserter {
