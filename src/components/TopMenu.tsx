@@ -3,7 +3,7 @@ import React, { useContext, useRef } from "react";
 import { AppContext } from "../App";
 import { useGithubContents } from "../services/github";
 
-import { PopupMenu, PopupMenuRef } from "./PopupMenu";
+import { PopupMenu, PopupMenuRef } from "./popups/PopupMenu";
 import { Entry } from "./FileBrowser";
 
 import styles from "../styles/editor.module.css";
