@@ -69,10 +69,9 @@ interface ListChildProps {
     updateChild: (index: number, newValue: Content) => void;
     remove: (index: number) => void;
     typeOverride: ContentType | undefined;
-    className?: string;
 }
 
-function ListChild({child, docRef, index, shiftBy, updateChild, remove, typeOverride, className}: ListChildProps) {
+function ListChild({child, docRef, index, shiftBy, updateChild, remove, typeOverride}: ListChildProps) {
     const by = useCallback((amount: number, e: MouseEvent) => {
         const elementToMove = (e.target as HTMLElement)?.parentElement?.parentElement;
         if (elementToMove) {
