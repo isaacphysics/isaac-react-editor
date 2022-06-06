@@ -1,6 +1,6 @@
 import React from "react";
-import {FallbackProps} from "react-error-boundary";
-import {Container} from "reactstrap";
+import { FallbackProps } from "react-error-boundary";
+import { Container } from "reactstrap";
 
 export const buildPageError = (file: string | undefined) => function PageError({error, resetErrorBoundary}: FallbackProps) {
     return <Container className={"my-5 bg-light overflow-auto"}>

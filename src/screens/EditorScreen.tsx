@@ -1,25 +1,25 @@
-import React, {ContextType, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {SWRConfig, useSWRConfig} from "swr";
-import {Params, useNavigate, useParams} from "react-router-dom";
-import {useLocation} from "react-router";
-import {Modal, Spinner} from "reactstrap";
-import {ErrorBoundary} from "react-error-boundary";
+import React, { ContextType, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SWRConfig, useSWRConfig } from "swr";
+import { Params, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router";
+import { Modal, Spinner } from "reactstrap";
+import { ErrorBoundary } from "react-error-boundary";
 
-import {Selection} from "../components/FileBrowser";
-import {LeftMenu} from "../components/LeftMenu";
-import {AppContext, browserHistory} from "../App";
-import {defaultGithubContext, fetcher} from "../services/github";
-import {SemanticEditor} from "../components/SemanticEditor";
-import {Content} from "../isaac-data-types";
-import {Action, doDispatch} from "../services/commands";
-import {useFixedRef} from "../utils/hooks";
-import {TextEditor} from "../components/TextEditor";
-import {Preview, PreviewMode} from "../components/Preview";
+import { Selection } from "../components/FileBrowser";
+import { LeftMenu } from "../components/LeftMenu";
+import { AppContext, browserHistory } from "../App";
+import { defaultGithubContext, fetcher } from "../services/github";
+import { SemanticEditor } from "../components/SemanticEditor";
+import { Content } from "../isaac-data-types";
+import { Action, doDispatch } from "../services/commands";
+import { useFixedRef } from "../utils/hooks";
+import { TextEditor } from "../components/TextEditor";
+import { Preview, PreviewMode } from "../components/Preview";
 
-import {MenuModal, MenuModalRef} from "./MenuModal";
+import { MenuModal, MenuModalRef } from "./MenuModal";
 
 import styles from "../styles/editor.module.css";
-import {buildPageError} from "../components/PageError";
+import { buildPageError } from "../components/PageError";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
