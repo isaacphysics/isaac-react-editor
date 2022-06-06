@@ -70,6 +70,7 @@ export function EditorScreen() {
 
     const [dirty, setDirty] = useState(false);
     const [currentContent, setCurrentContent] = useState<Content|string>({});
+    const [currentContentPath, setCurrentContentPath] = useState<string | undefined>();
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
     const [actionRunning, setActionRunning] = useState(false);
@@ -98,7 +99,8 @@ export function EditorScreen() {
         setDirty(false);
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
         setCurrentContent(content);
-    }, []);
+        setCurrentContentPath(selection?.path);
+    }, [selection]);
 
     const appContext = useMemo<ContextType<typeof AppContext>>(() => {
         async function dispatch(action: Action) {
@@ -131,6 +133,7 @@ export function EditorScreen() {
                         return JSON.stringify(currentContent, null, 2);
                     }
                 },
+                getCurrentDocPath: () => currentContentPath,
                 setCurrentDoc: setCurrentDoc,
                 loadNewDoc: loadNewDoc,
                 isAlreadyPublished: () => isAlreadyPublished,

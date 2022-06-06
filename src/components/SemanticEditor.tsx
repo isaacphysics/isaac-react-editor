@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, {useContext, useEffect, useMemo} from 'react';
 import { Alert, Spinner } from "reactstrap";
 
 import { AppContext } from "../App";
@@ -15,6 +15,7 @@ export interface EditorState {
     getDirty: () => boolean;
     getCurrentDoc: () => Content;
     getCurrentDocAsString: () => string;
+    getCurrentDocPath: () => string | undefined;
     setCurrentDoc: (newContent: Content|string) => void;
     loadNewDoc: (newContent: Content|string) => void;
     isAlreadyPublished: () => boolean;
@@ -24,6 +25,7 @@ export const defaultEditorState: EditorState = {
     getDirty: () => false,
     getCurrentDoc: () => ({}),
     getCurrentDocAsString: () => "",
+    getCurrentDocPath: () => undefined,
     setCurrentDoc: () => {
         throw new Error("setCurrentDoc called outside of AppContent");
     },
@@ -58,7 +60,8 @@ export function SemanticEditor() {
         </div>;
     }
 
-    if (!data) {
+    // If we don't have github data yet, or the doc is waiting to be updated, then show a spinner
+    if (!data || (appContext.selection.getSelection()?.path !== appContext.editor.getCurrentDocPath())) {
         return <div className={styles.centered}>
             <Spinner size="large" />
         </div>;
