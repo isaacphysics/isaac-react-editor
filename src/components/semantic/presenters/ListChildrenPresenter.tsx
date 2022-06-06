@@ -31,10 +31,10 @@ export function InsertButton({onClick}: { onClick: () => void }) {
     </div>;
 }
 
-export function PlainInserter<T>(empty: T) {
+export function PlainInserter<T extends Content>(empty: T) {
     // noinspection UnnecessaryLocalVariableJS
     const PlainInserter = ({insert, position}: InserterProps) =>
-        <InsertButton onClick={() => insert(position, empty as Content)}/>;
+        <InsertButton onClick={() => insert(position, {...empty})}/>;
     return PlainInserter;
 }
 
