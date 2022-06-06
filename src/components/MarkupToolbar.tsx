@@ -13,7 +13,7 @@ import {
     makeStrikethrough
 } from "../utils/codeMirrorExtensions";
 
-export const MarkupToolbar = ({codemirror, encoding, type}: { codemirror: RefObject<ReactCodeMirrorRef>, encoding: string | undefined, type: string | undefined }) => {
+export const MarkupToolbar = ({codemirror, encoding}: { codemirror: RefObject<ReactCodeMirrorRef>, encoding: string | undefined }) => {
     const view = codemirror.current?.view;
 
     if (isMarkupEncoding(encoding)) {
@@ -36,7 +36,7 @@ export const MarkupToolbar = ({codemirror, encoding, type}: { codemirror: RefObj
             </button>
             {encodingSpecific(
                 <>
-                    {type === "isaacClozeQuestion" && <PopupDropZoneInsert codemirror={codemirror}/>}
+                    <PopupDropZoneInsert codemirror={codemirror}/>
                     {SITE === "CS" && <PopupGlossaryTermSelect codemirror={codemirror}/>}
                 </>,
                 null,

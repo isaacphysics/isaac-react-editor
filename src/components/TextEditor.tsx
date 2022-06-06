@@ -76,7 +76,7 @@ export function TextEditor() {
                 appContext.editor.setCurrentDoc(value);
             }}
         >
-            <MarkupToolbar codemirror={codemirror} encoding={currentDoc.encoding} type={currentDoc.type} />
+            <MarkupToolbar codemirror={codemirror} encoding={currentDoc.encoding} />
         </CodeMirror>
     </div>;
 }
