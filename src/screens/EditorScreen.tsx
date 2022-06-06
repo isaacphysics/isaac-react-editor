@@ -1,37 +1,42 @@
-import React, { ContextType, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SWRConfig, useSWRConfig } from "swr";
-import { Params, useNavigate, useParams } from "react-router-dom";
-import { useLocation } from "react-router";
-import { Modal, Spinner } from "reactstrap";
+import React, {ContextType, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {SWRConfig, useSWRConfig} from "swr";
+import {Params, useNavigate, useParams} from "react-router-dom";
+import {useLocation} from "react-router";
+import {Modal, Spinner} from "reactstrap";
+import {ErrorBoundary} from "react-error-boundary";
 
-import { Selection } from "../components/FileBrowser";
-import { LeftMenu } from "../components/LeftMenu";
-import { AppContext, browserHistory } from "../App";
-import { defaultGithubContext, fetcher } from "../services/github";
-import { SemanticEditor } from "../components/SemanticEditor";
-import { Content } from "../isaac-data-types";
-import { Action, doDispatch } from "../services/commands";
-import { useFixedRef } from "../utils/hooks";
-import { TextEditor } from "../components/TextEditor";
-import { Preview, PreviewMode } from "../components/Preview";
+import {Selection} from "../components/FileBrowser";
+import {LeftMenu} from "../components/LeftMenu";
+import {AppContext, browserHistory} from "../App";
+import {defaultGithubContext, fetcher} from "../services/github";
+import {SemanticEditor} from "../components/SemanticEditor";
+import {Content} from "../isaac-data-types";
+import {Action, doDispatch} from "../services/commands";
+import {useFixedRef} from "../utils/hooks";
+import {TextEditor} from "../components/TextEditor";
+import {Preview, PreviewMode} from "../components/Preview";
 
-import { MenuModal, MenuModalRef } from "./MenuModal";
+import {MenuModal, MenuModalRef} from "./MenuModal";
 
 import styles from "../styles/editor.module.css";
+import {buildPageError} from "../components/PageError";
 
-function paramsToSelection(params: Readonly<Params>): Selection {
-    let path = params["*"];
-    if (!path) {
-        return null;
-    }
-    const isDir = path.charAt(path.length - 1) === "/";
-    if (isDir) {
-        path = path.substring(0, path.length - 1);
-    }
-    return {
-        isDir,
-        path,
-    };
+function useParamsToSelection(params: Readonly<Params>): Selection {
+    return useMemo<Selection>(() => {
+        let path = params["*"];
+        if (!path) {
+            return null;
+        }
+        const isDir = path.charAt(path.length - 1) === "/";
+        if (isDir) {
+            path = path.substring(0, path.length - 1);
+        }
+        console.log("Change!");
+        return {
+            isDir,
+            path,
+        };
+    }, [params]);
 }
 
 export function EditorScreen() {
@@ -45,7 +50,7 @@ export function EditorScreen() {
     const [previewMode, setPreviewMode] = useState<PreviewMode>(window.innerWidth > 1400 ? "panel" : "modal");
     const [previewOpen, setPreviewOpen] = useState(false);
 
-    const selection = paramsToSelection(params);
+    const selection = useParamsToSelection(params);
     const setSelection = useCallback((selection: Selection) => {
         let url = `/edit/${params.branch}`;
         if (selection) {
@@ -180,18 +185,20 @@ export function EditorScreen() {
         <AppContext.Provider value={appContext}>
             <div className={styles.editorScreen}>
                 <LeftMenu />
-                {hasFileOpen ?
-                    selection.path.endsWith(".json") ?
-                        <SemanticEditor />
-                        : <TextEditor />
-                    :
-                    <div className={styles.centered}>
-                        Choose a file on the left to edit
-                    </div>
-                }
-                {previewMode === "panel" && <div className={showPreview ? styles.flexFill : styles.displayNone}>
-                    {previewComponent}
-                </div>}
+                <ErrorBoundary FallbackComponent={buildPageError(selection?.path)} onResetKeysChange={() => setCurrentContent({})} onReset={() => setCurrentContent({})} resetKeys={[selection]}>
+                    {hasFileOpen ?
+                        selection.path.endsWith(".json") ?
+                            <SemanticEditor />
+                            : <TextEditor />
+                        :
+                        <div className={styles.centered}>
+                            Choose a file on the left to edit
+                        </div>
+                    }
+                    {previewMode === "panel" && <div className={showPreview ? styles.flexFill : styles.displayNone}>
+                        {previewComponent}
+                    </div>}
+                </ErrorBoundary>
             </div>
             {previewMode === "modal" &&
                 <Modal isOpen={showPreview} className={styles.previewModal} contentClassName={styles.previewModalContent}>
