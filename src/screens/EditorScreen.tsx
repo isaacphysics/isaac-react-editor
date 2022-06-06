@@ -31,7 +31,6 @@ function useParamsToSelection(params: Readonly<Params>): Selection {
         if (isDir) {
             path = path.substring(0, path.length - 1);
         }
-        console.log("Change!");
         return {
             isDir,
             path,
