@@ -118,7 +118,6 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
                 type: "rename",
                 path: item.path,
                 name: item.name,
-                sha: item.sha,
             })} text="Rename..." />}
             {item?.type === "file" && isCurrentFile && <MenuItem onClick={() => appContext.dispatch({
                 type: "saveAs",

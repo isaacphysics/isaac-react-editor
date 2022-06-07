@@ -55,7 +55,7 @@ function App() {
             {loggedIn && <>
                 <Route path="edit/:branch/*" element={<EditorScreen />} />
                 <Route path="edit/:branch" element={<EditorScreen />} />
-                <Route path="*" element={<RedirectTo path="edit/master" />} />
+                <Route path="*" element={<RedirectTo path={`edit/${defaultGithubContext.branch}`} />} />
             </>}
         </Routes>
     </HistoryRouter>;
