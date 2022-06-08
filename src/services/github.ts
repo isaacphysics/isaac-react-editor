@@ -18,6 +18,17 @@ export function githubReplaceWithConfig(path: string) {
     });
 }
 
+// GitHub asks the browser to cache some of its responses for 60 seconds, so situations like the following can occur:
+//  - User loads the app and latest content
+//  - User deletes a file
+//  - User reloads the page
+//  - Content is fetched again, but is retrieved from the browser cache because the request is the same
+//  - File that the user just deleted is back again
+//  - Attempts to interact with this file (save, rename, etc.) might result in weird behaviour
+//
+// We could circumvent this by adding a timestamp query param to every request so the browser caches them separately,
+// but GitHub really wouldn't want us to do this, and this kind of issue only arises when the page is reloaded. The
+// content teams were presumably coping with this problem in the old editor, so we have decided *not* to fix it.
 export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> & {body: Record<string, unknown>}) => {
     const fullPath = "https://api.github.com/" + githubReplaceWithConfig(path);
 
