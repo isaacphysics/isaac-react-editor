@@ -5,14 +5,17 @@ import { InputType } from "reactstrap/lib/Input";
 import { Content } from "../../isaac-data-types";
 
 import { PresenterProps } from "./registry";
-import styles from "./styles/metadata.module.css";
 import { MetaItems } from "./metaItems";
+import { isDefined } from "../../utils/types";
+
+import styles from "./styles/metadata.module.css";
 
 export interface MetaOptions {
     hasWarning?: (value: unknown) => string | undefined;
     type?: InputType;
     presenter?: React.FunctionComponent<MetaItemPresenterProps>;
     defaultValue?: unknown;
+    deleteIfEmpty?: boolean;
     options?: Record<string, string>;
 }
 type MetaItem = string | [string, MetaOptions];
@@ -60,9 +63,11 @@ export type MetaItemPresenterProps<D extends Content = Content> =
 export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaItemPresenterProps) {
     const [warning, setWarning] = useState<string>();
 
-    let value = (doc[prop as keyof Content] as string ?? options?.defaultValue) ?? "";
-    switch (options?.type) {
-        case "datetime-local": value = new Date(value).toJSON()?.slice(0, -8); break;
+    let value: string | undefined = doc[prop as keyof Content] as string ?? options?.defaultValue;
+    if (value !== undefined) {
+        switch (options?.type) {
+            case "datetime-local": value = new Date(value).toJSON()?.slice(0, -8); break;
+        }
     }
 
     const onChange = (value: string) => {
@@ -72,6 +77,9 @@ export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaIt
             case "datetime-local": newValue = new Date(value).valueOf(); break;
         }
         checkWarning(options, newValue, setWarning);
+        if (options?.deleteIfEmpty && value.replace(/\s/g, "").length === 0) {
+            newValue = undefined;
+        }
         update({
             ...doc,
             [prop]: newValue,
