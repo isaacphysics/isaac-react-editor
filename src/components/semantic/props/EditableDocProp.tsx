@@ -32,6 +32,6 @@ export const EditableDocPropFor = <
 };
 
 export const EditableIDProp = EditableDocPropFor("id", {block: true});
-export const EditableTitleProp = EditableDocPropFor("title", {latex: true, block: true});
+export const EditableTitleProp = EditableDocPropFor("title", {format: "latex", block: true});
 export const EditableSubtitleProp = EditableDocPropFor("subtitle", {block: true});
 export const EditableValueProp = EditableDocPropFor("value", {block: true});

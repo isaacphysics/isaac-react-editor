@@ -255,10 +255,10 @@ const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQue
         }}
         text={doc.availableSymbols?.map(unit => unit.trim()).join(", ")}
         label="Available symbols"
-        latex
+        format={"latex"}
     />;
 };
-const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed", {latex: true, label: "Formula seed", placeHolder: "Enter initial state here"});
+const EditableFormulaSeed = EditableDocPropFor<IsaacSymbolicQuestion>("formulaSeed", {format: "latex", label: "Formula seed", placeHolder: "Enter initial state here"});
 
 const availableMetaSymbols = [
     ["_trigs", "Trigs"],

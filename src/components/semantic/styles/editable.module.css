@@ -75,3 +75,7 @@ span.isEditingWrapper {
     border: 1px dashed;
     padding: 0.5em;
 }
+
+.codeFormat {
+    font-family: monospace;
+}

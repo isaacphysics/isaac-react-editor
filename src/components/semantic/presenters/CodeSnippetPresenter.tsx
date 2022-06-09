@@ -50,7 +50,7 @@ export function CodeSnippetPresenter(props: PresenterProps<CodeSnippet>) {
     return <>
         <LanguageSelector {...props} />
         <CheckboxDocProp {...props} prop="disableHighlighting" label="Disable highlighting" />
-        <EditableCode {...props} label="Code" multiLine block />
+        <EditableCode {...props} label="Code" multiLine block format="code" />
         <EditableUrl {...props} label="Url" block />
     </>;
 }

@@ -42,12 +42,12 @@ export const MetaItems = asMetaItems({
             }
         }
     }],
-    subtitle: "Subtitle",
+    subtitle: ["Subtitle", {deleteIfEmpty: true}],
     author: "Author",
     appId: "App ID",
     appAccessKey: "Access Key",
-    attribution: "Attribution",
-    supersededBy: "Superseded By",
+    attribution: ["Attribution", {deleteIfEmpty: true}],
+    supersededBy: ["Superseded By", {deleteIfEmpty: true}],
     level: ["Level", {type: "number", hasWarning: (value) => {
         const level = value as number; // Already parsed by virtue of type: "number"
         if (isNaN(level) || level < 1 || level > 6) {
