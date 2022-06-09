@@ -10,7 +10,7 @@ const EditableUrlProp = EditableDocPropFor<IsaacPod>("url");
 
 export function PodPresenter(props: PresenterProps<IsaacPod>) {
     return <>
-        <h4><EditableTitleProp {...props} label="Title" latex={false} /></h4>
+        <h4><EditableTitleProp {...props} label="Title" /></h4>
         <EditableValueProp {...props} label="Pod text" block />
         <EditableUrlProp {...props} label="Url" placeHolder="Pod link Url" block />
         <SemanticDocProp {...props} prop="image" />

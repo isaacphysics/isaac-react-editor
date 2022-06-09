@@ -15,10 +15,21 @@ import { safeLowercase } from "../../../utils/strings";
 import { LaTeX } from "../../../isaac/LaTeX";
 
 import styles from "../styles/editable.module.css";
+import classNames from "classnames";
 
 export interface SaveOptions {
     movement?: number;
     fromBlur?: boolean;
+}
+
+export type EditableTextFormat = "latex" | "code" | "plain";
+
+export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
+
+const textFormatMap: {[K in EditableTextFormat]: (text: string, multiline?: boolean) => React.ReactNode} = {
+    latex: text => <LaTeX markup={text}/>,
+    code: (text, ml) => <pre>{ml ? escapedNewLineToLineBreakTag(text) : text}</pre>,
+    plain: (text, ml) => ml ? escapedNewLineToLineBreakTag(text) : text,
 }
 
 export type EditableTextProps = {
@@ -33,11 +44,9 @@ export type EditableTextProps = {
     noSupressSaves?: boolean;
     hideWhenEmpty?: boolean
     block?: boolean;
-    latex?: boolean;
+    format?: EditableTextFormat;
     inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value">;
 };
-
-export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
 
 interface EditableTextState {
     isEditing: boolean;
@@ -87,7 +96,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  noSupressSaves,
                                  hideWhenEmpty,
                                  block,
-                                 latex,
+                                 format = "plain",
                                  inputProps,
                              }, ref) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -198,37 +207,22 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
         return <Wrap ref={wrapperRef} className={`${styles.isEditingWrapper} ${multiLine ? styles.multiLine : ""}`}>
             <span className={styles.controlWrapper}>
                 <span className={styles.labelledInput}>
-                    {multiLine ?
-                        <>
-                            <div>{labelElement}</div>
-                            <Input type="textarea"
-                                /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                                   autoFocus
-                                   value={state.value ?? ""}
-                                   onChange={e => setCurrent(e.target.value)}
-                                   onKeyDown={handleKey}
-                                   placeholder={placeHolder}
-                                   onBlur={onBlur}
-                                   {...inputProps}
-                            />
-                        </>
-                        :
-                        <>
-                            {labelElement}
-                            <Input type="text"
-                                /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                                   autoFocus
-                                   value={state.value ?? ""}
-                                   onChange={e => setCurrent(e.target.value)}
-                                   onKeyDown={handleKey}
-                                   placeholder={placeHolder}
-                                   onBlur={onBlur}
-                                   invalid={!!errorMessage}
-                                   {...inputProps}
-                            />
-                        </>
-
-                    }
+                    <>
+                        {multiLine ? labelElement : <div>{labelElement}</div>}
+                        <Input
+                            type={multiLine ? "textarea" : "text"}
+                            /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                            autoFocus
+                            value={state.value ?? ""}
+                            onChange={e => setCurrent(e.target.value)}
+                            onKeyDown={handleKey}
+                            placeholder={placeHolder}
+                            onBlur={onBlur}
+                            invalid={!!errorMessage}
+                            className={format === "code" && styles.codeFormat}
+                            {...inputProps}
+                        />
+                    </>
                 </span>
                 {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
             </span>
@@ -237,23 +231,14 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
         </Wrap>
     }
     if (nonEmpty) {
-        return multiLine ?
-            <Wrap className={`${styles.notEditingWrapper} ${styles.multiLine}`}>
-                <button className={styles.startEdit} onClick={startEdit}>
-                    {labelElement}
-                    {text === undefined ? <i>{placeHolder}</i> : latex ? <LaTeX markup={text} /> : escapedNewLineToLineBreakTag(text)}
-                </button>
-            </Wrap>
-            :
-            <Wrap className={styles.notEditingWrapper}>
-                <button className={styles.startEdit} onClick={startEdit}>
-                    {labelElement}
-                    {text === undefined ?
-                        <i>{placeHolder}</i> : latex ? <LaTeX markup={text} /> : text}
-                    {onDelete.current &&
-                        <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
-                </button>
-            </Wrap>;
+        return <Wrap className={classNames(styles.notEditingWrapper, {[styles.multiLine]: multiLine})}>
+            <button className={styles.startEdit} onClick={startEdit}>
+                {labelElement}
+                {text === undefined ?
+                    <i>{placeHolder}</i> : textFormatMap[format](text, multiLine)}
+                {onDelete.current && <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
+            </button>
+        </Wrap>;
     }
     return <Wrap className={styles.notEditingWrapper}>
         <Button onClick={startEdit}>Set {labelLC || placeHolderLC}</Button>
