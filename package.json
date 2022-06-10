@@ -10,10 +10,10 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.4.0",
     "@types/node": "^16.11.22",
-    "@types/react": "^17.0.38",
+    "@types/react": "^16.8.5",
+    "@types/react-dom": "^16.8.5",
     "@types/react-beautiful-dnd": "^13.1.2",
-    "@types/react-dom": "^17.0.11",
-    "@uiw/react-codemirror": "^4.7.0",
+    "@uiw/react-codemirror": "~4.7.0",
     "bootstrap": "^4.6.1",
     "classnames": "^2.3.1",
     "he": "^1.2.0",
@@ -78,7 +78,7 @@
     "@types/he": "^1.1.2",
     "@types/js-cookie": "^3.0.1",
     "@types/katex": "^0.10.1",
-    "@types/react-test-renderer": "^17.0.1",
+    "@types/react-test-renderer": "^16.0.0",
     "@types/remarkable": "^1.7.4",
     "react-test-renderer": "^16.14.0"
   }
