@@ -12,8 +12,6 @@ import { Entry } from "../FileBrowser";
 
 import styles from "../../styles/editor.module.css";
 import { githubReplaceWithConfig } from "../../services/github";
-import { Content } from "../../isaac-data-types";
-import { StagingServer } from "../../services/isaacApi";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
 
 type PopupEntry = Entry & {
@@ -55,25 +53,6 @@ function MenuItem({
     </li>;
 }
 
-function getPreviewLink(doc: Content) {
-    if (doc && doc.id) {
-        switch (doc.type) {
-        case "isaacConceptPage":
-            return `${StagingServer}/concepts/${doc.id}`;
-        case "isaacQuestionPage":
-        case "isaacFastTrackQuestionPage":
-            return `${StagingServer}/questions/${doc.id}`;
-        case "isaacTopicSummaryPage":
-            return `${StagingServer}/topics/${doc.id.slice("topic_summary_".length)}`;
-        case "isaacEventPage":
-            return `${StagingServer}/events/${doc.id}`;
-        case "page":
-            return `${StagingServer}/pages/${doc.id}`;
-        case "isaacQuiz":
-            return `${StagingServer}/quiz/preview/${doc.id}`;
-        }
-    }
-}
 
 export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | null> }) {
     const [item, setItem] = useState<PopupEntry>(undefined as unknown as PopupEntry);
@@ -82,16 +61,6 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
     const popupRef = useRef<PopupRef>(null);
 
     const isCurrentFile = item?.path === appContext.selection.getSelection()?.path;
-
-    let previewLink;
-    try {
-        // Preview only for currently selected document
-        if (isCurrentFile) {
-            previewLink = getPreviewLink(appContext.editor.getCurrentDoc());
-        }
-    } catch {
-        // No current doc so no preview
-    }
 
     useImperativeHandle(menuRef, () => ({
         open: (event, item) => {
@@ -138,7 +107,6 @@ export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | 
             {item?.type === "file" && <MenuItem href={`${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/issues/new")}?body=${encodeURIComponent(
                     `Issue found in ${item.path} by ${appContext.github.user.login}.\n\n<Describe issue here>`
             )}`} text="Report issue on github"/>}
-            {item?.type === "file" && previewLink && <MenuItem href={previewLink} text="Preview on staging" />}
         </ul>
     </Popup>;
 }
