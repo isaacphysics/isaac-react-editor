@@ -1,0 +1,19 @@
+version: "2"
+services:
+  editor:
+    build:
+      context: .
+    container_name: isaac-editor
+    restart: always
+networks:
+  default:
+    external:
+      name: isaac
+
+#    network_mode: bridge
+#    ports:
+#      - "8421:80"
+#networks:
+#  default:
+#    external:
+#      name: bridge
