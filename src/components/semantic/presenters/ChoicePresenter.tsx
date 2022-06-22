@@ -14,7 +14,6 @@ import {
     RegexPattern,
     StringChoice
 } from "../../../isaac-data-types";
-import {TrustedHtml} from "../../../isaac/TrustedHtml";
 
 import {
     BaseValuePresenter,
@@ -34,6 +33,7 @@ import {ItemsContext} from "./ItemQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
 import {QuestionContext} from "./questionPresenters";
+import {Markup} from "../../../isaac/markup";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -71,12 +71,12 @@ export const QuantityPresenter = buildValuePresenter(
 
             const unit = displayUnit || "{" + (doc.units || "") + "}";
             const html = "$\\quantity{" + (doc.value || "") + "}" + unit + "$";
-            return <TrustedHtml html={html} />;
+            return <Markup trusted-markup-encoding="html">{html}</Markup>;
         } else {
             return <>
                 <LabeledInput value={value} prop="value" label="Quantity" />
                 {displayUnit ?
-                    <TrustedHtml html={"$" + displayUnit + "$"} /> :
+                    <Markup trusted-markup-encoding="html">{"$" + displayUnit + "$"}</Markup> :
                     <LabeledInput value={value} prop="units" label="Units" />}
             </>;
         }
@@ -91,7 +91,7 @@ export const FormulaPresenterInner = buildValuePresenter(
             if (doc.value === undefined || doc.value === "") {
                 return <div><em>Enter value and python expression here</em></div>;
             } else {
-                return <div><TrustedHtml html={doc.value} /><pre>PYTHON: {doc.pythonExpression}</pre></div>
+                return <div><Markup trusted-markup-encoding="html">{doc.value}</Markup><pre>PYTHON: {doc.pythonExpression}</pre></div>
             }
         } else {
             return <>
@@ -118,7 +118,7 @@ export const ChemicalFormulaPresenter = buildValuePresenter(
             if (doc.mhchemExpression === undefined || doc.mhchemExpression === "") {
                 return <div><em>Enter mhchem formula here</em></div>;
             } else {
-                return <TrustedHtml html={`$\\ce{${doc.mhchemExpression}}$`} />;
+                return <Markup trusted-markup-encoding="html">{`$\\ce{${doc.mhchemExpression}}$`}</Markup>;
             }
         } else {
             return <>

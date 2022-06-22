@@ -181,6 +181,17 @@ const denominatorMap = {
     "100": "hundredth"
 };
 
+const arrowMap = {
+    "\\xleftarrow": "arrow left",
+    "\\xrightarrow": "arrow right",
+    "\\xLeftarrow": "arrow left",
+    "\\xRightarrow": "arrow right",
+    "\\xleftrightarrow": "arrow left and right",
+    "\\xLeftrightarrow": "arrow left and right",
+    "\\xmapsto": "maps to",
+    "\\xrightleftarrows": "arrow left and right",
+}
+
 
 const buildString = (str, type, a11yStrings) => {
     if (!str) {
@@ -197,6 +208,8 @@ const buildString = (str, type, a11yStrings) => {
         ret = binMap[str] || str;
     } else if (type === "rel") {
         ret = relMap[str] || str;
+    } else if (type === "arrow") {
+        ret = arrowMap[str] || "arrow";
     } else {
         ret = stringMap[str] || str;
     }
@@ -204,8 +217,8 @@ const buildString = (str, type, a11yStrings) => {
     // If the text to add is a number and the last string is a number, then
     // combine them into a single number. Do similar if this text is inside a
     // 'start text' region.
-    const numRegex = /^\d+$/;
-    const startTextRegex = /^start ((bold|italic) )?text$/;
+    let numRegex = /^\d+$/;
+    let startTextRegex = /^start ((bold|italic) )?text$/;
     if (
         (a11yStrings.length > 0 && numRegex.test(ret) && numRegex.test(a11yStrings[a11yStrings.length - 1])) ||
         (a11yStrings.length > 1 && type === "normal" && startTextRegex.test(a11yStrings[a11yStrings.length - 2]))
@@ -463,7 +476,7 @@ const handleObject = (tree, a11yStrings, atomType) => {
 
         case "supsub": {
             const {base, sub, sup} = tree;
-            const opType = (base && base.type === "op") ? base.name : null;
+            let opType = (base && base.type === "op") ? base.name : null;
             let isSimpleSubscriptVariable = false;
 
             // case e.g. "q_{1}q_{2}" to be read as "q one q two":
@@ -556,9 +569,14 @@ const handleObject = (tree, a11yStrings, atomType) => {
                     modifier = "";
             }
             buildRegion(a11yStrings, function(regionStrings) {
-                regionStrings.push(`start ${modifier} text`.replace(/\s+/, " "));
-                buildA11yStrings(tree.body, regionStrings, atomType);
-                regionStrings.push(`end ${modifier} text`.replace(/\s+/, " "));
+                const dropZoneRegex = /\[drop-zone(?<params>\|(?<width>w-\d+?)?(?<height>h-\d+?)?)?]/g;
+                if (tree.body.map(a => a.hasOwnProperty("text") ? a.text : "").join("").search(dropZoneRegex) !== -1) {
+                    regionStrings.push("clickable drop zone");
+                } else {
+                    regionStrings.push(`start ${modifier} text`.replace(/\s+/, " "));
+                    buildA11yStrings(tree.body, regionStrings, atomType);
+                    regionStrings.push(`end ${modifier} text`.replace(/\s+/, " "));
+                }
             });
             break;
         }
@@ -604,11 +622,15 @@ const handleObject = (tree, a11yStrings, atomType) => {
         }
 
         case "vphantom": {
-            throw new Error("KaTeX-a11y: vphantom not implemented yet");
+            // We should simply be able to ignore \vphantom.
+            // Breaking here also prevents the translation from going into the actual element
+            // which turns out to be \vphantom{X} and so "A Wild X Appears!"
+            break;
         }
 
         case "hphantom": {
-            throw new Error("KaTeX-a11y: hphantom not implemented yet");
+            // Same as above, I suppose.
+            break;
         }
 
         case "operatorname": {
@@ -696,7 +718,8 @@ const handleObject = (tree, a11yStrings, atomType) => {
         }
 
         case "xArrow": {
-            throw new Error("KaTeX-a11y: xArrow not implemented yet");
+            buildString(tree.label, "arrow", a11yStrings);
+            break;
         }
 
         case "mclass": {

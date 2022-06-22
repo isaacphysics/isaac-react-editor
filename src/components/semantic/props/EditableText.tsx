@@ -12,10 +12,10 @@ import React, {
 import { Button, FormFeedback, Input, InputProps } from "reactstrap";
 
 import { safeLowercase } from "../../../utils/strings";
-import { LaTeX } from "../../../isaac/LaTeX";
 
 import styles from "../styles/editable.module.css";
 import classNames from "classnames";
+import {Markup} from "../../../isaac/markup";
 
 export interface SaveOptions {
     movement?: number;
@@ -27,7 +27,7 @@ export type EditableTextFormat = "latex" | "code" | "plain";
 export const escapedNewLineToLineBreakTag = (string: string) => string.split('\n').map((item: string, index: number) => (index === 0) ? item : [<br key={index}/>, item])
 
 const textFormatMap: {[K in EditableTextFormat]: (text: string, multiline?: boolean) => React.ReactNode} = {
-    latex: text => <LaTeX markup={text}/>,
+    latex: text => <Markup encoding="latex">{text}</Markup>,
     code: (text, ml) => <pre>{ml ? escapedNewLineToLineBreakTag(text) : text}</pre>,
     plain: (text, ml) => ml ? escapedNewLineToLineBreakTag(text) : text,
 }

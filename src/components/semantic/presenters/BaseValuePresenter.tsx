@@ -13,11 +13,10 @@ import { Button } from "reactstrap";
 
 import styles from "../styles/value.module.css";
 import { Content } from "../../../isaac-data-types";
-import { TrustedHtml } from "../../../isaac/TrustedHtml";
-import { TrustedMarkdown } from "../../../isaac/TrustedMarkdown";
 import { getEntryType, PresenterProps } from "../registry";
 import {keyBindings, wordCounter} from "../../../utils/codeMirrorExtensions";
 import {MarkupToolbar} from "../../MarkupToolbar";
+import {Markup} from "../../../isaac/markup";
 
 export interface ValuePresenterRef {
     startEdit: () => void;
@@ -99,9 +98,9 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
         }
         switch (doc.encoding) {
             case "html":
-                return <TrustedHtml html={doc.value}/>;
+                return <Markup trusted-markup-encoding="html">{doc.value}</Markup>;
             case "markdown":
-                return <TrustedMarkdown markdown={doc.value}/>;
+                return <Markup trusted-markup-encoding="markdown">{doc.value}</Markup>;
             case "plain":
                 return <pre>{doc.value}</pre>;
             default:

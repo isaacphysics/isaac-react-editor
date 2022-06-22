@@ -1,13 +1,10 @@
-import React, { useContext } from "react";
-import katex from "katex";
+import {useContext} from "react";
+import {useSelector} from "react-redux";
 import he from "he";
-import { escapeHtml } from "remarkable/lib/common/utils";
-
-import 'katex/dist/contrib/mhchem.js';
-
-import renderA11yString from "./katex-a11y";
-
-import { BooleanNotation, FigureNumberingContext, FigureNumbersById } from "./IsaacTypes";
+import katex, { KatexOptions } from "katex";
+import 'katex/dist/contrib/mhchem.mjs';
+import {BooleanNotation, FigureNumberingContext, FigureNumbersById} from "../IsaacTypes";
+import renderA11yString from "../katex-a11y";
 
 type MathJaxMacro = string|[string, number];
 
@@ -82,22 +79,23 @@ function mathjaxToKatex(macros: {[key: string]: MathJaxMacro}) {
         if (typeof value != 'string') {
             value = value[0];
         }
+        // @ts-ignore
         acc[name] = value;
         return acc;
-    }, {} as Record<string, string>);
+    }, {});
 }
 
 // Create MathJax versions for each of the two syntaxes, then create KaTeX versions of those:
 const MacrosWithMathsBoolean = Object.assign({}, BaseMacros, BooleanLogicMathsMacros);
 const MacrosWithEngineeringBoolean = Object.assign({}, BaseMacros, BooleanLogicEngineeringMacros);
+const KatexBaseMacros = mathjaxToKatex(BaseMacros);
 const KatexMacrosWithMathsBool = mathjaxToKatex(MacrosWithMathsBoolean);
 const KatexMacrosWithEngineeringBool = mathjaxToKatex(MacrosWithEngineeringBoolean);
 
-const KatexOptions = {
+const customKatexOptions: KatexOptions = {
     throwOnError: false,
     strict: false,
     colorIsTextColor: true,
-    output: "html" as const,
 };
 
 function patternQuote(s: string) {
@@ -110,7 +108,7 @@ function endPattern(end: string) {
 
 function sortLength(a: string, b: string) {
     if (a.length !== b.length) {return b.length - a.length}
-    return (a === b ? 0 : (a < b ? -1 : 1));
+    return (a == b ? 0 : (a < b ? -1 : 1));
 }
 
 const config = {
@@ -173,14 +171,15 @@ interface Search {
 
 function startMatch(match: RegExpMatchArray): Search {
     const key: string = match[0];
-    const delim = matchers[key];
+    // @ts-ignore
+    var delim = matchers[key];
     if (delim != null) {                              // a start delimiter
         return {
             end: delim.end, endPattern: new RegExp(endPattern(delim.end), "g"), mode: delim.mode, pcount: 0,
             olen: match[0].length
         };
     } else if (match[0].substr(0,6) === "\\begin") {  // \begin{...}
-        const end = "\\end{" + match[1] + "}";
+        let end = "\\end{" + match[1] + "}";
         return {
             end: end, mode: "display", pcount: 0,
             endPattern: endPattern(end),
@@ -199,7 +198,7 @@ function startMatch(match: RegExpMatchArray): Search {
 }
 
 function endMatch(match: RegExpExecArray, search: Search) {
-    if (match[0] === search.end) {
+    if (match[0] == search.end) {
         if (search.pcount === 0) {
             search.matched = true;
             search.clen = search.isBeginEnd ? 0 : match[0].length;
@@ -220,7 +219,7 @@ const ENDREF = "==ENDREF==";
 const REF_REGEXP = new RegExp(REF + "(.*?)" + ENDREF, "g");
 const SR_REF_REGEXP = new RegExp("start text, " + REF_REGEXP.source + ", end text,", "g");
 
-export function katexify(html: string, booleanNotation : BooleanNotation | null,  screenReaderHoverText: boolean, figureNumbers: FigureNumbersById) {
+export function katexify(html: string, user: null, booleanNotation : BooleanNotation | null, showScreenReaderHoverText: boolean, figureNumbers: FigureNumbersById) {
     start.lastIndex = 0;
     let match: RegExpExecArray | null;
     let output = "";
@@ -242,7 +241,7 @@ export function katexify(html: string, booleanNotation : BooleanNotation | null,
         index = match.index;
 
         // Find blocks of LaTeX
-        const search = startMatch(match);
+        let search = startMatch(match);
         if (search.just) {
             output += search.just;
             index = match.index + match[0].length;
@@ -256,36 +255,49 @@ export function katexify(html: string, booleanNotation : BooleanNotation | null,
                 const latexUnEntitied = he.decode(latex);
                 const latexMunged = munge(latexUnEntitied);
                 let macrosToUse;
-                macrosToUse = booleanNotation && booleanNotation?.ENG ? KatexMacrosWithEngineeringBool : KatexMacrosWithMathsBool;
+                macrosToUse = booleanNotation?.ENG ? KatexMacrosWithEngineeringBool : KatexMacrosWithMathsBool;
                 macrosToUse = {...macrosToUse, "\\ref": (context: {consumeArgs: (n: number) => {text: string}[][]}) => {
                         const args = context.consumeArgs(1);
                         const reference = args[0].reverse().map((t: {text: string}) => t.text).join("");
                         return "\\text{" + REF + reference + ENDREF + "}";
                     }};
-                const katexOptions = {...KatexOptions, displayMode: search.mode === "display", macros: macrosToUse};
+                const katexOptions = {...customKatexOptions, displayMode: search.mode == "display", macros: macrosToUse, output: "html"} as KatexOptions;
                 let katexRenderResult = katex.renderToString(latexMunged, katexOptions);
-                katexRenderResult = katexRenderResult.replace(REF_REGEXP, (_, match: string) => {
+                katexRenderResult = katexRenderResult.replace(REF_REGEXP, (_, match) => {
                     return createReference(match, "unknown reference " + match);
                 });
 
-                let screenreaderText;
+                let screenReaderText;
                 try {
                     const pauseChars = katexOptions.displayMode ? ". &nbsp;" : ",";  // trailing comma/full-stop for pause in speaking
-                    screenreaderText = `${renderA11yString(latexMunged, katexOptions)}${pauseChars}`;
-                    screenreaderText = screenreaderText.replace(SR_REF_REGEXP, (_, match) => {
+                    screenReaderText = `${renderA11yString(latexMunged, katexOptions)}${pauseChars}`;
+                    screenReaderText = screenReaderText.replace(SR_REF_REGEXP, (_, match) => {
                         return createReference(match, "unknown reference " + match, false);
                     });
-                } catch (e) {
-                    // eslint-disable-next-line no-console
-                    console.warn(`Unsupported equation for screenreader text: '${latexMunged}'`, e);
-                    screenreaderText = "[[Unsupported equation]]";
+                } catch {
+                    screenReaderText = undefined;
                 }
-                katexRenderResult = katexRenderResult.replace('<span class="katex">',
-                    `<span class="katex"><span class="sr-only">${screenreaderText}</span>`);
 
-                if (screenReaderHoverText) {
+                // If katex-a11y fails, generate MathML using KaTeX for accessibility
+                if (screenReaderText) {
                     katexRenderResult = katexRenderResult.replace('<span class="katex">',
-                        `<span class="katex" title="${screenreaderText.replace(/,/g, "").replace(/\s\s+/g, " ")}">`);
+                        `<span class="katex"><span class="sr-only">${screenReaderText}</span>`);
+                } else {
+                    const katexMathML = katex.renderToString(latexMunged, {...katexOptions, output: "mathml"})
+                        .replace(`class="katex"`, `class="katex-mathml"`);
+                    katexRenderResult = katexRenderResult.replace('<span class="katex">',
+                        `<span class="katex">${katexMathML}`);
+                }
+
+                if (showScreenReaderHoverText) {
+                    // Show screenreader text on hover so we can easily tell what's being output by katex-a11y
+                    katexRenderResult = katexRenderResult.replace(
+                        '<span class="katex-html"',
+                        `<span class="katex-html" title="${
+                            screenReaderText ? 
+                                "Screenreader text: " + screenReaderText.replace(/,/g, "").replace(/\s\s+/g, " ") : 
+                                "Accessible with a screenreader that supports MathML"
+                        }"`);
                 }
 
                 output += katexRenderResult;
@@ -310,12 +322,12 @@ export function katexify(html: string, booleanNotation : BooleanNotation | null,
     return output;
 }
 
-export function LaTeX({markup, className}: {markup: string, className?: string}) {
-    const figureNumbers = useContext(FigureNumberingContext);
-
-    const escapedMarkup = escapeHtml(markup);
-    const katexHtml = katexify(escapedMarkup, null, false, figureNumbers);
-
-    return <span dangerouslySetInnerHTML={{__html: katexHtml}} className={className} />
+class AppState {
 }
 
+// A hook wrapper around katexify that gets its required parameters from the current redux state and existing figure numbering context
+export const useRenderKatex = () => {
+    const figureNumbers = useContext(FigureNumberingContext);
+
+    return (markup: string) => katexify(markup, null, null, true, figureNumbers);
+}
