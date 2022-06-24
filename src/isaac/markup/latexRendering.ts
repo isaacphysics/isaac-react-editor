@@ -79,6 +79,7 @@ function mathjaxToKatex(macros: {[key: string]: MathJaxMacro}) {
         if (typeof value != 'string') {
             value = value[0];
         }
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         acc[name] = value;
         return acc;
@@ -171,8 +172,9 @@ interface Search {
 
 function startMatch(match: RegExpMatchArray): Search {
     const key: string = match[0];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    var delim = matchers[key];
+    let delim = matchers[key];
     if (delim != null) {                              // a start delimiter
         return {
             end: delim.end, endPattern: new RegExp(endPattern(delim.end), "g"), mode: delim.mode, pcount: 0,
