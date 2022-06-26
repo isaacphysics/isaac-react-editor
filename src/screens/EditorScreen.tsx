@@ -39,6 +39,40 @@ function useParamsToSelection(params: Readonly<Params>): Selection {
     }, [params]);
 }
 
+interface CollapsableArg {preview: {open: boolean, toggle: () => void}}
+function useCollapsableDragElement(appContext: CollapsableArg): [(col: number) => HTMLElement, number | undefined] {
+    const [collapsed, setCollapsed] = useState<undefined | number>();
+    const dragElement = useCallback(function(columnIndex: number) {
+        const gutterDiv = document.createElement('div');
+        gutterDiv.innerHTML = columnIndex === 1 ? "Files" : "Quick Preview";
+        gutterDiv.className = styles.gutter;
+
+        // Collapse on double click
+        gutterDiv.addEventListener("dblclick", function() {
+            setCollapsed(columnIndex === 1 ? 0 : 2);
+        });
+
+        // Clear collapsed on drag interaction so that we can collapse another column in the future
+        gutterDiv.addEventListener("dragend", function() {setCollapsed(undefined);})
+
+        // Lazy start preview panel
+        if (columnIndex === 2) {
+            gutterDiv.addEventListener("click", function lazyStartPreviewPanel() {
+                if (!appContext.preview.open) {appContext.preview.toggle();}
+            });
+        }
+
+        return gutterDiv;
+    }, []);
+
+    // Stop preview panel if it is collapsed
+    useEffect(function closePreviewIfPanelCollapsed() {
+        if (collapsed === 2 && appContext.preview.open) {appContext.preview.toggle();}
+    }, [collapsed]);
+
+    return [dragElement, collapsed];
+}
+
 export function EditorScreen() {
     const params = useParams();
     const navigate = useNavigate();
@@ -184,23 +218,13 @@ export function EditorScreen() {
     const hasFileOpen = selection && !selection.isDir;
     const showPreview = !!hasFileOpen && previewOpen;
 
-    const [collapsed, setCollapsed] = useState<undefined | number>();
-    const dragElement = useCallback(function(columnIndex: number) {
-        const gutterDiv = document.createElement('div');
-        gutterDiv.innerHTML = columnIndex === 1 ? "Files" : "Quick Preview";
-        gutterDiv.className = styles.gutter;
-        gutterDiv.addEventListener("dblclick", function() {
-            setCollapsed(columnIndex === 1 ? 0 : 2);
-        });
-        return gutterDiv;
-    }, []);
+    const [dragElement, collapsed] = useCollapsableDragElement(appContext);
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
             <Split
                 className={styles.editorScreen} sizes={[25, 75, 0]} minSize={[0, 200, 0]}
-                gutter={dragElement} gutterSize={20}
-                collapsed={collapsed} onDragEnd={() => {setCollapsed(undefined);}}
+                gutter={dragElement} gutterSize={20} collapsed={collapsed}
             >
                 <LeftMenu />
                 <ErrorBoundary FallbackComponent={buildPageError(selection?.path)} onResetKeysChange={() => setCurrentContent({})} onReset={() => setCurrentContent({})} resetKeys={[selection]}>
@@ -216,8 +240,8 @@ export function EditorScreen() {
                         }
                     </div>
                 </ErrorBoundary>
-                <div className={showPreview ? `${styles.flexFill} h-100` : styles.displayNone}>
-                    {previewComponent}
+                <div className={`${styles.flexFill} h-100`}>
+                    {showPreview && previewComponent}
                 </div>
             </Split>
 

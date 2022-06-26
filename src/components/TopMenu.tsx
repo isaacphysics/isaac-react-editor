@@ -1,10 +1,10 @@
-import React, { useContext, useRef } from "react";
+import React, {useContext, useRef} from "react";
 
-import { AppContext } from "../App";
-import { useGithubContents } from "../services/github";
+import {AppContext} from "../App";
+import {useGithubContents} from "../services/github";
 
-import { PopupMenu, PopupMenuRef } from "./popups/PopupMenu";
-import { Entry } from "./FileBrowser";
+import {PopupMenu, PopupMenuRef} from "./popups/PopupMenu";
+import {Entry} from "./FileBrowser";
 
 import styles from "../styles/editor.module.css";
 import {Content} from "../isaac-data-types";
@@ -60,11 +60,6 @@ export function TopMenu({previewable}: {previewable?: boolean}) {
             </button>}
         {selection && !selection.isDir && previewLink && <button onClick={() => window.open(previewLink, "_blank")} className={styles.iconButton} >
             Staging
-        </button>}
-        {selection && previewable && !appContext.preview.open && <button className={styles.iconButton} onClick={() => {
-            appContext.preview.toggle();
-        }}>
-            Preview
         </button>}
         <PopupMenu menuRef={menuRef} />
     </div>;
