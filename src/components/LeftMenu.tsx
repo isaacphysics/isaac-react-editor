@@ -1,13 +1,13 @@
-import React, { useContext, useLayoutEffect, useState } from "react";
+import React, {useContext, useLayoutEffect} from "react";
 
-import { AppContext } from "../App";
-import { FileBrowser, pathToId } from "./FileBrowser";
+import {AppContext} from "../App";
+import {FileBrowser, pathToId} from "./FileBrowser";
 
 import styles from "../styles/editor.module.css";
-import { dirname } from "../utils/strings";
-import { useGithubContents } from "../services/github";
-import { useFixedRef } from "../utils/hooks";
-import { useNavigate } from "react-router-dom";
+import {dirname} from "../utils/strings";
+import {useGithubContents} from "../services/github";
+import {useFixedRef} from "../utils/hooks";
+import {useNavigate} from "react-router-dom";
 
 function scrollPathIntoView(path: string, snap?: boolean) {
     const item = document.getElementById(pathToId(path));
@@ -22,9 +22,6 @@ export function LeftMenu() {
     const selection = appContext.selection.getSelection();
     const path = selection?.path;
     const pathRef = useFixedRef(path);
-
-    const [isSetOpen, setOpen] = useState(true);
-    const isOpen = isSetOpen || selection === null || selection.isDir;
 
     const {error} = useGithubContents(appContext, path);
     const errorRef = useFixedRef(error);
@@ -49,8 +46,7 @@ export function LeftMenu() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    return <div className={`${styles.leftMenuWrapper} ${isOpen ? styles.leftMenuOpen : styles.leftMenuClosed}`}>
-        <button className={styles.leftMenuOpener} onClick={() => setOpen(!isOpen)}>◀</button>
+    return <div className={styles.leftMenuWrapper}>
         <header className={styles.leftMenuHeader}>
             <button className={styles.iconButton} onClick={() => {
                 if (window.confirm("Are you sure you want to logout?")) {
