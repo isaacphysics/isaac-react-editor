@@ -1,25 +1,26 @@
-import React, { ContextType, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { SWRConfig, useSWRConfig } from "swr";
-import { Params, useNavigate, useParams } from "react-router-dom";
-import { useLocation } from "react-router";
-import { Modal, Spinner } from "reactstrap";
-import { ErrorBoundary } from "react-error-boundary";
+import React, {ContextType, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {SWRConfig, useSWRConfig} from "swr";
+import {Params, useNavigate, useParams} from "react-router-dom";
+import {useLocation} from "react-router";
+import {Modal, Spinner} from "reactstrap";
+import {ErrorBoundary} from "react-error-boundary";
 
-import { Selection } from "../components/FileBrowser";
-import { LeftMenu } from "../components/LeftMenu";
-import { AppContext, browserHistory } from "../App";
-import { defaultGithubContext, fetcher } from "../services/github";
-import { SemanticEditor } from "../components/SemanticEditor";
-import { Content } from "../isaac-data-types";
-import { Action, doDispatch } from "../services/commands";
-import { useFixedRef } from "../utils/hooks";
-import { TextEditor } from "../components/TextEditor";
-import { Preview, PreviewMode } from "../components/Preview";
+import {Selection} from "../components/FileBrowser";
+import {LeftMenu} from "../components/LeftMenu";
+import {AppContext, browserHistory} from "../App";
+import {defaultGithubContext, fetcher} from "../services/github";
+import {SemanticEditor} from "../components/SemanticEditor";
+import {Content} from "../isaac-data-types";
+import {Action, doDispatch} from "../services/commands";
+import {useFixedRef} from "../utils/hooks";
+import {TextEditor} from "../components/TextEditor";
+import {Preview, PreviewMode} from "../components/Preview";
 
-import { MenuModal, MenuModalRef } from "./MenuModal";
+import {MenuModal, MenuModalRef} from "./MenuModal";
 
 import styles from "../styles/editor.module.css";
-import { buildPageError } from "../components/PageError";
+import {buildPageError} from "../components/PageError";
+import Split from "react-split";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -36,6 +37,40 @@ function useParamsToSelection(params: Readonly<Params>): Selection {
             path,
         };
     }, [params]);
+}
+
+interface CollapsableArg {preview: {open: boolean, toggle: () => void}}
+function useCollapsableDragElement(appContext: CollapsableArg): [(col: number) => HTMLElement, number | undefined] {
+    const [collapsed, setCollapsed] = useState<undefined | number>();
+    const dragElement = useCallback(function(columnIndex: number) {
+        const gutterDiv = document.createElement('div');
+        gutterDiv.innerHTML = columnIndex === 1 ? "Files" : "Quick Preview";
+        gutterDiv.className = styles.gutter;
+
+        // Collapse on double click
+        gutterDiv.addEventListener("dblclick", function() {
+            setCollapsed(columnIndex === 1 ? 0 : 2);
+        });
+
+        // Clear collapsed on drag interaction so that we can collapse another column in the future
+        gutterDiv.addEventListener("dragend", function() {setCollapsed(undefined);})
+
+        // Lazy start preview panel
+        if (columnIndex === 2) {
+            gutterDiv.addEventListener("click", function lazyStartPreviewPanel() {
+                if (!appContext.preview.open) {appContext.preview.toggle();}
+            });
+        }
+
+        return gutterDiv;
+    }, []);
+
+    // Stop preview panel if it is collapsed
+    useEffect(function closePreviewIfPanelCollapsed() {
+        if (collapsed === 2 && appContext.preview.open) {appContext.preview.toggle();}
+    }, [collapsed]);
+
+    return [dragElement, collapsed];
 }
 
 export function EditorScreen() {
@@ -183,30 +218,33 @@ export function EditorScreen() {
     const hasFileOpen = selection && !selection.isDir;
     const showPreview = !!hasFileOpen && previewOpen;
 
+    const [dragElement, collapsed] = useCollapsableDragElement(appContext);
+
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
-            <div className={styles.editorScreen}>
+            <Split
+                className={styles.editorScreen} sizes={[25, 75, 0]} minSize={[0, 200, 0]}
+                gutter={dragElement} gutterSize={20} collapsed={collapsed}
+            >
                 <LeftMenu />
                 <ErrorBoundary FallbackComponent={buildPageError(selection?.path)} onResetKeysChange={() => setCurrentContent({})} onReset={() => setCurrentContent({})} resetKeys={[selection]}>
-                    {hasFileOpen ?
-                        selection.path.endsWith(".json") ?
-                            <SemanticEditor />
-                            : <TextEditor />
-                        :
-                        <div className={styles.centered}>
-                            Choose a file on the left to edit
-                        </div>
-                    }
-                    {previewMode === "panel" && <div className={showPreview ? styles.flexFill : styles.displayNone}>
-                        {previewComponent}
-                    </div>}
+                    <div>
+                        {hasFileOpen ?
+                            selection.path.endsWith(".json") ?
+                                <SemanticEditor />
+                                : <TextEditor />
+                            :
+                            <div className={styles.centered}>
+                                Choose a file on the left to edit
+                            </div>
+                        }
+                    </div>
                 </ErrorBoundary>
-            </div>
-            {previewMode === "modal" &&
-                <Modal isOpen={showPreview} className={styles.previewModal} contentClassName={styles.previewModalContent}>
-                    {previewComponent}
-                </Modal>
-            }
+                <div className={`${styles.flexFill} h-100`}>
+                    {showPreview && previewComponent}
+                </div>
+            </Split>
+
             <Modal isOpen={actionRunning} contentClassName={styles.actionsModalContent}>
                 <div className={styles.centered}>
                     <Spinner size="lg" />
