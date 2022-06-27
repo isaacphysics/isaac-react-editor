@@ -5,7 +5,7 @@ import { dirname, generateGuid } from "../utils/strings";
 import { ContentType } from "../components/semantic/registry";
 import { Content } from "../isaac-data-types";
 
-import { githubSave, githubCreate, githubDelete } from "./github";
+import { githubSave, githubCreate, githubDelete, githubRename } from "./github";
 import { EMPTY_DOCUMENTS } from "./emptyDocuments";
 
 export const defaultDispatch: (action: Action) => void = () => {
@@ -16,7 +16,7 @@ export type Action =
     | {type: "openInNewTab"; path: string}
     | {type: "new"; path: string}
     | {type: "delete"; path: string; name: string; sha: string}
-    | {type: "rename"; path: string; name: string; sha: string}
+    | {type: "rename"; path: string; name: string}
     | {type: "saveAs"; path: string; name: string}
     | {type: "save"}
 ;
@@ -129,13 +129,11 @@ async function doDelete(context: ContextType<typeof AppContext>, action: ActionF
 }
 
 async function doRename(context: ContextType<typeof AppContext>, action: ActionFor<"rename">) {
-    let sha = action.sha;
     if (context.editor.getDirty()) {
         if (!window.confirm("This will save the current contents of this file. Are you sure you want to continue?")) {
             return;
         }
-        const newContent = await githubSave(context);
-        sha = newContent.sha;
+        await githubSave(context);
     }
 
     let newName = window.prompt("Please type a new name for the file. If no extension is provided, \".json\" will be assumed", action.name);
@@ -143,22 +141,20 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
     if (newName) {
         const oldPath = action.path;
 
+        if (oldPath.replace(dirname(oldPath) + "/", "") === newName) {
+            return;
+        }
+
         if (newName.indexOf(".") === -1 && oldPath.toLowerCase().endsWith(".json")) {
             newName += ".json";
         }
 
         const basePath = dirname(oldPath);
-
         try {
-            await githubCreate(context, basePath, newName, context.editor.getCurrentDocAsString());
-            try {
-                await githubDelete(context, oldPath, action.name, sha);
-                context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false});
-            } catch (e) {
-                console.error("Could not delete old file.", e);
-            }
+            await githubRename(context, oldPath, newName);
+            context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false});
         } catch (e) {
-            window.alert("Could not create file. Perhaps it already exists.");
+            window.alert("Could not rename file. Perhaps one with that name already exists.");
             console.log(e);
         }
     }
