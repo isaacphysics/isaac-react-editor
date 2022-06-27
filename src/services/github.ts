@@ -59,7 +59,7 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
 function contentsPath(path: string, branch?: string) {
     let fullPath = `repos/$OWNER/$REPO/contents/${path}`;
     if (branch) {
-        fullPath += `?ref=${branch}`;
+        fullPath += `?ref=${encodeURIComponent(branch)}`;
     }
     return fullPath;
 }
@@ -85,7 +85,7 @@ export async function processCode(code: string | null) {
 
         const dest = new URL(window.location.href);
         if (dest.pathname === "" || dest.pathname === "/") {
-            dest.pathname = `edit/${defaultGithubContext.branch}`;
+            dest.pathname = `edit/${encodeURIComponent(defaultGithubContext.branch)}`;
         }
         // Either way, take code out of query string
         dest.searchParams.delete("code");
@@ -166,22 +166,17 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
 
 // Adapted from this blog post: https://medium.com/@obodley/renaming-a-file-using-the-git-api-fed1e6f04188
 export async function githubRename(context: ContextType<typeof AppContext>, path: string, name: string) {
-    let isPublished;
-    try {
-        isPublished = context.editor.isAlreadyPublished();
-    } catch {
-        isPublished = false;
-    }
+    const isPublished = context.editor?.isAlreadyPublished();
     const pathSegments = path.split("/");
     const basePath = dirname(path);
     const oldName = pathSegments.at(-1);
 
     // Ensure that another file with the same name doesn't already exist, because the renaming process will overwrite
-    // existing files otherwise
-    const current: Entry[] = context.github.cache.get(contentsPath(basePath, context.github.branch));
-    const index = current.findIndex((entry) => {
-        return name === entry.name;
-    });
+    // existing files otherwise. First we clear the cache to ensure that the file list is up to date (at least within
+    // the last 60 seconds).
+    await mutate(contentsPath(basePath, context.github.branch), undefined);
+    const current: Entry[] = await context.github.cache.get(contentsPath(basePath, context.github.branch));
+    const index = current.findIndex((entry) => name === entry.name);
     if (index !== -1) throw Error(`A file with the name ${name} already exists in the same directory. Cannot rename!`);
 
     // It is now safe to rename...
@@ -189,21 +184,15 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     // Get the current branch commit sha - GitHub asks the browser to cache these branch requests for 60 seconds, which will
     // cause things to break if we try to rename twice in a 60 second period. To bypass this, we add a timestamp as a
     // query param to the URL, allowing us to get the freshest branch commit sha each time.
-    const branch = await fetcher(`repos/$OWNER/$REPO/branches/${context.github.branch}?cache_t=${new Date().getTime()}`, {
-        method: "GET"
-    });
+    const branch = await fetcher(`repos/$OWNER/$REPO/branches/${encodeURIComponent(context.github.branch)}?cache_t=${Date.now()}`);
     const baseSha = branch.commit.sha;
     // Get the entire git tree at this point
-    let subtree = await fetcher(`repos/$OWNER/$REPO/git/trees/${baseSha}`, {
-        method: "GET"
-    });
+    let subtree = await fetcher(`repos/$OWNER/$REPO/git/trees/${baseSha}`);
     // Find the tree node corresponding to the file we want to rename
     for (const segment of pathSegments.slice(0, -1)) {
         const nextTree = subtree.tree.find((t: any) => t.path === segment);
         if (nextTree) {
-            subtree = await fetcher(nextTree.url.replace(GITHUB_API_URL, ""), {
-                method: "GET"
-            });
+            subtree = await fetcher(nextTree.url.replace(GITHUB_API_URL, ""));
         } else {
             console.error("Cannot find file in git tree - cannot rename!");
             return;
@@ -245,7 +234,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
         }
     });
     // Point the current branch at the new commit
-    await fetcher(`repos/$OWNER/$REPO/git/refs/heads/${context.github.branch}`, {
+    await fetcher(`repos/$OWNER/$REPO/git/refs/heads/${encodeURIComponent(context.github.branch)}`, {
         method: "PATCH",
         body: {
             "sha": commit.sha
@@ -292,7 +281,7 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
         return;
     }
 
-    const {sha} = context.github.cache.get(contentsPath(path, context.github.branch));
+    const {sha} = await context.github.cache.get(contentsPath(path, context.github.branch));
 
     const body = {
         message,
