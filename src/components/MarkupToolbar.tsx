@@ -12,8 +12,10 @@ import {
     makeItalic,
     makeStrikethrough
 } from "../utils/codeMirrorExtensions";
+import {ClozeQuestionContext} from "./semantic/presenters/ItemQuestionPresenter";
 
 export const MarkupToolbar = ({codemirror, encoding}: { codemirror: RefObject<ReactCodeMirrorRef>, encoding: string | undefined }) => {
+    const inClozeQuestion = useContext(ClozeQuestionContext);
     if (isMarkupEncoding(encoding)) {
         return <div className={"d-flex w-100 bg-light border-bottom p-1 " + styles.cmMenuBar}>
             <button className={"ml-auto " + styles.cmPanelButton} title={"Bold (Ctrl-B)"}
@@ -38,7 +40,7 @@ export const MarkupToolbar = ({codemirror, encoding}: { codemirror: RefObject<Re
             </button>
             {encodingSpecific(
                 <>
-                    <PopupDropZoneInsert codemirror={codemirror}/>
+                    {inClozeQuestion && <PopupDropZoneInsert codemirror={codemirror}/>}
                     {SITE === "CS" && <PopupGlossaryTermSelect codemirror={codemirror}/>}
                 </>,
                 null,
