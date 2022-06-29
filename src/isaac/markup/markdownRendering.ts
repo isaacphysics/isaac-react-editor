@@ -3,6 +3,7 @@
 import {Remarkable, utils} from "remarkable";
 import {linkify} from "remarkable/linkify";
 import {SITE} from "../../services/site";
+import styles from "../styles/markup.module.css";
 
 const MARKDOWN_RENDERER = new Remarkable({
     html: true
@@ -20,37 +21,33 @@ MARKDOWN_RENDERER.renderer.rules.link_open = function(tokens: Remarkable.LinkOpe
 };
 export const renderRemarkableMarkdown = (markdown: string) => MARKDOWN_RENDERER.render(markdown);
 
-// This is used to match and render cloze question drop zones into span elements
+// Renders placeholder cloze question drop zones
 export const renderClozeDropZones = (markdown: string) => {
     // Matches: [drop-zone], [drop-zone|w-50], [drop-zone|h-50] or [drop-zone|w-50h-200]
     const dropZoneRegex = /\[drop-zone(?<params>\|(?<width>w-\d+?)?(?<height>h-\d+?)?)?]/g;
-    let index = 0;
     return markdown.replace(dropZoneRegex, (_match, params, widthMatch, heightMatch) => {
-        const dropId = `drop-region-${index}`;
         const minWidth = widthMatch ? widthMatch.slice("w-".length) + "px" : "100px";
         const minHeight = heightMatch ? heightMatch.slice("h-".length) + "px" : "auto";
-        return `<span data-index="${index++}" id="${dropId}" class="d-inline-block" style="min-width: ${minWidth}; min-height: ${minHeight}"></span>`;
+        return `<span class="d-inline-block ${styles.clozeDropZonePlaceholder}" style="min-width: ${minWidth}; min-height: ${minHeight}">&nbsp;</span>`;
     });
 }
 
-// This is used to render the full version of a glossary term using the IsaacGlossaryTerm component.
+// Renders a placeholder for block glossary terms
 export const renderGlossaryBlocks = (markdown: string) => {
     // Matches strings such as [glossary:glossary-demo|boolean-algebra] which MUST be at the beginning of the line.
     const glossaryBlockRegexp = /^\[glossary:(?<id>[a-z-|]+?)\]/gm;
     return markdown.replace(glossaryBlockRegexp, (_match, id) => {
-        const cssFriendlyTermId = id.replace(/\|/g, '-');
-        return `<div data-type="full" id="glossary-term-${cssFriendlyTermId}">Loading glossary...</div>`;
+        return `<bclass="text-muted">[block glossary term: ${id}]</b>`;
     });
 }
 
-// This is used to produce a hoverable element showing the glossary term, and its definition in a tooltip.
+// Renders a placeholder for inline glossary terms
 export const renderInlineGlossaryTerms = (markdown: string) => {
     // Matches strings such as [glossary-inline:glossary-demo|boolean-algebra] and
     // [glossary-inline:glossary-demo|boolean-algebra "boolean algebra"] which CAN be inlined.
     const glossaryInlineRegexp = /\[glossary-inline:(?<id>[a-z-|]+?)\s*(?:"(?<text>[A-Za-z0-9 ]+)")?\]/g;
     return markdown.replace(glossaryInlineRegexp, (_match, id, text, offset) => {
-        const cssFriendlyTermId = id.replace(/\|/g, '-');
-        return `<span data-type="inline" class="inline-glossary-term" ${text ? `data-text="${text}"` : ""} id="glossary-term-${cssFriendlyTermId}">Loading glossary...</span>`;
+        return `<code class="text-muted">[inline glossary term: ${text ?? id}]</code>`;
     });
 }
 

@@ -28,6 +28,7 @@ interface ItemsContextType {
 }
 
 export const ItemsContext = createContext<ItemsContextType>({items: undefined, remainingItems: undefined});
+export const ClozeQuestionContext = createContext<boolean>(false);
 
 function isParsonsQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is IsaacParsonsQuestion {
     return doc.type === "isaacParsonsQuestion";
@@ -44,7 +45,9 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
         {isParsonsQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" />}
         {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" />}
         {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="randomiseItems" label="Randomise items on question load" />}
-        <ContentValueOrChildrenPresenter {...props} topLevel />
+        <ClozeQuestionContext.Provider value={isClozeQuestion(doc)}>
+            <ContentValueOrChildrenPresenter {...props} topLevel />
+        </ClozeQuestionContext.Provider>
         {isClozeQuestion(doc) && <ClozeQuestionInstructions />}
         <Box name="Items">
             <Row className={styles.itemsHeaderRow}>
