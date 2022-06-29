@@ -39,7 +39,7 @@ export const renderGlossaryBlocks = (markdown: string) => {
     const glossaryBlockRegexp = /^\[glossary:(?<id>[a-z-|]+?)\]/gm;
     return markdown.replace(glossaryBlockRegexp, (_match, id) => {
         const cssFriendlyTermId = id.replace(/\|/g, '-');
-        return `<div data-type="full" id="glossary-term-${cssFriendlyTermId}">Loading glossary...</div>`;
+        return `<b data-type="full" class="text-muted" id="glossary-term-${cssFriendlyTermId}">[block glossary term: ${id}]</b>`;
     });
 }
 
@@ -50,7 +50,7 @@ export const renderInlineGlossaryTerms = (markdown: string) => {
     const glossaryInlineRegexp = /\[glossary-inline:(?<id>[a-z-|]+?)\s*(?:"(?<text>[A-Za-z0-9 ]+)")?\]/g;
     return markdown.replace(glossaryInlineRegexp, (_match, id, text, offset) => {
         const cssFriendlyTermId = id.replace(/\|/g, '-');
-        return `<span data-type="inline" class="inline-glossary-term" ${text ? `data-text="${text}"` : ""} id="glossary-term-${cssFriendlyTermId}">Loading glossary...</span>`;
+        return `<code data-type="inline" class="inline-glossary-term text-muted" ${text ? `data-text="${text}"` : ""} id="glossary-term-${cssFriendlyTermId}">[inline glossary term: ${text ?? id}]</code>`;
     });
 }
 
