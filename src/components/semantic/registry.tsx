@@ -203,8 +203,12 @@ const isaacTopicSummaryPage: RegistryEntry = {
 };
 const isaacQuestionPage: RegistryEntry = {
     ...basePage,
-    metadata: [...pageMeta, "attribution", "level", "supersededBy", ...pageMetaTail],
+    metadata: [...pageMeta, "attribution", "supersededBy", ...pageMetaTail],
 };
+const isaacFastTrackQuestionPage: RegistryEntry = {
+    ...isaacQuestionPage,
+    metadata: [...isaacQuestionPage.metadata ?? [], "level"]
+}
 const isaacConceptPage: RegistryEntry = {
     ...isaacQuestionPage,
     metadata: [...isaacQuestionPage.metadata ?? [], "summary"]
@@ -219,7 +223,7 @@ const isaacEventPage: RegistryEntry = {
 const isaacQuiz:RegistryEntry = {
     name: "Test",
     bodyPresenter: QuizPagePresenter,
-    metadata: [...defaultMeta, "level", "visibleToStudents", "hiddenFromTeachers", "published"],
+    metadata: [...defaultMeta, "visibleToStudents", "hiddenFromTeachers", "published"],
 };
 const isaacQuizSection = {
     ...content,

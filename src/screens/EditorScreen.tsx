@@ -234,7 +234,7 @@ export function EditorScreen() {
                                 <SemanticEditor />
                                 : <TextEditor />
                             :
-                            <div className={styles.centered}>
+                            <div className={`${styles.centered} mt-5`}>
                                 Choose a file on the left to edit
                             </div>
                         }
