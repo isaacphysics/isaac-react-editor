@@ -14,7 +14,7 @@ import { Button } from "reactstrap";
 import styles from "../styles/value.module.css";
 import { Content } from "../../../isaac-data-types";
 import { getEntryType, PresenterProps } from "../registry";
-import {keyBindings, wordCounter} from "../../../utils/codeMirrorExtensions";
+import {keyBindings, spellchecker, wordCounter} from "../../../utils/codeMirrorExtensions";
 import {MarkupToolbar} from "../../MarkupToolbar";
 import {Markup} from "../../../isaac/markup";
 
@@ -115,7 +115,7 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
             value={value.current}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
-            extensions={[...encoding, EditorView.lineWrapping, wordCounter(), keyBindings(doc.encoding)]}
+            extensions={[...encoding, EditorView.lineWrapping, wordCounter(), keyBindings(doc.encoding), spellchecker()]}
             onChange={(newValue) => {
                 value.current = newValue;
             }}

@@ -1,4 +1,16 @@
-import {Text, EditorView, Panel, showPanel, Compartment, keymap, EditorSelection} from "@uiw/react-codemirror";
+import {
+    Decoration,
+    DecorationSet,
+    EditorSelection,
+    EditorView,
+    keymap,
+    Panel,
+    RangeSetBuilder,
+    showPanel,
+    Text,
+    ViewPlugin,
+    ViewUpdate
+} from "@uiw/react-codemirror";
 import styles from "../styles/editor.module.css";
 
 function countWords(doc: Text) {
@@ -98,3 +110,31 @@ export const keyBindings = (encoding: string | undefined) => {
     }
     return [];
 };
+
+
+const spellcheckLine = Decoration.line({attributes: {spellcheck: "true"}});
+function spellcheckVisibleLines(view: EditorView) {
+    let builder = new RangeSetBuilder<Decoration>()
+    for (const {from, to} of view.visibleRanges) {
+        for (let pos = from; pos <= to;) {
+            const line = view.state.doc.lineAt(pos);
+            builder.add(line.from, line.from, spellcheckLine);
+            pos = line.to + 1;
+        }
+    }
+    return builder.finish();
+}
+export const spellchecker = () => ViewPlugin.fromClass(
+    class {
+        decorations: DecorationSet
+        constructor(view: EditorView) {
+            this.decorations = spellcheckVisibleLines(view);
+        }
+        update(update: ViewUpdate) {
+            if (update.docChanged || update.viewportChanged) {
+                this.decorations = spellcheckVisibleLines(update.view);
+            }
+        }
+    },
+    {decorations: v => v.decorations}
+);

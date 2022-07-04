@@ -9,7 +9,7 @@ import { useGithubContents } from "../services/github";
 import { TopMenu } from "./TopMenu";
 
 import styles from "../styles/editor.module.css";
-import { wordCounter } from "../utils/codeMirrorExtensions";
+import {spellchecker, wordCounter} from "../utils/codeMirrorExtensions";
 
 export function TextEditor() {
     const appContext = useContext(AppContext);
@@ -68,7 +68,7 @@ export function TextEditor() {
             value={appContext.editor.getCurrentDocAsString()}
             height="calc(100vh - 40px)"
             width="100%"
-            extensions={[EditorView.lineWrapping, wordCounter()]}
+            extensions={[EditorView.lineWrapping, wordCounter(), spellchecker()]}
             onChange={(value) => {
                 appContext.editor.setCurrentDoc(value);
             }}

@@ -6,8 +6,9 @@ import { linter, lintGutter } from "@codemirror/lint";
 
 import { PresenterProps } from "./registry";
 import styles from "./styles/semantic.module.css";
+import {spellchecker} from "../../utils/codeMirrorExtensions";
 
-const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter(), rectangularSelection()];
+const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter(), rectangularSelection(), spellchecker()];
 const empty = Symbol("empty") as unknown as string;
 
 export function JSONEditor({doc, update, close}: PresenterProps & { close: () => void }) {
