@@ -37,6 +37,7 @@ export type ContentType =
     | "content"
     | "content$accordion"
     | "content$horizontal"
+    | "content$callout"
     | "content$tabs"
     | "isaacConceptPage"
     | "isaacQuestionPage"
@@ -88,6 +89,10 @@ const content: RegistryEntry = {
     headerPresenter: undefined,
     bodyPresenter: ContentValueOrChildrenPresenter,
     footerPresenter: undefined,
+};
+const callout: RegistryEntry = {
+    name: "Callout",
+    bodyPresenter: ContentValueOrChildrenPresenter,
 };
 const choice: RegistryEntry = {
     name: "Choice",
@@ -245,6 +250,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacWildcard,
     content$accordion: accordion,
     content$horizontal: horizontal,
+    content$callout: callout,
     content$tabs: tabs,
     hints,
     // Quick questions don't have choices or hints
