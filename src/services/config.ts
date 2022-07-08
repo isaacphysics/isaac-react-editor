@@ -19,14 +19,14 @@ const configs: { [host: string]: Config } = {
         authCode : "j4GsAFDYXaxqwN146vTeQ4vbV7ucQtGC8B4AI7EVQPIUTQG/nz9Yfgm1o3d0FLrDlgGyig2YyxA8IMS1wVF+mZ7rCMzOZUXGIn48gDxFGzsWZKhK36kwra5PE3C6mCeRQjXx6cCyl9VRH1VR+RsjIXM6vIdD0g1JqcupsKDNmojZAcuMkPreJfl2h+bbss1DGw3CdvNLF8lwd895OTNwZfGjQxcmywIS3VIC7o6JIq3fcw==",
         OWNER: "isaacphysics",
         REPO: "rutherford-content",
-        previewServer: "http://www.isaacphysics.org/preview",
+        previewServer: "https://editor-preview.isaacphysics.org",
     },
     "editor.isaaccomputerscience.org": {
         clientId : "f929345390ca5ca6e1ba",
         authCode : "WD4uGrm2iTFxmvwHjybnCSzIpgFk3r//7twVti62RpnQWyFteaKK11q6wLBQX6bb/yy9NY9t0m79MxokXUVZpRNzczPvBAkW6WGfmdCUa5tNs3UMswWmpITiv/TiGHJKxDRZ9m2KYgly3jqLzEU1EY7KznCCa16x7MLzdcQzyYKYS49RB3V/+B7IsuyDPQLRVffRTe/2MkrZmx98kj9x14eMgteIRQ7aYhi1pDsYE1dVGOMyojgoPsf6",
         OWNER: "isaacphysics",
         REPO: "isaac-content-2",
-        previewServer: "http://www.isaaccomputerscience.org/preview",
+        previewServer: "https://editor-preview.isaaccomputerscience.org",
     },
 };
 
