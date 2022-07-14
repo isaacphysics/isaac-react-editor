@@ -1,3 +1,5 @@
+import {siteSpecific} from "./site";
+
 export interface Config {
     clientId: string;
     authCode: string;
@@ -7,13 +9,19 @@ export interface Config {
 }
 
 const configs: { [host: string]: Config } = {
-    "localhost:8421": {
+    "localhost:8421": siteSpecific({
+        clientId: "f62f2bd4954bf930bc3f",
+        authCode: "/vFaDdbb7id6+cPgsIKTdvwk4lOLBkBpBsXDdBvZsnU0U/PBLxgzxDzmUfE/0OIWWvlxh7SigvVv1JzBffbEc2364W8GPmQt9QeuVW1juAHdvdT7kRrHv8LjEuxJP9ie9+BP3tXNWpVxdg7S3sbZA5ShBFOYxdr3izjn9L+cmzDT9YVKB+Grv8hvLcEFOy7KHeixa29HPY2pqtk6XHFqiwlDP+02AWmY",
+        OWNER: "isaacphysics",
+        REPO: "rutherford-content",
+        previewServer: "http://localhost:3002",
+    }, {
         clientId: "f62f2bd4954bf930bc3f",
         authCode: "/vFaDdbb7id6+cPgsIKTdvwk4lOLBkBpBsXDdBvZsnU0U/PBLxgzxDzmUfE/0OIWWvlxh7SigvVv1JzBffbEc2364W8GPmQt9QeuVW1juAHdvdT7kRrHv8LjEuxJP9ie9+BP3tXNWpVxdg7S3sbZA5ShBFOYxdr3izjn9L+cmzDT9YVKB+Grv8hvLcEFOy7KHeixa29HPY2pqtk6XHFqiwlDP+02AWmY",
         OWNER: "isaacphysics",
         REPO: "isaac-content-2",
         previewServer: "http://localhost:3001",
-    },
+    }),
     "editor.isaacphysics.org": {
         clientId : "012d68f7ffd3a99110ff",
         authCode : "j4GsAFDYXaxqwN146vTeQ4vbV7ucQtGC8B4AI7EVQPIUTQG/nz9Yfgm1o3d0FLrDlgGyig2YyxA8IMS1wVF+mZ7rCMzOZUXGIn48gDxFGzsWZKhK36kwra5PE3C6mCeRQjXx6cCyl9VRH1VR+RsjIXM6vIdD0g1JqcupsKDNmojZAcuMkPreJfl2h+bbss1DGw3CdvNLF8lwd895OTNwZfGjQxcmywIS3VIC7o6JIq3fcw==",
