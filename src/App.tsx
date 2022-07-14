@@ -1,7 +1,7 @@
 import React, { createContext, MutableRefObject, useEffect } from "react";
 import { createBrowserHistory } from "history";
-import { Route, Routes } from "react-router-dom";
-import { NavigateFunction } from "react-router";
+import { Navigate, Route, Routes } from "react-router-dom";
+import {NavigateFunction, useLocation, useParams} from "react-router";
 
 import { defaultSelectedContext } from "./components/FileBrowser";
 import { defaultEditorState } from "./components/SemanticEditor";
@@ -28,13 +28,12 @@ export const AppContext = createContext({
 
 export const browserHistory = createBrowserHistory();
 
-function RedirectTo({path}: {path: string}) {
-    useEffect(() => {
-        const dest = new URL(window.location.href);
-        dest.pathname = path;
-        window.location.replace(dest);
-    });
-    return <LoadingScreen message="Beginning editing..." />;
+function RedirectOldOrDefault() {
+    const location = useLocation();
+    const to = (location.pathname === "/") && (location.hash.slice(0, 3) === "#!/")
+        ? location.hash.slice(3)
+        : `edit/${encodeURIComponent(defaultGithubContext.branch)}`;
+    return <Navigate to={to} />;
 }
 
 function App() {
@@ -55,7 +54,7 @@ function App() {
             {loggedIn && <>
                 <Route path="edit/:branch/*" element={<EditorScreen />} />
                 <Route path="edit/:branch" element={<EditorScreen />} />
-                <Route path="*" element={<RedirectTo path={`edit/${encodeURIComponent(defaultGithubContext.branch)}`} />} />
+                <Route path="*" element={<RedirectOldOrDefault />} />
             </>}
         </Routes>
     </HistoryRouter>;
