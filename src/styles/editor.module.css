@@ -115,7 +115,7 @@
 }
 
 .fileBrowserItem:before {
-    content: "🗎";
+    content: "📄";
     position: relative;
     padding-left: 5px;
     padding-right: 3px;
@@ -133,7 +133,7 @@
 }
 
 .fileBrowserClosedFolder:before,  .fileBrowserOpenFolder:before {
-    content: "🗀";
+    content: "📁";
     position: relative;
     top: -3px;
     padding-left: 7px;
