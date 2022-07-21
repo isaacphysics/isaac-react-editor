@@ -83,7 +83,9 @@ function Files({entry, menuRef}: FilesProps) {
         : error ? <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div>
         : data ?
             <ListGroup flush className={styles.fileBrowserList}>
-                {data.map((entry: Entry) => {
+                {data
+                    .sort((a: Entry, b: Entry) => a.type === b.type ? 0 : a.type === "dir" ? -1 : 1)
+                    .map((entry: Entry) => {
                     switch (entry.type) {
                         case "dir":
                             return <Files key={entry.name} entry={entry} menuRef={menuRef}/>;
