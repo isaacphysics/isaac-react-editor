@@ -69,14 +69,14 @@ export const QuantityPresenter = buildValuePresenter(
                 return <em>{`Enter value${displayUnit ? "" : " and units"} here`}</em>;
             }
 
-            const unit = displayUnit || "{" + (doc.units || "") + "}";
-            const html = "$\\quantity{" + (doc.value || "") + "}" + unit + "$";
-            return <Markup trusted-markup-encoding="html">{html}</Markup>;
+            const unit = displayUnit || doc.units || "";
+            const html = "$\\quantity{" + (doc.value || "") + "}{" + unit + "}$";
+            return <Markup trusted-markup-encoding="markdown">{html}</Markup>;
         } else {
             return <>
                 <LabeledInput value={value} prop="value" label="Quantity" />
                 {displayUnit ?
-                    <Markup trusted-markup-encoding="html">{"$" + displayUnit + "$"}</Markup> :
+                    <Markup trusted-markup-encoding="markdown">{"$" + displayUnit + "$"}</Markup> :
                     <LabeledInput value={value} prop="units" label="Units" />}
             </>;
         }

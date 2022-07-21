@@ -45,6 +45,7 @@ export type EditableTextProps = {
     hideWhenEmpty?: boolean
     block?: boolean;
     format?: EditableTextFormat;
+    previewWrapperChar?: "$" | "";
     inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value">;
 };
 
@@ -97,6 +98,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  hideWhenEmpty,
                                  block,
                                  format = "plain",
+                                 previewWrapperChar = "",
                                  inputProps,
                              }, ref) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -235,7 +237,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
             <button className={styles.startEdit} onClick={startEdit}>
                 {labelElement}
                 {text === undefined ?
-                    <i>{placeHolder}</i> : textFormatMap[format](text, multiLine)}
+                    <i>{placeHolder}</i> : textFormatMap[format](previewWrapperChar + text + previewWrapperChar, multiLine)}
                 {onDelete.current && <Button onClick={() => onDelete.current && onDelete.current()}>Delete</Button>}
             </button>
         </Wrap>;

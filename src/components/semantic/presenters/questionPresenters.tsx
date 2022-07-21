@@ -204,7 +204,7 @@ const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuesti
         block
         />;
 };
-const EditableDisplayUnit = EditableDocPropFor<IsaacNumericQuestion>("displayUnit",  {label: "Display unit", block: true});
+const EditableDisplayUnit = EditableDocPropFor<IsaacNumericQuestion>("displayUnit",  {label: "Display unit", block: true, format: "latex", previewWrapperChar: "$"});
 
 export function NumericQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
