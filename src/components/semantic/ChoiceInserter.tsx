@@ -46,7 +46,7 @@ const emptyChoices = [
     {...emptyChoice, type: "graphChoice", graphSpec: ""},
     {...emptyChoice, type: "regexPattern", matchWholeString: false, caseInsensitive: false, multiLineRegex: true},
     {...emptyChoice, type: "itemChoice", children: []},
-    {...emptyChoice, type: "parsonsChoice", children: [], indentation: 0},
+    {...emptyChoice, type: "parsonsChoice", children: []},
 ];
 
 export const CHOICE_INSERTER_MAP: Partial<Record<ContentType, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {
