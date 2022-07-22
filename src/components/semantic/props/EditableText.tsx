@@ -229,7 +229,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                 {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
             </span>
             <Button onClick={cancel}>Cancel</Button>
-            <Button onClick={() => save()}>Set</Button>
+            <Button color="primary" onClick={() => save()}>Set</Button>
         </Wrap>
     }
     if (nonEmpty) {

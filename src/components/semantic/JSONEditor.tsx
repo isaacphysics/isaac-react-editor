@@ -1,12 +1,12 @@
-import React, { useRef, useState } from "react";
-import { Button } from "reactstrap";
-import CodeMirror, {rectangularSelection, EditorView} from "@uiw/react-codemirror";
-import { json, jsonParseLinter } from "@codemirror/lang-json";
-import { linter, lintGutter } from "@codemirror/lint";
+import React, {useRef, useState} from "react";
+import {Button} from "reactstrap";
+import CodeMirror, {EditorView, rectangularSelection} from "@uiw/react-codemirror";
+import {json, jsonParseLinter} from "@codemirror/lang-json";
+import {linter, lintGutter} from "@codemirror/lint";
 
-import { PresenterProps } from "./registry";
+import {PresenterProps} from "./registry";
 import styles from "./styles/semantic.module.css";
-import {spellchecker} from "../../utils/codeMirrorExtensions";
+import {keyBindings, spellchecker} from "../../utils/codeMirrorExtensions";
 
 const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter(), rectangularSelection(), spellchecker()];
 const empty = Symbol("empty") as unknown as string;
@@ -17,11 +17,24 @@ export function JSONEditor({doc, update, close}: PresenterProps & { close: () =>
         value.current = JSON.stringify(doc, null, 2);
     }
     const [valid, setValid] = useState(true);
+
+    function setDocChanges() {
+        update(JSON.parse(value.current));
+        close();
+        return true;
+    }
+
+    function cancelDocChanges() {
+        value.current = JSON.stringify(doc, null, 2);
+        close();
+        return true;
+    }
+
     return <>
         <CodeMirror
             value={value.current}
             maxHeight="calc(100vh - 120px)"
-            extensions={extensions}
+            extensions={[extensions, keyBindings(setDocChanges, cancelDocChanges)]}
             onChange={(newValue) => {
                 value.current = newValue;
                 try {
@@ -33,15 +46,9 @@ export function JSONEditor({doc, update, close}: PresenterProps & { close: () =>
                 }
             }}
         />
-        <div className={styles.editButtons}>
-            <Button onClick={() => {
-                value.current = JSON.stringify(doc, null, 2);
-                close();
-            }}>Cancel</Button>
-            <Button color="primary" disabled={!valid} onClick={() => {
-                update(JSON.parse(value.current));
-                close();
-            }}>Set</Button>
+        <div className={`mt-2 ${styles.editButtons}`}>
+            <Button onClick={cancelDocChanges}>Cancel</Button>
+            <Button color="primary" disabled={!valid} onClick={setDocChanges}>Set</Button>
         </div>
     </>;
 }

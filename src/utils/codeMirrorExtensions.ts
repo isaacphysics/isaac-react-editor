@@ -1,8 +1,10 @@
 import {
+    Command,
     Decoration,
     DecorationSet,
     EditorSelection,
     EditorView,
+    Extension,
     keymap,
     Panel,
     RangeSetBuilder,
@@ -87,28 +89,20 @@ export const makeItalic = (encoding: "markdown" | "html") => encodingSpecific(em
 export const makeStrikethrough = (encoding: "markdown" | "html") => encodingSpecific(emphTextWith("~~"), emphTextWith("<s>", "</s>"), encoding);
 export const makeCode = (encoding: "markdown" | "html") => encodingSpecific(emphTextWith("`"), emphTextWith("<pre>", "</pre>"), encoding);
 
-export const keyBindings = (encoding: string | undefined) => {
-    if (isMarkupEncoding(encoding)) {
-        return keymap.of([
-            {
-                key: "Ctrl-b",
-                run: makeBold(encoding)
-            },
-            {
-                key: "Ctrl-Shift-i",
-                run: makeItalic(encoding)
-            },
-            {
-                key: "Ctrl-Shift-s",
-                run: makeStrikethrough(encoding)
-            },
-            {
-                key: "Ctrl-Shift-c",
-                run: makeCode(encoding)
-            }
-        ]);
-    }
-    return [];
+export const keyBindings = (setChanges: Command, cancelChanges: Command, encoding?: string): Extension => {
+    return keymap.of([
+        // Universal bindings
+        {key: "Ctrl-Shift-Enter", run: setChanges},
+        {key: "Escape", run: cancelChanges},
+
+        // Markup bindings
+        ...(isMarkupEncoding(encoding) ? [
+            {key: "Ctrl-b", run: makeBold(encoding)},
+            {key: "Ctrl-Shift-i", run: makeItalic(encoding)},
+            {key: "Ctrl-Shift-s", run: makeStrikethrough(encoding)},
+            {key: "Ctrl-Shift-c", run: makeCode(encoding)}
+        ]: []),
+    ]);
 };
 
 

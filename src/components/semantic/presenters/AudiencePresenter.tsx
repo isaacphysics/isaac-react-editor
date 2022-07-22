@@ -1,17 +1,11 @@
-import React, { Fragment, useState } from "react";
-import { Button } from "reactstrap";
+import React, {Fragment, useState} from "react";
+import {Button} from "reactstrap";
 
-import {
-    AudienceContext,
-    Difficulty,
-    ExamBoard,
-    RoleRequirement,
-    Stage
-} from "../../../isaac-data-types";
-import { SITE } from "../../../services/site";
-import { ExtractRecordArrayValue, isDefined } from "../../../utils/types";
+import {AudienceContext, Difficulty, ExamBoard, RoleRequirement, Stage} from "../../../isaac-data-types";
+import {SITE} from "../../../services/site";
+import {ExtractRecordArrayValue, isDefined} from "../../../utils/types";
 
-import { PresenterProps } from "../registry";
+import {PresenterProps} from "../registry";
 import styles from "../styles/audience.module.css";
 
 function defaultAudience(): AudienceContext {
@@ -206,6 +200,11 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
         setEditingAudience(undefined);
     }
 
+    function setChanges() {
+        close();
+        update({...doc, audience: editingAudience});
+    }
+
     if (!editingAudience) {
         return <div key="view" className={`${styles.wrapper} ${styles.view}`}>
             {conciseAudiences(doc.audience, type)}
@@ -216,15 +215,19 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
             </Button>
         </div>;
     } else {
-        return <div key="edit" className={`${styles.wrapper} ${type === "accordion" ? styles.rightAlign : ""}`}>
+        return <div
+            key="edit" className={`${styles.wrapper} ${type === "accordion" ? styles.rightAlign : ""}`}
+            role="region" onKeyDown={(e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === "Enter") {
+                    setChanges();
+                } else if (e.key === "Escape") {
+                    close();
+                }
+            }}
+        >
             <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(type)} />
-            <Button size="sm" color="primary" onClick={(e) => {
-                close();
-                update({...doc, audience: editingAudience});
-            }}>Set</Button>
-            <Button size="sm" onClick={() => {
-                close();
-            }}>Cancel</Button>
+            <Button size="sm" color="primary" onClick={setChanges}>Set</Button>
+            <Button size="sm" onClick={close}>Cancel</Button>
             <Button size="sm" color="danger" onClick={() => {
                 close();
                 update({...doc, audience: undefined});

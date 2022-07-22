@@ -1,19 +1,12 @@
-import React, {
-    FunctionComponent,
-    MutableRefObject,
-    useCallback,
-    useImperativeHandle,
-    useRef,
-    useState
-} from "react";
+import React, {FunctionComponent, MutableRefObject, useCallback, useImperativeHandle, useRef, useState} from "react";
 import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
-import { markdown } from '@codemirror/lang-markdown';
-import { html } from '@codemirror/lang-html';
-import { Button } from "reactstrap";
+import {markdown} from '@codemirror/lang-markdown';
+import {html} from '@codemirror/lang-html';
+import {Button} from "reactstrap";
 
 import styles from "../styles/value.module.css";
-import { Content } from "../../../isaac-data-types";
-import { getEntryType, PresenterProps } from "../registry";
+import {Content} from "../../../isaac-data-types";
+import {getEntryType, PresenterProps} from "../registry";
 import {keyBindings, spellchecker, wordCounter} from "../../../utils/codeMirrorExtensions";
 import {MarkupToolbar} from "../../MarkupToolbar";
 import {Markup} from "../../../isaac/markup";
@@ -34,6 +27,8 @@ export interface ValueProps<V, D extends Content = Content> {
     doc: D;
     value: React.MutableRefObject<V | undefined>;
     editing: boolean;
+    set: () => boolean;
+    cancel: () => boolean;
 }
 
 export function buildValuePresenter<V, D extends Content = Content>(
@@ -58,26 +53,32 @@ export function buildValuePresenter<V, D extends Content = Content>(
                 startEdit();
             }
         }), [startEdit]);
-        const component = <Component editing={editing} doc={doc} value={value}/>;
+
+        function setChanges() {
+            setEditing(false);
+            update(save(value.current!, doc));
+            return true;
+        }
+
+        function cancelChanges() {
+            setEditing(false);
+            return true;
+        }
+
+        const component = <Component editing={editing} doc={doc} value={value} set={setChanges} cancel={cancelChanges}/>;
         if (!editing) {
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions
-            return <div onClick={() => startEdit()} className={styles.editableValue}>
+            return <div
+                role="button" tabIndex={0} className={styles.editableValue}
+                onClick={() => startEdit()} onKeyDown={(e) => {if (e.key === "Enter") startEdit();}}
+            >
                 {component}
             </div>;
         } else {
             return <>
                 {component}
-                <div className={styles.editButtons}>
-                    <Button onClick={(e) => {
-                        e.stopPropagation();
-                        setEditing(false);
-                    }}>Cancel</Button>
-                    <Button color="primary" onClick={(e) => {
-                        e.stopPropagation();
-                        setEditing(false);
-                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                        update(save(value.current!, doc));
-                    }}>Set</Button>
+                <div className={`mt-2 ${styles.editButtons}`}>
+                    <Button onClick={(e) => {e.stopPropagation(); cancelChanges()}}>Cancel</Button>
+                    <Button color="primary" onClick={(e) => {e.stopPropagation(); setChanges()}}>Set</Button>
                 </div>
             </>;
         }
@@ -86,7 +87,7 @@ export function buildValuePresenter<V, D extends Content = Content>(
     return VP;
 }
 
-export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>) => {
+export const BaseValue = ({doc, editing, value, set, cancel}: ValueProps<string | undefined>) => {
     const codemirror = useRef<ReactCodeMirrorRef>(null);
     if (!editing) {
         if (!doc.value) {
@@ -115,7 +116,13 @@ export const BaseValue = ({doc, editing, value}: ValueProps<string | undefined>)
             value={value.current}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus={true}
-            extensions={[...encoding, EditorView.lineWrapping, wordCounter(), keyBindings(doc.encoding), spellchecker()]}
+            extensions={[
+                ...encoding,
+                EditorView.lineWrapping,
+                wordCounter(),
+                keyBindings(set, cancel, doc.encoding),
+                spellchecker()
+            ]}
             onChange={(newValue) => {
                 value.current = newValue;
             }}
