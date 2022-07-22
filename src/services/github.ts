@@ -1,13 +1,13 @@
-import { ContextType } from "react";
+import {ContextType} from "react";
 import Cookies from "js-cookie";
-import useSWR, { Cache, mutate } from "swr";
+import useSWR, {Cache, mutate} from "swr";
 
-import { authorizationURL, doAuth } from "./auth";
-import { AppContext } from "../App";
-import { encodeBase64 } from "../utils/base64";
-import { Entry } from "../components/FileBrowser";
-import { dirname } from "../utils/strings";
-import { Config, getConfig } from "./config";
+import {authorizationURL, doAuth} from "./auth";
+import {AppContext} from "../App";
+import {encodeBase64} from "../utils/base64";
+import {Entry} from "../components/FileBrowser";
+import {dirname} from "../utils/strings";
+import {Config, getConfig} from "./config";
 
 export const GITHUB_TOKEN_COOKIE = "github-token";
 const GITHUB_API_URL = "https://api.github.com/";
@@ -95,6 +95,10 @@ export async function processCode(code: string | null) {
 
 export interface User {
     login: string;
+}
+
+export function githubComparisonPath(oldVersion?: string, newVersion?: string) {
+    return githubReplaceWithConfig("https://github.com/$OWNER/$REPO/compare/" + oldVersion + "..." + newVersion);
 }
 
 export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string) {

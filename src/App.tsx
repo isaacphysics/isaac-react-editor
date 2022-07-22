@@ -1,17 +1,17 @@
-import React, { createContext, MutableRefObject, useEffect } from "react";
-import { createBrowserHistory } from "history";
-import { Navigate, Route, Routes } from "react-router-dom";
+import React, {createContext, MutableRefObject, useEffect} from "react";
+import {createBrowserHistory} from "history";
+import {Navigate, Route, Routes} from "react-router-dom";
 import {NavigateFunction, useLocation, useParams} from "react-router";
 
-import { defaultSelectedContext } from "./components/FileBrowser";
-import { defaultEditorState } from "./components/SemanticEditor";
-import { Closer, isLoggedIn, LoadingScreen, LoginPrompt, Logout } from "./services/auth";
-import { defaultGithubContext, processCode } from "./services/github";
-import { EditorScreen } from "./screens/EditorScreen";
-import { HistoryRouter } from './components/HistoryRouter';
-import { defaultDispatch } from "./services/commands";
-import { MenuModalRef } from "./screens/MenuModal";
-import { defaultPreview } from "./components/Preview";
+import {defaultSelectedContext} from "./components/FileBrowser";
+import {defaultEditorState} from "./components/SemanticEditor";
+import {Closer, isLoggedIn, LoadingScreen, LoginPrompt, Logout} from "./services/auth";
+import {defaultGithubContext, githubComparisonPath, processCode} from "./services/github";
+import {EditorScreen} from "./screens/EditorScreen";
+import {HistoryRouter} from './components/HistoryRouter';
+import {defaultDispatch} from "./services/commands";
+import {MenuModalRef} from "./screens/MenuModal";
+import {defaultPreview} from "./components/Preview";
 
 
 export const AppContext = createContext({
@@ -36,6 +36,14 @@ function RedirectOldOrDefault() {
     return <Navigate to={to} />;
 }
 
+function GitHubComparisonRedirect() {
+    const params = useParams();
+    useEffect(function redirectToGitHub() { window.location.href = githubComparisonPath(params.old, params.new); }, []);
+    return <div className="p-2">
+        <strong>Redirecting to GitHub...</strong>
+    </div>;
+}
+
 function App() {
     const loggedIn = isLoggedIn();
 
@@ -54,6 +62,7 @@ function App() {
             {loggedIn && <>
                 <Route path="edit/:branch/*" element={<EditorScreen />} />
                 <Route path="edit/:branch" element={<EditorScreen />} />
+                <Route path="compare/:old/:new" element={<GitHubComparisonRedirect />} />
                 <Route path="*" element={<RedirectOldOrDefault />} />
             </>}
         </Routes>
