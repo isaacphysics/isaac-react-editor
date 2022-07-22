@@ -215,9 +215,10 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
             </Button>
         </div>;
     } else {
+        // eslint-disable-next-line
         return <div
             key="edit" className={`${styles.wrapper} ${type === "accordion" ? styles.rightAlign : ""}`}
-            role="region" onKeyDown={(e) => {
+            onKeyDown={(e) => {
                 if (e.ctrlKey && e.shiftKey && e.key === "Enter") {
                     setChanges();
                 } else if (e.key === "Escape") {
