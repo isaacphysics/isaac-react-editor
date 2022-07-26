@@ -1,33 +1,35 @@
-import React, { createContext, useContext, useState } from "react";
-import { Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row } from "reactstrap";
+import React, {createContext, useContext, useState} from "react";
+import {Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row} from "reactstrap";
 
 import {
-    IsaacItemQuestion,
-    IsaacReorderQuestion,
-    IsaacParsonsQuestion,
     IsaacClozeQuestion,
+    IsaacItemQuestion,
+    IsaacParsonsQuestion,
+    IsaacReorderQuestion,
     Item,
     ParsonsItem
 } from "../../../isaac-data-types";
 
-import { EditableIDProp, EditableValueProp } from "../props/EditableDocProp";
-import { QuestionFooterPresenter } from "./questionPresenters";
-import { InserterProps } from "./ListChildrenPresenter";
-import { PresenterProps } from "../registry";
-import { CheckboxDocProp } from "../props/CheckboxDocProp";
-import { ListPresenterProp } from "../props/listProps";
-import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
-import { MetaItemPresenter, MetaOptions } from "../Metadata";
+import {EditableIDProp, EditableValueProp} from "../props/EditableDocProp";
+import {QuestionFooterPresenter} from "./questionPresenters";
+import {InserterProps} from "./ListChildrenPresenter";
+import {PresenterProps} from "../registry";
+import {CheckboxDocProp} from "../props/CheckboxDocProp";
+import {ListPresenterProp} from "../props/listProps";
+import {ContentValueOrChildrenPresenter} from "./ContentValueOrChildrenPresenter";
+import {MetaItemPresenter, MetaOptions} from "../Metadata";
 
 import styles from "../styles/question.module.css";
-import { Box } from "../SemanticItem";
+import {Box} from "../SemanticItem";
 
 interface ItemsContextType {
     items: ParsonsItem[] | undefined;
     remainingItems: ParsonsItem[] | undefined;
+    withReplacement: boolean | undefined;
 }
 
-export const ItemsContext = createContext<ItemsContextType>({items: undefined, remainingItems: undefined});
+export const ItemsContext = createContext<ItemsContextType>(
+    {items: undefined, remainingItems: undefined, withReplacement: undefined});
 export const ClozeQuestionContext = createContext<boolean>(false);
 
 function isParsonsQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is IsaacParsonsQuestion {
@@ -60,7 +62,9 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
             </Row>
             <ListPresenterProp {...props} prop="items" childTypeOverride={isParsonsQuestion(doc) ? "parsonsItem" : "item"} />
         </Box>
-        <ItemsContext.Provider value={{items: doc.items, remainingItems: undefined}}>
+        <ItemsContext.Provider value={
+            {items: doc.items, remainingItems: undefined, withReplacement: isClozeQuestion(doc) && doc.withReplacement}
+        }>
             <QuestionFooterPresenter {...props} />
         </ItemsContext.Provider>
     </>;
@@ -144,16 +148,14 @@ export function ItemChoicePresenter(props: PresenterProps<ParsonsItem>) {
     }
 }
 
-export function ItemChoiceItemInserter({insert, position}: InserterProps) {
+export function ItemChoiceItemInserter({insert, position, lengthOfCollection}: InserterProps) {
     const {items, remainingItems} = useContext(ItemsContext);
 
     if (!items || !remainingItems) {
         return null; // Shouldn't happen.
     }
 
-    const usedCount = items.length - remainingItems.length;
-
-    if (position < usedCount) {
+    if (position !== lengthOfCollection) {
         return null; // Only include an insert button at the end.
     }
     const item = remainingItems[0];

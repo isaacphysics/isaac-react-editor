@@ -198,13 +198,14 @@ export const GraphChoicePresenter = buildValuePresenter(
 
 export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) => {
     const {doc} = props;
+    const {withReplacement} = useContext(ItemsContext);
 
     const {items} = useContext(ItemsContext) ?? [];
-    const remainingItems = items?.filter(item => !doc.items?.find(i => i.id === item.id));
+    const remainingItems = withReplacement ? items : items?.filter(item => !doc.items?.find(i => i.id === item.id));
 
     return <>
         {doc.type === "itemChoice" && <CheckboxDocProp {...props} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
-        <ItemsContext.Provider value={{items, remainingItems}}>
+        <ItemsContext.Provider value={{items, remainingItems, withReplacement}}>
             <ListPresenterProp {...props} prop="items" childTypeOverride="item$choice" />
         </ItemsContext.Provider>
     </>;

@@ -1,23 +1,24 @@
-import React, { MouseEvent, MutableRefObject, useCallback, useMemo } from "react";
-import { Button } from "reactstrap";
+import React, {MouseEvent, MutableRefObject, useCallback, useMemo} from "react";
+import {Button} from "reactstrap";
 
-import { Content } from "../../../isaac-data-types";
-import { useFixedRef } from "../../../utils/hooks";
-import { generate, useKeyedList, useWithIndex } from "../../../utils/keyedListHook";
+import {Content} from "../../../isaac-data-types";
+import {useFixedRef} from "../../../utils/hooks";
+import {generate, useKeyedList, useWithIndex} from "../../../utils/keyedListHook";
 
-import { CHOICE_INSERTER_MAP } from "../ChoiceInserter";
-import { Inserter } from "../Inserter";
-import { SemanticItem } from "../SemanticItem";
-import { ContentType, PresenterProps } from "../registry";
+import {CHOICE_INSERTER_MAP} from "../ChoiceInserter";
+import {Inserter} from "../Inserter";
+import {SemanticItem} from "../SemanticItem";
+import {ContentType, PresenterProps} from "../registry";
 
 import styles from "../styles/semantic.module.css";
-import { ChildTypeOverride } from "../props/listProps";
-import { ItemChoiceItemInserter } from "./ItemQuestionPresenter";
+import {ChildTypeOverride} from "../props/listProps";
+import {ItemChoiceItemInserter} from "./ItemQuestionPresenter";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
     forceOpen: boolean;
     position: number;
+    lengthOfCollection: number;
 }
 
 export function InsertButton({onClick}: { onClick: () => void }) {
@@ -127,16 +128,16 @@ export function ListChildrenPresenter({doc, update, childTypeOverride}: Presente
 
     const result: JSX.Element[] = [];
 
-    function addInserter(index: number, forceOpen: boolean) {
+    function addInserter(index: number, forceOpen: boolean, lengthOfCollection: number) {
         const UseInserter = (childTypeOverride && INSERTER_MAP[childTypeOverride]) ?? Inserter;
         // There is no optimal solution here: we want to keep inserter state between boxes, but if a box is deleted,
         // there is no general solution for keeping an inserter open neighbouring the deleted box.
         const key = `__insert_${keyList[index] ?? "last"}`;
-        result.push(<UseInserter key={key} position={index} forceOpen={forceOpen} insert={insert} />);
+        result.push(<UseInserter key={key} position={index} forceOpen={forceOpen} insert={insert} lengthOfCollection={lengthOfCollection} />);
     }
 
     doc.children?.forEach((child, index) => {
-        addInserter(index, false);
+        addInserter(index, false, doc.children?.length ?? 0);
         result.push(<ListChild key={keyList[index]}
                                child={child as Content}
                                docRef={docRef}
@@ -145,7 +146,7 @@ export function ListChildrenPresenter({doc, update, childTypeOverride}: Presente
                                {...rest}
         />);
     });
-    addInserter(doc.children?.length || 0, doc.children?.length === 0);
+    addInserter(doc.children?.length || 0, doc.children?.length === 0, doc.children?.length || 0);
     return <>
         {result}
     </>;
