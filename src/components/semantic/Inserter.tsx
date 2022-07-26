@@ -14,7 +14,7 @@ const blockTypes = {
         code: "",
         disableHighlighting: false,
     },
-    "question": {type: "isaacQuestion", encoding: "markdown", value: "", id: generate, 	answer: {
+    "question": {type: "isaacQuestion", encoding: "markdown", value: "", id: generate, choices: [], answer: {
         "type": "content",
         "value": "",
         "encoding": "markdown"
