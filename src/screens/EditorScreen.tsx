@@ -219,6 +219,14 @@ export function EditorScreen() {
     const showPreview = !!hasFileOpen && previewOpen;
 
     const [dragElement, collapsed] = useCollapsableDragElement(appContext);
+    useEffect(function updateTitleWithId() {
+        if (hasFileOpen && selection.path.endsWith(".json") && typeof currentContent !== "string") {
+            window.document.title = currentContent.id + " - Isaac Content Editor";
+        } else {
+            window.document.title = "Isaac Content Editor";
+        }
+    }, [currentContent, hasFileOpen, selection?.path]);
+
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
