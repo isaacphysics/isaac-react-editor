@@ -110,22 +110,6 @@ export function EditorScreen() {
 
     const [actionRunning, setActionRunning] = useState(false);
 
-    const unblockRef = useRef<() => void>();
-    useEffect(() => {
-        if (dirty) {
-            const unblock = browserHistory.block((tx) => {
-                if (!window.confirm("You are currently editing, are you sure you want to discard your changes?")) {
-                    return;
-                }
-                setDirty(false);
-                unblock();
-                tx.retry();
-            });
-            unblockRef.current = unblock;
-            return unblock;
-        }
-    }, [dirty]);
-
     const setCurrentDoc = useCallback((content: Content|string) => {
         setCurrentContent(content);
         setDirty(true);
@@ -194,6 +178,39 @@ export function EditorScreen() {
         });
     }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
     const contextRef = useFixedRef(appContext);
+
+    const unblockRef = useRef<() => void>();
+    useEffect(() => {
+        if (dirty) {
+            const unblock = browserHistory.block((transition) => {
+                menuRef.current?.open({
+                    title: "Changes not saved",
+                    body: `Do you really want to close ${selection?.path ?? "this file"}?`,
+                    options: [
+                        {caption: "Discard changes and leave", value: "discard"},
+                        {caption: "Save changes and leave", value: "save"},
+                    ],
+                    callback: async (option) => {
+                        if (option === null) {
+                            console.log("File creation cancelled.");
+                        } else {
+                            switch (option.value) {
+                                case "save":
+                                    await contextRef.current.dispatch({type: "save"});
+                                    // eslint-ignore-nextline no-fallthrough
+                                case "discard":
+                                    setDirty(false);
+                                    unblock();
+                                    transition.retry();
+                            }
+                        }
+                    }
+                })
+            });
+            unblockRef.current = unblock;
+            return unblock;
+        }
+    }, [dirty]);
 
     const keydown = useCallback((event: KeyboardEvent) => {
         if ((navigator.platform.indexOf("Mac") === 0 ? event.metaKey : event.ctrlKey) && event.key === "s") {
