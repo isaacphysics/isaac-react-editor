@@ -44,9 +44,9 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
     const {doc, update} = props;
 
     return <>
-        {isParsonsQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" />}
-        {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" />}
-        {isClozeQuestion(doc) && <CheckboxDocProp doc={doc} update={update} prop="randomiseItems" label="Randomise items on question load" />}
+        {isParsonsQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" /></div>}
+        {isClozeQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" /></div>}
+        <div><CheckboxDocProp doc={doc} update={update} prop="randomiseItems" label="Randomise items on question load" /></div>
         <ClozeQuestionContext.Provider value={isClozeQuestion(doc)}>
             <ContentValueOrChildrenPresenter {...props} topLevel />
         </ClozeQuestionContext.Provider>
