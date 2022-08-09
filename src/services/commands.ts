@@ -36,7 +36,7 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
         const doCreate = async (initialContent: string) => {
             try {
                 await githubCreate(context, action.path, name, initialContent);
-                context.selection.setSelection({path: `${path}/${name}`, isDir: false});
+                context.selection.setSelection({path: `${path}/${name}`, isDir: false, forceRefresh: true});
             } catch (e) {
                 alert("Couldn't create file. Perhaps it already exists.");
                 console.error("Couldn't create file. Perhaps it already exists.", e);

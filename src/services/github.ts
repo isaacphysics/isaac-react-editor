@@ -124,10 +124,13 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
     });
 
     // Let the file browser know this file is there
-    await mutate(contentsPath(basePath, context.github.branch), (current: Entry[]) => {
+    const nameFragments = name.split("/");
+    const nameSubDirectory = nameFragments.slice(0, -1).join("/");
+    const fileName = nameFragments[nameFragments.length - 1];
+    await mutate(contentsPath(basePath + "/" + nameSubDirectory, context.github.branch), (current: Entry[]) => {
         const newDir = [...current ?? []];
         let position = newDir.findIndex((entry) => {
-            return name < entry.name;
+            return fileName < entry.name;
         });
         if (position === -1) position = newDir.length;
         newDir.splice(position, 0, data.content);
