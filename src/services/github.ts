@@ -6,7 +6,7 @@ import {authorizationURL, doAuth} from "./auth";
 import {AppContext} from "../App";
 import {encodeBase64} from "../utils/base64";
 import {Entry} from "../components/FileBrowser";
-import {dirname} from "../utils/strings";
+import {dirname, resolveRelativePath} from "../utils/strings";
 import {Config, getConfig} from "./config";
 
 export const GITHUB_TOKEN_COOKIE = "github-token";
@@ -171,17 +171,23 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
 // Adapted from this blog post: https://medium.com/@obodley/renaming-a-file-using-the-git-api-fed1e6f04188
 export async function githubRename(context: ContextType<typeof AppContext>, path: string, name: string) {
     const isPublished = context.editor?.isAlreadyPublished();
+
     const pathSegments = path.split("/");
     const basePath = dirname(path);
     const oldName = pathSegments.at(-1);
 
+    const targetPath = resolveRelativePath(name, path);
+    const targetPathSegments = targetPath.split("/");
+    const targetFilename = targetPathSegments.at(-1);
+    const targetBasePath = dirname(targetPath);
+
     // Ensure that another file with the same name doesn't already exist, because the renaming process will overwrite
     // existing files otherwise. First we clear the cache to ensure that the file list is up to date (at least within
     // the last 60 seconds).
-    await mutate(contentsPath(basePath, context.github.branch), undefined);
-    const current: Entry[] = await context.github.cache.get(contentsPath(basePath, context.github.branch));
-    const index = current.findIndex((entry) => name === entry.name);
-    if (index !== -1) throw Error(`A file with the name ${name} already exists in the same directory. Cannot rename!`);
+    await mutate(contentsPath(targetBasePath, context.github.branch), undefined);
+    const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch));
+    const index = current.findIndex((entry) => targetFilename === entry.name);
+    if (index !== -1) throw Error(`A file with the name ${targetFilename} already exists in the same directory. Cannot rename!`);
 
     // It is now safe to rename...
 
@@ -190,6 +196,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     // query param to the URL, allowing us to get the freshest branch commit sha each time.
     const branch = await fetcher(`repos/$OWNER/$REPO/branches/${encodeURIComponent(context.github.branch)}?cache_t=${Date.now()}`);
     const baseSha = branch.commit.sha;
+
     // Get the entire git tree at this point
     let subtree = await fetcher(`repos/$OWNER/$REPO/git/trees/${baseSha}`);
     // Find the tree node corresponding to the file we want to rename
@@ -255,6 +262,8 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
         if (oldPosition !== -1) {
             newDir.splice(oldPosition, 1);
         }
+
+        // THIS IS GOING TO BE WRONG
         let newPosition = newDir.findIndex((entry) => {
             return name < entry.name;
         });

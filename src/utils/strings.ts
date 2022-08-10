@@ -15,3 +15,7 @@ export function dirname(path: string | undefined) {
     if (!path) return path;
     return path.substring(0, path.lastIndexOf('/'));
 }
+
+export function resolveRelativePath(relativeFilename: string, baseSrcPath: string): string {
+    return new URL(relativeFilename, "http://example.org/" + baseSrcPath).pathname; // The host name is ignored
+}
