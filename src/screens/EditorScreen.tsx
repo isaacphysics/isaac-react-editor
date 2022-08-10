@@ -94,7 +94,11 @@ export function EditorScreen() {
             }
         }
         if (url !== location.pathname) {
-            navigate(url);
+            if (selection?.forceRefresh) {
+                window.location.href = url;
+            } else {
+                navigate(url);
+            }
         }
     }, [params.branch, navigate, location.pathname]);
 

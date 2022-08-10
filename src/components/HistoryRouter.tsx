@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useLayoutEffect, useState } from "react";
-import { type History } from 'history';
+import { History } from 'history';
 import { Router } from 'react-router-dom';
 
 interface CustomRouterProps {

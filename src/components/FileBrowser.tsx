@@ -65,52 +65,47 @@ const FileItem: FunctionComponent<FileItemProps> = (props) => {
                           {...rest} />;
 };
 
-function isOnSelectionPath(selectionContext: SelectedContext, at: string) {
-    const selection = selectionContext.getSelection();
+function isOnSelectionPath(selection: Selection, at: string) {
     return at === "" || (selection && `${selection.path}/`.substring(0, at.length + 1) === `${at}/`);
+}
+
+function FilesList({open, error, data, menuRef}: {open: boolean | null, error: any; data: any; menuRef: MutableRefObject<PopupMenuRef | null>}) {
+    if (!open) return null;
+    if (error) return <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div>;
+    if (!data) return <div className={styles.fileBrowserList}><Spinner size="sm" /> Loading...</div>;
+    return <ListGroup flush className={styles.fileBrowserList}>
+        {data
+            .sort((a: Entry, b: Entry) => a.type === b.type ? 0 : a.type === "dir" ? -1 : 1)
+            .map((entry: Entry) => {
+                switch (entry.type) {
+                    case "dir":
+                        return <Files key={entry.name} entry={entry} menuRef={menuRef}/>;
+                    case "file":
+                        // eslint-disable-next-line no-case-declarations
+                        const fileOnContextMenu = (event: React.MouseEvent) => {
+                            menuRef.current?.open(event, entry);
+                            event.stopPropagation();
+                            event.preventDefault();
+                        };
+                        return <FileItem key={entry.name} entry={entry} onContextMenu={fileOnContextMenu}>
+                            {entry.name}
+                        </FileItem>
+                    default:
+                        return null;
+                }
+            })}
+    </ListGroup>;
 }
 
 function Files({entry, menuRef}: FilesProps) {
     const appContext = useContext(AppContext);
-    const selectionContext = appContext.selection;
+    const selection = appContext.selection.getSelection();
     const at = entry?.path ?? "";
-    const [open, setOpen] = useState(isOnSelectionPath(selectionContext, at));
+    const [open, setOpen] = useState(isOnSelectionPath(selection, at));
 
     const {data, error, mutate} = useGithubContents(appContext, open && at);
 
-    const content =
-          !open ? null
-        : error ? <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div>
-        : data ?
-            <ListGroup flush className={styles.fileBrowserList}>
-                {data
-                    .sort((a: Entry, b: Entry) => a.type === b.type ? 0 : a.type === "dir" ? -1 : 1)
-                    .map((entry: Entry) => {
-                    switch (entry.type) {
-                        case "dir":
-                            return <Files key={entry.name} entry={entry} menuRef={menuRef}/>;
-                        case "file":
-                            // eslint-disable-next-line no-case-declarations
-                            const fileOnContextMenu = (event: React.MouseEvent) => {
-                                menuRef.current?.open(event, entry);
-                                event.stopPropagation();
-                                event.preventDefault();
-                            };
-                            return <FileItem key={entry.name} entry={entry} onContextMenu={fileOnContextMenu}>
-                                {entry.name}
-                            </FileItem>
-                        default:
-                            return null;
-                    }
-                })}
-            </ListGroup>
-        : <div className={styles.fileBrowserList}><Spinner size="sm" /> Loading...</div>;
-
-    if (!entry) {
-        return content;
-    }
-
-    const onContextMenu = (event: React.MouseEvent) => {
+    const onContextMenu = (entry: Entry) => (event: React.MouseEvent) => {
         menuRef.current?.open(event, {...entry, refresh: open ? mutate : undefined});
         event.stopPropagation();
         event.preventDefault();
@@ -127,20 +122,19 @@ function Files({entry, menuRef}: FilesProps) {
     };
 
     return <>
-        <FileItem className={open ? styles.fileBrowserOpenFolder : styles.fileBrowserClosedFolder}
-                     entry={entry}
-                     onClick={onClick}
-                     onContextMenu={onContextMenu}
+        {entry && <FileItem className={open ? styles.fileBrowserOpenFolder : styles.fileBrowserClosedFolder}
+                     entry={entry} onClick={onClick} onContextMenu={onContextMenu(entry)}
         >
             {entry.name}
-        </FileItem>
-        {content}
+        </FileItem>}
+        <FilesList data={data} menuRef={menuRef} error={error} open={open}/>
     </>;
 }
 
 export type Selection = {
     path: string;
     isDir: boolean;
+    forceRefresh?: boolean;
 } | null;
 export type SelectedContext = {
     getSelection: () => Selection;
