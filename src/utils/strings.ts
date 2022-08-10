@@ -17,5 +17,5 @@ export function dirname(path: string | undefined) {
 }
 
 export function resolveRelativePath(relativeFilename: string, baseSrcPath: string): string {
-    return new URL(relativeFilename, "http://example.org/" + baseSrcPath).pathname; // The host name is ignored
+    return new URL(relativeFilename, "http://example.org/" + baseSrcPath).pathname.substring(1); // The host name is ignored
 }

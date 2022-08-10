@@ -188,7 +188,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     // existing files otherwise. First we clear the cache to ensure that the file list is up to date (at least within
     // the last 60 seconds).
     await mutate(contentsPath(targetBasePath, context.github.branch), undefined);
-    const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch));
+    const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch)) ?? [];
     const index = current.findIndex((entry) => targetFilename === entry.name);
     if (index !== -1) throw Error(`A file with the name ${targetFilename} already exists in the same directory. Cannot rename!`);
 
@@ -223,7 +223,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
             "base_tree": baseSha,
             "tree": [
                 {
-                    "path": `${basePath}/${name}`,
+                    "path": targetPath,
                     "mode": blob.mode,
                     "type": blob.type,
                     "sha": blob.sha
@@ -254,26 +254,6 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
             "sha": commit.sha
         }
     });
-
-    // This essentially merges the create and delete mutations
-    await mutate(contentsPath(basePath, context.github.branch), (current: Entry[]) => {
-        const newDir = [...current];
-        const oldPosition = newDir.findIndex((entry) => {
-            return oldName === entry.name;
-        });
-        const oldFileData = {...current[oldPosition]};
-        if (oldPosition !== -1) {
-            newDir.splice(oldPosition, 1);
-        }
-
-        // THIS IS GOING TO BE WRONG
-        let newPosition = newDir.findIndex((entry) => {
-            return name < entry.name;
-        });
-        if (newPosition === -1) newPosition = newDir.length;
-        newDir.splice(newPosition, 0, {...oldFileData, name: name, path: `${basePath}/${name}`});
-        return newDir;
-    }, {revalidate: false}); // github asks for aggressive disk caching, which we need to override.
 }
 
 export async function githubSave(context: ContextType<typeof AppContext>) {

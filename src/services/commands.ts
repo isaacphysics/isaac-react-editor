@@ -152,7 +152,7 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
         const basePath = dirname(oldPath);
         try {
             await githubRename(context, oldPath, newName);
-            context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false});
+            context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false, forceRefresh: true});
         } catch (e) {
             window.alert("Could not rename file. Perhaps one with that name already exists.");
             console.log(e);
