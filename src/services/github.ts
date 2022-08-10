@@ -123,19 +123,8 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
         },
     });
 
-    // Let the file browser know this file is there
-    const nameFragments = name.split("/");
-    const nameSubDirectory = nameFragments.slice(0, -1).join("/");
-    const fileName = nameFragments[nameFragments.length - 1];
-    await mutate(contentsPath(basePath + "/" + nameSubDirectory, context.github.branch), (current: Entry[]) => {
-        const newDir = [...current ?? []];
-        let position = newDir.findIndex((entry) => {
-            return fileName < entry.name;
-        });
-        if (position === -1) position = newDir.length;
-        newDir.splice(position, 0, data.content);
-        return newDir;
-    }, {revalidate: false}); // github asks for aggressive disk caching, which we need to override.
+    // TODO Could use mutate(...) to update filetree without a hard refresh - but remember to consider files saved in
+    // parent and sub-directories
 
     return data;
 }
@@ -254,6 +243,9 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
             "sha": commit.sha
         }
     });
+
+    // TODO Could use mutate(...) to update filetree without a hard refresh - but remember to consider files moved to
+    // parent and sub-directories
 }
 
 export async function githubSave(context: ContextType<typeof AppContext>) {
