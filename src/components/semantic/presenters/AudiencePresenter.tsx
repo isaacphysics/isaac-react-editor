@@ -15,7 +15,7 @@ function defaultAudience(): AudienceContext {
 type AudienceKey = keyof AudienceContext;
 type AudienceValue = ExtractRecordArrayValue<Required<AudienceContext>>;
 
-const phyStages: Stage[] = ["university", "further_a", "a_level", "gcse", "year_9", "year_8", "year_7"];
+const phyStages: Stage[] = ["university", "further_a", "a_level", "gcse", "year_9", "year_7_and_8"];
 const difficulties: Difficulty[] = ["practice_1", "practice_2", "practice_3", "challenge_1", "challenge_2", "challenge_3"];
 
 const csStages: Stage[] = ["a_level", "gcse"];
