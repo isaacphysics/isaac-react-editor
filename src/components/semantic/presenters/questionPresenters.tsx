@@ -200,6 +200,7 @@ const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuesti
             });
         }}
         text={doc.availableUnits?.join(" | ")}
+        placeHolder="Enter list of units here (|-separated)"
         label="Available units"
         block
         />;
@@ -254,6 +255,7 @@ const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQue
             });
         }}
         text={doc.availableSymbols?.map(unit => unit.trim()).join(", ")}
+        placeHolder="Enter list of symbols here (,-separated)"
         label="Available symbols"
         format={"latex"}
     />;
@@ -307,6 +309,7 @@ export function SymbolicQuestionPresenter(props: PresenterProps<IsaacSymbolicQue
         <QuestionMetaPresenter {...props} />
         <div className={styles.editableFullwidth}>
             <EditableAvailableSymbols {...props} />
+            DUDE
         </div>
         {doc.type === "isaacSymbolicQuestion" && <SymbolicMetaSymbols {...props} />}
         <div className={styles.editableFullwidth}>
