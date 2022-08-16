@@ -65,7 +65,7 @@ export function RelatedContentPresenter({doc, update}: PresenterProps) {
         }}>
             <Droppable droppableId="droppable" direction="horizontal">
                 {(provided, snapshot) => <div
-                    ref={provided.innerRef} {...provided.droppableProps} className="d-flex"
+                    ref={provided.innerRef} {...provided.droppableProps} className="d-flex flex-wrap"
                     style={{backgroundColor: snapshot.isDraggingOver ? 'lightblue' : 'transparent'}}
                 >
                     {doc.relatedContent?.map((id, index) => <Draggable key={id} draggableId={id} index={index}>
