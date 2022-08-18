@@ -20,6 +20,11 @@ const difficulties: Difficulty[] = ["practice_1", "practice_2", "practice_3", "c
 
 const csStages: Stage[] = ["a_level", "gcse"];
 const csExamBoards: ExamBoard[] = ["aqa", "ocr", "cie", "edexcel", "eduqas", "wjec"];
+const csStagedExamBoards: Partial<Record<Stage, ExamBoard[]>> = {
+    "a_level": ["aqa", "cie", "eduqas", "ocr", "wjec"],
+    "gcse": ["aqa", "edexcel", "eduqas", "ocr", "wjec"],
+};
+
 
 const roles: RoleRequirement[] = ["logged_in", "teacher"]; //, "event_leader", "content_editor", "event_manager", "admin"];
 
@@ -54,12 +59,25 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
         const values = doc[key];
         if (values) {
             unusedKeysAndFirstOption = unusedKeysAndFirstOption.filter(([k]) => k !== key);
-            const unusedOptions = new Set(possible[key]);
-            values.forEach((value) => unusedOptions.delete(value));
+
+            const filteredUnusedOptions = new Set(possible[key]);
+            // Remove used options
+            values.forEach((value) => filteredUnusedOptions.delete(value));
+
+            // Restrict Exam Board options by Stage selection if set
+            if (SITE === "CS" && key === "examBoard" && doc.stage && doc.stage.length === 1) {
+                const examBoardsForStage = csStagedExamBoards[doc.stage?.[0] as Stage] ?? [];
+                filteredUnusedOptions.forEach((value) => {
+                    if (!examBoardsForStage.includes(value as ExamBoard)) {
+                        filteredUnusedOptions.delete(value);
+                    }
+                });
+            }
+
             return {
                 key,
                 values,
-                unusedOptions: [...unusedOptions],
+                unusedOptions: [...filteredUnusedOptions],
             };
         }
         return undefined;
