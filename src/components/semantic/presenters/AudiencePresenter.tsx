@@ -25,6 +25,14 @@ const csStagedExamBoards: Partial<Record<Stage, ExamBoard[]>> = {
     "gcse": ["aqa", "edexcel", "eduqas", "ocr", "wjec"],
 };
 
+function allExamBoardsForStagePresent(fieldsObject: Partial<Record<AudienceKey, AudienceValue[]>>) {
+    if (Object.keys(fieldsObject).indexOf("examBoard") === -1) return false;
+    if (Object.keys(fieldsObject).indexOf("stage") === -1) return false;
+    if (fieldsObject.stage?.length !== 1) return false;
+    const possibleExamBoards = csStagedExamBoards[fieldsObject.stage[0] as Stage] || [];
+    if (possibleExamBoards.length !== fieldsObject.examBoard?.length) return false;
+    return possibleExamBoards.every(examBoard => fieldsObject.examBoard?.indexOf(examBoard) !== -1);
+}
 
 const roles: RoleRequirement[] = ["logged_in", "teacher"]; //, "event_leader", "content_editor", "event_manager", "admin"];
 
@@ -171,7 +179,8 @@ function conciseAudience(audience: AudienceContext): string {
         const key = k as keyof AudienceContext;
         const values = audience[key];
         if (values) {
-            return values.join(" or ");
+            if (key === "examBoard" && allExamBoardsForStagePresent(audience)) return "any\u00A0exam\u00A0board";
+            else return values.join(" or ");
         }
         return undefined;
     }).filter(isDefined);
