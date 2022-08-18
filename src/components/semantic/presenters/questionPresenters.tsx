@@ -309,7 +309,6 @@ export function SymbolicQuestionPresenter(props: PresenterProps<IsaacSymbolicQue
         <QuestionMetaPresenter {...props} />
         <div className={styles.editableFullwidth}>
             <EditableAvailableSymbols {...props} />
-            DUDE
         </div>
         {doc.type === "isaacSymbolicQuestion" && <SymbolicMetaSymbols {...props} />}
         <div className={styles.editableFullwidth}>
