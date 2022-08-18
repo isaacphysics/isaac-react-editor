@@ -26,13 +26,18 @@ const csStagedExamBoards: Partial<Record<Stage, ExamBoard[]>> = {
     "gcse": ["aqa", "edexcel", "eduqas", "ocr", "wjec"],
 };
 
-function allExamBoardsForStagePresent(fieldsObject: Partial<Record<AudienceKey, AudienceValue[]>>) {
-    if (Object.keys(fieldsObject).indexOf("examBoard") === -1) return false;
-    if (Object.keys(fieldsObject).indexOf("stage") === -1) return false;
-    if (fieldsObject.stage?.length !== 1) return false;
-    const possibleExamBoards = csStagedExamBoards[fieldsObject.stage[0] as Stage] || [];
-    if (possibleExamBoards.length !== fieldsObject.examBoard?.length) return false;
-    return possibleExamBoards.every(examBoard => fieldsObject.examBoard?.indexOf(examBoard) !== -1);
+function examBoardsForStage(audienceContext: AudienceContext): ExamBoard[] {
+    const stageSpecificExamBoards = audienceContext.stage?.length === 1 && csStagedExamBoards[audienceContext.stage[0]];
+    return stageSpecificExamBoards || csExamBoards;
+}
+
+function allExamBoardsForStagePresent(audienceContext: AudienceContext) {
+    if (Object.keys(audienceContext).indexOf("examBoard") === -1) return false;
+    if (Object.keys(audienceContext).indexOf("stage") === -1) return false;
+    if (audienceContext.stage?.length !== 1) return false;
+    const possibleExamBoards = examBoardsForStage(audienceContext);
+    if (possibleExamBoards.length !== audienceContext.examBoard?.length) return false;
+    return possibleExamBoards.every(examBoard => audienceContext.examBoard?.indexOf(examBoard) !== -1);
 }
 
 const roles: RoleRequirement[] = ["logged_in", "teacher"]; //, "event_leader", "content_editor", "event_manager", "admin"];
@@ -75,9 +80,8 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
 
             // Restrict Exam Board options by Stage selection if set
             if (SITE === "CS" && key === "examBoard" && doc.stage && doc.stage.length === 1) {
-                const examBoardsForStage = csStagedExamBoards[doc.stage?.[0] as Stage] ?? [];
                 filteredUnusedOptions.forEach((value) => {
-                    if (!examBoardsForStage.includes(value as ExamBoard)) {
+                    if (!examBoardsForStage(doc).includes(value as ExamBoard)) {
                         filteredUnusedOptions.delete(value);
                     }
                 });
@@ -119,7 +123,7 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
                         <option key={possibleOption}>{possibleOption}</option>
                     )}
                 </select>
-                {multiple && <Button outline size="sm" onClick={() => {
+                {multiple && <Button outline size="sm" className="border-0 p-0" onClick={() => {
                     // ESLint is very confused by the following line...
                     // eslint-disable-next-line react/prop-types
                     updateValues((values as string[]).filter(v => v !== value) as AudienceValue[]);
@@ -130,6 +134,7 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
             </>;
         };
         return <Fragment key={key}>
+            {/* Key */}
             <select value={key} onChange={(e) => {
                 const newKey = e.target.value;
                 const newValue = e.target.options[e.target.selectedIndex].dataset["audiencevalue"];
@@ -141,19 +146,34 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
             }}>
                 <option key={key}>{key}</option>
                 {unusedKeysAndFirstOption.map(([possibleKey, audienceValue]) =>
-                    <option key={possibleKey}
-                            data-audiencevalue={audienceValue}>{possibleKey}</option>
+                    <option key={possibleKey} data-audiencevalue={audienceValue}>{possibleKey}</option>
                 )}
             </select>
-            {values.length === 1 ?
-                <> = <AudienceValue/></>
-                : <> IN [{values.map((value, index) => <AudienceValue key={index}
-                                                                      index={index}/>)}</>
-            }
-            {unusedOptions.length > 0 && <Button outline size="sm" onClick={() => {
-                updateValues([...values, unusedOptions[0]]);
-            }}>➕</Button>}
-            {values.length > 1 && "]"}
+
+            {/* Value(s) */}
+            {!(key === "examBoard" && allExamBoardsForStagePresent(doc)) && <Fragment>
+                {values.length === 1 ?
+                    <> = <AudienceValue/></>
+                    : <> IN [{values.map((value, index) => <AudienceValue key={index} index={index}/>)}</>
+                }
+
+                {unusedOptions.length > 0 && <Button outline size="sm" className="border-0 p-0" onClick={() => {
+                    updateValues([...values, unusedOptions[0]]);
+                }}>➕</Button>}
+                {key === "examBoard" && <Button outline size="sm" onClick={() => {updateValues(examBoardsForStage(doc))}}>
+                    ALL
+                </Button>}
+                {values.length > 1 && "]"}
+            </Fragment>}
+
+            {key === "examBoard" && allExamBoardsForStagePresent(doc) && <Fragment>
+                {" IN [ALL]"}
+                <Button outline size="sm" onClick={() => {const [_first, ...rest] = values; updateValues(rest)}}>
+                    NOT ALL
+                </Button>
+            </Fragment>}
+
+            {/* Connector */}
             {filteredItems.length > 1 && i < filteredItems.length - 1 && " AND "}
         </Fragment>;
     });
