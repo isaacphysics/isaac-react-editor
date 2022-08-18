@@ -9,7 +9,8 @@ import {PresenterProps} from "../registry";
 import styles from "../styles/audience.module.css";
 
 function defaultAudience(): AudienceContext {
-    return {"stage": ["a_level"]};
+    return SITE === "CS" ?
+        {stage: ["a_level"], examBoard: ["ocr"]} : {stage: ["a_level"]};
 }
 
 type AudienceKey = keyof AudienceContext;
