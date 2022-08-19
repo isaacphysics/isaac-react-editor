@@ -16,6 +16,7 @@ export interface EditorState {
     getCurrentDoc: () => Content;
     getCurrentDocAsString: () => string;
     getCurrentDocPath: () => string | undefined;
+    setDirty: (isDirty: boolean) => void;
     setCurrentDoc: (newContent: Content|string) => void;
     loadNewDoc: (newContent: Content|string) => void;
     isAlreadyPublished: () => boolean;
@@ -26,6 +27,9 @@ export const defaultEditorState: EditorState = {
     getCurrentDoc: () => ({}),
     getCurrentDocAsString: () => "",
     getCurrentDocPath: () => undefined,
+    setDirty: () => {
+        throw new Error('setDirty called outside of AppContent');
+    },
     setCurrentDoc: () => {
         throw new Error("setCurrentDoc called outside of AppContent");
     },
