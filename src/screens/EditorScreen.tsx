@@ -217,7 +217,7 @@ export function EditorScreen() {
     }, [dirty]);
 
     const keydown = useCallback((event: KeyboardEvent) => {
-        if ((navigator.platform.indexOf("Mac") === 0 ? event.metaKey : event.ctrlKey) && event.key === "s") {
+        if ((event.metaKey || event.ctrlKey) && event.key === "s") {
             event.preventDefault();
             event.stopPropagation();
             if (contextRef.current.editor.getDirty()) {

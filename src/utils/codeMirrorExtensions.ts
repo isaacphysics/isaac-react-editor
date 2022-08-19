@@ -92,15 +92,15 @@ export const makeCode = (encoding: "markdown" | "html") => encodingSpecific(emph
 export const keyBindings = (setChanges: Command, cancelChanges: Command, encoding?: string): Extension => {
     return keymap.of([
         // Universal bindings
-        {key: "Ctrl-Shift-Enter", run: setChanges},
+        {key: "Mod-Shift-Enter", run: setChanges},
         {key: "Escape", run: cancelChanges},
 
         // Markup bindings
         ...(isMarkupEncoding(encoding) ? [
-            {key: "Ctrl-b", run: makeBold(encoding)},
-            {key: "Ctrl-Shift-i", run: makeItalic(encoding)},
-            {key: "Ctrl-Shift-s", run: makeStrikethrough(encoding)},
-            {key: "Ctrl-Shift-c", run: makeCode(encoding)}
+            {key: "Mod-b", run: makeBold(encoding)},
+            {key: "Mod-Shift-i", run: makeItalic(encoding)},
+            {key: "Mod-Shift-s", run: makeStrikethrough(encoding)},
+            {key: "Mod-Shift-c", run: makeCode(encoding)}
         ]: []),
     ]);
 };
