@@ -157,6 +157,7 @@ export function EditorScreen() {
                     }
                 },
                 getCurrentDocPath: () => currentContentPath,
+                setDirty: setDirty,
                 setCurrentDoc: setCurrentDoc,
                 loadNewDoc: loadNewDoc,
                 isAlreadyPublished: () => isAlreadyPublished,
@@ -180,7 +181,7 @@ export function EditorScreen() {
                 },
             },
         });
-    }, [setCurrentDoc, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
     const contextRef = useFixedRef(appContext);
 
     const unblockRef = useRef<() => void>();

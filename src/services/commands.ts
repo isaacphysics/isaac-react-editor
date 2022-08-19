@@ -120,11 +120,15 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
 }
 
 async function doDelete(context: ContextType<typeof AppContext>, action: ActionFor<"delete">) {
+    const previouslyDirty = context.editor.getDirty();
+    context.editor.setDirty(false);
     if (window.confirm("Do you really want to delete " + action.name + "?")) {
         await githubDelete(context, action.path, action.name, action.sha);
         if (context.selection.getSelection()?.path === action.path) {
             context.selection.setSelection({path: dirname(action.path), isDir: true});
         }
+    } else {
+        context.editor.setDirty(previouslyDirty);
     }
 }
 
