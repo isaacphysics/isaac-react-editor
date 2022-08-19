@@ -189,8 +189,8 @@ export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     </>;
 }
 
-const EditableSignificantFiguresMin = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMin", {label: "from"});
-const EditableSignificantFiguresMax = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMax", {label: "to"});
+const EditableSignificantFiguresMin = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMin", {label: "from", block: true});
+const EditableSignificantFiguresMax = NumberDocPropFor<IsaacNumericQuestion>("significantFiguresMax", {label: "to", block: true});
 const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuestion>) => {
     return <EditableText
         onSave={(newText) => {
@@ -217,11 +217,15 @@ export function NumericQuestionPresenter(props: PresenterProps) {
             <CheckboxDocProp doc={question} update={update} prop="disregardSignificantFigures" label="Exact answers only" />
         </div>
         {!question.disregardSignificantFigures && <div className={styles.questionLabel}>
-            Significant figures
-            {" "}
-            <EditableSignificantFiguresMin doc={question} update={update} />
-            {" "}
-            <EditableSignificantFiguresMax doc={question} update={update} />
+            Significant figures:
+            <div className="row">
+                <div className="col col-lg-5">
+                    <EditableSignificantFiguresMin doc={question} update={update} />
+                </div>
+                <div className="col col-lg-5">
+                    <EditableSignificantFiguresMax doc={question} update={update} />
+                </div>
+            </div>
         </div>}
         <div>
             <CheckboxDocProp doc={question} update={newQuestion => {

@@ -20,6 +20,16 @@ div.isEditingWrapper {
     justify-content: flex-end;
 }
 
+div.isEditingWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+div.isEditingWrapper button {
+    margin-bottom: 0.125rem;
+}
+
 span.isEditingWrapper {
     display: inline-flex;
 }
