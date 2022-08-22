@@ -8,6 +8,7 @@ type CheckboxDocProps<K extends keyof D, D> =
     & {
     prop: K;
     label: string;
+    checkedIfUndefined?: boolean;
 };
 
 export function CheckboxDocProp<K extends keyof D, D extends { [Key in K]?: boolean }>({
@@ -15,10 +16,11 @@ export function CheckboxDocProp<K extends keyof D, D extends { [Key in K]?: bool
     update,
     prop,
     label,
+    checkedIfUndefined
 }: CheckboxDocProps<K, D>) {
     return <Label className={styles.checkboxLabel}>
         <Input type="checkbox"
-               checked={!!doc[prop]}
+               checked={doc[prop] ?? checkedIfUndefined ?? false}
                onChange={(e) => {
                    update({
                        ...doc,

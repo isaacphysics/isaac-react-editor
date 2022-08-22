@@ -184,8 +184,7 @@ export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     const question = doc as IsaacMultiChoiceQuestion;
     return <>
         <QuestionMetaPresenter {...props} />
-        <CheckboxDocProp doc={question} update={update} prop="randomiseChoices"
-                         label="Randomise Choices"/>
+        <CheckboxDocProp doc={question} update={update} prop="randomiseChoices" label="Randomise Choices" checkedIfUndefined={true} />
     </>;
 }
 
