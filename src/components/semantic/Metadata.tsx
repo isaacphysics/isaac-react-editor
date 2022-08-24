@@ -64,17 +64,11 @@ export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaIt
     const [warning, setWarning] = useState<string>();
 
     let value: string | undefined = doc[prop as keyof Content] as string ?? options?.defaultValue;
-    if (value !== undefined) {
-        switch (options?.type) {
-            case "datetime-local": value = new Date(value).toJSON()?.slice(0, -8); break;
-        }
-    }
 
     const onChange = (value: string) => {
         let newValue: unknown = value;
         switch (options?.type) {
             case "number": newValue = parseInt(value, 10); break;
-            case "datetime-local": newValue = new Date(value).valueOf(); break;
         }
         checkWarning(options, newValue, setWarning);
         if (options?.deleteIfEmpty && value.replace(/\s/g, "").length === 0) {

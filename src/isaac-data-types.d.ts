@@ -53,9 +53,9 @@ export interface IsaacConceptPage extends SeguePage {
 }
 
 export interface IsaacEventPage extends Content {
-    date?: Date;
-    bookingDeadline?: Date;
-    prepWorkDeadline?: Date;
+    date?: number;
+    bookingDeadline?: number;
+    prepWorkDeadline?: number;
     location?: Location;
     preResources?: ExternalReference[];
     postResources?: ExternalReference[];
@@ -71,7 +71,7 @@ export interface IsaacEventPage extends Content {
     eventStatus?: EventStatus;
     isaacGroupToken?: string;
     address?: Address;
-    endDate?: Date;
+    endDate?: number;
 }
 
 export interface IsaacFastTrackQuestionPage extends IsaacQuestionPage {

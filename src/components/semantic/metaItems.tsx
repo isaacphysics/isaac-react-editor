@@ -1,21 +1,15 @@
-import React, { useCallback } from "react";
-import { Button, Col, Input, Label, Row } from "reactstrap";
+import React, {useCallback, useState} from "react";
+import {Button, Col, Input, Label, Row} from "reactstrap";
 
-import {
-    Content,
-    ExternalReference,
-    IsaacEventPage,
-    IsaacQuiz,
-    Location,
-} from "../../isaac-data-types";
-import { useFixedRef } from "../../utils/hooks";
-import { useKeyedList } from "../../utils/keyedListHook";
+import {Content, ExternalReference, IsaacEventPage, IsaacQuiz, Location,} from "../../isaac-data-types";
+import {useFixedRef} from "../../utils/hooks";
+import {useKeyedList} from "../../utils/keyedListHook";
 
-import { AudiencePresenter } from "./presenters/AudiencePresenter";
-import { TagsPresenter } from "./presenters/TagsPresenter";
-import { RelatedContentPresenter } from "./presenters/RelatedContentPresenter";
-import { LinkedGameboardsPresenter } from "./presenters/LinkedGameboardsPresenter";
-import { asMetaItems, MetaItemPresenter, MetaItemPresenterProps } from "./Metadata";
+import {AudiencePresenter} from "./presenters/AudiencePresenter";
+import {TagsPresenter} from "./presenters/TagsPresenter";
+import {RelatedContentPresenter} from "./presenters/RelatedContentPresenter";
+import {LinkedGameboardsPresenter} from "./presenters/LinkedGameboardsPresenter";
+import {asMetaItems, MetaItemPresenter, MetaItemPresenterProps} from "./Metadata";
 
 import styles from "./styles/metadata.module.css";
 
@@ -78,10 +72,10 @@ export const MetaItems = asMetaItems({
     emailEventDetails: ["Email Event Details", {type: "textarea"}],
     emailConfirmedBookingText: ["Email Confirmed Booking Text", {type: "textarea"}],
     emailWaitingListBookingText: ["Email Waiting List Booking Text", {type: "textarea"}],
-    date: ["Start Date", {type: "datetime-local"}],
-    end_date: ["End Date", {type: "datetime-local"}],
-    bookingDeadline: ["Booking Deadline", {type: "datetime-local"}],
-    prepWorkDeadline: ["Prep-work Deadline", {type: "datetime-local"}],
+    date: ["Start Date", {presenter: DateTimeInput}],
+    end_date: ["End Date", {presenter: DateTimeInput}],
+    bookingDeadline: ["Booking Deadline", {presenter: DateTimeInput}],
+    prepWorkDeadline: ["Prep-work Deadline", {presenter: DateTimeInput}],
     numberOfPlaces: ["Number of places", {type: "number"}],
     eventStatus: ["Status", {type: "select", options: {
         OPEN: "Open",
@@ -157,6 +151,43 @@ function VisibleToStudents({doc, update, ...rest}: MetaItemPresenterProps<IsaacQ
     };
 
     return <Input type="checkbox" {...rest} checked={!!doc.visibleToStudents} onChange={(e) => onChange(e.target.checked)} />;
+}
+
+function DateTimeInput({doc, update, prop, ...rest}: MetaItemPresenterProps<IsaacEventPage>) {
+    const dateProp = prop as keyof IsaacEventPage;
+
+    function padDigits(num: number) {
+        return num.toString().padStart(2, '0');
+    }
+
+    function dateFilter(date: Date) {
+        return (
+            [date.getFullYear(), padDigits(date.getMonth() + 1), padDigits(date.getDate())].join('-') + ' ' +
+            [padDigits(date.getHours()), padDigits(date.getMinutes())].join(':')
+        );
+    }
+
+    const initialValue = doc[dateProp] ? dateFilter(new Date(doc[dateProp] as number)) : "";
+    const [dateInput, setDateInput] = useState(initialValue);
+    const [dateOutput, setDateOutput] = useState(initialValue);
+
+    function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+        setDateInput(e.target.value);
+        try {
+            const d = Date.parse(e.target.value.replace(/-/g, "/"));
+            if (d) {
+                setDateOutput(dateFilter(new Date(d)));
+                update({...doc, [dateProp]: d});
+            }
+        } catch (e) {
+            // We can ignore a failed parsing - probably intermediate state
+        }
+    }
+
+    return <Row>
+        <Col><Input type="text" {...rest} onChange={onChange} value={dateInput} placeholder="YYYY-MM-DD HH:mm" /></Col>
+        <Col>{dateOutput}</Col>
+    </Row>;
 }
 
 function HiddenFromTeachers({doc, update, ...rest}: MetaItemPresenterProps<IsaacQuiz>) {
