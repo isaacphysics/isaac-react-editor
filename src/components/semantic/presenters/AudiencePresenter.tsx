@@ -267,7 +267,7 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
         return <div
             key="edit" className={`${styles.wrapper} ${type === "accordion" ? styles.rightAlign : ""}`}
             onKeyDown={(e) => {
-                if (e.ctrlKey && e.shiftKey && e.key === "Enter") {
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "Enter") {
                     setChanges();
                 } else if (e.key === "Escape") {
                     close();
