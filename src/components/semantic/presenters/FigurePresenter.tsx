@@ -21,28 +21,68 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     const appContext = useContext(AppContext);
     const basePath = dirname(appContext.selection.getSelection()?.path) as string;
-    const {data} = useGithubContents(appContext, doc.src !== undefined && doc.src !== "" && `${basePath}/${doc.src}`);
+    const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined);
 
     const imageRef = useRef<HTMLImageElement>(null);
     useEffect(() => {
         if (data && data.content) {
-            let type = "image";
-            const src = doc.src?.toLowerCase() ?? "";
-            switch (src.substring(src.lastIndexOf(".") + 1)) {
-                case "png": type = "image/png"; break;
-                case "svg": type = "image/svg+xml"; break;
-                case "jpg": type = "image/jpeg"; break;
+            let dataUrl;
+            if (getImageFileType(doc.src) === "svg") {
+                // SVG images may have "views", which can't be included in inline base 64 data, so we will use the
+                // GitHub URL as the source instead
+                dataUrl = githubURLFromGithubData(data, getSVGView(doc.src))
             }
-
-            const b64 = data.content;
-            const dataUrl = "data:" + type + ";base64," +  b64;
+            else {
+                dataUrl = inlineBase64URLFromGithubData(data);
+            }
             if (imageRef.current) {
                 imageRef.current.src = dataUrl;
             }
         }
-    }, [data, doc.src]);
+    }, [data, doc.src, inlineBase64URLFromGithubData]);
 
     const fileRef = useRef<HTMLInputElement>(null);
+
+    function getContentPathFromSrc(src?: string) {
+        if (doc.src !== undefined && doc.src !== "") {
+            return isAppAsset(src) ? doc.src : `${basePath}/${doc.src}`
+        }
+        return false
+    }
+
+    function isAppAsset(path?: string) {
+        return path && path.startsWith('/assets')
+    }
+
+    function inlineBase64URLFromGithubData(data: { content: string; }) {
+        let type = "image";
+        switch (getImageFileType(doc.src)) {
+            case "png": type = "image/png"; break;
+            case "jpg": type = "image/jpeg"; break;
+        }
+
+        const b64 = data.content;
+        return "data:" + type + ";base64," +  b64;
+    }
+
+    function githubURLFromGithubData(data: {download_url: string}, svgView?: string) {
+        // If there is an SVG view, include at the end of the URL
+        return svgView ? `${data.download_url}#${svgView}` : data.download_url;
+    }
+
+    function getImageFileType(src?: string) {
+        src = src?.toLowerCase() ?? "";
+
+        // remove SVG view, if present
+        src = src.substring(0, src.lastIndexOf('#'))
+
+        return src.substring(src.lastIndexOf(".") + 1)
+    }
+
+    function getSVGView(src?: string) {
+        src = src?.toLowerCase() ?? "";
+        return src.substring(src.lastIndexOf("#") + 1)
+    }
 
     function selectFile(file: File) {
         const reader = new FileReader();
