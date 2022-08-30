@@ -88,15 +88,7 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
                         {
                             caption: "News pod",
                             value: "isaacPod"
-                        },
-                        {
-                            caption: "Card",
-                            value: "isaacCard"
-                        },
-                        {
-                            caption: "Card deck",
-                            value: "isaacCardDeck"
-                        },
+                        }
                     ],
                     callback: async (option) => {
                         if (option === null) {

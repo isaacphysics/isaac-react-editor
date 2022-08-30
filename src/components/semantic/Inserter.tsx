@@ -36,6 +36,7 @@ const blockTypes = {
     "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
     "side-by-side layout": {type: "content", layout: "horizontal", encoding: "markdown", children: []},
     "callout": {type: "content", layout: "callout", encoding: "markdown", value: ""},
+    "card deck": {type: "isaacCardDeck", encoding: "markdown", value: ""},
 };
 
 export function Inserter({insert, forceOpen, position}: InserterProps) {

@@ -12,6 +12,11 @@ import {Config, getConfig} from "./config";
 export const GITHUB_TOKEN_COOKIE = "github-token";
 const GITHUB_API_URL = "https://api.github.com/";
 
+const GITHUB_BASE_REPO_PATHS: {[key: string] : string} = {
+    content: "repos/$OWNER/$REPO/contents/",
+    app: "repos/$OWNER/$APP_REPO/contents/public"
+}
+
 export function githubReplaceWithConfig(path: string) {
     const config = getConfig();
     return path.replace(/\$([A-Z_]+)/g, (_, match) => {
@@ -56,16 +61,16 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
     }
 };
 
-function contentsPath(path: string, branch?: string) {
-    let fullPath = `repos/$OWNER/$REPO/contents/${path}`;
+function contentsPath(path: string, branch?: string, repo: string = "content") {
+    let fullPath = `${GITHUB_BASE_REPO_PATHS[repo]}${path}`;
     if (branch) {
         fullPath += `?ref=${encodeURIComponent(branch)}`;
     }
     return fullPath;
 }
 
-export const useGithubContents = (context: ContextType<typeof AppContext>, path: string|false|null|undefined) => {
-    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch) : null);
+export const useGithubContents = (context: ContextType<typeof AppContext>, path: string|false|null|undefined, repo?: string) => {
+    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null);
 };
 
 export const defaultGithubContext = {
