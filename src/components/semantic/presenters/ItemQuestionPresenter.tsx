@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, MouseEventHandler, useContext, useState} from "react";
 import {Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row} from "reactstrap";
 
 import {
@@ -21,6 +21,7 @@ import {MetaItemPresenter, MetaOptions} from "../Metadata";
 
 import styles from "../styles/question.module.css";
 import {Box} from "../SemanticItem";
+import {ExpandableText} from "../ExpandableText";
 
 interface ItemsContextType {
     items: ParsonsItem[] | undefined;
@@ -86,8 +87,8 @@ function ItemRow({item}: {item: Item}) {
         <Col xs={3}>
             {item.id}
         </Col>
-        <Col xs={9}>
-            {item.value}
+        <Col xs={9} className={styles.itemRowText}>
+            <ExpandableText text={item.value}/>
         </Col>
     </Row>
 }
@@ -112,15 +113,15 @@ export function ItemChoicePresenter(props: PresenterProps<ParsonsItem>) {
 
     const dropdown = <Dropdown toggle={() => setOpen(toggle => !toggle)}
                                isOpen={isOpen}>
-        <DropdownToggle outline>
+        <DropdownToggle outline className={styles.dropdownButton}>
             <ItemRow item={item} />
         </DropdownToggle>
-        <DropdownMenu>
-            <DropdownItem key={item.id} active>
+        <DropdownMenu className={styles.itemChoiceDropdown}>
+            <DropdownItem key={item.id} className={styles.dropdownItem} active>
                 <ItemRow item={item} />
             </DropdownItem>
             {remainingItems?.map((i) => {
-                return <DropdownItem key={i.id} onClick={() => {
+                return <DropdownItem key={i.id} className={styles.dropdownItem} onClick={() => {
                     update({
                         ...doc,
                         id: i.id,
