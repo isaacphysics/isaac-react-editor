@@ -114,3 +114,7 @@
     display: flex;
     padding-right: 75px; /* Room for up/down/delete buttons */
 }
+
+.parsonsIndentPresenter {
+    min-width: 50px;
+}
