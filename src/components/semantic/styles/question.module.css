@@ -66,7 +66,7 @@
     margin-bottom: 0.5em;
 }
 
-.itemsChoiceRow button, .parsonsItem button {
+.itemsChoiceRow .dropdownButton, .parsonsItem .dropdownButton {
     width: 100%;
     border: none !important;
     background: none !important;
@@ -76,6 +76,31 @@
 .itemsChoiceInserter {
     margin-top: 0.5em;
     width: 100%;
+}
+
+.itemRowText {
+    white-space: normal !important;
+    overflow-wrap: break-word;
+}
+
+.dropdownItem {
+    min-width: 300px;
+}
+
+.dropdownItem[class*="active"], .dropdownItem:active {
+    border-radius: 3px;
+}
+
+/* Workaround using attribute selectors to inspect bootstrap classes */
+.dropdownItem[class*="active"] .expandTextButton, .dropdownItem:active .expandTextButton {
+    color: white !important;
+}
+
+.itemChoiceDropdown {
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow-y: auto;
+    max-height: 100vh;
 }
 
 .parsonsItem {
@@ -90,10 +115,6 @@
     padding-right: 75px; /* Room for up/down/delete buttons */
 }
 
-.parsonsItem :nth-child(1) {
-    flex: 3;
-}
-
-.parsonsItem :nth-child(2) {
-    flex-basis: 80px;
+.parsonsIndentPresenter {
+    min-width: 50px;
 }
