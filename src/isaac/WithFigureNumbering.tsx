@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import {useRef} from "react";
 
 import {ChoiceQuestion, Content, Question} from "../isaac-data-types";
 import {NON_STATIC_FIGURE_FLAG} from "./IsaacTypes";
@@ -19,10 +19,8 @@ export const useFigureNumbering = (doc: Content) => {
             return;
         } else if (d.type === "figure" && d.id) {
             const figureId = extractFigureId(d.id);
-            if (outOfStaticFlow) {
-                figuresOutOfStaticFlow.add(figureId);
-            } else if (!Object.keys(newMap).includes(figureId)) {
-                newMap[figureId] = n++;
+            if (!Object.keys(newMap).includes(figureId) || newMap[figureId] === NON_STATIC_FIGURE_FLAG) {
+                newMap[figureId] = outOfStaticFlow ? NON_STATIC_FIGURE_FLAG : (n++);
             }
         } else {
             // Walk all the things that might possibly contain figures. Doesn't blow up if they don't exist.
@@ -48,11 +46,6 @@ export const useFigureNumbering = (doc: Content) => {
         }
     }
     walk(doc, false);
-
-    // Mark all figures that exist out of the static flow of the document as such (figures in choices for example)
-    for (const figureId of figuresOutOfStaticFlow.values()) {
-        newMap[figureId] = NON_STATIC_FIGURE_FLAG;
-    }
 
     // Check maps match, or update ref if they do not.
     const oldMap = figureMap.current;
