@@ -25,6 +25,17 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     const imageRef = useRef<HTMLImageElement>(null);
     useEffect(() => {
+        function inlineBase64URLFromGithubData(data: { content: string; }) {
+            let type = "image";
+            switch (getImageFileType(doc.src)) {
+                case "png": type = "image/png"; break;
+                case "jpg": type = "image/jpeg"; break;
+            }
+
+            const b64 = data.content;
+            return "data:" + type + ";base64," +  b64;
+        }
+
         if (data && data.content) {
             let dataUrl;
             if (getImageFileType(doc.src) === "svg") {
@@ -39,7 +50,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
                 imageRef.current.src = dataUrl;
             }
         }
-    }, [data, doc.src, inlineBase64URLFromGithubData]);
+    }, [data, doc.src]);
 
     const fileRef = useRef<HTMLInputElement>(null);
 
@@ -52,17 +63,6 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     function isAppAsset(path?: string) {
         return path && path.startsWith('/assets')
-    }
-
-    function inlineBase64URLFromGithubData(data: { content: string; }) {
-        let type = "image";
-        switch (getImageFileType(doc.src)) {
-            case "png": type = "image/png"; break;
-            case "jpg": type = "image/jpeg"; break;
-        }
-
-        const b64 = data.content;
-        return "data:" + type + ";base64," +  b64;
     }
 
     function githubURLFromGithubData(data: {download_url: string}, svgView?: string) {
