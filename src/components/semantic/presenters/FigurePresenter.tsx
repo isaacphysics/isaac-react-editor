@@ -11,6 +11,8 @@ import { dirname } from "../../../utils/strings";
 import { useFixedRef } from "../../../utils/hooks";
 
 import styles from "../styles/figure.module.css";
+import {NON_STATIC_FIGURE_FLAG} from "../../../isaac/IsaacTypes";
+import {Alert} from "reactstrap";
 
 export function FigurePresenter(props: PresenterProps<Figure>) {
     const {doc, update} = props;
@@ -126,6 +128,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         selectFile(fileRef.current?.files[0]);
     }
 
+    const figureNumberText = figureNumber === NON_STATIC_FIGURE_FLAG
+        ? <Alert color={"danger"}><small>Figure is in a non-static context, so cannot be given a number</small></Alert>
+        : <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>;
+
     return <>
         <div className={styles.figureWrapper}>
             <div className={styles.figureImage}>
@@ -136,7 +142,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             </div>
             <div className={styles.figureCaption}>
                 {doc.type === "figure" && <>
-                    <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>
+                    {figureNumberText}
                     <ContentValueOrChildrenPresenter {...props} topLevel />
                 </>}
                 {doc.attribution && <>

@@ -1,25 +1,26 @@
 import { useRef } from "react";
 
 import {ChoiceQuestion, Content, Question} from "../isaac-data-types";
+import {NON_STATIC_FIGURE_FLAG} from "./IsaacTypes";
 
 export function extractFigureId(id: string) {
     return id.replace(/.*?([^|]*)$/g, '$1');
 }
 
 export const useFigureNumbering = (doc: Content) => {
-    const figureMap = useRef<Record<string, number>>({});
+    const figureMap = useRef<Record<string, number | typeof NON_STATIC_FIGURE_FLAG | undefined>>({});
 
-    const figuresOutOfNormalFlow = new Set<string>();
-    const newMap = {} as Record<string, number>;
+    const figuresOutOfStaticFlow = new Set<string>();
+    const newMap = {} as Record<string, number | typeof NON_STATIC_FIGURE_FLAG | undefined>;
     let n = 1;
-    function walk(d: Content | Question | ChoiceQuestion | undefined, outOfNormalFlow: boolean) {
+    function walk(d: Content | Question | ChoiceQuestion | undefined, outOfStaticFlow: boolean) {
         if (!d) {
             // Nothing to see here. Move along.
             return;
         } else if (d.type === "figure" && d.id) {
             const figureId = extractFigureId(d.id);
-            if (outOfNormalFlow) {
-                figuresOutOfNormalFlow.add(figureId);
+            if (outOfStaticFlow) {
+                figuresOutOfStaticFlow.add(figureId);
             } else if (!Object.keys(newMap).includes(figureId)) {
                 newMap[figureId] = n++;
             }
@@ -27,31 +28,30 @@ export const useFigureNumbering = (doc: Content) => {
             // Walk all the things that might possibly contain figures. Doesn't blow up if they don't exist.
             if (Array.isArray(d.children)) {
                 for (const c of d.children) {
-                    walk(c, outOfNormalFlow);
+                    walk(c, outOfStaticFlow);
                 }
             }
             if (typeof d === "object" && "answer" in d) {
-                walk(d.answer, outOfNormalFlow);
+                walk(d.answer, outOfStaticFlow);
                 for (const h of d.hints || []) {
-                    walk(h, outOfNormalFlow);
+                    walk(h, outOfStaticFlow);
                 }
-                // Walk figures in question choices, marking them as being out of the usual document flow
+                // Walk figures in question choices and feedback, marking them as being out of the static document flow
                 if ("choices" in d) {
                     for (const c of d.choices || []) {
                         walk(c.explanation, true);
                     }
                 }
+                walk(d.defaultFeedback, true);
             }
             // If we find that some figures aren't getting numbers, add additional walks here to find them.
         }
     }
     walk(doc, false);
 
-    // Add all figures that exist out of the normal flow of the document (figures in choices for example)
-    for (const figureId of figuresOutOfNormalFlow.values()) {
-        if (!Object.keys(newMap).includes(figureId)) {
-            newMap[figureId] = n++;
-        }
+    // Mark all figures that exist out of the static flow of the document as such (figures in choices for example)
+    for (const figureId of figuresOutOfStaticFlow.values()) {
+        newMap[figureId] = NON_STATIC_FIGURE_FLAG;
     }
 
     // Check maps match, or update ref if they do not.
