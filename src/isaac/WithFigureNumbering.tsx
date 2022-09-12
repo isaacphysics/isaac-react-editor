@@ -10,7 +10,6 @@ export function extractFigureId(id: string) {
 export const useFigureNumbering = (doc: Content) => {
     const figureMap = useRef<Record<string, number | typeof NON_STATIC_FIGURE_FLAG | undefined>>({});
 
-    const figuresOutOfStaticFlow = new Set<string>();
     const newMap = {} as Record<string, number | typeof NON_STATIC_FIGURE_FLAG | undefined>;
     let n = 1;
     function walk(d: Content | Question | ChoiceQuestion | undefined, outOfStaticFlow: boolean) {
