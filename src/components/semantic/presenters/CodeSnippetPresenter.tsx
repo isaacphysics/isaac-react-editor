@@ -13,7 +13,7 @@ const EditableUrl = EditableDocPropFor<CodeSnippet>("url");
 const Languages = {
     python: "Python",
     javascript: "Javascript",
-    csharp: "C",
+    csharp: "C#",
     php: "PHP",
     sql: "SQL",
     assembly: "Assembly",
