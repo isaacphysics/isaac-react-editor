@@ -91,7 +91,7 @@ export const FormulaPresenterInner = buildValuePresenter(
             if (doc.value === undefined || doc.value === "") {
                 return <div><em>Enter value and python expression here</em></div>;
             } else {
-                return <div><Markup trusted-markup-encoding="html">{doc.value}</Markup><pre>PYTHON: {doc.pythonExpression}</pre></div>
+                return <div><Markup trusted-markup-encoding="html">{doc.value}</Markup><code className="text-dark">PYTHON: {doc.pythonExpression}</code></div>
             }
         } else {
             return <>
