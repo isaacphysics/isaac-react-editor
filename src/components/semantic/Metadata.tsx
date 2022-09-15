@@ -39,7 +39,7 @@ function getMetaItem(item: MetaItemKey): [string, MetaOptions] {
     return [metaItem, {}];
 }
 
-function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void) {
+export function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void) {
     if (options?.hasWarning) {
         const warning = options.hasWarning(newValue);
         if (warning) {
