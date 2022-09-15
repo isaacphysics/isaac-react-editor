@@ -7,7 +7,7 @@ import { EditableDocPropFor } from "../props/EditableDocProp";
 import { PresenterProps } from "../registry";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
 
-const EditableCode = EditableDocPropFor<CodeSnippet>("code");
+const EditableCode = EditableDocPropFor<CodeSnippet>("code", {format: "code"});
 const EditableUrl = EditableDocPropFor<CodeSnippet>("url");
 
 const Languages = {
@@ -50,7 +50,7 @@ export function CodeSnippetPresenter(props: PresenterProps<CodeSnippet>) {
     return <>
         <LanguageSelector {...props} />
         <CheckboxDocProp {...props} prop="disableHighlighting" label="Disable highlighting" />
-        <EditableCode {...props} label="Code" multiLine block format="code" />
+        <EditableCode {...props} label="Code" block />
         <EditableUrl {...props} label="Url" block />
     </>;
 }
