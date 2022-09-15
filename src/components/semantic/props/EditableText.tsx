@@ -16,6 +16,7 @@ import { safeLowercase } from "../../../utils/strings";
 import styles from "../styles/editable.module.css";
 import classNames from "classnames";
 import {Markup} from "../../../isaac/markup";
+import CodeMirror, {EditorView} from "@uiw/react-codemirror";
 
 export interface SaveOptions {
     movement?: number;
@@ -211,19 +212,29 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                 <span className={styles.labelledInput}>
                     <>
                         {multiLine ? labelElement : <div>{labelElement}</div>}
-                        <Input
-                            type={multiLine ? "textarea" : "text"}
-                            /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                            autoFocus
-                            value={state.value ?? ""}
-                            onChange={e => setCurrent(e.target.value)}
-                            onKeyDown={handleKey}
-                            placeholder={placeHolder}
-                            onBlur={onBlur}
-                            invalid={!!errorMessage}
-                            className={format === "code" && styles.codeFormat}
-                            {...inputProps}
-                        />
+                        {format === "code"
+                            ? <CodeMirror
+                                className={"w-100"}
+                                value={state.value ?? ""}
+                                // eslint-disable-next-line jsx-a11y/no-autofocus
+                                autoFocus
+                                extensions={[
+                                    EditorView.lineWrapping,
+                                ]}
+                                onChange={(newValue) => setCurrent(newValue)} />
+                            : <Input
+                                type={multiLine ? "textarea" : "text"}
+                                /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                                autoFocus
+                                value={state.value ?? ""}
+                                onChange={e => setCurrent(e.target.value)}
+                                onKeyDown={handleKey}
+                                placeholder={placeHolder}
+                                onBlur={onBlur}
+                                invalid={!!errorMessage}
+                                {...inputProps}
+                            />
+                        }
                     </>
                 </span>
                 {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
