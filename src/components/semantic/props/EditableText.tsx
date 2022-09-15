@@ -89,7 +89,6 @@ function showErrorIfNotShown(current: EditableTextState) {
 export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  text,
                                  onSave: onSaveUnsafe,
-                                 multiLine,
                                  placeHolder,
                                  onDelete: onDeleteUnsafe,
                                  autoFocus,
@@ -99,6 +98,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  hideWhenEmpty,
                                  block,
                                  format = "plain",
+                                 multiLine = format === "code",
                                  previewWrapperChar = "",
                                  inputProps,
                              }, ref) => {
@@ -208,7 +208,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const Wrap = block ? "div" : "span";
     if (state.isEditing) {
         return <Wrap ref={wrapperRef} className={`${styles.isEditingWrapper} ${multiLine ? styles.multiLine : ""}`}>
-            <span className={styles.controlWrapper}>
+            <span className={classNames(styles.controlWrapper, {["w-100"]: format === "code"})}>
                 <span className={styles.labelledInput}>
                     <>
                         {multiLine ? labelElement : <div>{labelElement}</div>}
