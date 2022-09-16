@@ -52,10 +52,12 @@ export function isMarkupEncoding(encoding: string | undefined): encoding is "mar
 }
 
 export function encodingSpecific<T>(markdownChoice: T, htmlChoice: T, encoding: "markdown" | "html"): T {
-    return {
-        markdown: markdownChoice,
-        html: htmlChoice,
-    }[encoding];
+    switch (encoding) {
+        case "markdown":
+            return markdownChoice;
+        case "html":
+            return htmlChoice;
+    }
 }
 
 const emphTextWith = (lemph: string, remph?: string) => (view: EditorView | undefined) => {
