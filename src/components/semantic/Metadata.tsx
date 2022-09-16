@@ -6,7 +6,6 @@ import { Content } from "../../isaac-data-types";
 
 import { PresenterProps } from "./registry";
 import { MetaItems } from "./metaItems";
-import { isDefined } from "../../utils/types";
 
 import styles from "./styles/metadata.module.css";
 
@@ -39,7 +38,7 @@ function getMetaItem(item: MetaItemKey): [string, MetaOptions] {
     return [metaItem, {}];
 }
 
-function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void) {
+export function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void) {
     if (options?.hasWarning) {
         const warning = options.hasWarning(newValue);
         if (warning) {
