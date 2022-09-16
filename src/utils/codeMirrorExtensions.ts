@@ -16,11 +16,12 @@ import {
 import styles from "../styles/editor.module.css";
 
 function countWords(doc: Text) {
-    let count = 0, iter = doc.iter()
+    let count = 0
+    const iter = doc.iter()
     while (!iter.next().done) {
         let inWord = false
         for (let i = 0; i < iter.value.length; i++) {
-            let word = /\w/.test(iter.value[i])
+            const word = /\w/.test(iter.value[i])
             if (word && !inWord) count++
             inWord = word
         }
@@ -29,7 +30,7 @@ function countWords(doc: Text) {
 }
 
 function wordCountPanel(view: EditorView): Panel {
-    let dom = document.createElement("div");
+    const dom = document.createElement("div");
     dom.setAttribute("class", styles.wordCount);
     dom.textContent = countWords(view.state.doc);
     return {
@@ -108,7 +109,7 @@ export const keyBindings = (setChanges: Command, cancelChanges: Command, encodin
 
 const spellcheckLine = Decoration.line({attributes: {spellcheck: "true"}});
 function spellcheckVisibleLines(view: EditorView) {
-    let builder = new RangeSetBuilder<Decoration>()
+    const builder = new RangeSetBuilder<Decoration>()
     for (const {from, to} of view.visibleRanges) {
         for (let pos = from; pos <= to;) {
             const line = view.state.doc.lineAt(pos);
