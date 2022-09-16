@@ -5,5 +5,6 @@ export interface BooleanNotation {
     MATH?: boolean;
 }
 
-export interface FigureNumbersById {[figureId: string]: number}
+export const NON_STATIC_FIGURE_FLAG = "NON_STATIC_FIGURE";
+export interface FigureNumbersById {[figureId: string]: number | typeof NON_STATIC_FIGURE_FLAG | undefined}
 export const FigureNumberingContext = createContext<FigureNumbersById>({});

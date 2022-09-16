@@ -1,5 +1,5 @@
-import React, {useCallback, useState} from "react";
-import {Button, Col, Input, Label, Row} from "reactstrap";
+import React, {useCallback, useEffect, useState} from "react";
+import {Button, Col, FormText, Input, Label, Row} from "reactstrap";
 
 import {Content, ExternalReference, IsaacEventPage, IsaacQuiz, Location,} from "../../isaac-data-types";
 import {useFixedRef} from "../../utils/hooks";
@@ -9,9 +9,10 @@ import {AudiencePresenter} from "./presenters/AudiencePresenter";
 import {TagsPresenter} from "./presenters/TagsPresenter";
 import {RelatedContentPresenter} from "./presenters/RelatedContentPresenter";
 import {LinkedGameboardsPresenter} from "./presenters/LinkedGameboardsPresenter";
-import {asMetaItems, MetaItemPresenter, MetaItemPresenterProps} from "./Metadata";
+import {asMetaItems, checkWarning, MetaItemPresenter, MetaItemPresenterProps} from "./Metadata";
 
 import styles from "./styles/metadata.module.css";
+import {isDefined} from "../../utils/types";
 
 const TITLE_MAX_LENGTH = 32;
 
@@ -72,8 +73,24 @@ export const MetaItems = asMetaItems({
     emailEventDetails: ["Email Event Details", {type: "textarea"}],
     emailConfirmedBookingText: ["Email Confirmed Booking Text", {type: "textarea"}],
     emailWaitingListBookingText: ["Email Waiting List Booking Text", {type: "textarea"}],
-    date: ["Start Date", {presenter: DateTimeInput}],
-    end_date: ["End Date", {presenter: DateTimeInput}],
+    date: ["Start Date", {
+        presenter: DateTimeInput,
+        hasWarning: (value) => {
+            if (!value) {
+                return "Start Date must be populated";
+            }
+        },
+        deleteIfEmpty: true,
+    }],
+    end_date: ["End Date", {
+        presenter: DateTimeInput,
+        hasWarning: (value) => {
+            if (!value) {
+                return "End Date must be populated";
+            }
+        },
+        deleteIfEmpty: true,
+    }],
     bookingDeadline: ["Booking Deadline", {presenter: DateTimeInput}],
     prepWorkDeadline: ["Prep-work Deadline", {presenter: DateTimeInput}],
     numberOfPlaces: ["Number of places", {type: "number"}],
@@ -153,8 +170,9 @@ function VisibleToStudents({doc, update, ...rest}: MetaItemPresenterProps<IsaacQ
     return <Input type="checkbox" {...rest} checked={!!doc.visibleToStudents} onChange={(e) => onChange(e.target.checked)} />;
 }
 
-function DateTimeInput({doc, update, prop, ...rest}: MetaItemPresenterProps<IsaacEventPage>) {
+function DateTimeInput({doc, update, prop, options, ...rest}: MetaItemPresenterProps<IsaacEventPage>) {
     const dateProp = prop as keyof IsaacEventPage;
+    const [warning, setWarning] = useState<string>();
 
     function padDigits(num: number) {
         return num.toString().padStart(2, '0');
@@ -171,23 +189,35 @@ function DateTimeInput({doc, update, prop, ...rest}: MetaItemPresenterProps<Isaa
     const [dateInput, setDateInput] = useState(initialValue);
     const [dateOutput, setDateOutput] = useState(initialValue);
 
+    useEffect(() => {
+        checkWarning(options, initialValue, setWarning);
+    });
+
     function onChange(e: React.ChangeEvent<HTMLInputElement>) {
         setDateInput(e.target.value);
         try {
             const d = Date.parse(e.target.value.replace(/-/g, "/"));
+            checkWarning(options, d, setWarning);
             if (d) {
                 setDateOutput(dateFilter(new Date(d)));
                 update({...doc, [dateProp]: d});
             }
-        } catch (e) {
+        } catch (err) {
             // We can ignore a failed parsing - probably intermediate state
+        }
+        if (options?.deleteIfEmpty && (!e.target.value || e.target.value.length === 0)) {
+            setDateOutput("");
+            update({...doc, [dateProp]: undefined});
         }
     }
 
-    return <Row>
-        <Col><Input type="text" {...rest} onChange={onChange} value={dateInput} placeholder="YYYY-MM-DD HH:mm" /></Col>
-        <Col>{dateOutput}</Col>
-    </Row>;
+    return <>
+        <Row>
+            <Col><Input type="text" invalid={isDefined(warning)} {...rest} onChange={onChange} value={dateInput} placeholder="YYYY-MM-DD HH:mm" /></Col>
+            <Col>{dateOutput}</Col>
+        </Row>
+        {warning && <FormText className={"mb-1 mt-0"} color={"danger"}>{warning}</FormText>}
+    </>;
 }
 
 function HiddenFromTeachers({doc, update, ...rest}: MetaItemPresenterProps<IsaacQuiz>) {

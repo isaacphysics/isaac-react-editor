@@ -11,6 +11,8 @@ import { dirname } from "../../../utils/strings";
 import { useFixedRef } from "../../../utils/hooks";
 
 import styles from "../styles/figure.module.css";
+import {NON_STATIC_FIGURE_FLAG} from "../../../isaac/IsaacTypes";
+import {Alert} from "reactstrap";
 
 export function FigurePresenter(props: PresenterProps<Figure>) {
     const {doc, update} = props;
@@ -25,6 +27,18 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     const imageRef = useRef<HTMLImageElement>(null);
     useEffect(() => {
+        function inlineBase64URLFromGithubData(data: { content: string; }) {
+            let type = "image";
+            switch (getImageFileType(doc.src)) {
+                case "png": type = "image/png"; break;
+                case "svg": type = "image/svg+xml"; break;
+                case "jpg": type = "image/jpeg"; break;
+            }
+
+            const b64 = data.content;
+            return "data:" + type + ";base64," +  b64;
+        }
+
         if (data && data.content) {
             let dataUrl;
             if (getImageFileType(doc.src) === "svg" && getSVGView(doc.src)) {
@@ -39,7 +53,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
                 imageRef.current.src = dataUrl;
             }
         }
-    }, [data, doc.src, inlineBase64URLFromGithubData]);
+    }, [data, doc.src]);
 
     const fileRef = useRef<HTMLInputElement>(null);
 
@@ -52,18 +66,6 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     function isAppAsset(path?: string) {
         return path && path.startsWith('/assets')
-    }
-
-    function inlineBase64URLFromGithubData(data: { content: string; }) {
-        let type = "image";
-        switch (getImageFileType(doc.src)) {
-            case "png": type = "image/png"; break;
-            case "svg": type = "image/svg+xml"; break;
-            case "jpg": type = "image/jpeg"; break;
-        }
-
-        const b64 = data.content;
-        return "data:" + type + ";base64," +  b64;
     }
 
     function githubURLFromGithubData(data: {download_url: string}, svgView?: string | null) {
@@ -132,6 +134,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         selectFile(fileRef.current?.files[0]);
     }
 
+    const figureNumberText = figureNumber === NON_STATIC_FIGURE_FLAG
+        ? <Alert color={"danger"}><small>Figure is in a non-static context, so cannot be given a number</small></Alert>
+        : <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>;
+
     return <>
         <div className={styles.figureWrapper}>
             <div className={styles.figureImage}>
@@ -142,7 +148,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             </div>
             <div className={styles.figureCaption}>
                 {doc.type === "figure" && <>
-                    <h6>{figureNumber ? `Figure ${figureNumber}` : "Set ID to get a figure number"}</h6>
+                    {figureNumberText}
                     <ContentValueOrChildrenPresenter {...props} topLevel />
                 </>}
                 {doc.attribution && <>
