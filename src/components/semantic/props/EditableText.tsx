@@ -208,7 +208,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const Wrap = block ? "div" : "span";
     if (state.isEditing) {
         return <Wrap ref={wrapperRef} className={`${styles.isEditingWrapper} ${multiLine ? styles.multiLine : ""}`}>
-            <span className={classNames(styles.controlWrapper, {["w-100"]: format === "code"})}>
+            <span className={classNames(styles.controlWrapper, format === "code" ? "w-100" : "")}>
                 <span className={styles.labelledInput}>
                     <>
                         {multiLine ? labelElement : <div>{labelElement}</div>}
