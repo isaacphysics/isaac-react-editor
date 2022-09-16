@@ -62,7 +62,7 @@ export type MetaItemPresenterProps<D extends Content = Content> =
 export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaItemPresenterProps) {
     const [warning, setWarning] = useState<string>();
 
-    let value: string | undefined = doc[prop as keyof Content] as string ?? options?.defaultValue;
+    const value: string | undefined = doc[prop as keyof Content] as string ?? options?.defaultValue;
 
     const onChange = (value: string) => {
         let newValue: unknown = value;

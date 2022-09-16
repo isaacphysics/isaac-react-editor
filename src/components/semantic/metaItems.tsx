@@ -191,7 +191,7 @@ function DateTimeInput({doc, update, prop, options, ...rest}: MetaItemPresenterP
 
     useEffect(() => {
         checkWarning(options, initialValue, setWarning);
-    });
+    }, [options, initialValue]);
 
     function onChange(e: React.ChangeEvent<HTMLInputElement>) {
         setDateInput(e.target.value);
