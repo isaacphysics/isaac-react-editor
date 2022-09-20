@@ -20,6 +20,7 @@ const blockTypes = {
         id: generate,
         choices: [],
         answer: {type: "content", encoding: "markdown", value: ""},
+        // FIXME replace with `value: ""` if and when value snapshotting is implemented
         children: [{type: "content", encoding: "markdown", value: ""}]
     },
     "glossary term": {
