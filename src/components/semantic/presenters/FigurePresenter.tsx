@@ -31,6 +31,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             let type = "image";
             switch (getImageFileType(doc.src)) {
                 case "png": type = "image/png"; break;
+                case "svg": type = "image/svg+xml"; break;
                 case "jpg": type = "image/jpeg"; break;
             }
 
@@ -40,7 +41,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
         if (data && data.content) {
             let dataUrl;
-            if (getImageFileType(doc.src) === "svg") {
+            if (getImageFileType(doc.src) === "svg" && getSVGView(doc.src)) {
                 // SVG images may have "views", which can't be included in inline base 64 data, so we will use the
                 // GitHub URL as the source instead
                 dataUrl = githubURLFromGithubData(data, getSVGView(doc.src))
@@ -67,7 +68,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         return path && path.startsWith('/assets')
     }
 
-    function githubURLFromGithubData(data: {download_url: string}, svgView?: string) {
+    function githubURLFromGithubData(data: {download_url: string}, svgView?: string | null) {
         // If there is an SVG view, include at the end of the URL
         return svgView ? `${data.download_url}#${svgView}` : data.download_url;
     }
@@ -76,14 +77,19 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         src = src?.toLowerCase() ?? "";
 
         // remove SVG view, if present
-        src = src.substring(0, src.lastIndexOf('#'))
+        if(src.includes('#')) {
+            src = src.substring(0, src.lastIndexOf('#'))
+        }
 
         return src.substring(src.lastIndexOf(".") + 1)
     }
 
     function getSVGView(src?: string) {
-        src = src?.toLowerCase() ?? "";
-        return src.substring(src.lastIndexOf("#") + 1)
+        if (src && src.includes('#')) {
+            src = src.toLowerCase()
+            return src.substring(src.lastIndexOf("#") + 1)
+        }
+        return null
     }
 
     function selectFile(file: File) {
