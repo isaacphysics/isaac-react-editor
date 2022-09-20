@@ -14,11 +14,14 @@ const blockTypes = {
         code: "",
         disableHighlighting: false,
     },
-    "question": {type: "isaacQuestion", encoding: "markdown", value: "", id: generate, choices: [], answer: {
-        "type": "content",
-        "value": "",
-        "encoding": "markdown"
-    }},
+    "question": {
+        type: "isaacQuestion",
+        encoding: "markdown",
+        id: generate,
+        choices: [],
+        answer: {type: "content", encoding: "markdown", value: ""},
+        children: [{type: "content", encoding: "markdown", value: ""}]
+    },
     "glossary term": {
         type: "glossaryTerm",
         encoding: "markdown",
