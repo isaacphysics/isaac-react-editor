@@ -72,5 +72,10 @@ export function LeftMenu() {
             }}>🔍</button>
         </header>
         <FileBrowser />
+        <footer className={styles.leftMenuHeader}>
+            <button className={styles.iconButton} onClick={appContext.cdn.toggle}>
+                Upload to CDN
+            </button>
+        </footer>
     </div>;
 }

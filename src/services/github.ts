@@ -12,9 +12,17 @@ import {Config, getConfig} from "./config";
 export const GITHUB_TOKEN_COOKIE = "github-token";
 const GITHUB_API_URL = "https://api.github.com/";
 
-const GITHUB_BASE_REPO_PATHS: {[key: string] : string} = {
-    content: "repos/$OWNER/$REPO/contents/",
-    app: "repos/$OWNER/$APP_REPO/contents/public"
+const GITHUB_REPO_KEYS = {
+    content: "$REPO",
+    app: "$APP_REPO",
+    cdn: "$CDN_REPO"
+};
+export type GitHubRepository = keyof typeof GITHUB_REPO_KEYS;
+
+const GITHUB_BASE_REPO_PATHS: {[repo in GitHubRepository] : string} = {
+    content: `repos/$OWNER/${GITHUB_REPO_KEYS["content"]}/contents/`,
+    app: `repos/$OWNER/${GITHUB_REPO_KEYS["app"]}/contents/public/`,
+    cdn: `repos/$OWNER/${GITHUB_REPO_KEYS["cdn"]}/contents/`
 }
 
 export function githubReplaceWithConfig(path: string) {
@@ -61,7 +69,7 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
     }
 };
 
-function contentsPath(path: string, branch?: string, repo: string = "content") {
+export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content") {
     let fullPath = `${GITHUB_BASE_REPO_PATHS[repo]}${path}`;
     if (branch) {
         fullPath += `?ref=${encodeURIComponent(branch)}`;
@@ -69,7 +77,7 @@ function contentsPath(path: string, branch?: string, repo: string = "content") {
     return fullPath;
 }
 
-export const useGithubContents = (context: ContextType<typeof AppContext>, path: string|false|null|undefined, repo?: string) => {
+export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository) => {
     return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null);
 };
 
@@ -106,7 +114,7 @@ export function githubComparisonPath(oldVersion?: string, newVersion?: string) {
     return githubReplaceWithConfig("https://github.com/$OWNER/$REPO/compare/" + oldVersion + "..." + newVersion);
 }
 
-export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string) {
+export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, repo: GitHubRepository = "content") {
     const path = `${basePath}/${name}`;
 
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
@@ -119,7 +127,7 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
         content = encodeBase64(initialContent);
     }
 
-    const data = await fetcher(contentsPath(path), {
+    const data = await fetcher(contentsPath(path, undefined, repo), {
         method: "PUT",
         body: {
             branch: context.github.branch,
@@ -134,7 +142,7 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
     return data;
 }
 
-export async function githubDelete(context: ContextType<typeof AppContext>, path: string, name: string, sha: string) {
+export async function githubDelete(context: ContextType<typeof AppContext>, path: string, name: string, sha: string, repo: GitHubRepository = "content") {
     let wasPublished;
     try {
         wasPublished = context.editor.isAlreadyPublished();
@@ -142,7 +150,7 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
         wasPublished = false;
     }
     const basePath = dirname(path);
-    await fetcher(contentsPath(path), {
+    await fetcher(contentsPath(path, undefined, repo), {
         method: "DELETE",
         body: {
             branch: context.github.branch,
@@ -152,7 +160,7 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
     });
 
     // Let the file browser know this file is no longer there
-    await mutate(contentsPath(basePath, context.github.branch), (current: Entry[]) => {
+    await mutate(contentsPath(basePath, context.github.branch, repo), (current: Entry[]) => {
         const newDir = [...current];
         const position = newDir.findIndex((entry) => {
             return name === entry.name;
@@ -166,7 +174,7 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
 }
 
 // Adapted from this blog post: https://medium.com/@obodley/renaming-a-file-using-the-git-api-fed1e6f04188
-export async function githubRename(context: ContextType<typeof AppContext>, path: string, name: string) {
+export async function githubRename(context: ContextType<typeof AppContext>, path: string, name: string, repo: GitHubRepository = "content") {
     const isPublished = context.editor?.isAlreadyPublished();
 
     const pathSegments = path.split("/");
@@ -181,8 +189,8 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     // Ensure that another file with the same name doesn't already exist, because the renaming process will overwrite
     // existing files otherwise. First we clear the cache to ensure that the file list is up to date (at least within
     // the last 60 seconds).
-    await mutate(contentsPath(targetBasePath, context.github.branch), undefined);
-    const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch)) ?? [];
+    await mutate(contentsPath(targetBasePath, context.github.branch, repo), undefined);
+    const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch, repo)) ?? [];
     const index = current.findIndex((entry) => targetFilename === entry.name);
     if (index !== -1) throw Error(`A file with the name ${targetFilename} already exists in the same directory. Cannot rename!`);
 
@@ -191,11 +199,11 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     // Get the current branch commit sha - GitHub asks the browser to cache these branch requests for 60 seconds, which will
     // cause things to break if we try to rename twice in a 60 second period. To bypass this, we add a timestamp as a
     // query param to the URL, allowing us to get the freshest branch commit sha each time.
-    const branch = await fetcher(`repos/$OWNER/$REPO/branches/${encodeURIComponent(context.github.branch)}?cache_t=${Date.now()}`);
+    const branch = await fetcher(`repos/$OWNER/${GITHUB_REPO_KEYS[repo]}/branches/${encodeURIComponent(context.github.branch)}?cache_t=${Date.now()}`);
     const baseSha = branch.commit.sha;
 
     // Get the entire git tree at this point
-    let subtree = await fetcher(`repos/$OWNER/$REPO/git/trees/${baseSha}`);
+    let subtree = await fetcher(`repos/$OWNER/${GITHUB_REPO_KEYS[repo]}/git/trees/${baseSha}`);
     // Find the tree node corresponding to the file we want to rename
     for (const segment of pathSegments.slice(0, -1)) {
         const nextTree = subtree.tree.find((t: any) => t.path === segment);
@@ -211,7 +219,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     if (!blob) throw Error("A file with that name does not exist on the current branch.");
 
     // Send the modified tree to github, with the updated path
-    const newTree = await fetcher(`repos/$OWNER/$REPO/git/trees?recursive=1`,{
+    const newTree = await fetcher(`repos/$OWNER/${GITHUB_REPO_KEYS[repo]}/git/trees?recursive=1`,{
         method: "POST",
         body: {
             "base_tree": baseSha,
@@ -233,7 +241,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     });
 
     // Commit the new tree with a message
-    const commit = await fetcher(`repos/$OWNER/$REPO/git/commits`, {
+    const commit = await fetcher(`repos/$OWNER/${GITHUB_REPO_KEYS[repo]}/git/commits`, {
         method: "POST",
         body: {
             "message": `${isPublished ? "* " : ""}Rename ${blob.path} to ${name}`,
@@ -242,7 +250,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
         }
     });
     // Point the current branch at the new commit
-    await fetcher(`repos/$OWNER/$REPO/git/refs/heads/${encodeURIComponent(context.github.branch)}`, {
+    await fetcher(`repos/$OWNER/${GITHUB_REPO_KEYS[repo]}/git/refs/heads/${encodeURIComponent(context.github.branch)}`, {
         method: "PATCH",
         body: {
             "sha": commit.sha
