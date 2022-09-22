@@ -59,7 +59,7 @@ export const MetaItems = asMetaItems({
             }
         }
     }],
-    altText: "Alt text",
+    altText: ["Alt text", {type: "textarea"}],
     audience: ["Audience", {presenter: AudiencePresenter}],
     deprecated: ["Deprecated", {presenter: Deprecated}],
     description: "Description",
