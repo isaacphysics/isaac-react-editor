@@ -125,6 +125,8 @@ const validateDir: (dir: string | undefined) => FileValidation = (dir: string | 
     return {isValid: true};
 };
 
+const FILE_TYPE_WHITELIST = ["JPG", "PNG", "GIF", "PDF", "CSV", "ODS", "XLSX"];
+
 export const CDNUploadModal = () => {
     const appContext = useContext(AppContext);
     const {cdn: {open, toggle}} = appContext;
@@ -166,6 +168,7 @@ export const CDNUploadModal = () => {
         </ModalHeader>
         <ModalBody>
             <FileUploader
+                types={FILE_TYPE_WHITELIST}
                 maxSize={100}
                 fileOrFiles={files}
                 multiple
