@@ -1,11 +1,12 @@
-import React, {LegacyRef, useContext, useEffect, useMemo, useRef, useState} from "react";
-import {Button, Input, Row, Modal, ModalBody, ModalFooter, ModalHeader, Col, Alert} from "reactstrap";
+import React, {useContext, useEffect, useMemo, useState} from "react";
+import {Button, Row, Modal, ModalBody, ModalFooter, ModalHeader, Col, Alert} from "reactstrap";
 import {AppContext} from "../App";
 import {contentsPath, githubCreate, GitHubRepository} from "../services/github";
 import {components, GroupBase, InputActionMeta, SingleValue} from "react-select";
 import useSWR from "swr";
 import CreatableSelect from "react-select/creatable";
 import {isDefined} from "../utils/types";
+import {FileUploader} from "react-drag-drop-files";
 
 export const defaultCdn = {
     open: false,
@@ -106,18 +107,18 @@ const GitHubDirInput = ({repo, className, dir, setDir, invalid}: GitHubDirInputP
         formatCreateLabel={formatCreateLabel}
     />;
 }
-
-const validateFile: (file: File | undefined) => ({isValid: true, error?: undefined} | {isValid?: undefined, error: string}) = (file: File | undefined) => {
+type FileValidation = {isValid: true, error?: undefined} | {isValid?: undefined, error: string};
+const validateFile: (file: File | undefined) => FileValidation = (file: File | undefined) => {
     if (!file) return {error: "File doesn't exist"};
-    if (file.size >= 90_000_000) return {error: "File is too big: it must be smaller than 90Mb"};
-    if (file?.name.split(".").length !== 2) return {error: "File path must consist of a name, followed by an extension"};
+    if (file.size >= 100_000_000) return {error: "File is too big: it must be smaller than 100Mb"};
+    if (file?.name.split(".").length !== 2) return {error: "File path must consist of a name, followed by an extension, and cannot have multiple extensions"};
     const fileName = file?.name.split(".")[0];
     const fileExt = file?.name.split(".")[1]; // TODO might be good to have a whitelist of file extensions at some point?
     if (fileName.match(/^[a-zA-Z0-9_-]+$/) === null) return {error: "File name is invalid: it can only contain alphanumeric characters, dashes and underscores"};
     return {isValid: true};
 };
 
-const validateDir: (dir: string | undefined) => ({isValid: true, error?: undefined} | {isValid?: undefined, error: string}) = (dir: string | undefined) => {
+const validateDir: (dir: string | undefined) => FileValidation = (dir: string | undefined) => {
     if (!isDefined(dir)) return {error: "Please specify a directory"};
     if (dir === "") return {error: "Please do not upload files to the top level directory"};
     if (dir.match(/^[a-zA-Z0-9_\-/]+$/) === null) return {error: "Directory is invalid: directory names can only contain alphanumeric characters, dashes and underscores"};
@@ -126,40 +127,37 @@ const validateDir: (dir: string | undefined) => ({isValid: true, error?: undefin
 
 export const CDNUploadModal = () => {
     const appContext = useContext(AppContext);
-    const {cdn: {open, toggle}, github} = appContext;
+    const {cdn: {open, toggle}} = appContext;
 
-    const [file, setFile] = useState<File>();
+    const [files, setFiles] = useState<({file: File} & FileValidation)[] | null>(null);
     const [dir, setDir] = useState<string>();
-    const [successNotification, setSuccessNotification] = useState<string | undefined>();
+    const [successfulUploads, setSuccessfulUploads] = useState<string[] | undefined>();
 
-    const path = dir && file?.name ? dir.replace(/\/$/, "") + "/" + file.name : undefined;
-    const fileIsValid = validateFile(file);
     const dirIsValid = validateDir(dir);
-
-    const fileInput = useRef<HTMLInputElement>(null);
+    const allFilesAreValid = files?.every(f => f.isValid);
+    const paths = dir && dirIsValid.isValid && files ? [...files].map((f) => dir.replace(/\/$/, "") + "/" + f.file.name) : [];
 
     useEffect(() => {
-        if (file !== undefined) setSuccessNotification(undefined);
-    }, [path, file]);
-
-    const {data, isValidating, error} = useSWR(path ? contentsPath(path, github.branch, "cdn") : null);
-    const githubPathInvalid = !error && (data && data.type === "file"); // invalid if file already exists in github
+        if (files && files.length === 0) setSuccessfulUploads(undefined);
+    }, [paths, files, dir]);
 
     const uploadToCDN = async () => {
-        if (!file || !dir) return;
-        const reader = new FileReader();
-        reader.onload = async () => {
-            try {
-                await githubCreate(appContext, dir, file.name, reader.result as string, "cdn");
-                setSuccessNotification(`Successfully uploaded file ${path}`);
-                setFile(undefined);
-                if (fileInput.current) fileInput.current.value = "";
-            } catch (e) {
-                alert("Couldn't upload file to CDN. Perhaps it already exists.");
-                console.error("Couldn't upload file to CDN. Perhaps it already exists.", e);
+        if (!files || files.length === 0 || !dir) return;
+        const filesToUpload = [...files];
+        setFiles(null);
+        for (const f of filesToUpload) {
+            const reader = new FileReader();
+            reader.onload = async () => {
+                try {
+                    await githubCreate(appContext, dir, f.file.name, reader.result as string, "cdn");
+                    setSuccessfulUploads(su => [...(su ?? []), dir.replace(/\/$/, "") + "/" + f.file.name]);
+                } catch (e) {
+                    alert(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.`);
+                    console.error(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.`, e);
+                }
             }
+            reader.readAsBinaryString(f.file);
         }
-        reader.readAsBinaryString(file);
     }
 
     return <Modal isOpen={open} toggle={toggle}>
@@ -167,24 +165,50 @@ export const CDNUploadModal = () => {
             Upload to CDN
         </ModalHeader>
         <ModalBody>
-            <Input innerRef={fileInput} className={"mb-2"} type={"file"} name={"file"} onChange={e => setFile(e?.target?.files?.[0] ?? undefined)} />
-            {fileIsValid.isValid
+            <FileUploader
+                maxSize={100}
+                fileOrFiles={files}
+                multiple
+                handleChange={(files: FileList) => {
+                    setFiles(fs => (fs ?? []).concat([...files].map(f => ({file: f, ...validateFile(f)}))));
+                }}
+                classes={"mb-2"}
+            />
+            {files && files.length > 0
                 ? <>
-                    {file && <GitHubDirInput className={"mb-2"} repo={"cdn"} dir={dir} setDir={setDir} invalid={githubPathInvalid} />}
-                    {file && path && <div>
-                        Path: <code>{path}</code>
-                    </div>}
-                    {(!dirIsValid.isValid || githubPathInvalid) && <small className={"text-danger"}>{dirIsValid.error ?? "Cannot upload file, one already exists with that name!"}</small>}
+                    <ul>
+                        {files.map((f, i) => (
+                            <li key={f.file.name} className={f.isValid ? "text-success" : "text-danger"}>
+                                <span style={{fontFamily: "monospace"}}>{f.file.name}</span> {f.isValid ? "✓" : "✗"} {f.error}
+                                <Button color={"link"} className={"p-0 d-inline"} onClick={() => setFiles(files?.length === 1 ? null : files.filter((_, _i) => i !== _i))}>
+                                    Remove
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                    {allFilesAreValid
+                        ? <>
+                            <GitHubDirInput className={"mb-2"} repo={"cdn"} dir={dir} setDir={setDir}
+                                            invalid={!dirIsValid.isValid && isDefined(dir)}/>
+                            {paths && paths.length > 0 && <div>
+                                <span>File(s) to be created:</span>
+                                <ul>
+                                    {paths.map(path => <li key={path}><code>{path}</code></li>)}
+                                </ul>
+                            </div>}
+                            {!dirIsValid.isValid && <small className={isDefined(dir) ? "text-danger" : ""}>{dirIsValid.error}</small>}
+                        </>
+                        : <small className={"text-danger"}>Please remove invalid files before continuing</small>}
                 </>
-                : (file ? <small className={"text-danger"}>{fileIsValid.error}</small> : <small>Please select a file</small>)
+                : <small>Please choose at least one file</small>
             }
-            {successNotification && <Alert className={"mt-2"} color={"success"}>
-                {successNotification}
+            {successfulUploads && <Alert className={"mt-2"} color={"success"}>
+                Successfully uploaded files: {successfulUploads.join(", ")}
             </Alert>}
         </ModalBody>
         <ModalFooter>
             <Row className={"w-100 justify-content-end"}>
-                {file && path && !githubPathInvalid && dirIsValid.isValid && <Col xs={8}>
+                {paths && paths.length > 0 && allFilesAreValid && dirIsValid.isValid && <Col xs={8}>
                     <Button color={"success"} className={"w-100"} onClick={uploadToCDN}>
                         Upload
                     </Button>
