@@ -113,7 +113,6 @@ const validateFile: (file: File | undefined) => FileValidation = (file: File | u
     if (file.size >= 100_000_000) return {error: "File is too big: it must be smaller than 100Mb"};
     if (file?.name.split(".").length !== 2) return {error: "File path must consist of a name, followed by an extension, and cannot have multiple extensions"};
     const fileName = file?.name.split(".")[0];
-    const fileExt = file?.name.split(".")[1]; // TODO might be good to have a whitelist of file extensions at some point?
     if (fileName.match(/^[a-zA-Z0-9_-]+$/) === null) return {error: "File name is invalid: it can only contain alphanumeric characters, dashes and underscores"};
     return {isValid: true};
 };
@@ -162,11 +161,24 @@ export const CDNUploadModal = () => {
         }
     }
 
+    const [showAccessibilityNotice, setShowAccessibilityNotice] = useState<boolean>(true);
+    useEffect(() => {
+        if (open) setShowAccessibilityNotice(true);
+    }, [open]);
+
     return <Modal isOpen={open} toggle={toggle}>
         <ModalHeader>
             Upload to CDN
         </ModalHeader>
         <ModalBody>
+            {showAccessibilityNotice && <Alert color={"warning"}>
+                <div className={"w-100"}>Accessibility notice<Button color={"none"} className={"float-right mt-n2"} onClick={() => setShowAccessibilityNotice(false)}>✗</Button></div>
+                <hr/>
+                <small>
+                    We are legally required to make all documents on the site accessible, and PDFs especially are unlikely to meet our obligations.
+                    Consider whether the document could just be a page on the site, or that an accessible alternative exists.
+                </small>
+            </Alert>}
             <FileUploader
                 types={FILE_TYPE_WHITELIST}
                 maxSize={100}
