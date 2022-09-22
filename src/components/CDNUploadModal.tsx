@@ -5,6 +5,7 @@ import {contentsPath, githubCreate, GitHubRepository} from "../services/github";
 import {components, GroupBase, InputActionMeta, SingleValue} from "react-select";
 import useSWR from "swr";
 import CreatableSelect from "react-select/creatable";
+import {isDefined} from "../utils/types";
 
 export const defaultCdn = {
     open: false,
@@ -107,6 +108,12 @@ const validateFile: (file: File | undefined) => ({isValid: true, error?: undefin
     return {isValid: true};
 };
 
+const validateDir: (dir: string | undefined) => ({isValid: true, error?: undefined} | {isValid?: undefined, error: string}) = (dir: string | undefined) => {
+    if (!isDefined(dir)) return {error: "Please specify a directory"};
+    if (dir.match(/^[a-zA-Z0-9_\-/]+$/) === null) return {error: "Directory is invalid: directory names can only contain alphanumeric characters, dashes and underscores"};
+    return {isValid: true};
+};
+
 export const CDNUploadModal = () => {
     const appContext = useContext(AppContext);
     const {cdn: {open, toggle}, github} = appContext;
@@ -117,6 +124,7 @@ export const CDNUploadModal = () => {
 
     const path = dir && file?.name ? dir.replace(/\/$/, "") + "/" + file.name : undefined;
     const fileIsValid = validateFile(file);
+    const dirIsValid = validateDir(dir);
 
     const fileInput = useRef<HTMLInputElement>(null);
 
@@ -156,7 +164,7 @@ export const CDNUploadModal = () => {
                     {file && path && <div>
                         Path: <code>{path}</code>
                     </div>}
-                    {githubPathInvalid && <small className={"text-danger"}>Cannot upload file, one already exists with that name!</small>}
+                    {(!dirIsValid.isValid || githubPathInvalid) && <small className={"text-danger"}>{dirIsValid.error ?? "Cannot upload file, one already exists with that name!"}</small>}
                 </>
                 : (file ? <small className={"text-danger"}>{fileIsValid.error}</small> : <small>Please select a file</small>)
             }
@@ -166,7 +174,7 @@ export const CDNUploadModal = () => {
         </ModalBody>
         <ModalFooter>
             <Row className={"w-100 justify-content-end"}>
-                {file && path && !githubPathInvalid && <Col xs={8}>
+                {file && path && !githubPathInvalid && dirIsValid.isValid && <Col xs={8}>
                     <Button color={"success"} className={"w-100"} onClick={uploadToCDN}>
                         Upload
                     </Button>
