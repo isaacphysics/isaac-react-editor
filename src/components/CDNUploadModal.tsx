@@ -23,13 +23,12 @@ const AlwaysVisibleInput = (props: any) => <components.Input {...props} isHidden
 
 interface GitHubDirInputProps {
     repo: GitHubRepository;
-    filename: string;
     className: string;
     dir: string | undefined;
     setDir: (newDir: string | undefined) => void;
     invalid?: boolean;
 }
-const GitHubDirInput = ({repo, filename, className, dir, setDir, invalid}: GitHubDirInputProps) => {
+const GitHubDirInput = ({repo, className, dir, setDir, invalid}: GitHubDirInputProps) => {
 
     // Hacking react-select to do sensible things reading list:
     //  - https://github.com/JedWatson/react-select/issues/1558#issuecomment-738880505
@@ -49,7 +48,7 @@ const GitHubDirInput = ({repo, filename, className, dir, setDir, invalid}: GitHu
         }];
     }, [error, data]);
 
-    const formatCreateLabel = (path: string) => `Create file "${filename}" in folder "${path.replace(/\/$/, "")}"`;
+    const formatCreateLabel = (path: string) => `Create directory "${path.replace(/\/$/, "")}"`;
 
     const onInputChange = (inputValue: string, { action }: InputActionMeta) => {
         // onBlur => setInputValue to last selected value
@@ -67,6 +66,10 @@ const GitHubDirInput = ({repo, filename, className, dir, setDir, invalid}: GitHu
         setDir(option ? option.value : "");
     };
 
+    const getBasePath = (path: string) => {
+        return path.replace(/\/[^/]*$/, "");
+    };
+
     return <CreatableSelect
         className={className}
         isLoading={isValidating}
@@ -79,6 +82,12 @@ const GitHubDirInput = ({repo, filename, className, dir, setDir, invalid}: GitHu
         controlShouldRenderValue={false}
         components={{
             Input: AlwaysVisibleInput
+        }}
+        isValidNewOption={(path, value, options ) => {
+            if (path === "") return false;
+            if (path.match(/^[a-zA-Z0-9_\-/]+$/) === null) return false;
+            const pathToSearch = path.replace(/\/$/, "");
+            return !options.find(o => "value" in o ? [o.value, getBasePath(o.value)].includes(pathToSearch) : o.options.find(_o => [_o.value, getBasePath(_o.value)].includes(pathToSearch)))
         }}
         styles={{
             control: (base, state) => ({
@@ -110,6 +119,7 @@ const validateFile: (file: File | undefined) => ({isValid: true, error?: undefin
 
 const validateDir: (dir: string | undefined) => ({isValid: true, error?: undefined} | {isValid?: undefined, error: string}) = (dir: string | undefined) => {
     if (!isDefined(dir)) return {error: "Please specify a directory"};
+    if (dir === "") return {error: "Please do not upload files to the top level directory"};
     if (dir.match(/^[a-zA-Z0-9_\-/]+$/) === null) return {error: "Directory is invalid: directory names can only contain alphanumeric characters, dashes and underscores"};
     return {isValid: true};
 };
@@ -160,7 +170,7 @@ export const CDNUploadModal = () => {
             <Input innerRef={fileInput} className={"mb-2"} type={"file"} name={"file"} onChange={e => setFile(e?.target?.files?.[0] ?? undefined)} />
             {fileIsValid.isValid
                 ? <>
-                    {file && <GitHubDirInput className={"mb-2"} repo={"cdn"} filename={file.name} dir={dir} setDir={setDir} invalid={githubPathInvalid} />}
+                    {file && <GitHubDirInput className={"mb-2"} repo={"cdn"} dir={dir} setDir={setDir} invalid={githubPathInvalid} />}
                     {file && path && <div>
                         Path: <code>{path}</code>
                     </div>}
