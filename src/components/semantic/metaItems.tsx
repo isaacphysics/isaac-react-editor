@@ -20,12 +20,12 @@ const TITLE_MAX_LENGTH = 32;
 export const MetaItems = asMetaItems({
     tags: ["Tags", {presenter: TagsPresenter}],
     id: ["ID", {
-        hasWarning: (value) => {
-            const id = value as string;
+        hasWarning: (newValue, context) => {
+            const id = newValue as string;
             if (!id.match(/^[a-z0-9_-]+$/)) {
-                return "Please alter this ID, as it does not match our required style";
+                return "Please alter this ID, as it does not match our required style (ids can only contain alphanumerics, dashes and underscores)";
             }
-            if (id) {
+            if (id && context.editor.isAlreadyPublished()) {
                 return "Please make sure not to alter the id of content once it has been published";
             }
         }
