@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import {Button, Col, FormText, Input, Label, Row} from "reactstrap";
 
 import {Content, ExternalReference, IsaacEventPage, IsaacQuiz, Location,} from "../../isaac-data-types";
@@ -13,6 +13,7 @@ import {asMetaItems, checkWarning, MetaItemPresenter, MetaItemPresenterProps} fr
 
 import styles from "./styles/metadata.module.css";
 import {isDefined} from "../../utils/types";
+import {AppContext} from "../../App";
 
 const TITLE_MAX_LENGTH = 32;
 
@@ -174,6 +175,8 @@ function DateTimeInput({doc, update, prop, options, ...rest}: MetaItemPresenterP
     const dateProp = prop as keyof IsaacEventPage;
     const [warning, setWarning] = useState<string>();
 
+    const context = useContext(AppContext);
+
     function padDigits(num: number) {
         return num.toString().padStart(2, '0');
     }
@@ -190,14 +193,14 @@ function DateTimeInput({doc, update, prop, options, ...rest}: MetaItemPresenterP
     const [dateOutput, setDateOutput] = useState(initialValue);
 
     useEffect(() => {
-        checkWarning(options, initialValue, setWarning);
+        checkWarning(options, initialValue, setWarning, context);
     }, [options, initialValue]);
 
     function onChange(e: React.ChangeEvent<HTMLInputElement>) {
         setDateInput(e.target.value);
         try {
             const d = Date.parse(e.target.value.replace(/-/g, "/"));
-            checkWarning(options, d, setWarning);
+            checkWarning(options, d, setWarning, context);
             if (d) {
                 setDateOutput(dateFilter(new Date(d)));
                 update({...doc, [dateProp]: d});

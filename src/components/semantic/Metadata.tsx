@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, {ChangeEvent, ContextType, useContext, useState} from "react";
 import { Col, Form, FormText, Input, Label, Row } from "reactstrap";
 import { InputType } from "reactstrap/lib/Input";
 
@@ -6,11 +6,12 @@ import { Content } from "../../isaac-data-types";
 
 import { PresenterProps } from "./registry";
 import { MetaItems } from "./metaItems";
+import { AppContext } from "../../App";
 
 import styles from "./styles/metadata.module.css";
 
 export interface MetaOptions {
-    hasWarning?: (value: unknown) => string | undefined;
+    hasWarning?: (value: unknown, context: ContextType<typeof AppContext>) => string | undefined;
     type?: InputType;
     presenter?: React.FunctionComponent<MetaItemPresenterProps>;
     defaultValue?: unknown;
@@ -38,9 +39,9 @@ function getMetaItem(item: MetaItemKey): [string, MetaOptions] {
     return [metaItem, {}];
 }
 
-export function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void) {
+export function checkWarning(options: MetaOptions | undefined, newValue: unknown, setWarning: (value: (string | undefined)) => void, context: ContextType<typeof AppContext>) {
     if (options?.hasWarning) {
-        const warning = options.hasWarning(newValue);
+        const warning = options.hasWarning(newValue, context);
         if (warning) {
             setWarning(warning);
         } else {
@@ -61,6 +62,7 @@ export type MetaItemPresenterProps<D extends Content = Content> =
 
 export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaItemPresenterProps) {
     const [warning, setWarning] = useState<string>();
+    const context = useContext(AppContext);
 
     const value: string | undefined = doc[prop as keyof Content] as string ?? options?.defaultValue;
 
@@ -69,7 +71,7 @@ export function MetaItemPresenter({doc, update, id, prop, name, options}: MetaIt
         switch (options?.type) {
             case "number": newValue = parseInt(value, 10); break;
         }
-        checkWarning(options, newValue, setWarning);
+        checkWarning(options, newValue, setWarning, context);
         if (options?.deleteIfEmpty && value.replace(/\s/g, "").length === 0) {
             newValue = undefined;
         }
