@@ -37,7 +37,7 @@ export const renderGlossaryBlocks = (markdown: string) => {
     // Matches strings such as [glossary:glossary-demo|boolean-algebra] which MUST be at the beginning of the line.
     const glossaryBlockRegexp = /^\[glossary:(?<id>[a-z-|]+?)\]/gm;
     return markdown.replace(glossaryBlockRegexp, (_match, id) => {
-        return `<bclass="text-muted">[block glossary term: ${id}]</b>`;
+        return `<b class="text-muted">[block glossary term: ${id}]</b>`;
     });
 }
 
