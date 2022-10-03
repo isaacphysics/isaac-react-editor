@@ -105,7 +105,7 @@ export function ItemPresenter(props: PresenterProps<Item>) {
 
 function ItemRow({item}: {item: Item}) {
     return item.id === NULL_CLOZE_ITEM_ID
-        ? <>Empty drop zone</>
+        ? <>Any item</>
         : <Row>
             <Col xs={3}>
                 {item.id}
