@@ -1,4 +1,4 @@
-import React, {MutableRefObject, useContext, useRef,} from "react";
+import React, {MutableRefObject, useContext, useEffect, useRef,} from "react";
 import {Button, Input, Label} from "reactstrap";
 import {InputType} from "reactstrap/lib/Input";
 
@@ -29,11 +29,12 @@ import {EditableValueProp} from "../props/EditableDocProp";
 import {CHOICE_TYPES} from "../ChoiceInserter";
 import {PresenterProps} from "../registry";
 import {ListPresenterProp} from "../props/listProps";
-import {ItemsContext} from "./ItemQuestionPresenter";
+import {ClozeQuestionContext, ItemsContext} from "./ItemQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
 import {QuestionContext} from "./questionPresenters";
 import {Markup} from "../../../isaac/markup";
+import {NULL_CLOZE_ITEM} from "../../../isaac/IsaacTypes";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -197,16 +198,39 @@ export const GraphChoicePresenter = buildValuePresenter(
 );
 
 export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) => {
-    const {doc} = props;
-    const {withReplacement} = useContext(ItemsContext);
+    const {items: maybeItems, withReplacement} = useContext(ItemsContext);
+    const {isClozeQuestion, dropZoneCount} = useContext(ClozeQuestionContext);
+    const {doc, update} = props;
 
-    const {items} = useContext(ItemsContext) ?? [];
-    const remainingItems = withReplacement ? items : items?.filter(item => !doc.items?.find(i => i.id === item.id));
+    // An update function that augments the choice with null cloze items in empty spaces if this is a cloze question
+    const augmentedUpdate = (newDoc: ParsonsChoice) => {
+        return update(isClozeQuestion && dropZoneCount
+            ? {
+                ...newDoc,
+                items: Array(dropZoneCount).fill(NULL_CLOZE_ITEM).map((nci, i) => (newDoc?.items && i < newDoc.items.length)
+                    ? newDoc.items[i]
+                    : nci
+                )
+            }
+            : newDoc);
+    };
+    // Ensure that the null cloze items are added to the doc initially (again only if this is a cloze question)
+    //
+    // This has the extra effect of adding null cloze items to choices in any cloze questions that are visited by
+    // the user, bringing them up to date with the new format.
+    useEffect(() => {
+        if (isClozeQuestion) {
+            augmentedUpdate(doc);
+        }
+    }, []);
+
+    const items = maybeItems ?? [];
+    const remainingItems = withReplacement ? items : items.filter(item => !doc.items?.find(i => i.id === item.id));
 
     return <>
-        {doc.type === "itemChoice" && <CheckboxDocProp {...props} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
+        {doc.type === "itemChoice" && <CheckboxDocProp {...props} doc={doc} update={augmentedUpdate} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
         <ItemsContext.Provider value={{items, remainingItems, withReplacement}}>
-            <ListPresenterProp {...props} prop="items" childTypeOverride="item$choice" />
+            <ListPresenterProp {...props} doc={doc} update={augmentedUpdate} prop="items" childTypeOverride="item$choice" />
         </ItemsContext.Provider>
     </>;
 }
