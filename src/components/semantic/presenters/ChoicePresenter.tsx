@@ -214,12 +214,9 @@ export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) =
             }
             : newDoc);
     };
-    // Ensure that the null cloze items are added to the doc initially (again only if this is a cloze question)
-    //
-    // This has the extra effect of adding null cloze items to choices in any cloze questions that are visited by
-    // the user, bringing them up to date with the new format.
+    // Ensure that the null cloze items are added to the doc initially for a new choice (again only if this is a cloze question)
     useEffect(() => {
-        if (isClozeQuestion) {
+        if (isClozeQuestion && (!doc.items || doc.items.length === 0)) {
             augmentedUpdate(doc);
         }
     }, []);
