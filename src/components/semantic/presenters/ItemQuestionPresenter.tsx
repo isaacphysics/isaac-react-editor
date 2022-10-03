@@ -29,10 +29,11 @@ interface ItemsContextType {
     items: ParsonsItem[] | undefined;
     remainingItems: ParsonsItem[] | undefined;
     withReplacement: boolean | undefined;
+    allowSubsetMatch: boolean | undefined;
 }
 
 export const ItemsContext = createContext<ItemsContextType>(
-    {items: undefined, remainingItems: undefined, withReplacement: undefined}
+    {items: undefined, remainingItems: undefined, withReplacement: undefined, allowSubsetMatch: undefined}
 );
 export const ClozeQuestionContext = createContext<{isClozeQuestion: boolean, dropZoneCount?: number}>(
     {isClozeQuestion: false}
@@ -85,7 +86,8 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
         <ItemsContext.Provider value={{
             items: doc.items,
             remainingItems: undefined,
-            withReplacement: isClozeQuestion(doc) && doc.withReplacement
+            withReplacement: isClozeQuestion(doc) && doc.withReplacement,
+            allowSubsetMatch: undefined,
         }}>
             <QuestionFooterPresenter {...props} />
         </ItemsContext.Provider>
@@ -127,14 +129,14 @@ const indentationOptions: MetaOptions = {type: "number", hasWarning: (value) => 
 export function ItemChoicePresenter(props: PresenterProps<ParsonsItem>) {
     const {doc, update} = props;
     const [isOpen, setOpen] = useState(false);
-    const {items, remainingItems} = useContext(ItemsContext);
+    const {items, remainingItems, allowSubsetMatch} = useContext(ItemsContext);
     const {isClozeQuestion} = useContext(ClozeQuestionContext);
 
     const item = items?.find((item) => item.id === doc.id) ?? {
         id: doc.id,
         value: "Unknown item",
     };
-    const staticItems = isClozeQuestion && item.id !== NULL_CLOZE_ITEM_ID ? [NULL_CLOZE_ITEM] : [];
+    const staticItems = isClozeQuestion && allowSubsetMatch && item.id !== NULL_CLOZE_ITEM_ID ? [NULL_CLOZE_ITEM] : [];
 
     const dropdown = <Dropdown toggle={() => setOpen(toggle => !toggle)}
                                isOpen={isOpen}>
