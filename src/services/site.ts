@@ -15,6 +15,9 @@ function getCurrentSite(): SITES {
 
 export const SITE: SITES = getCurrentSite();
 
+export const isPhy = SITE === "PHY";
+export const isCS = SITE === "CS";
+
 export function siteSpecific<P, C>(phy: P, cs: C) {
-    return SITE === "PHY" ? phy : cs;
+    return isPhy ? phy : cs;
 }

@@ -21,6 +21,7 @@ import {MenuModal, MenuModalRef} from "./MenuModal";
 import styles from "../styles/editor.module.css";
 import {buildPageError} from "../components/PageError";
 import Split from "react-split";
+import {CDNUploadModal} from "../components/CDNUploadModal";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -83,6 +84,8 @@ export function EditorScreen() {
 
     const [previewMode, setPreviewMode] = useState<PreviewMode>(window.innerWidth > 1400 ? "panel" : "modal");
     const [previewOpen, setPreviewOpen] = useState(false);
+
+    const [cdnOpen, setCdnOpen] = useState(false);
 
     const selection = useParamsToSelection(params);
     const setSelection = useCallback((selection: Selection) => {
@@ -180,8 +183,14 @@ export function EditorScreen() {
                     setPreviewMode(previewMode === "modal" ? "panel" : "modal");
                 },
             },
+            cdn: {
+                open: cdnOpen,
+                toggle: () => {
+                    setCdnOpen(!cdnOpen);
+                },
+            }
         });
-    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
     const contextRef = useFixedRef(appContext);
 
     const unblockRef = useRef<() => void>();
@@ -252,6 +261,7 @@ export function EditorScreen() {
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
+            <CDNUploadModal/>
             <Split
                 className={styles.editorScreen} sizes={[25, 75, 0]} minSize={[0, 200, 0]}
                 gutter={dragElement} gutterSize={20} collapsed={collapsed}
