@@ -218,8 +218,9 @@ export const CDNUploadModal = () => {
                 : <small>Please choose at least one file</small>
             }
             {successfulUploads && <Alert className={"mt-2"} color={"success"}>
-                Successfully uploaded files: <ul>
-                {successfulUploads.map((s, i) => <li key={i}><code>{s}</code></li>)}
+                Successfully uploaded files:
+                <ul>
+                    {successfulUploads.map((s, i) => <li key={i}><code>{s}</code></li>)}
                 </ul>
                 The CDN is refreshed every 10 minutes; please check the <code>#compsci</code> Slack channel for
                 confirmation that these files have been added.
