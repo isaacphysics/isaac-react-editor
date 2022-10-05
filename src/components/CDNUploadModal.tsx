@@ -218,7 +218,9 @@ export const CDNUploadModal = () => {
                 : <small>Please choose at least one file</small>
             }
             {successfulUploads && <Alert className={"mt-2"} color={"success"}>
-                Successfully uploaded files: {successfulUploads.join(", ")}
+                Successfully uploaded files: {successfulUploads.join(", ")}<br/>
+                The CDN is refreshed every 10 minutes; please check the <code>#compsci</code> Slack channel for
+                confirmation that these files have been added.
             </Alert>}
         </ModalBody>
         <ModalFooter>
