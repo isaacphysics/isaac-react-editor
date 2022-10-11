@@ -4,7 +4,6 @@ import {Params, useNavigate, useParams} from "react-router-dom";
 import {useLocation} from "react-router";
 import {Modal, Spinner} from "reactstrap";
 import {ErrorBoundary} from "react-error-boundary";
-
 import {Selection} from "../components/FileBrowser";
 import {LeftMenu} from "../components/LeftMenu";
 import {AppContext, browserHistory} from "../App";
@@ -15,13 +14,14 @@ import {Action, doDispatch} from "../services/commands";
 import {useFixedRef} from "../utils/hooks";
 import {TextEditor} from "../components/TextEditor";
 import {Preview, PreviewMode} from "../components/Preview";
-
 import {MenuModal, MenuModalRef} from "./MenuModal";
-
-import styles from "../styles/editor.module.css";
 import {buildPageError} from "../components/PageError";
 import Split from "react-split";
 import {CDNUploadModal} from "../components/CDNUploadModal";
+import {compare, Operation, applyReducer} from "fast-json-patch";
+import {inverseOperation} from "../utils/inversePatch";
+
+import styles from "../styles/editor.module.css";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -112,15 +112,25 @@ export function EditorScreen() {
 
     const [dirty, setDirty] = useState(false);
     const [currentContent, setCurrentContent] = useState<Content|string>({});
+    const [currentChanges, setCurrentChanges] = useState<Operation[][]>([]);
     const [currentContentPath, setCurrentContentPath] = useState<string | undefined>();
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
     const [actionRunning, setActionRunning] = useState(false);
 
+    const undo = useCallback(() => {
+        if (currentChanges.length > 0) {
+            const ops = currentChanges.at(-1);
+            setCurrentChanges(changes => changes.length === 1 ? [] : changes.slice(0, -1));
+            setCurrentDoc(inverseOperation(ops as Operation[]).reduce(applyReducer, currentContent));
+        }
+    }, [currentChanges, currentContent]);
+
     const setCurrentDoc = useCallback((content: Content|string) => {
+        setCurrentChanges(changes => changes.concat([compare(currentContent, content, true)]).filter(o => o.length > 0));
         setCurrentContent(content);
         setDirty(true);
-    }, []);
+    }, [currentContent]);
     const loadNewDoc = useCallback((content: Content|string) => {
         setDirty(false);
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
@@ -145,6 +155,8 @@ export function EditorScreen() {
             },
             editor: {
                 getDirty: () => dirty,
+                canUndo: () => currentChanges.length > 0,
+                undo,
                 getCurrentDoc: () => {
                     if (typeof currentContent === "string") {
                         throw new Error("Current doc is a string");
@@ -190,7 +202,7 @@ export function EditorScreen() {
                 },
             }
         });
-    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished, currentChanges, undo]);
     const contextRef = useFixedRef(appContext);
 
     const unblockRef = useRef<() => void>();

@@ -1,4 +1,12 @@
-import React, {FunctionComponent, MutableRefObject, useCallback, useImperativeHandle, useRef, useState} from "react";
+import React, {
+    FunctionComponent,
+    MutableRefObject,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
+} from "react";
 import CodeMirror, {EditorView, ReactCodeMirrorRef} from '@uiw/react-codemirror';
 import {markdown} from '@codemirror/lang-markdown';
 import {html} from '@codemirror/lang-html';
