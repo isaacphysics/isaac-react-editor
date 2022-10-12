@@ -10,7 +10,7 @@ let keyBase = 0;
 const createKey = (_: unknown, index: number) => `@${index}: ${++keyBase}`;
 const UNINITIALISED = [] as string[];
 
-export function useKeyedList<T, D>(items: T[] | undefined, deriveNewList: () => [D, T[]], update: (newDoc: D) => void) {
+export function useKeyedList<T, D>(items: T[] | undefined, deriveNewList: () => [D, T[]], update: (newDoc: D, invertible?: boolean) => void) {
     const keyList = useRef(UNINITIALISED);
     if (keyList.current === UNINITIALISED) {
         // We only want to do this pre-mount, and then we manually keep this up to date after that.
@@ -38,7 +38,7 @@ export function useKeyedList<T, D>(items: T[] | undefined, deriveNewList: () => 
             const [newDoc, newList] = deriveNewList();
             newList.splice(index, 1);
             keyList.current.splice(index, 1);
-            update(newDoc);
+            update(newDoc, true);
         }, [deriveNewList, update]),
         shiftBy: useCallback((index: number, amount: number) => {
             const [newDoc, newList] = deriveNewList();
@@ -48,10 +48,10 @@ export function useKeyedList<T, D>(items: T[] | undefined, deriveNewList: () => 
             keyList.current.splice(index, 0, k);
             update(newDoc);
         }, [deriveNewList, update]),
-        updateChild: useCallback((index: number, newValue: T) => {
+        updateChild: useCallback((index: number, newValue: T, invertible?: boolean) => {
             const [newDoc, newList] = deriveNewList();
             newList[index] = newValue;
-            update(newDoc);
+            update(newDoc, invertible);
         }, [deriveNewList, update]),
         keyList: keyList.current,
     };

@@ -22,6 +22,7 @@ import {compare, Operation, applyReducer} from "fast-json-patch";
 import {inverseOperation} from "../utils/inversePatch";
 
 import styles from "../styles/editor.module.css";
+import {isDefined} from "../utils/types";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -111,27 +112,23 @@ export function EditorScreen() {
     }, []);
 
     const [dirty, setDirty] = useState(false);
-    const [currentContent, setCurrentContent] = useState<Content|string>({});
-    const [currentChanges, setCurrentChanges] = useState<Operation[][]>([]);
+    const [currentContent, setCurrentContent] = useState<Content | string>({});
+    const [lastChange, setLastChange] = useState<Operation[]>();
     const [currentContentPath, setCurrentContentPath] = useState<string | undefined>();
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
     const [actionRunning, setActionRunning] = useState(false);
 
-    const undo = useCallback(() => {
-        if (currentChanges.length > 0) {
-            const ops = currentChanges.at(-1);
-            setCurrentChanges(changes => changes.length === 1 ? [] : changes.slice(0, -1));
-            setCurrentDoc(inverseOperation(ops as Operation[]).reduce(applyReducer, currentContent));
+    const setCurrentDoc = useCallback((content: Content | string, invertible = false) => {
+        if (invertible) {
+            const currentLastChanges = compare(currentContent, content, true);
+            console.log(currentLastChanges);
+            setLastChange(prevLastChanges => currentLastChanges.length > 0 ? currentLastChanges : prevLastChanges);
         }
-    }, [currentChanges, currentContent]);
-
-    const setCurrentDoc = useCallback((content: Content|string) => {
-        setCurrentChanges(changes => changes.concat([compare(currentContent, content, true)]).filter(o => o.length > 0));
         setCurrentContent(content);
         setDirty(true);
     }, [currentContent]);
-    const loadNewDoc = useCallback((content: Content|string) => {
+    const loadNewDoc = useCallback((content: Content | string) => {
         setDirty(false);
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
         setCurrentContent(content);
@@ -155,8 +152,13 @@ export function EditorScreen() {
             },
             editor: {
                 getDirty: () => dirty,
-                canUndo: () => currentChanges.length > 0,
-                undo,
+                canUndo: () => isDefined(lastChange) && lastChange.length > 0,
+                undo: () => {
+                    if (lastChange) {
+                        setCurrentDoc(inverseOperation(lastChange).reduce(applyReducer, currentContent));
+                        setLastChange(undefined);
+                    }
+                },
                 getCurrentDoc: () => {
                     if (typeof currentContent === "string") {
                         throw new Error("Current doc is a string");
@@ -202,7 +204,7 @@ export function EditorScreen() {
                 },
             }
         });
-    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished, currentChanges, undo]);
+    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished, setLastChange, lastChange]);
     const contextRef = useFixedRef(appContext);
 
     const unblockRef = useRef<() => void>();

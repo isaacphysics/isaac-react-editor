@@ -19,8 +19,8 @@ export interface EditorState {
     getCurrentDocAsString: () => string;
     getCurrentDocPath: () => string | undefined;
     setDirty: (isDirty: boolean) => void;
-    setCurrentDoc: (newContent: Content|string) => void;
-    loadNewDoc: (newContent: Content|string) => void;
+    setCurrentDoc: (newContent: Content | string, invertible?: boolean) => void;
+    loadNewDoc: (newContent: Content | string) => void;
     isAlreadyPublished: () => boolean;
 }
 
@@ -80,8 +80,8 @@ export function SemanticEditor() {
     return <div className={styles.editorWrapper}>
         <TopMenu previewable undoable />
         <div className={styles.editorScroller}>
-            <SemanticRoot doc={appContext.editor.getCurrentDoc()} update={(newContent) => {
-                appContext.editor.setCurrentDoc(newContent);
+            <SemanticRoot doc={appContext.editor.getCurrentDoc()} update={(newContent, invertible) => {
+                appContext.editor.setCurrentDoc(newContent, invertible);
             }} />
         </div>
     </div>;
