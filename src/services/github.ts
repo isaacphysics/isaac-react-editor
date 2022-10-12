@@ -266,7 +266,7 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
         isContent = false;
     }
     const path = context.selection.getSelection()?.path as string;
-    const initialCommitMessage = `${isPublishedChange ? "* " : ""}Edited ${path}`;
+    const initialCommitMessage = `${isPublishedChange ? "* " : ""}Edited ${path.split("/").at(-1)}`;
 
     const message = window.prompt("Enter your commit message", initialCommitMessage);
 
