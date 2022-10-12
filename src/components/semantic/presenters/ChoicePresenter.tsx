@@ -1,5 +1,5 @@
-import React, {MutableRefObject, useContext, useRef,} from "react";
-import {Button, Input, Label} from "reactstrap";
+import React, {MutableRefObject, useContext, useEffect, useRef, useState,} from "react";
+import {Alert, Button, Input, Label} from "reactstrap";
 import {InputType} from "reactstrap/lib/Input";
 
 import {
@@ -29,11 +29,12 @@ import {EditableValueProp} from "../props/EditableDocProp";
 import {CHOICE_TYPES} from "../ChoiceInserter";
 import {PresenterProps} from "../registry";
 import {ListPresenterProp} from "../props/listProps";
-import {ItemsContext} from "./ItemQuestionPresenter";
+import {ClozeQuestionContext, ItemsContext} from "./ItemQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
 import {QuestionContext} from "./questionPresenters";
 import {Markup} from "../../../isaac/markup";
+import {NULL_CLOZE_ITEM, NULL_CLOZE_ITEM_ID} from "../../../isaac/IsaacTypes";
 
 
 interface LabeledInputProps<V extends Record<string, string | undefined>> {
@@ -197,16 +198,55 @@ export const GraphChoicePresenter = buildValuePresenter(
 );
 
 export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) => {
-    const {doc} = props;
-    const {withReplacement} = useContext(ItemsContext);
+    const {items: maybeItems, withReplacement} = useContext(ItemsContext);
+    const {isClozeQuestion, dropZoneCount} = useContext(ClozeQuestionContext);
+    const {doc, update} = props;
 
-    const {items} = useContext(ItemsContext) ?? [];
-    const remainingItems = withReplacement ? items : items?.filter(item => !doc.items?.find(i => i.id === item.id));
+    const [showClozeChoiceWarning, setShowClozeChoiceWarning] = useState<boolean>(false);
+
+    // An update function that augments the choice with null cloze items in empty spaces if this is a cloze question
+    const augmentedUpdate = (newDoc: ParsonsChoice) => {
+        setShowClozeChoiceWarning(false); // This augmented update will always fix the cloze subset match warning
+        return update(isClozeQuestion && dropZoneCount
+            ? {
+                ...newDoc,
+                items: Array(dropZoneCount).fill(NULL_CLOZE_ITEM).map((nci, i) => (newDoc?.items && i < newDoc.items.length)
+                    ? newDoc.items[i]
+                    : nci
+                )
+            }
+            : newDoc);
+    };
+    // Ensure that the null cloze items are added to the doc initially for a new choice (again only if this is a cloze question)
+    useEffect(() => {
+        if (isClozeQuestion) {
+            if (!doc.items || doc.items.length === 0) {
+                augmentedUpdate(doc);
+            } else if (doc.items.length !== dropZoneCount) {
+                setShowClozeChoiceWarning(true);
+            } else {
+                setShowClozeChoiceWarning(false);
+            }
+        }
+    }, [dropZoneCount]);
+
+    const items = maybeItems ?? [];
+    const remainingItems = withReplacement ? items : items.filter(item => !doc.items?.find(i => i.id === item.id));
 
     return <>
-        {doc.type === "itemChoice" && <CheckboxDocProp {...props} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
-        <ItemsContext.Provider value={{items, remainingItems, withReplacement}}>
-            <ListPresenterProp {...props} prop="items" childTypeOverride="item$choice" />
+        {doc.type === "itemChoice" && <CheckboxDocProp {...props} doc={doc} update={props.update} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
+        {doc.type === "itemChoice" && isClozeQuestion && !doc.allowSubsetMatch && doc.items?.find(i => i.id === NULL_CLOZE_ITEM_ID) && <Alert color={"warning"}>
+            Please fill in all &quot;Any item&quot; placeholders. If you would like to use subset matching, tick the box above.
+        </Alert>}
+        {doc.type === "itemChoice" && showClozeChoiceWarning && <Alert color={"danger"}>
+            In order for cloze questions to work as expected, the choice must be the same length as the number of
+            drop zones, and should contain &quot;Any item&quot; placeholders in slots that should be ignored (if using
+            subset matching).<br/>
+            If a choice does not have the same number of items as drop zones, <b>it will not be checked against the
+            users answer</b>.
+        </Alert>}
+        <ItemsContext.Provider value={{items, remainingItems, withReplacement, allowSubsetMatch: doc.allowSubsetMatch}}>
+            <ListPresenterProp {...props} doc={doc} update={augmentedUpdate} prop="items" childTypeOverride="item$choice" />
         </ItemsContext.Provider>
     </>;
 }
