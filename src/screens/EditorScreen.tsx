@@ -122,7 +122,6 @@ export function EditorScreen() {
     const setCurrentDoc = useCallback((content: Content | string, invertible = false) => {
         if (invertible) {
             const currentLastChanges = compare(currentContent, content, true);
-            console.log(currentLastChanges);
             setLastChange(prevLastChanges => currentLastChanges.length > 0 ? currentLastChanges : prevLastChanges);
         }
         setCurrentContent(content);
@@ -155,7 +154,12 @@ export function EditorScreen() {
                 canUndo: () => isDefined(lastChange) && lastChange.length > 0,
                 undo: () => {
                     if (lastChange) {
-                        setCurrentDoc(inverseOperation(lastChange).reduce(applyReducer, currentContent));
+                        try {
+                            const contentAfterUndo = inverseOperation(lastChange).reduce(applyReducer, currentContent);
+                            setCurrentDoc(contentAfterUndo);
+                        } catch (e) {
+                            console.error("Could not undo: ", e);
+                        }
                         setLastChange(undefined);
                     }
                 },

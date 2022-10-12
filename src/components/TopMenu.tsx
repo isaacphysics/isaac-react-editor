@@ -9,6 +9,7 @@ import {Entry} from "./FileBrowser";
 import styles from "../styles/editor.module.css";
 import {Content} from "../isaac-data-types";
 import {StagingServer} from "../services/isaacApi";
+import classNames from "classnames";
 
 function filePathToEntry(path: string | undefined, sha: string): Entry {
     const name = path?.substring(path?.lastIndexOf("/") + 1) ?? "";
@@ -58,7 +59,7 @@ export function TopMenu({previewable, undoable}: {previewable?: boolean; undoabl
             <button className={styles.iconButton} onClick={() => appContext.dispatch({"type": "save"})}>
                 💾<span className="d-none d-lg-inline"> Save</span>
             </button>}
-        {undoable && appContext.editor.canUndo() && <button className={styles.iconButton} onClick={appContext.editor.undo}>
+        {undoable && appContext.editor.canUndo() && <button className={classNames(styles.iconButton, styles.undoButton)} onClick={appContext.editor.undo}>
                 ↺<span className="d-none d-lg-inline"> Undo</span>
             </button>}
         {selection && !selection.isDir && previewLink && <button onClick={() => window.open(previewLink, "_blank")} className={styles.iconButton} >
