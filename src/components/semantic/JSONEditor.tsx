@@ -7,6 +7,7 @@ import {linter, lintGutter} from "@codemirror/lint";
 import {PresenterProps} from "./registry";
 import styles from "./styles/semantic.module.css";
 import {keyBindings, spellchecker} from "../../utils/codeMirrorExtensions";
+import {MarkupToolbar} from "../MarkupToolbar";
 
 const extensions = [json(), EditorView.lineWrapping, linter(jsonParseLinter()), lintGutter(), rectangularSelection(), spellchecker()];
 const empty = Symbol("empty") as unknown as string;
@@ -45,7 +46,9 @@ export function JSONEditor({doc, update, close}: PresenterProps & { close: () =>
                     setValid(false);
                 }
             }}
-        />
+        >
+            <MarkupToolbar set={setDocChanges} cancel={cancelDocChanges} encoding={doc.encoding} />
+        </CodeMirror>
         <div className={`mt-2 ${styles.editButtons}`}>
             <Button onClick={cancelDocChanges}>Cancel</Button>
             <Button color="primary" disabled={!valid} onClick={setDocChanges}>Set</Button>
