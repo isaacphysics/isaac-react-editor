@@ -4,6 +4,7 @@ import {Remarkable, utils} from "remarkable";
 import {linkify} from "remarkable/linkify";
 import {SITE} from "../../services/site";
 import styles from "../styles/markup.module.css";
+import {StagingServer} from "../../services/isaacApi";
 
 const MARKDOWN_RENDERER = new Remarkable({
     html: true
@@ -54,7 +55,7 @@ export const renderInlineGlossaryTerms = (markdown: string) => {
 // RegEx replacements to match Latex inspired Isaac Physics functionality
 export const regexProcessMarkdown = (markdown: string) => {
     const regexRules = {
-        "[$1]($2)": /\\link{([^}]*)}{([^}]*)}/g,
+        [`<a href="${StagingServer}$2" target="_blank">$1</a>`]: /\\link{([^}]*)}{([^}]*)}/g,
     };
     if (SITE === "PHY") {
         Object.assign(regexRules, {

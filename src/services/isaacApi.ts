@@ -1,14 +1,14 @@
-import { SITE } from "./site";
+import {siteSpecific} from "./site";
 
-export const StagingServer = {
-    "PHY": "https://staging.isaacphysics.org",
-    "CS": "https://staging.isaaccomputerscience.org",
-}[SITE];
+export const StagingServer = siteSpecific(
+    "https://staging.isaacphysics.org",
+    "https://staging.isaaccomputerscience.org"
+);
 
-const LiveServer = {
-    "PHY": "https://isaacphysics.org",
-    "CS": "https://isaaccomputerscience.org",
-}[SITE];
+const LiveServer = siteSpecific(
+    "https://isaacphysics.org",
+    "https://isaaccomputerscience.org",
+);
 
 function makeFetcher(server: string) {
     return async function apiFetcher(path: string, options?: RequestInit) {
