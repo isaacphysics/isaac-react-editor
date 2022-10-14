@@ -5,7 +5,7 @@ import { FigureNumberingContext } from "../../../isaac/IsaacTypes";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { PresenterProps } from "../registry";
 import { BaseValuePresenter } from "./BaseValuePresenter";
-import { githubUpload, useGithubContents } from "../../../services/github";
+import { githubDelete, githubUpload, useGithubContents } from "../../../services/github";
 import { AppContext } from "../../../App";
 import { dirname } from "../../../utils/strings";
 import { useFixedRef } from "../../../utils/hooks";
@@ -96,6 +96,12 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         const reader = new FileReader();
         reader.onload = async function() {
             const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
+            const oldFilePath = data.path;
+            const newFilePath = basePath + src;
+            if (oldFilePath !== newFilePath) {
+                // NOTE I am not super sure I'm using the name parameter the intended way here.
+                githubDelete(appContext, oldFilePath, oldFilePath.split('/').pop(), data.sha);
+            }
             update({
                 ...docRef.current,
                 src,
