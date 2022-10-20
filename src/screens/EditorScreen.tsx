@@ -19,7 +19,7 @@ import {buildPageError} from "../components/PageError";
 import Split from "react-split";
 import {CDNUploadModal} from "../components/CDNUploadModal";
 import {compare, Operation, applyReducer} from "fast-json-patch";
-import {inverseOperation} from "../utils/inversePatch";
+import {invertJSONPatch} from "../utils/inversePatch";
 
 import styles from "../styles/editor.module.css";
 import {isDefined} from "../utils/types";
@@ -155,7 +155,7 @@ export function EditorScreen() {
                 undo: () => {
                     if (lastChange) {
                         try {
-                            const contentAfterUndo = inverseOperation(lastChange).reduce(applyReducer, currentContent);
+                            const contentAfterUndo = invertJSONPatch(lastChange).reduce(applyReducer, currentContent);
                             setCurrentDoc(contentAfterUndo);
                         } catch (e) {
                             console.error("Could not undo: ", e);

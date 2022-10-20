@@ -1,10 +1,10 @@
 import {
     AddOperation,
-    CopyOperation,
     MoveOperation,
     Operation,
     RemoveOperation,
-    ReplaceOperation, TestOperation
+    ReplaceOperation,
+    TestOperation
 } from "fast-json-patch";
 
 // Adapted from https://github.com/cujojs/jiff
@@ -15,89 +15,7 @@ const inverses = {
     replace: invertReplace,
     remove: invertRemove,
     move: invertMove,
-    copy: invertCopy
-};
-
-export function inverseOperation(p: Operation[]) {
-    let pr: Operation[] = [];
-    let c: any, i: number, inverse, skip = 0;
-    for(i = p.length - 1; i>= 0; i -= skip) {
-        c = p[i] as any;
-        inverse = inverses[c.op as keyof typeof inverses];
-        if(typeof inverse === 'function') {
-            skip = inverse(pr, c, i, p);
-        }
-    }
-    return pr;
-}
-
-function invertTest(pr: Operation[], c: TestOperation<any>) {
-    pr.push(c);
-    return 1;
-}
-
-function invertAdd(pr: Operation[], c: AddOperation<any>) {
-    pr.push({
-        op: 'test',
-        path: c.path,
-        value: c.value
-    });
-
-    pr.push({
-        op: 'remove',
-        path: c.path
-    });
-
-    return 1;
-}
-
-function invertReplace(pr: Operation[], c: ReplaceOperation<any>, i: number, p: Operation[]) {
-    let prev = p[i-1];
-    if(prev === void 0 || prev.op !== 'test' || prev.path !== c.path) {
-        throw new Error('cannot invert replace w/o test');
-    }
-
-    pr.push({
-        op: 'test',
-        path: prev.path,
-        value: c.value
-    });
-
-    pr.push({
-        op: 'replace',
-        path: prev.path,
-        value: prev.value
-    });
-
-    return 2;
-}
-
-function invertRemove(pr: Operation[], c: RemoveOperation, i: number, p: Operation[]) {
-    let prev = p[i-1];
-    if (prev === void 0 || prev.op !== 'test' || prev.path !== c.path) {
-        throw new Error('cannot invert remove w/o test');
-    }
-
-    pr.push({
-        op: 'add',
-        path: prev.path,
-        value: prev.value
-    });
-
-    return 2;
-}
-
-function invertMove(pr: Operation[], c: MoveOperation) {
-    pr.push({
-        op: 'move',
-        path: c.from,
-        from: c.path
-    });
-
-    return 1;
-}
-
-function invertCopy(pr: Operation[], c: CopyOperation) {
+    // copy: ???
     // See https://github.com/cujojs/jiff/issues/9
     // This needs more thought. We may have to extend/amend JSON Patch.
     // At first glance, this seems like it should just be a remove.
@@ -105,6 +23,82 @@ function invertCopy(pr: Operation[], c: CopyOperation) {
     // invert(invert(p)) ~= p.  For example:
     // invert(copy) -> remove
     // invert(remove) -> add (DOH! this should be copy!)
-    throw new Error('cannot invert copy');
-    return 0;
+};
+
+function isInvertibleOperation(op: string): op is keyof typeof inverses {
+    return Object.keys(inverses).includes(op);
+}
+
+export function invertJSONPatch(patch: Operation[]) {
+    let inversePatch: Operation[] = [];
+    let skip = 0;
+    
+    // Iterate backwards through the patch operations, inverting each type of patch with the 
+    for(let i = patch.length - 1; i >= 0; i -= skip) {
+        const opType = patch[i].op;
+        if(isInvertibleOperation(opType)) {
+            skip = inverses[opType](inversePatch, patch[i] as any, i, patch);
+        } else {
+            throw Error(`Inverse patch cannot be computed: inversion is not implemented for operations of type: ${opType}`);
+        }
+    }
+    return inversePatch;
+}
+
+function invertTest(inversePatch: Operation[], testOp: TestOperation<any>) {
+    inversePatch.push(testOp);
+    return 1;
+}
+
+function invertAdd(inversePatch: Operation[], addOp: AddOperation<any>) {
+    inversePatch.push({
+        op: 'test',
+        path: addOp.path,
+        value: addOp.value
+    }, {
+        op: 'remove',
+        path: addOp.path
+    });
+    return 1;
+}
+
+function invertReplace(inversePatch: Operation[], replaceOp: ReplaceOperation<any>, i: number, patch: Operation[]) {
+    let prevOp = patch[i-1];
+    if(prevOp === void 0 || prevOp.op !== 'test' || prevOp.path !== replaceOp.path) {
+        throw new Error('cannot invert replace w/o test');
+    }
+    inversePatch.push({
+        op: 'test',
+        path: prevOp.path,
+        value: replaceOp.value
+    }, {
+        op: 'replace',
+        path: prevOp.path,
+        value: prevOp.value
+    });
+    return 2;
+}
+
+function invertRemove(inversePatch: Operation[], removeOp: RemoveOperation, i: number, patch: Operation[]) {
+    let prevOp = patch[i-1];
+    if (prevOp === void 0 || prevOp.op !== 'test' || prevOp.path !== removeOp.path) {
+        throw new Error('cannot invert remove w/o test');
+    }
+
+    inversePatch.push({
+        op: 'add',
+        path: prevOp.path,
+        value: prevOp.value
+    });
+
+    return 2;
+}
+
+function invertMove(inversePatch: Operation[], moveOp: MoveOperation) {
+    inversePatch.push({
+        op: 'move',
+        path: moveOp.from,
+        from: moveOp.path
+    });
+    return 1;
 }
