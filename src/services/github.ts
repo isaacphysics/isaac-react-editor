@@ -267,6 +267,7 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
     try {
         const fileJSON = context.editor.getCurrentDoc();
         const alreadyPublished = context.editor.isAlreadyPublished();
+        // TODO if published changing to true, do content error checks beforehand (perhaps via an API service?)
         isPublishedChange = fileJSON.published || alreadyPublished;
         isContent = true;
     } catch {
