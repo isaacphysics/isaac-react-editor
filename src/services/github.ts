@@ -115,19 +115,23 @@ export function githubComparisonPath(oldVersion?: string, newVersion?: string) {
     return githubReplaceWithConfig("https://github.com/$OWNER/$REPO/compare/" + oldVersion + "..." + newVersion);
 }
 
+function encodeContent(contentBody: string) {
+    let content;
+    try {
+        content = window.btoa(contentBody);
+    } catch (e) {
+        content = encodeBase64(contentBody);
+    }
+    return content;
+}
+
 export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, repo: GitHubRepository = "content") {
     const path = `${basePath}/${name}`;
 
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
     // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
     // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
-    let content;
-    try {
-        content = window.btoa(initialContent);
-    } catch (e) {
-        content = encodeBase64(initialContent);
-    }
-
+    const content = encodeContent(initialContent);
     const data = await fetcher(contentsPath(path, undefined, repo), {
         method: "PUT",
         body: {
@@ -149,13 +153,7 @@ export async function githubUpdate(context: ContextType<typeof AppContext>, base
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
     // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
     // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
-    let content;
-    try {
-        content = window.btoa(initialContent);
-    } catch (e) {
-        content = encodeBase64(initialContent);
-    }
-
+    const content = encodeContent(initialContent);
     const data = await fetcher(contentsPath(path, undefined, repo), {
         method: "PUT",
         body: {
