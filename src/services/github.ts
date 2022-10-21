@@ -163,10 +163,6 @@ export async function githubUpdate(context: ContextType<typeof AppContext>, base
             content,
         },
     });
-
-    // TODO Could use mutate(...) to update filetree without a hard refresh - but remember to consider files saved in
-    // parent and sub-directories
-
     return data;
 }
 
