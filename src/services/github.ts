@@ -148,6 +148,12 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
 }
 
 export async function githubUpdate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, sha: string, repo: GitHubRepository = "content") {
+    let wasPublished;
+    try {
+        wasPublished = context.editor.isAlreadyPublished();
+    } catch {
+        wasPublished = false;
+    }
     const path = `${basePath}/${name}`;
 
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
@@ -158,7 +164,7 @@ export async function githubUpdate(context: ContextType<typeof AppContext>, base
         method: "PUT",
         body: {
             branch: context.github.branch,
-            message: "Updating " + path,
+            message: `${wasPublished ? "* " : ""}Replacing ${path}`,
             sha,
             content,
         },
