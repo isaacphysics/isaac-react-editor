@@ -234,14 +234,14 @@ export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) =
     const remainingItems = withReplacement ? items : items.filter(item => !doc.items?.find(i => i.id === item.id));
 
     return <>
-        {doc.type === "itemChoice" && <CheckboxDocProp {...props} doc={doc} update={props.update} prop="allowSubsetMatch" label="Can match if a subset of the answer" />}
+        {doc.type === "itemChoice" && <CheckboxDocProp {...props} doc={doc} update={props.update} prop="allowSubsetMatch" label="Enable wildcard matching of items (previously called subset matching)" />}
         {doc.type === "itemChoice" && isClozeQuestion && !doc.allowSubsetMatch && doc.items?.find(i => i.id === NULL_CLOZE_ITEM_ID) && <Alert color={"warning"}>
-            Please fill in all &quot;Any item&quot; placeholders. If you would like to use subset matching, tick the box above.
+            Please fill in all &quot;Any item&quot; placeholders. If you would like to use wildcard matching, tick the box above.
         </Alert>}
         {doc.type === "itemChoice" && showClozeChoiceWarning && <Alert color={"danger"}>
             In order for cloze questions to work as expected, the choice must be the same length as the number of
             drop zones, and should contain &quot;Any item&quot; placeholders in slots that should be ignored (if using
-            subset matching).<br/>
+            wildcard matching).<br/>
             If a choice does not have the same number of items as drop zones, <b>it will not be checked against the
             users answer</b>.
         </Alert>}
