@@ -70,16 +70,19 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
     }
 };
 
-export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content") {
+export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content", cacheKey: string = "") {
     let fullPath = `${GITHUB_BASE_REPO_PATHS[repo]}${path}`;
     if (branch) {
         fullPath += `?ref=${encodeURIComponent(branch)}`;
     }
+    if (cacheKey) {
+        fullPath += `${fullPath.includes("?") ? "&" : "?"}cache_t=${cacheKey}`;
+    }
     return fullPath;
 }
 
-export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository) => {
-    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null);
+export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository, cacheKey: string = "") => {
+    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo, cacheKey) : null);
 };
 
 export const defaultGithubContext = {

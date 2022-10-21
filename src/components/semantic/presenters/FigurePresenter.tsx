@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 
 import { Figure } from "../../../isaac-data-types";
 import { FigureNumberingContext } from "../../../isaac/IsaacTypes";
@@ -23,7 +23,8 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     const appContext = useContext(AppContext);
     const basePath = dirname(appContext.selection.getSelection()?.path) as string;
-    const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined);
+    const [lastUpdated, setLastUpdated] = useState(Date.now());
+    const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined, `${lastUpdated}`);
 
     const imageRef = useRef<HTMLImageElement>(null);
     useEffect(() => {
@@ -96,6 +97,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         const reader = new FileReader();
         reader.onload = async function() {
             const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
+            setLastUpdated(Date.now());
             update({
                 ...docRef.current,
                 src,
