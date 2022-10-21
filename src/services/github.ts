@@ -8,6 +8,7 @@ import {encodeBase64} from "../utils/base64";
 import {Entry} from "../components/FileBrowser";
 import {dirname, resolveRelativePath} from "../utils/strings";
 import {Config, getConfig} from "./config";
+import { isDefined } from "../utils/types";
 
 export const GITHUB_TOKEN_COOKIE = "github-token";
 const GITHUB_API_URL = "https://api.github.com/";
@@ -69,16 +70,19 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
     }
 };
 
-export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content") {
+export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content", cacheKey: string = "") {
     let fullPath = `${GITHUB_BASE_REPO_PATHS[repo]}${path}`;
     if (branch) {
         fullPath += `?ref=${encodeURIComponent(branch)}`;
     }
+    if (cacheKey) {
+        fullPath += `${fullPath.includes("?") ? "&" : "?"}cache_t=${cacheKey}`;
+    }
     return fullPath;
 }
 
-export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository) => {
-    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null);
+export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository, cacheKey: string = "") => {
+    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo, cacheKey) : null);
 };
 
 export const defaultGithubContext = {
@@ -114,19 +118,23 @@ export function githubComparisonPath(oldVersion?: string, newVersion?: string) {
     return githubReplaceWithConfig("https://github.com/$OWNER/$REPO/compare/" + oldVersion + "..." + newVersion);
 }
 
+function encodeContent(contentBody: string) {
+    let content;
+    try {
+        content = window.btoa(contentBody);
+    } catch (e) {
+        content = encodeBase64(contentBody);
+    }
+    return content;
+}
+
 export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, repo: GitHubRepository = "content") {
     const path = `${basePath}/${name}`;
 
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
     // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
     // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
-    let content;
-    try {
-        content = window.btoa(initialContent);
-    } catch (e) {
-        content = encodeBase64(initialContent);
-    }
-
+    const content = encodeContent(initialContent);
     const data = await fetcher(contentsPath(path, undefined, repo), {
         method: "PUT",
         body: {
@@ -139,6 +147,31 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
     // TODO Could use mutate(...) to update filetree without a hard refresh - but remember to consider files saved in
     // parent and sub-directories
 
+    return data;
+}
+
+export async function githubUpdate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, sha: string, repo: GitHubRepository = "content") {
+    let wasPublished;
+    try {
+        wasPublished = context.editor.isAlreadyPublished();
+    } catch {
+        wasPublished = false;
+    }
+    const path = `${basePath}/${name}`;
+
+    // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
+    // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
+    // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
+    const content = encodeContent(initialContent);
+    const data = await fetcher(contentsPath(path, undefined, repo), {
+        method: "PUT",
+        body: {
+            branch: context.github.branch,
+            message: `${wasPublished ? "* " : ""}Replacing ${path}`,
+            sha,
+            content,
+        },
+    });
     return data;
 }
 
@@ -315,16 +348,14 @@ export async function githubUpload(context: ContextType<typeof AppContext>, base
         existingFigures = [];
     }
 
-    const figurePaths: string[] = existingFigures.map((f: { path: string; }) => f.path);
-    let i = 0;
-    let proposedName, proposedPath;
-    do {
-        proposedName = name.substring(0, name.lastIndexOf(".")) + ( i ? "_" + (i+1) : "") + name.substring(name.lastIndexOf("."));
-        proposedPath = figurePath + "/" + proposedName;
-        i++;
-    } while(figurePaths.includes(proposedPath))
-
-    const result = await githubCreate(context,  figurePath, proposedName, content);
+    const figurePaths: { path: string, sha: string }[] = existingFigures.map((f: { path: string, sha: string; }) => ({ path: f.path, sha: f.sha }));
+    const figureToReplace = figurePaths.find(f => f.path === figurePath + '/' + name);
+    let result;
+    if (isDefined(figureToReplace)) {
+        result = await githubUpdate(context, figurePath, name, content, figureToReplace.sha);
+    } else {
+        result = await githubCreate(context, figurePath, name, content);
+    }
 
     return `figures/${result.content.name}`;
 }
