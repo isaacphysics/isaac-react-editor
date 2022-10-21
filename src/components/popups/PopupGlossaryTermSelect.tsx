@@ -10,7 +10,7 @@ import Select from "react-select";
 import {Item} from "../../utils/select";
 import {isDefined} from "../../utils/types";
 
-export const PopupGlossaryTermSelect = ({codemirror}: { codemirror: RefObject<ReactCodeMirrorRef> }) => {
+export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, codemirror: RefObject<ReactCodeMirrorRef> }) => {
     const popupRef = useRef<PopupRef>(null);
 
     const {data: glossaryTerms} = useSWR<{results: GlossaryTerm[]}>(
@@ -38,7 +38,7 @@ export const PopupGlossaryTermSelect = ({codemirror}: { codemirror: RefObject<Re
     return <>
         <button className={styles.cmPanelButton} title={"Insert glossary term"} onClick={(event) => {
             popupRef.current?.open(event);
-        }}>Add glossary term</button>
+        }}>{wide ? "Add glossary term" : "➕ glossary"}</button>
         <Popup popUpRef={popupRef}>
             <Container className={styles.cmPanelPopup}>
                 <Label for={"glossary-term-id-select"}>Select glossary term:</Label>

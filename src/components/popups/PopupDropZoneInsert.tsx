@@ -4,7 +4,7 @@ import {Button, Container, Input, InputGroup, Label} from "reactstrap";
 import {ReactCodeMirrorRef} from "@uiw/react-codemirror";
 import styles from "../../styles/editor.module.css";
 
-export const PopupDropZoneInsert = ({codemirror}: { codemirror: RefObject<ReactCodeMirrorRef> }) => {
+export const PopupDropZoneInsert = ({wide, codemirror}: { wide?: boolean, codemirror: RefObject<ReactCodeMirrorRef> }) => {
     const popupRef = useRef<PopupRef>(null);
 
     const [width, setWidth] = useState<number>();
@@ -31,9 +31,9 @@ export const PopupDropZoneInsert = ({codemirror}: { codemirror: RefObject<ReactC
     }
 
     return <>
-        <button className={styles.cmPanelButton} title={"Insert cloze drop zone"} onClick={(event) => {
+        <button className={styles.cmPanelButton} title={"Insert cloze drop-zone"} onClick={(event) => {
             popupRef.current?.open(event);
-        }}>Add cloze drop zone</button>
+        }}>{wide ? "Add cloze drop-zone" : "➕ drop-zone"}</button>
         <Popup popUpRef={popupRef}>
             <Container className={styles.cmPanelPopup}>
                 <Label for={"drop-zone-width"}>Width:</Label>

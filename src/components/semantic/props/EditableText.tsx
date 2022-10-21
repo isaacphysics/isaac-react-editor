@@ -17,6 +17,8 @@ import styles from "../styles/editable.module.css";
 import classNames from "classnames";
 import {Markup} from "../../../isaac/markup";
 import CodeMirror, {EditorView} from "@uiw/react-codemirror";
+import {MarkupToolbar} from "../../MarkupToolbar";
+import {keyBindings} from "../../../utils/codeMirrorExtensions";
 
 export interface SaveOptions {
     movement?: number;
@@ -220,8 +222,12 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                 autoFocus
                                 extensions={[
                                     EditorView.lineWrapping,
+                                    keyBindings(() => {save(); return true;}, () => {cancel(); return true;}, "plaintext"),
                                 ]}
-                                onChange={(newValue) => setCurrent(newValue)} />
+                                onChange={(newValue) => setCurrent(newValue)}
+                            >
+                                <MarkupToolbar set={save} cancel={cancel} encoding={"plaintext"} />
+                            </CodeMirror>
                             : <Input
                                 type={multiLine ? "textarea" : "text"}
                                 /* eslint-disable-next-line jsx-a11y/no-autofocus */

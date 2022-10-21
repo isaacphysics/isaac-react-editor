@@ -50,12 +50,12 @@ export function TopMenu({previewable}: {previewable?: boolean}) {
     }
 
     return <div className={styles.topMenuWrapper}>
-        <button className={styles.iconButton} onClick={(event) => selection && menuRef.current?.open(event, filePathToEntry(selection.path, data.sha))}>
+        <button title={"Open menu"} className={styles.iconButton} onClick={(event) => selection && menuRef.current?.open(event, filePathToEntry(selection.path, data.sha))}>
             ☰<span className="d-none d-lg-inline"> Menu</span>
         </button>
         <div className={styles.flexFill} />
         {appContext.editor.getDirty() &&
-            <button className={styles.iconButton} onClick={() => appContext.dispatch({"type": "save"})}>
+            <button title={"Save changes"} className={styles.iconButton} onClick={() => appContext.dispatch({"type": "save"})}>
                 💾<span className="d-none d-lg-inline"> Save</span>
             </button>}
         {selection && !selection.isDir && previewLink && <button onClick={() => window.open(previewLink, "_blank")} className={styles.iconButton} >
