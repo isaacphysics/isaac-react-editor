@@ -23,6 +23,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     const appContext = useContext(AppContext);
     const basePath = dirname(appContext.selection.getSelection()?.path) as string;
+    const [replacedFile, setReplacedFile] = useState(false);
     const [lastUpdated, setLastUpdated] = useState(Date.now());
     const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined, `${lastUpdated}`);
 
@@ -97,6 +98,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         const reader = new FileReader();
         reader.onload = async function() {
             const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
+            setReplacedFile(src === docRef.current.src);
             setLastUpdated(Date.now());
             update({
                 ...docRef.current,
@@ -147,6 +149,9 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
                     <img ref={imageRef} alt={doc.altText} width="250px" height="250px" src="/not-found.png"/>
                 </button>
                 <input type="file" ref={fileRef} className={styles.fileInput} onChange={fileChange} />
+                {replacedFile && <div className="alert alert-warning text-center rounded-0 py-0" style={{width: 262}}>
+                    Image Replaced
+                </div>}
             </div>
             <div className={styles.figureCaption}>
                 {doc.type === "figure" && <>
