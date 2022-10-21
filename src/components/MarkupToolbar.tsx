@@ -20,6 +20,7 @@ export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => 
     const [wide, setWide] = useState(true);
     const toolbarRef = useRef<HTMLDivElement>(null);
 
+    // TODO should be replaced by `useDeviceSize` (from isaac-react-app)
     const updateIsWide = useCallback(() => {
         const MIN_WIDTH = 500;
         const width = toolbarRef.current?.clientWidth;
