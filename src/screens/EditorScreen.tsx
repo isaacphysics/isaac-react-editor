@@ -22,6 +22,7 @@ import styles from "../styles/editor.module.css";
 import {buildPageError} from "../components/PageError";
 import Split from "react-split";
 import {CDNUploadModal} from "../components/CDNUploadModal";
+import hash from "object-hash";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -111,6 +112,7 @@ export function EditorScreen() {
     }, []);
 
     const [dirty, setDirty] = useState(false);
+    const [fileHash, setFileHash] = useState<string>("");
     const [currentContent, setCurrentContent] = useState<Content|string>({});
     const [currentContentPath, setCurrentContentPath] = useState<string | undefined>();
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
@@ -119,10 +121,11 @@ export function EditorScreen() {
 
     const setCurrentDoc = useCallback((content: Content|string) => {
         setCurrentContent(content);
-        setDirty(true);
-    }, []);
+        setDirty(hash(content) !== fileHash);
+    }, [fileHash]);
     const loadNewDoc = useCallback((content: Content|string) => {
         setDirty(false);
+        setFileHash(hash(content));
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
         setCurrentContent(content);
         setCurrentContentPath(selection?.path);
