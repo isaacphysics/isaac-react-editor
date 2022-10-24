@@ -78,11 +78,6 @@ type TabsMainProps = TabsProps & {
 
 export function TabsMain({docRef, currentChild, updateCurrentChild, doRemove, doShift, keyList, index, emptyDescription, elementName, styles, suppressHeaderNames, showTitles, back, forward, contentHeader, extraButtons}: TabsMainProps) {
     const elementNameLC = safeLowercase(elementName);
-    const doDelete = useCallback(() => {
-        if (window.confirm(`Are you sure you want to delete this ${elementNameLC}?`)) {
-            doRemove();
-        }
-    }, [elementNameLC, doRemove]);
 
     return <div className={styles.main}>
         {currentChild && <React.Fragment key={keyList[index]}>
@@ -97,7 +92,7 @@ export function TabsMain({docRef, currentChild, updateCurrentChild, doRemove, do
                         {forward}
                     </Button>
                 </ButtonGroup>
-                <Button size="sm" color="danger" onClick={doDelete}>Delete {elementNameLC}</Button>
+                <Button size="sm" color="danger" onClick={doRemove}>Delete {elementNameLC}</Button>
             </div>
             {contentHeader}
             <SemanticItem className={styles.hideMargins} doc={currentChild} update={updateCurrentChild}/>

@@ -20,7 +20,7 @@ export function QuizPagePresenter(props: PresenterProps<IsaacQuiz>) {
     return <>
         <PagePresenter {...props} />
         {props.doc.rubric ?
-            <SemanticDocProp {...props} prop="rubric" name="Rubric" onDelete={() => props.update({...props.doc, rubric: undefined})} /> :
+            <SemanticDocProp {...props} prop="rubric" name="Rubric" onDelete={() => props.update({...props.doc, rubric: undefined}, true)} /> :
             <Button color="secondary" outline onClick={() => props.update({...props.doc, rubric: (EMPTY_DOCUMENTS['isaacQuiz'] as IsaacQuiz).rubric})}>
                 Add rubric
             </Button>}

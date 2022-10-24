@@ -13,17 +13,23 @@ import { TopMenu } from "./TopMenu";
 
 export interface EditorState {
     getDirty: () => boolean;
+    canUndo: () => boolean;
+    undo: () => void;
     getCurrentDoc: () => Content;
     getCurrentDocAsString: () => string;
     getCurrentDocPath: () => string | undefined;
     setDirty: (isDirty: boolean) => void;
-    setCurrentDoc: (newContent: Content|string) => void;
-    loadNewDoc: (newContent: Content|string) => void;
+    setCurrentDoc: (newContent: Content | string, invertible?: boolean) => void;
+    loadNewDoc: (newContent: Content | string) => void;
     isAlreadyPublished: () => boolean;
 }
 
 export const defaultEditorState: EditorState = {
     getDirty: () => false,
+    canUndo: () => false,
+    undo: () => {
+        throw new Error("undo called outside of AppContent");
+    },
     getCurrentDoc: () => ({}),
     getCurrentDocAsString: () => "",
     getCurrentDocPath: () => undefined,
@@ -72,10 +78,10 @@ export function SemanticEditor() {
     }
 
     return <div className={styles.editorWrapper}>
-        <TopMenu previewable />
+        <TopMenu previewable undoable />
         <div className={styles.editorScroller}>
-            <SemanticRoot doc={appContext.editor.getCurrentDoc()} update={(newContent) => {
-                appContext.editor.setCurrentDoc(newContent);
+            <SemanticRoot doc={appContext.editor.getCurrentDoc()} update={(newContent, invertible) => {
+                appContext.editor.setCurrentDoc(newContent, invertible);
             }} />
         </div>
     </div>;

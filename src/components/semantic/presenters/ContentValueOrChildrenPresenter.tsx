@@ -10,18 +10,18 @@ import { useFixedRef } from "../../../utils/hooks";
 function PromotableValuePresenter({doc: baseDoc, update: baseUpdate}: ValuePresenterProps) {
     const docRef = useFixedRef(baseDoc);
     const doc = useMemo(() => ({type: "content", children: [{type: "content", encoding: baseDoc.encoding, value: baseDoc.value}]}), [baseDoc]);
-    const update = useCallback((newContent: Content) => {
+    const update = useCallback((newContent: Content, invertible?: boolean) => {
         if (newContent.children?.length === 1) {
             baseUpdate({
                 ...docRef.current,
                 value: (newContent.children[0] as Content).value,
-            });
+            }, invertible);
         } else {
             baseUpdate({
                 ...docRef.current,
                 value: undefined,
                 children: newContent.children,
-            });
+            }, invertible);
         }
     }, [baseUpdate, docRef]);
 

@@ -67,7 +67,7 @@ interface ListChildProps {
     child: Content;
     index: number;
     shiftBy: (index: number, amount: number) => void;
-    updateChild: (index: number, newValue: Content) => void;
+    updateChild: (index: number, newValue: Content, invertible?: boolean) => void;
     remove: (index: number) => void;
     typeOverride: ContentType | undefined;
 }
