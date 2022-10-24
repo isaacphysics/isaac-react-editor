@@ -9,7 +9,7 @@ import styles from "./styles/semantic.module.css";
 
 interface SemanticRootProps {
     doc: Content;
-    update: (newContent: Content) => void;
+    update: (newContent: Content, invertible?: boolean) => void;
 }
 
 

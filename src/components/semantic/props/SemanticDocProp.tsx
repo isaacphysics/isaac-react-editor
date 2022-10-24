@@ -19,11 +19,11 @@ const emptyContent = {
 export const SemanticDocProp = <K extends string, D extends Content>({doc, update, prop, ...rest}: SemanticDocProps<K, D>) => {
     const subDoc = doc[prop] as Content ?? emptyContent;
     const docRef = useFixedRef(doc);
-    const childUpdate = useCallback((newContent: Content) => {
+    const childUpdate = useCallback((newContent: Content, invertible?: boolean) => {
         update({
             ...docRef.current,
             [prop]: newContent,
-        });
+        }, invertible);
     }, [docRef, update, prop]);
     return <SemanticItem doc={subDoc} update={childUpdate} {...rest} />;
 };

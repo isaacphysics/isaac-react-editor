@@ -207,6 +207,18 @@
     background: #eee;
 }
 
+@keyframes flash {
+    0%   { filter: drop-shadow(0 0 0.75rem #ff000000); }
+    50%  { filter: drop-shadow(0 0 0.75rem #ff000055); }
+    100% { filter: drop-shadow(0 0 0.75rem #ff000000); }
+}
+
+.undoButton {
+    animation-name: flash;
+    animation-iteration-count: 2;
+    animation-duration: 2s;
+}
+
 .actionsModalContent {
     height: calc(100vh - 3.5rem);
     background: none;

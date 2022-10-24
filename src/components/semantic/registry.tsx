@@ -69,7 +69,7 @@ export type ContentType =
 
 export interface PresenterProps<D = Content> {
     doc: D;
-    update: <T extends D>(newContent: T) => void;
+    update: <T extends D>(newContent: T, invertible?: boolean) => void;
 }
 
 export type Presenter<D extends Content = Content> = FunctionComponent<PresenterProps<D>>;

@@ -4,7 +4,6 @@ import {Params, useNavigate, useParams} from "react-router-dom";
 import {useLocation} from "react-router";
 import {Modal, Spinner} from "reactstrap";
 import {ErrorBoundary} from "react-error-boundary";
-
 import {Selection} from "../components/FileBrowser";
 import {LeftMenu} from "../components/LeftMenu";
 import {AppContext, browserHistory} from "../App";
@@ -15,14 +14,16 @@ import {Action, doDispatch} from "../services/commands";
 import {useFixedRef} from "../utils/hooks";
 import {TextEditor} from "../components/TextEditor";
 import {Preview, PreviewMode} from "../components/Preview";
-
 import {MenuModal, MenuModalRef} from "./MenuModal";
-
-import styles from "../styles/editor.module.css";
 import {buildPageError} from "../components/PageError";
 import Split from "react-split";
 import {CDNUploadModal} from "../components/CDNUploadModal";
 import hash from "object-hash";
+import {isDefined} from "../utils/types";
+import {compare, Operation, applyReducer} from "fast-json-patch";
+import {invertJSONPatch} from "../utils/inversePatch";
+
+import styles from "../styles/editor.module.css";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -113,17 +114,22 @@ export function EditorScreen() {
 
     const [dirty, setDirty] = useState(false);
     const [fileHash, setFileHash] = useState<string>("");
-    const [currentContent, setCurrentContent] = useState<Content|string>({});
+    const [currentContent, setCurrentContent] = useState<Content | string>({});
+    const [lastChange, setLastChange] = useState<Operation[]>();
     const [currentContentPath, setCurrentContentPath] = useState<string | undefined>();
     const [isAlreadyPublished, setIsAlreadyPublished] = useState<boolean>(false);
 
     const [actionRunning, setActionRunning] = useState(false);
 
-    const setCurrentDoc = useCallback((content: Content|string) => {
+    const setCurrentDoc = useCallback((content: Content | string, invertible = false) => {
+        if (invertible) {
+            const currentLastChanges = compare(currentContent, content, true);
+            setLastChange(prevLastChanges => currentLastChanges.length > 0 ? currentLastChanges : prevLastChanges);
+        }
         setCurrentContent(content);
         setDirty(hash(content) !== fileHash);
-    }, [fileHash]);
-    const loadNewDoc = useCallback((content: Content|string) => {
+    }, [fileHash, currentContent]);
+    const loadNewDoc = useCallback((content: Content | string) => {
         setDirty(false);
         setFileHash(hash(content));
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
@@ -148,6 +154,18 @@ export function EditorScreen() {
             },
             editor: {
                 getDirty: () => dirty,
+                canUndo: () => isDefined(lastChange) && lastChange.length > 0,
+                undo: () => {
+                    if (lastChange) {
+                        try {
+                            const contentAfterUndo = invertJSONPatch(lastChange).reduce(applyReducer, currentContent);
+                            setCurrentDoc(contentAfterUndo);
+                        } catch (e) {
+                            console.error("Could not undo: ", e);
+                        }
+                        setLastChange(undefined);
+                    }
+                },
                 getCurrentDoc: () => {
                     if (typeof currentContent === "string") {
                         throw new Error("Current doc is a string");
@@ -193,7 +211,7 @@ export function EditorScreen() {
                 },
             }
         });
-    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished]);
+    }, [setCurrentDoc, setDirty, loadNewDoc, params.branch, user, swrConfig.cache, navigate, previewOpen, previewMode, cdnOpen, selection, dirty, setSelection, currentContent, isAlreadyPublished, setLastChange, lastChange]);
     const contextRef = useFixedRef(appContext);
 
     const unblockRef = useRef<() => void>();

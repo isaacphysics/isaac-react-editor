@@ -60,7 +60,7 @@ interface Metadata {
 
 export interface SemanticItemProps<D extends Content = Content> {
     doc: D;
-    update: (newContent: D) => void;
+    update: (newContent: D, invertible?: boolean) => void;
     onDelete?: () => void;
     name?: string;
     className?: string;

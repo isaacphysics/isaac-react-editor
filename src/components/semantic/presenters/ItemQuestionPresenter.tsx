@@ -58,8 +58,8 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
         const questionExposition = extractValueOrChildrenText(doc);
         setDropZoneCount(questionExposition.match(dropZoneRegex)?.length ?? 0);
     };
-    const updateWithDropZoneCount = (newDoc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion) => {
-        update(newDoc);
+    const updateWithDropZoneCount = (newDoc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion, invertible?: boolean) => {
+        update(newDoc, invertible);
         countDropZonesIn(newDoc);
     };
     useEffect(() => {

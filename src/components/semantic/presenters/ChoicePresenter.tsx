@@ -205,7 +205,7 @@ export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) =
     const [showClozeChoiceWarning, setShowClozeChoiceWarning] = useState<boolean>(false);
 
     // An update function that augments the choice with null cloze items in empty spaces if this is a cloze question
-    const augmentedUpdate = (newDoc: ParsonsChoice) => {
+    const augmentedUpdate = (newDoc: ParsonsChoice, invertible?: boolean) => {
         setShowClozeChoiceWarning(false); // This augmented update will always fix the cloze subset match warning
         return update(isClozeQuestion && dropZoneCount
             ? {
@@ -215,7 +215,8 @@ export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) =
                     : nci
                 )
             }
-            : newDoc);
+            : newDoc
+            , invertible);
     };
     // Ensure that the null cloze items are added to the doc initially for a new choice (again only if this is a cloze question)
     useEffect(() => {

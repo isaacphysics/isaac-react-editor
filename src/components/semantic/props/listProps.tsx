@@ -37,12 +37,11 @@ function useTypedListExtractor<T>({doc, update, prop, type}: ListExtractorProps<
         };
     }, [doc, prop, type]);
 
-    const updateChild = useCallback((newContent: Content) => {
+    const updateChild = useCallback((newContent: Content, invertible?: boolean) => {
         update({
-                ...docRef.current,
-                [prop]: newContent.children
-            }
-        );
+            ...docRef.current,
+            [prop]: newContent.children
+        }, invertible);
     }, [docRef, prop, update]);
     return {doc: child, update: updateChild};
 }
