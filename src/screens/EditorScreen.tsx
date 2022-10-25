@@ -18,11 +18,12 @@ import {MenuModal, MenuModalRef} from "./MenuModal";
 import {buildPageError} from "../components/PageError";
 import Split from "react-split";
 import {CDNUploadModal} from "../components/CDNUploadModal";
+import hash from "object-hash";
+import {isDefined} from "../utils/types";
 import {compare, Operation, applyReducer} from "fast-json-patch";
 import {invertJSONPatch} from "../utils/inversePatch";
 
 import styles from "../styles/editor.module.css";
-import {isDefined} from "../utils/types";
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -112,6 +113,7 @@ export function EditorScreen() {
     }, []);
 
     const [dirty, setDirty] = useState(false);
+    const [fileHash, setFileHash] = useState<string>("");
     const [currentContent, setCurrentContent] = useState<Content | string>({});
     const [lastChange, setLastChange] = useState<Operation[]>();
     const [currentContentPath, setCurrentContentPath] = useState<string | undefined>();
@@ -125,10 +127,11 @@ export function EditorScreen() {
             setLastChange(prevLastChanges => currentLastChanges.length > 0 ? currentLastChanges : prevLastChanges);
         }
         setCurrentContent(content);
-        setDirty(true);
-    }, [currentContent]);
+        setDirty(hash(content) !== fileHash);
+    }, [fileHash, currentContent]);
     const loadNewDoc = useCallback((content: Content | string) => {
         setDirty(false);
+        setFileHash(hash(content));
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
         setCurrentContent(content);
         setCurrentContentPath(selection?.path);
