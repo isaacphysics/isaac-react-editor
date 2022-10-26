@@ -15,3 +15,5 @@ export const NULL_CLOZE_ITEM: Item = {
     type: "item",
     id: NULL_CLOZE_ITEM_ID
 };
+// Matches: [drop-zone], [drop-zone|w-50], [drop-zone|h-50] or [drop-zone|w-50h-200]
+export const dropZoneRegex = /\[drop-zone(?<params>\|(?<index>i-\d+?)?(?<width>w-\d+?)?(?<height>h-\d+?)?)?]/g;

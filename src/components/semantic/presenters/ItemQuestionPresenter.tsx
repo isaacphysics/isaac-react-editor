@@ -23,7 +23,7 @@ import styles from "../styles/question.module.css";
 import {Box} from "../SemanticItem";
 import {ExpandableText} from "../ExpandableText";
 import {extractValueOrChildrenText} from "../../../utils/content";
-import {NULL_CLOZE_ITEM, NULL_CLOZE_ITEM_ID} from "../../../isaac/IsaacTypes";
+import {dropZoneRegex, NULL_CLOZE_ITEM, NULL_CLOZE_ITEM_ID} from "../../../isaac/IsaacTypes";
 
 interface ItemsContextType {
     items: ParsonsItem[] | undefined;
@@ -54,7 +54,6 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
     const [dropZoneCount, setDropZoneCount] = useState<number>();
     const countDropZonesIn = (doc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion) => {
         if (!isClozeQuestion(doc)) return;
-        const dropZoneRegex = /\[drop-zone(?<params>\|(?<width>w-\d+?)?(?<height>h-\d+?)?)?]/g;
         const questionExposition = extractValueOrChildrenText(doc);
         setDropZoneCount(questionExposition.match(dropZoneRegex)?.length ?? 0);
     };

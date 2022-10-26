@@ -3,7 +3,7 @@ import {useSelector} from "react-redux";
 import he from "he";
 import katex, { KatexOptions } from "katex";
 import 'katex/dist/contrib/mhchem.mjs';
-import {BooleanNotation, FigureNumberingContext, FigureNumbersById} from "../IsaacTypes";
+import {BooleanNotation, dropZoneRegex, FigureNumberingContext, FigureNumbersById} from "../IsaacTypes";
 import renderA11yString from "../katex-a11y";
 
 type MathJaxMacro = string|[string, number];
@@ -285,12 +285,11 @@ export function katexify(html: string, user: null, booleanNotation : BooleanNota
                     katexRenderResult = katexRenderResult.replace('<span class="katex">',
                         `<span class="katex"><span class="sr-only">${screenReaderText}</span>`);
                 } else {
-                    const katexMathML = katex.renderToString(latexMunged, {...katexOptions, output: "mathml"})
+                    const katexMathML = katex.renderToString(latexMunged.replace(dropZoneRegex, "clickable drop zone"), {...katexOptions, output: "mathml"})
                         .replace(`class="katex"`, `class="katex-mathml"`);
                     katexRenderResult = katexRenderResult.replace('<span class="katex">',
                         `<span class="katex">${katexMathML}`);
                 }
-
                 if (showScreenReaderHoverText) {
                     // Show screenreader text on hover so we can easily tell what's being output by katex-a11y
                     katexRenderResult = katexRenderResult.replace(
