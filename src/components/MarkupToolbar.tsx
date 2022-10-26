@@ -49,7 +49,7 @@ export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => 
                 onClick={cancel}>
             ❌{wide && " Cancel"}
         </button>
-        {isMarkupEncoding(encoding) && codemirror?.current && <>
+        {isMarkupEncoding(encoding) && codemirror && <>
             <button className={"ml-auto " + styles.cmPanelButton} title={"Bold (Ctrl-B)"}
                     aria-label={"Make highlighted text bold (shortcut is Ctrl-B)"}
                     onClick={() => makeBold(encoding)(codemirror.current?.view)}>
