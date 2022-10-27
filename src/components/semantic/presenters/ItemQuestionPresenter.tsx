@@ -10,7 +10,7 @@ import {
     ParsonsItem
 } from "../../../isaac-data-types";
 
-import {EditableIDProp, EditableValueProp} from "../props/EditableDocProp";
+import {EditableAltTextProp, EditableIDProp, EditableValueProp} from "../props/EditableDocProp";
 import {QuestionFooterPresenter} from "./questionPresenters";
 import {InserterProps} from "./ListChildrenPresenter";
 import {PresenterProps} from "../registry";
@@ -94,14 +94,21 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
 }
 
 export function ItemPresenter(props: PresenterProps<Item>) {
-    return <Row>
-        <Col xs={3}>
-            <EditableIDProp {...props} />
-        </Col>
-        <Col xs={8}>
-            <EditableValueProp {...props} multiLine />
-        </Col>
-    </Row>;
+    return <div>
+        <Row>
+            <Col xs={3}>
+                <EditableIDProp {...props} />
+            </Col>
+            <Col xs={8}>
+                <EditableValueProp {...props} multiLine />
+            </Col>
+        </Row>
+        <Row>
+            <Col xs={8} className={"offset-3"}>
+                <EditableAltTextProp {...props} multiLine />
+            </Col>
+        </Row>
+    </div>;
 }
 
 function ItemRow({item}: {item: Item}) {
