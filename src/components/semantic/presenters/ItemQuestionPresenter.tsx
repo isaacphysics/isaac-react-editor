@@ -94,6 +94,7 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
 }
 
 export function ItemPresenter(props: PresenterProps<Item>) {
+    const {isClozeQuestion} = useContext(ClozeQuestionContext);
     return <div>
         <Row>
             <Col xs={3}>
@@ -103,11 +104,11 @@ export function ItemPresenter(props: PresenterProps<Item>) {
                 <EditableValueProp {...props} multiLine />
             </Col>
         </Row>
-        <Row>
+        {isClozeQuestion && <Row>
             <Col xs={8} className={"offset-3"}>
                 <EditableAltTextProp {...props} multiLine />
             </Col>
-        </Row>
+        </Row>}
     </div>;
 }
 
