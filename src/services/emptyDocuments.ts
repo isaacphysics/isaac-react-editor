@@ -105,7 +105,7 @@ const emptyDocuments: Document[] = [
         eventThumbnail: {
             src: "../../images/student.jpg",
             type: "image",
-            altText: "Photo of students working around a laptop.",
+            altText: "",
             id: "eventThumbnail"
         },
         date: 1442430000000,
