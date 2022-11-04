@@ -2,6 +2,7 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import {Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row} from "reactstrap";
 
 import {
+    Content,
     IsaacClozeQuestion,
     IsaacItemQuestion,
     IsaacParsonsQuestion,
@@ -10,8 +11,8 @@ import {
     ParsonsItem
 } from "../../../isaac-data-types";
 
-import {EditableIDProp, EditableValueProp} from "../props/EditableDocProp";
-import {QuestionFooterPresenter} from "./questionPresenters";
+import {EditableAltTextProp, EditableIDProp, EditableValueProp} from "../props/EditableDocProp";
+import {QuestionContext, QuestionFooterPresenter} from "./questionPresenters";
 import {InserterProps} from "./ListChildrenPresenter";
 import {PresenterProps} from "../registry";
 import {CheckboxDocProp} from "../props/CheckboxDocProp";
@@ -39,12 +40,12 @@ export const ClozeQuestionContext = createContext<{isClozeQuestion: boolean, dro
     {isClozeQuestion: false}
 );
 
-function isParsonsQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is IsaacParsonsQuestion {
-    return doc.type === "isaacParsonsQuestion";
+function isParsonsQuestion(doc: Content | null | undefined): doc is IsaacParsonsQuestion {
+    return doc?.type === "isaacParsonsQuestion";
 }
 
-function isClozeQuestion(doc: IsaacParsonsQuestion | IsaacClozeQuestion): doc is IsaacClozeQuestion {
-    return doc.type === "isaacClozeQuestion";
+function isClozeQuestion(doc: Content | null | undefined): doc is IsaacClozeQuestion {
+    return doc?.type === "isaacClozeQuestion";
 }
 
 export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion>) {
@@ -94,14 +95,22 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
 }
 
 export function ItemPresenter(props: PresenterProps<Item>) {
-    return <Row>
-        <Col xs={3}>
-            <EditableIDProp {...props} />
-        </Col>
-        <Col xs={8}>
-            <EditableValueProp {...props} multiLine />
-        </Col>
-    </Row>;
+    const doc = useContext(QuestionContext);
+    return <div>
+        <Row>
+            <Col xs={3}>
+                <EditableIDProp {...props} />
+            </Col>
+            <Col xs={8}>
+                <EditableValueProp {...props} multiLine />
+            </Col>
+        </Row>
+        {isClozeQuestion(doc) && <Row>
+            <Col xs={8} className={"offset-3"}>
+                <EditableAltTextProp {...props} multiLine />
+            </Col>
+        </Row>}
+    </div>;
 }
 
 function ItemRow({item}: {item: Item}) {
