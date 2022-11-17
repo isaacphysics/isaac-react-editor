@@ -5,7 +5,7 @@ import { FigureNumberingContext } from "../../../isaac/IsaacTypes";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { PresenterProps } from "../registry";
 import { BaseValuePresenter } from "./BaseValuePresenter";
-import { githubUpload, useGithubContents } from "../../../services/github";
+import {githubUpload, updateGitHubCacheKey, useGithubContents} from "../../../services/github";
 import { AppContext } from "../../../App";
 import { dirname } from "../../../utils/strings";
 import { useFixedRef } from "../../../utils/hooks";
@@ -24,8 +24,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
     const appContext = useContext(AppContext);
     const basePath = dirname(appContext.selection.getSelection()?.path) as string;
     const [replacedFile, setReplacedFile] = useState(false);
-    const [lastUpdated, setLastUpdated] = useState(Date.now());
-    const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined, `${lastUpdated}`);
+    const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined);
 
     const imageRef = useRef<HTMLImageElement>(null);
     useEffect(() => {
@@ -98,12 +97,12 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         const reader = new FileReader();
         reader.onload = async function() {
             const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
-            setReplacedFile(src === docRef.current.src);
-            setLastUpdated(Date.now());
-            update({
-                ...docRef.current,
-                src,
-            });
+            if (src === docRef.current.src) {
+                setReplacedFile(true);
+                setTimeout(() => { setReplacedFile(false) }, 3000)
+                updateGitHubCacheKey(); // So that we load the image afresh even if it is in the browser cache.
+            }
+            update({ ...docRef.current, src });
         };
         reader.readAsBinaryString(file);
     }

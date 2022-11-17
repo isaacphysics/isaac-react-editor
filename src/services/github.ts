@@ -26,6 +26,13 @@ const GITHUB_BASE_REPO_PATHS: {[repo in GitHubRepository] : string} = {
     cdn: `repos/$OWNER/${GITHUB_REPO_KEYS["cdn"]}/contents/`
 }
 
+// GitHub cache key is used, set to now(), to ensure that users see the true repo state on refreshing a page, even if
+// the content is in the browser cache (as it will be for 60s by default).
+let githubCacheKey = `${Date.now()}`;
+export function updateGitHubCacheKey() {
+    githubCacheKey = `${Date.now()}`;
+}
+
 export function githubReplaceWithConfig(path: string) {
     const config = getConfig();
     return path.replace(/\$([A-Z_]+)/g, (_, match) => {
@@ -33,17 +40,6 @@ export function githubReplaceWithConfig(path: string) {
     });
 }
 
-// GitHub asks the browser to cache some of its responses for 60 seconds, so situations like the following can occur:
-//  - User loads the app and latest content
-//  - User deletes a file
-//  - User reloads the page
-//  - Content is fetched again, but is retrieved from the browser cache because the request is the same
-//  - File that the user just deleted is back again
-//  - Attempts to interact with this file (save, rename, etc.) might result in weird behaviour
-//
-// We could circumvent this by adding a timestamp query param to every request so the browser caches them separately,
-// but GitHub really wouldn't want us to do this, and this kind of issue only arises when the page is reloaded. The
-// content teams were presumably coping with this problem in the old editor, so we have decided *not* to fix it.
 export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> & {body?: Record<string, unknown>}) => {
     const fullPath = GITHUB_API_URL + githubReplaceWithConfig(path);
     const result = await fetch(fullPath, {
@@ -70,19 +66,17 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
     }
 };
 
-export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content", cacheKey: string = "") {
+export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content") {
     let fullPath = `${GITHUB_BASE_REPO_PATHS[repo]}${path}`;
+    fullPath += `?cache_t=${githubCacheKey}`;
     if (branch) {
-        fullPath += `?ref=${encodeURIComponent(branch)}`;
-    }
-    if (cacheKey) {
-        fullPath += `${fullPath.includes("?") ? "&" : "?"}cache_t=${cacheKey}`;
+        fullPath += `&ref=${encodeURIComponent(branch)}`;
     }
     return fullPath;
 }
 
-export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository, cacheKey: string = "") => {
-    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo, cacheKey) : null);
+export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository) => {
+    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null);
 };
 
 export const defaultGithubContext = {
@@ -220,7 +214,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     const targetBasePath = dirname(targetPath);
 
     // Ensure that another file with the same name doesn't already exist, because the renaming process will overwrite
-    // existing files otherwise. First we clear the cache to ensure that the file list is up to date (at least within
+    // existing files otherwise. First we clear the cache to ensure that the file list is up-to-date (at least within
     // the last 60 seconds).
     await mutate(contentsPath(targetBasePath, context.github.branch, repo), undefined);
     const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch, repo)) ?? [];
