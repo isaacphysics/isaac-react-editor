@@ -98,12 +98,14 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         const reader = new FileReader();
         reader.onload = async function() {
             const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
-            setReplacedFile(src === docRef.current.src);
-            setLastUpdated(Date.now());
-            update({
-                ...docRef.current,
-                src,
-            });
+            if (src) {
+                setReplacedFile(src === docRef.current.src);
+                setLastUpdated(Date.now());
+                update({
+                    ...docRef.current,
+                    src,
+                });
+            }
         };
         reader.readAsBinaryString(file);
     }
@@ -145,7 +147,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
     return <>
         <div className={styles.figureWrapper}>
             <div className={styles.figureImage}>
-                <button  onClick={imageClick} onDragOver={imageDragOver} onDrop={imageDrop}>
+                <button onClick={imageClick} onDragOver={imageDragOver} onDrop={imageDrop}>
                     <img ref={imageRef} alt={doc.altText} width="250px" height="250px" src="/not-found.png"/>
                 </button>
                 <input type="file" ref={fileRef} className={styles.fileInput} onChange={fileChange} />
