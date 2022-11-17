@@ -5,6 +5,8 @@ import {linkify} from "remarkable/linkify";
 import {SITE} from "../../services/site";
 import styles from "../styles/markup.module.css";
 import {StagingServer} from "../../services/isaacApi";
+import {dropZoneRegex} from "../IsaacTypes";
+import {isDefined} from "../../utils/types";
 
 const MARKDOWN_RENDERER = new Remarkable({
     html: true
@@ -24,12 +26,28 @@ export const renderRemarkableMarkdown = (markdown: string) => MARKDOWN_RENDERER.
 
 // Renders placeholder cloze question drop zones
 export const renderClozeDropZones = (markdown: string) => {
-    // Matches: [drop-zone], [drop-zone|w-50], [drop-zone|h-50] or [drop-zone|w-50h-200]
-    const dropZoneRegex = /\[drop-zone(?<params>\|(?<width>w-\d+?)?(?<height>h-\d+?)?)?]/g;
-    return markdown.replace(dropZoneRegex, (_match, params, widthMatch, heightMatch) => {
+    const reservedIndices: Map<number, number> = new Map();
+    const dropZoneMatches = Array.from(markdown.matchAll(dropZoneRegex));
+    for (const match of dropZoneMatches) {
+        if (match.groups) {
+            const index = parseInt(match.groups.index);
+            if (!isNaN(index)) reservedIndices.set(index, 1 + (reservedIndices.get(index) ?? 0));
+        }
+    }
+
+    let nonReservedIndex = 0;
+    return markdown.replace(dropZoneRegex, (_match, params, indexMatch, widthMatch, heightMatch) => {
         const minWidth = widthMatch ? widthMatch.slice("w-".length) + "px" : "100px";
         const minHeight = heightMatch ? heightMatch.slice("h-".length) + "px" : "auto";
-        return `<span class="d-inline-block ${styles.clozeDropZonePlaceholder}" style="min-width: ${minWidth}; min-height: ${minHeight}">&nbsp;</span>`;
+        const manualIndex: number | undefined = indexMatch ? parseInt(indexMatch.slice("i-".length)) : undefined;
+        let usingManualIndex = isDefined(manualIndex) && !isNaN(manualIndex) && (manualIndex < dropZoneMatches.length);
+        if (usingManualIndex && reservedIndices.get(manualIndex as number) as number > 1) {
+            usingManualIndex = false;
+            reservedIndices.set(manualIndex as number, reservedIndices.get(manualIndex as number) as number - 1);
+        }
+        const index = usingManualIndex ? manualIndex : nonReservedIndex++;
+        while (reservedIndices.has(nonReservedIndex)) nonReservedIndex++;
+        return `<span class="d-inline-block text-right ${styles.clozeDropZonePlaceholder}" style="min-width: ${minWidth}; min-height: ${minHeight}">${index}&nbsp;&nbsp;</span>`;
     });
 }
 

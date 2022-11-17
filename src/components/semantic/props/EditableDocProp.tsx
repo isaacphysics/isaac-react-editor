@@ -1,4 +1,4 @@
-import { Content } from "../../../isaac-data-types";
+import { Content, Item } from "../../../isaac-data-types";
 import { EditableText, EditableTextProps, EditableTextRef } from "./EditableText";
 import React, { forwardRef } from "react";
 import { KeysWithValsOfType } from "../../../utils/types";
@@ -35,3 +35,4 @@ export const EditableIDProp = EditableDocPropFor("id", {block: true});
 export const EditableTitleProp = EditableDocPropFor("title", {format: "latex", block: true});
 export const EditableSubtitleProp = EditableDocPropFor("subtitle", {block: true});
 export const EditableValueProp = EditableDocPropFor("value", {block: true});
+export const EditableAltTextProp = EditableDocPropFor<Item>("altText", {block: true, label: "Accessible alt text"});

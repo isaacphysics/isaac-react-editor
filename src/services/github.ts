@@ -332,7 +332,9 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
     return newContent;
 }
 
-export async function githubUpload(context: ContextType<typeof AppContext>, basePath: string, name: string, content: string): Promise<string> {
+// This asks the user to confirm before replacing an existing figure. Returns `null` if the user decides to cancel the
+// replacement action.
+export async function githubUpload(context: ContextType<typeof AppContext>, basePath: string, name: string, content: string): Promise<string | null> {
     const figurePath = `${basePath}/figures`;
 
     let existingFigures;
@@ -346,6 +348,9 @@ export async function githubUpload(context: ContextType<typeof AppContext>, base
     const figureToReplace = figurePaths.find(f => f.path === figurePath + '/' + name);
     let result;
     if (isDefined(figureToReplace)) {
+        if (!window.confirm(`This action will change other occurrences of the figure ${figurePath + '/' + name}.\nAre you sure you want to replace it?`))
+            return null;
+
         result = await githubUpdate(context, figurePath, name, content, figureToReplace.sha);
     } else {
         result = await githubCreate(context, figurePath, name, content);

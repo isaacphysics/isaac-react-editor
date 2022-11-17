@@ -97,12 +97,14 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
         const reader = new FileReader();
         reader.onload = async function() {
             const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
-            if (src === docRef.current.src) {
-                setReplacedFile(true);
-                setTimeout(() => { setReplacedFile(false) }, 3000)
-                updateGitHubCacheKey(); // So that we load the image afresh even if it is in the browser cache.
+            if (src) {
+                if (src === docRef.current.src) {
+                    setReplacedFile(true);
+                    setTimeout(() => { setReplacedFile(false) }, 3000);
+                    updateGitHubCacheKey(); // So that we load the image afresh even if it is in the browser cache.
+                }
+                update({ ...docRef.current, src });
             }
-            update({ ...docRef.current, src });
         };
         reader.readAsBinaryString(file);
     }
@@ -144,7 +146,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
     return <>
         <div className={styles.figureWrapper}>
             <div className={styles.figureImage}>
-                <button  onClick={imageClick} onDragOver={imageDragOver} onDrop={imageDrop}>
+                <button onClick={imageClick} onDragOver={imageDragOver} onDrop={imageDrop}>
                     <img ref={imageRef} alt={doc.altText} width="250px" height="250px" src="/not-found.png"/>
                 </button>
                 <input type="file" ref={fileRef} className={styles.fileInput} onChange={fileChange} />

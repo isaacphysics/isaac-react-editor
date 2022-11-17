@@ -323,6 +323,7 @@ export interface Image extends Media {
 }
 
 export interface Item extends Content {
+    altText?: string;
 }
 
 export interface ItemChoice extends Choice {
