@@ -3,7 +3,6 @@ import {ReactCodeMirrorRef} from "@uiw/react-codemirror";
 import {PopupGlossaryTermSelect} from "./popups/PopupGlossaryTermSelect";
 import {PopupDropZoneInsert} from "./popups/PopupDropZoneInsert";
 import styles from "../styles/editor.module.css";
-import {SITE} from "../services/site";
 import {
     encodingSpecific,
     isMarkupEncoding,
@@ -73,7 +72,7 @@ export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => 
             {encodingSpecific(
                 <>
                     {inClozeQuestion && <PopupDropZoneInsert wide={wide} codemirror={codemirror}/>}
-                    {SITE === "CS" && <PopupGlossaryTermSelect wide={wide} codemirror={codemirror}/>}
+                    <PopupGlossaryTermSelect wide={wide} codemirror={codemirror}/>
                 </>,
                 null,
                 encoding
