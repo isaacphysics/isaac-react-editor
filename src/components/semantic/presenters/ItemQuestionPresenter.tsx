@@ -69,6 +69,7 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
     return <ClozeQuestionContext.Provider value={{isClozeQuestion: isClozeQuestion(doc), dropZoneCount}}>
         {isParsonsQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" /></div>}
         {isClozeQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" /></div>}
+        {isClozeQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="detailedItemFeedback" label="Indicate which items are incorrect in question feedback" /></div>}
         <div><CheckboxDocProp doc={doc} update={update} prop="randomiseItems" label="Randomise items on question load" checkedIfUndefined={true} /></div>
         <ContentValueOrChildrenPresenter {...props} update={updateWithDropZoneCount} topLevel />
         {isClozeQuestion(doc) && <ClozeQuestionInstructions />}

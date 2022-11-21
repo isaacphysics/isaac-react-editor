@@ -47,6 +47,7 @@ export interface IsaacCardDeck extends Content {
 
 export interface IsaacClozeQuestion extends IsaacItemQuestion {
     withReplacement?: boolean;
+    detailedItemFeedback?: boolean;
 }
 
 export interface IsaacConceptPage extends SeguePage {
