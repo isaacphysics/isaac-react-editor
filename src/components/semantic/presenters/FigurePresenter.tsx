@@ -100,7 +100,6 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             if (src) {
                 if (src === docRef.current.src) {
                     setReplacedFile(true);
-                    setTimeout(() => { setReplacedFile(false) }, 3000);
                     updateGitHubCacheKey(); // So that we load the image afresh even if it is in the browser cache.
                 }
                 update({ ...docRef.current, src });
