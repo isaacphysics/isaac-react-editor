@@ -220,12 +220,12 @@ const isaacEventPage: RegistryEntry = {
     metadata: [...pageMeta, ...pageMetaTail, "emailEventDetails", "emailConfirmedBookingText", "emailWaitingListBookingText", "date", "end_date", "bookingDeadline", "prepWorkDeadline", "numberOfPlaces", "eventStatus", "location", "isaacGroupToken", "reservations", "preResources", "postResources"],
 };
 
-const isaacQuiz:RegistryEntry = {
+const isaacQuiz: RegistryEntry = {
     name: "Test",
     bodyPresenter: QuizPagePresenter,
-    metadata: [...defaultMeta, "visibleToStudents", "hiddenFromTeachers", "published"],
+    metadata: [...defaultMeta, "visibleToStudents", "hiddenFromTeachers", "published", "attribution"],
 };
-const isaacQuizSection = {
+const isaacQuizSection: RegistryEntry = {
     ...content,
     headerPresenter: QuizSectionPresenter,
 };
