@@ -1,14 +1,4 @@
-import {siteSpecific} from "./site";
-
-export const StagingServer = siteSpecific(
-    "https://staging.isaacphysics.org",
-    "https://staging.isaaccomputerscience.org"
-);
-
-const LiveServer = siteSpecific(
-    "https://isaacphysics.org",
-    "https://isaaccomputerscience.org",
-);
+import {Config, getConfig} from "./config";
 
 function makeFetcher(server: string) {
     return async function apiFetcher(path: string, options?: RequestInit) {
@@ -27,5 +17,7 @@ function makeFetcher(server: string) {
     };
 }
 
+const config = getConfig();
+export const StagingServer = config.apiStagingServer;
 export const stagingFetcher = makeFetcher(StagingServer);
-export const liveFetcher = makeFetcher(LiveServer);
+export const liveFetcher = makeFetcher(config.apiServer);

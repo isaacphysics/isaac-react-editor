@@ -11,8 +11,8 @@ RUN yarn --frozen-lockfile
 COPY . .
 RUN yarn run build
 
-
 FROM nginx:stable-alpine
-
-COPY nginx.conf /etc/nginx/nginx.conf
+ENV DEPLOYMENT_PATH=/usr/share/nginx/html
 COPY --from=build /editor/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY docker-entrypoint-setup-envars.sh /docker-entrypoint.d/

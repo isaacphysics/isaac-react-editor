@@ -2,14 +2,14 @@ import React, {Fragment, useState} from "react";
 import {Button} from "reactstrap";
 
 import {AudienceContext, Difficulty, ExamBoard, RoleRequirement, Stage} from "../../../isaac-data-types";
-import {SITE} from "../../../services/site";
+import { isCS } from "../../../services/config";
 import {ExtractRecordArrayValue, isDefined} from "../../../utils/types";
 
 import {PresenterProps} from "../registry";
 import styles from "../styles/audience.module.css";
 
 function defaultAudience(): AudienceContext {
-    return SITE === "CS" ?
+    return isCS() ?
         {stage: ["a_level"], examBoard: ["ocr"]} : {stage: ["a_level"]};
 }
 
@@ -44,14 +44,15 @@ const roles: RoleRequirement[] = ["logged_in", "teacher"]; //, "event_leader", "
 
 type Possibilities = Partial<Record<AudienceKey, AudienceValue[]>>;
 function getPossibleFields(type?: string): Possibilities {
-    if (SITE === "CS") {
+
+    if (isCS()) {
         switch (type) {
             case "accordion":
                 return {stage: csStages, examBoard: csExamBoards, role: roles};
             default:
                 return {stage: csStages, examBoard: csExamBoards, difficulty: difficulties};
         }
-    } else { //if (SITE === "PHY") OR default
+    } else { // isPhy OR default
         switch (type) {
             case "accordion":
                 return {stage: phyStages};
@@ -79,7 +80,7 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
             values.forEach((value) => filteredUnusedOptions.delete(value));
 
             // Restrict Exam Board options by Stage selection if set
-            if (SITE === "CS" && key === "examBoard" && doc.stage && doc.stage.length === 1) {
+            if (isCS() && key === "examBoard" && doc.stage && doc.stage.length === 1) {
                 filteredUnusedOptions.forEach((value) => {
                     if (!examBoardsForStage(doc).includes(value as ExamBoard)) {
                         filteredUnusedOptions.delete(value);
