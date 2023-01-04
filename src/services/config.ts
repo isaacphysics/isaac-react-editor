@@ -1,48 +1,40 @@
-import {siteSpecific} from "./site";
-
-export interface SharedConfig {
+export type Config = {
     OWNER: string;
     CDN_REPO: string;
     APP_REPO: string;
-}
-const sharedConfig: SharedConfig = {
-    OWNER: "isaacphysics",
-    CDN_REPO: "isaac-cdn",
-    APP_REPO: "isaac-react-app"
-};
-
-export type Config = SharedConfig & {
     clientId: string;
     authCode: string;
     REPO: string;
     previewServer: string;
+    apiStagingServer: string;
+    apiServer: string;
 }
-const configs: { [host: string]: Config } = {
-    "localhost:8421": {
-        ...sharedConfig,
-        clientId: "f62f2bd4954bf930bc3f",
-        authCode: "/vFaDdbb7id6+cPgsIKTdvwk4lOLBkBpBsXDdBvZsnU0U/PBLxgzxDzmUfE/0OIWWvlxh7SigvVv1JzBffbEc2364W8GPmQt9QeuVW1juAHdvdT7kRrHv8LjEuxJP9ie9+BP3tXNWpVxdg7S3sbZA5ShBFOYxdr3izjn9L+cmzDT9YVKB+Grv8hvLcEFOy7KHeixa29HPY2pqtk6XHFqiwlDP+02AWmY",
-        REPO: siteSpecific("rutherford-content", "isaac-content-2"),
-        previewServer: siteSpecific("http://localhost:3002", "http://localhost:3001"),
-    },
-    "editor.isaacphysics.org": {
-        ...sharedConfig,
-        clientId : "012d68f7ffd3a99110ff",
-        authCode : "j4GsAFDYXaxqwN146vTeQ4vbV7ucQtGC8B4AI7EVQPIUTQG/nz9Yfgm1o3d0FLrDlgGyig2YyxA8IMS1wVF+mZ7rCMzOZUXGIn48gDxFGzsWZKhK36kwra5PE3C6mCeRQjXx6cCyl9VRH1VR+RsjIXM6vIdD0g1JqcupsKDNmojZAcuMkPreJfl2h+bbss1DGw3CdvNLF8lwd895OTNwZfGjQxcmywIS3VIC7o6JIq3fcw==",
-        OWNER: "isaacphysics",
-        REPO: "rutherford-content",
-        previewServer: "https://editor-preview.isaacphysics.org",
-    },
-    "editor.isaaccomputerscience.org": {
-        ...sharedConfig,
-        clientId : "f929345390ca5ca6e1ba",
-        authCode : "WD4uGrm2iTFxmvwHjybnCSzIpgFk3r//7twVti62RpnQWyFteaKK11q6wLBQX6bb/yy9NY9t0m79MxokXUVZpRNzczPvBAkW6WGfmdCUa5tNs3UMswWmpITiv/TiGHJKxDRZ9m2KYgly3jqLzEU1EY7KznCCa16x7MLzdcQzyYKYS49RB3V/+B7IsuyDPQLRVffRTe/2MkrZmx98kj9x14eMgteIRQ7aYhi1pDsYE1dVGOMyojgoPsf6",
-        OWNER: "isaacphysics",
-        REPO: "isaac-content-2",
-        previewServer: "https://editor-preview.isaaccomputerscience.org",
-    },
-};
 
-export function getConfig() {
-    return configs[window.location.host];
+export function getConfig(): Config {
+    return {
+        OWNER: "isaacphysics",
+        CDN_REPO: "isaac-cdn",
+        APP_REPO: "isaac-react-app",
+        clientId : getEnvVar("REACT_APP_CLIENT_ID") || "",
+        authCode : getEnvVar("REACT_APP_AUTH_CODE") || "",
+        REPO: getEnvVar("REACT_APP_CONTENT_REPO") || "isaac-content-2",
+        previewServer: getEnvVar("REACT_APP_PREVIEW_HOST") || "http://localhost:3001",
+        apiStagingServer: getEnvVar("REACT_APP_API_STAGING_HOST") || "https://staging.isaaccomputerscience.org",
+        apiServer: getEnvVar("REACT_APP_API_HOST") || "https://isaaccomputerscience.org",
+    }
+}
+
+export function isPhy(): boolean {
+  return getEnvVar("REACT_APP_SITE")  === "PHY";
+}
+
+export function isCS(): boolean {
+  return getEnvVar("REACT_APP_SITE")  === "CS";
+}
+
+// This will use the normal REACT_APP_... variables from process.env on local/development envs.
+// For static production builds, it will leave the ENV_VAR_NAME as-is, which will be replaced
+// with the actual value at runtime by the docker-entrypoint.sh script.
+function getEnvVar(envVarName: string): string | undefined {
+  return process.env.NODE_ENV === 'production' ? envVarName : process.env[envVarName];
 }
