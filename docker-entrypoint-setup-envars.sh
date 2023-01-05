@@ -7,6 +7,7 @@ replace() {
   find $DEPLOYMENT_PATH/ -name '*.js' | xargs sed -i "s|$1|$2|g"
   find $DEPLOYMENT_PATH/ -name '*.html' | xargs sed -i "s|$1|$2|g"
 }
+replace REACT_APP_SITE "${REACT_APP_SITE}"
 replace REACT_APP_CLIENT_ID "${REACT_APP_CLIENT_ID}"
 replace REACT_APP_AUTH_CODE "${REACT_APP_AUTH_CODE}"
 replace REACT_APP_CONTENT_REPO "${REACT_APP_CONTENT_REPO}"
