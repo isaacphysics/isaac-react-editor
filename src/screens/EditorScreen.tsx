@@ -132,6 +132,7 @@ export function EditorScreen() {
     const loadNewDoc = useCallback((content: Content | string) => {
         setDirty(false);
         setFileHash(hash(content));
+        setLastChange(undefined);
         setIsAlreadyPublished(typeof content === "string" ? false : !!content.published);
         setCurrentContent(content);
         setCurrentContentPath(selection?.path);
