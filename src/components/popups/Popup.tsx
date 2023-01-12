@@ -65,7 +65,8 @@ export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<Popup
                 className={styles.popup}
                 style={{
                     top: anchorPoint.y,
-                    left: anchorPoint.x
+                    left: anchorPoint.x,
+                    zIndex: 9999,
                 }}
                 ref={insideRef}
             >
