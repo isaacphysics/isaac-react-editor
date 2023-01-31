@@ -1,8 +1,10 @@
 import React, {
     ComponentProps,
+    createContext,
     FunctionComponent,
     MutableRefObject,
     useContext,
+    useEffect,
     useRef,
     useState
 } from "react";
@@ -11,7 +13,7 @@ import { ListGroup, ListGroupItem, Spinner, } from "reactstrap";
 import { AppContext } from "../App";
 import styles from "../styles/editor.module.css";
 import { PopupMenu, PopupMenuRef } from "./popups/PopupMenu";
-import { useGithubContents } from "../services/github";
+import {GitHubRepository, useGithubContents} from "../services/github";
 
 export type Entry = {
     type: "file";
@@ -39,37 +41,38 @@ export function pathToId(path: string) {
     return `fileItem-${path.replaceAll(/[^a-zA-Z0-9-_]/g, "-")}`;
 }
 
-const FileItem: FunctionComponent<FileItemProps> = (props) => {
-    const {onClick: innerClick, entry, className, ...rest} = props;
-    const selectionContext = useContext(AppContext).selection;
-    const selection = selectionContext.getSelection();
-    const isSelected = selection?.path === entry.path;
+export const FilesContext = createContext<{setSelection?: (selection: Selection) => void; selectionPath?: string; repo: GitHubRepository}>({repo: "content"});
 
+export const FileItem: FunctionComponent<FileItemProps> = (props) => {
+    const {onClick: innerClick, entry, className, ...rest} = props;
+    const {setSelection, selectionPath} = useContext(FilesContext);
+    const isSelected = selectionPath === entry.path;
     const {path} = entry;
     const isDir = entry.type === "dir";
-
     const onClick = (event: React.MouseEvent) => {
         event.stopPropagation();
         if (!isSelected) {
-            selectionContext.setSelection({path, isDir});
+            setSelection?.({path, isDir});
         }
         if (innerClick) {
             innerClick(isSelected);
         }
     }
-    return <ListGroupItem action
-                          id={pathToId(path)}
-                          tag="button"
-                          className={`${className ?? ""} ${styles.fileBrowserItem} ${isSelected ? styles.fileBrowserItemSelected : ""}`}
-                          onClick={onClick}
-                          {...rest} />;
+    return <ListGroupItem
+        action
+        id={pathToId(path)}
+        tag="button"
+        className={`${className ?? ""} ${styles.fileBrowserItem} ${isSelected ? styles.fileBrowserItemSelected : ""}`}
+        onClick={onClick}
+        {...rest}
+    />;
 };
 
-function isOnSelectionPath(selection: Selection, at: string) {
-    return at === "" || (selection && `${selection.path}/`.substring(0, at.length + 1) === `${at}/`);
+function isOnPath(selectionPath: string | undefined, at: string) {
+    return at === "" || (!!selectionPath && `${selectionPath}/`.substring(0, at.length + 1) === `${at}/`);
 }
 
-function FilesList({open, error, data, menuRef}: {open: boolean | null, error: any; data: any; menuRef: MutableRefObject<PopupMenuRef | null>}) {
+export function FilesList({open, error, data, menuRef, refreshParent}: {open: boolean | null, error: any; data: any; menuRef: MutableRefObject<PopupMenuRef | null>; refreshParent?: () => void}) {
     if (!open) return null;
     if (error) return <div className={styles.fileBrowserList}><em>Error loading data, {error}</em></div>;
     if (!data) return <div className={styles.fileBrowserList}><Spinner size="sm" /> Loading...</div>;
@@ -83,7 +86,7 @@ function FilesList({open, error, data, menuRef}: {open: boolean | null, error: a
                     case "file":
                         // eslint-disable-next-line no-case-declarations
                         const fileOnContextMenu = (event: React.MouseEvent) => {
-                            menuRef.current?.open(event, entry);
+                            menuRef.current?.open(event, {...entry, refresh: refreshParent});
                             event.stopPropagation();
                             event.preventDefault();
                         };
@@ -97,16 +100,24 @@ function FilesList({open, error, data, menuRef}: {open: boolean | null, error: a
     </ListGroup>;
 }
 
-function Files({entry, menuRef}: FilesProps) {
+export function Files({entry, menuRef}: FilesProps) {
     const appContext = useContext(AppContext);
-    const selection = appContext.selection.getSelection();
-    const at = entry?.path ?? "";
-    const [open, setOpen] = useState(isOnSelectionPath(selection, at));
+    const {selectionPath, repo} = useContext(FilesContext);
 
-    const {data, error, mutate} = useGithubContents(appContext, open && at);
+    const at = entry?.path ?? "";
+    const [open, setOpen] = useState<boolean>(false);
+    useEffect(() => {
+        if (isOnPath(selectionPath, at)) {
+            setOpen(true);
+        }
+    }, [selectionPath]);
+
+    const {data, error, mutate} = useGithubContents(appContext, open && at, repo);
+    const refresh = open ? mutate : undefined;
 
     const onContextMenu = (entry: Entry) => (event: React.MouseEvent) => {
-        menuRef.current?.open(event, {...entry, refresh: open ? mutate : undefined});
+        console.log("here");
+        menuRef.current?.open(event, {...entry, refresh});
         event.stopPropagation();
         event.preventDefault();
     };
@@ -127,7 +138,7 @@ function Files({entry, menuRef}: FilesProps) {
         >
             {entry.name}
         </FileItem>}
-        <FilesList data={data} menuRef={menuRef} error={error} open={open}/>
+        <FilesList data={data} menuRef={menuRef} error={error} open={open} refreshParent={refresh} />
     </>;
 }
 
@@ -146,8 +157,12 @@ export const defaultSelectedContext: SelectedContext = {getSelection: () => null
 
 export function FileBrowser() {
     const menuRef = useRef<PopupMenuRef>(null);
+    const appContext = useContext(AppContext);
+    const selection = appContext.selection.getSelection();
     return <div className={styles.fileBrowser}>
-        <Files menuRef={menuRef} />
-        <PopupMenu menuRef={menuRef} />
+        <FilesContext.Provider value={{selectionPath: selection?.path, setSelection: appContext.selection.setSelection, repo: "content"}}>
+            <Files menuRef={menuRef} />
+            <PopupMenu menuRef={menuRef} />
+        </FilesContext.Provider>
     </div>;
 }

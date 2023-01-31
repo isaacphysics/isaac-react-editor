@@ -16,6 +16,11 @@ export function dirname(path: string | undefined) {
     return path.substring(0, path.lastIndexOf('/'));
 }
 
+export function ext(filename: string | undefined): string | undefined {
+    if (!filename) return filename;
+    return filename.indexOf('.') ? filename.substring(filename.indexOf('.')) : undefined;
+}
+
 export function resolveRelativePath(relativeFilename: string, baseSrcPath: string): string {
     return new URL(relativeFilename, "http://example.org/" + baseSrcPath).pathname.substring(1); // The host name is ignored
 }

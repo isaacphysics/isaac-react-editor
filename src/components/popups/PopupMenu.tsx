@@ -5,6 +5,7 @@ import React, {
     useRef,
     useState
 } from "react";
+import PropTypes from "prop-types";
 
 import { AppContext } from "../../App";
 
@@ -14,7 +15,7 @@ import styles from "../../styles/editor.module.css";
 import { githubReplaceWithConfig } from "../../services/github";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
 
-type PopupEntry = Entry & {
+export type PopupEntry = Entry & {
     refresh?: () => void;
 };
 
@@ -35,7 +36,7 @@ type MenuItemProps =
     }
 ;
 
-function MenuItem({
+export function MenuItem({
                       onClick,
                       href,
                       text
@@ -53,59 +54,68 @@ function MenuItem({
     </li>;
 }
 
+export const buildPopupMenu = (PopupInner: React.FC<{item: PopupEntry}>, displayName?: string) => {
+    const PopupMenu = ({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | null> }) => {
+        const [item, setItem] = useState<PopupEntry>(undefined as unknown as PopupEntry);
+        const popupRef = useRef<PopupRef>(null);
+        useImperativeHandle(menuRef, () => ({
+            open: (event, item) => {
+                setItem(item);
+                popupRef.current?.open(event);
+            }
+        }), [setItem]);
 
-export function PopupMenu({menuRef}: { menuRef: MutableRefObject<PopupMenuRef | null> }) {
-    const [item, setItem] = useState<PopupEntry>(undefined as unknown as PopupEntry);
+        return <Popup popUpRef={popupRef}>
+            <ul className={styles.leftMenuPopupMenu}>
+                <PopupInner item={item}/>
+            </ul>
+        </Popup>;
+    }
+    PopupMenu.displayName = displayName ?? PopupInner.displayName;
+    return PopupMenu;
+};
+
+export const FilesPopupMenuInner = ({item}: {item: PopupEntry}) => {
     const appContext = useContext(AppContext);
-
-    const popupRef = useRef<PopupRef>(null);
-
     const isCurrentFile = item?.path === appContext.selection.getSelection()?.path;
-
-    useImperativeHandle(menuRef, () => ({
-        open: (event, item) => {
-            setItem(item);
-            popupRef.current?.open(event);
-        }
-    }), [setItem]);
-
-    return <Popup popUpRef={popupRef}>
-        <ul className={styles.leftMenuPopupMenu}>
-            {item?.type === "dir" && <MenuItem onClick={() => appContext.dispatch({
-                type: "new",
-                path: item.path
-            })} text="New..." />}
-            <MenuItem onClick={() => appContext.dispatch({
-                type: "openInNewTab",
-                path: item.path
-            })} text="Open in new tab" />
-            {item?.type === "dir" && item.refresh && <>
-                <hr />
-                <MenuItem onClick={() => item.refresh?.()} text="Refresh"/>
-            </>}
-            {item?.type === "file" && isCurrentFile && <MenuItem onClick={() => appContext.dispatch({
-                type: "rename",
-                path: item.path,
-                name: item.name,
-            })} text="Rename..." />}
-            {item?.type === "file" && isCurrentFile && <MenuItem onClick={() => appContext.dispatch({
-                type: "saveAs",
-                path: item.path,
-                name: item.name,
-            })} text="Save as..." />}
-            {item?.type === "file" && <MenuItem onClick={() => appContext.dispatch({
-                type: "delete",
-                path: item.path,
-                name: item.name,
-                sha: item.sha,
-            })} text="Delete" />}
-            {item?.type === "file" && <hr />}
-            {item?.type === "file" && <MenuItem href={
-                `${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/blob")}/${appContext.github.branch}/${item.path}`
-            } text="View on github" />}
-            {item?.type === "file" && <MenuItem href={`${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/issues/new")}?body=${encodeURIComponent(
-                    `Issue found in ${item.path} by ${appContext.github.user.login}.\n\n<Describe issue here>`
+    return <>
+        {item?.type === "dir" && <MenuItem onClick={() => appContext.dispatch({
+            type: "new",
+            path: item.path
+        })} text="New..."/>}
+        <MenuItem onClick={() => appContext.dispatch({
+            type: "openInNewTab",
+            path: item.path
+        })} text="Open in new tab"/>
+        {item?.type === "dir" && item.refresh && <>
+            <hr/>
+            <MenuItem onClick={() => item.refresh?.()} text="Refresh"/>
+        </>}
+        {item?.type === "file" && isCurrentFile && <MenuItem onClick={() => appContext.dispatch({
+            type: "rename",
+            path: item.path,
+            name: item.name,
+        })} text="Rename..."/>}
+        {item?.type === "file" && isCurrentFile && <MenuItem onClick={() => appContext.dispatch({
+            type: "saveAs",
+            path: item.path,
+            name: item.name,
+        })} text="Save as..."/>}
+        {item?.type === "file" && <MenuItem onClick={() => appContext.dispatch({
+            type: "delete",
+            path: item.path,
+            name: item.name,
+            sha: item.sha,
+        })} text="Delete"/>}
+        {item?.type === "file" && <hr/>}
+        {item?.type === "file" && <MenuItem href={
+            `${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/blob")}/${appContext.github.branch}/${item.path}`
+        } text="View on github"/>}
+        {item?.type === "file" && <MenuItem
+            href={`${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/issues/new")}?body=${encodeURIComponent(
+                `Issue found in ${item.path} by ${appContext.github.user.login}.\n\n<Describe issue here>`
             )}`} text="Report issue on github"/>}
-        </ul>
-    </Popup>;
-}
+    </>;
+};
+
+export const PopupMenu = buildPopupMenu(FilesPopupMenuInner, "PopupMenu");
