@@ -151,7 +151,7 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
             context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false, forceRefresh: true});
         } catch (e) {
             window.alert("Could not rename file. Perhaps one with that name already exists.");
-            console.log(e);
+            console.error(e);
         }
     }
 }
@@ -184,7 +184,7 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
             context.selection.setSelection({path: newPath, isDir: false});
         }).catch(function(e) {
             window.alert("Could not create file. Perhaps it already exists.");
-            console.log(e);
+            console.error(e);
         });
     }
 

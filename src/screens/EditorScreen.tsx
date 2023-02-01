@@ -228,7 +228,7 @@ export function EditorScreen() {
                     ],
                     callback: async (option) => {
                         if (option === null) {
-                            console.log("File creation cancelled.");
+                            console.error("File creation cancelled.");
                         } else {
                             switch (option.value) {
                                 case "save":

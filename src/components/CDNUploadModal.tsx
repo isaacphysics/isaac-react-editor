@@ -46,7 +46,7 @@ const renameCDNFile = async (context: ContextType<typeof AppContext>, item: Popu
             item.refresh?.();
         } catch (e) {
             window.alert("Could not rename file. Perhaps one with that name already exists (see console for error message)");
-            console.log(e);
+            console.error(e);
         }
     }
 };
@@ -62,7 +62,7 @@ const deleteCDNFile = async (context: ContextType<typeof AppContext>, item: Popu
             window.alert("File successfully deleted!");
         } catch (e) {
             window.alert("Could not delete file (see console for error message)");
-            console.log(e);
+            console.error(e);
         }
     }
 };

@@ -116,7 +116,6 @@ export function Files({entry, menuRef}: FilesProps) {
     const refresh = open ? mutate : undefined;
 
     const onContextMenu = (entry: Entry) => (event: React.MouseEvent) => {
-        console.log("here");
         menuRef.current?.open(event, {...entry, refresh});
         event.stopPropagation();
         event.preventDefault();
