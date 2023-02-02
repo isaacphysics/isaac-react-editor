@@ -80,21 +80,17 @@ export const useGithubContents = (context: ContextType<typeof AppContext>, path:
 };
 
 // Returns whether we should force a refresh (if something went wrong for example)
-async function addPathToCache(basePath: string, fileName: string, context: ContextType<typeof AppContext>, repo: GitHubRepository = "content", existingFileContents?: any): Promise<boolean> {
+async function addPathToCache(basePath: string, fileName: string, context: ContextType<typeof AppContext>, repo: GitHubRepository = "content", fileEntry: any): Promise<boolean> {
     // Not going to worry about dealing with this edge case, because it shouldn't happen.
     if (basePath === "") return true;
     const pathSegments = [basePath, ...fileName.split("/")];
     for (let i = 1; i < pathSegments.length; i++) {
         const dirPath = pathSegments.filter((_, j) => j < i).join("/");
         const name = pathSegments[i];
-        const dirObjects = await fetcher(contentsPath(dirPath, context.github.branch, repo), {
-            method: "GET"
-        }) as Entry[];
-        const newObject = dirObjects.find(o => o.name === name) as Entry;
-        if (!newObject) {
-            // Should force refresh here if we can't find the directory objects, something has gone wrong
-            return true;
-        }
+        // Create dummy directory objects because we don't use their sha anywhere
+        const newObject: Entry = i === pathSegments.length - 1
+            ? fileEntry
+            : {path: dirPath + "/" + name, name, type: "dir", sha: "placeholder"};
         await mutate(contentsPath(dirPath, context.github.branch, repo), async (current?: Entry[]) => {
             if (!current) return [newObject];
             const existingDirIndex = current?.findIndex(o => o.path === newObject.path && o.type === "dir") ?? -1;
@@ -113,9 +109,6 @@ async function addPathToCache(basePath: string, fileName: string, context: Conte
             if (indexToAddObject === -1) indexToAddObject = current.length;
             return [...current.slice(0, indexToAddObject), newObject, ...current.slice(indexToAddObject)];
         }, {revalidate: false});
-    }
-    if (existingFileContents) {
-        await mutate(contentsPath(`${basePath}/${fileName}`, context.github.branch, repo), existingFileContents, {revalidate: false});
     }
     return false;
 }
@@ -210,7 +203,7 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
     });
     // Ensure that requests to github after this update do not return stale data
     updateGitHubCacheKey();
-    const shouldRefresh = await addPathToCache(basePath, name, context, repo);
+    const shouldRefresh = await addPathToCache(basePath, name, context, repo, data.content);
     return [data, shouldRefresh];
 }
 
