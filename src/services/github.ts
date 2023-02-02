@@ -253,7 +253,7 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
 }
 
 // Adapted from this blog post: https://medium.com/@obodley/renaming-a-file-using-the-git-api-fed1e6f04188
-export async function githubRename(context: ContextType<typeof AppContext>, path: string, name: string, repo: GitHubRepository = "content") {
+export async function githubRename(context: ContextType<typeof AppContext>, path: string, name: string, repo: GitHubRepository = "content"): Promise<boolean> {
     const isPublished = context.editor?.isAlreadyPublished();
 
     const pathSegments = path.split("/");
@@ -294,7 +294,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
             subtree = await fetcher(nextTree.url.replace(GITHUB_API_URL, ""));
         } else {
             console.error("Cannot find file in git tree - cannot rename!");
-            return;
+            return true;
         }
     }
 
@@ -342,11 +342,9 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
 
     // Ensure that requests to github after this update do not return stale data
     updateGitHubCacheKey();
-    // TODO fix the below cache mutation so we don't have to refresh on rename. Issue is that the new file cache entry (at the new path) needs
-    //  to contain the JSON of the old cache entry (old path)
-    // const content = context.github.cache.get(contentsPath(path, context.github.branch, repo))?.data ?? {};
-    // await deletePathFromCache(path, context, repo);
-    // await addPathToCache(basePath, name, context, repo, content);
+    const shouldRefresh = await addPathToCache(targetPathSegments[0], targetPathSegments.slice(1).join("/"), context, repo, {path: targetPath, name: targetFilename, sha: blob.sha, type: "file"});
+    if (!shouldRefresh) await deletePathFromCache(path, context, repo);
+    return shouldRefresh;
 }
 
 export async function githubSave(context: ContextType<typeof AppContext>) {
