@@ -42,8 +42,8 @@ const renameCDNFile = async (context: ContextType<typeof AppContext>, item: Popu
         try {
             await githubRename(context, item.path, newName, "cdn");
             window.alert("File successfully renamed!");
-            setSelection?.({path: `${basePath}/${newName}`, isDir: false, forceRefresh: true});
-            item.refresh?.();
+            setSelection?.({path: `${basePath}/${newName}`, isDir: false});
+            item.refresh?.(); // TODO remove once rename mutation works
         } catch (e) {
             window.alert("Could not rename file. Perhaps one with that name already exists (see console for error message)");
             console.error(e);
@@ -54,10 +54,9 @@ const renameCDNFile = async (context: ContextType<typeof AppContext>, item: Popu
 const deleteCDNFile = async (context: ContextType<typeof AppContext>, item: PopupEntry, selectionPath?: string, setSelection?: (selection: Selection) => void) => {
     if (window.confirm("Do you really want to delete " + item.name + "?")) {
         try {
-            await githubDelete(context, item.path, item.name, item.sha, "cdn");
+            const newDir = await githubDelete(context, item.path, item.name, item.sha, "cdn");
             if (selectionPath === item.path) {
-                setSelection?.({path: dirname(item.path), isDir: true});
-                item.refresh?.();
+                setSelection?.({path: newDir, isDir: true});
             }
             window.alert("File successfully deleted!");
         } catch (e) {
@@ -108,12 +107,11 @@ export const CDNUploadModal = () => {
     const menuRef = useRef<PopupMenuRef>(null);
     const [selection, setSelection] = useState<Selection>();
 
-    const setSelectionAndUpdateDir = (selection: Selection) => {
+    const setSelectionAndUpdateDir = (selection?: Selection) => {
         setSelection(selection);
-        if (!selection) setDir(undefined);
-        if (selection?.isDir) {
-            setDir({path: selection.path, isValid: true});
-        }
+        setDir(selection
+            ? {path: selection.isDir ? selection.path : dirname(selection.path), isValid: true}
+            : undefined);
     };
     const setDirAndUpdateSelection = (dir: string | undefined) => {
         const validation = validateDir(dir);
@@ -138,14 +136,24 @@ export const CDNUploadModal = () => {
     const uploadToCDN = async () => {
         const path = dir?.path;
         if (!files || files.length === 0 || !path) return;
+
+        if (path.search(/^isaac\//) === -1) {
+            alert(`Couldn't upload file(s) to CDN. Directory path is malformed.`);
+            console.error(`Couldn't upload file(s) to CDN. Directory path is malformed.`);
+            return;
+        }
+        // path should always start with "isaac/" after the previous check
+        const dirPath = path.split("/").slice(1).join("/");
+
         const filesToUpload = [...files];
         setFiles(null);
         for (const f of filesToUpload) {
             const reader = new FileReader();
             reader.onload = async () => {
                 try {
-                    await githubCreate(appContext, path, f.file.name, reader.result as string, "cdn");
+                    await githubCreate(appContext, "isaac", `${dirPath}/${f.file.name}`, reader.result as string, "cdn");
                     setSuccessfulUploads(su => [...(su ?? []), path?.replace(/\/$/, "") + "/" + f.file.name]);
+                    setSelectionAndUpdateDir({path: `${path}/${f.file.name}`, isDir: false});
                 } catch (e) {
                     alert(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.`);
                     console.error(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.`, e);

@@ -41,7 +41,8 @@ export function githubReplaceWithConfig(path: string) {
 }
 
 export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> & {body?: Record<string, unknown>}) => {
-    const fullPath = GITHUB_API_URL + githubReplaceWithConfig(path);
+    let fullPath = GITHUB_API_URL + githubReplaceWithConfig(path);
+    fullPath += (fullPath.indexOf("?") === -1 ? "?": "&") + `cache_t=${githubCacheKey}`;
     const result = await fetch(fullPath, {
         ...options,
         headers: {
@@ -68,16 +69,83 @@ export const fetcher = async (path: string, options?: Omit<RequestInit, "body"> 
 
 export function contentsPath(path: string, branch?: string, repo: GitHubRepository = "content") {
     let fullPath = `${GITHUB_BASE_REPO_PATHS[repo]}${path}`;
-    fullPath += `?cache_t=${githubCacheKey}`;
     if (branch) {
-        fullPath += `&ref=${encodeURIComponent(branch)}`;
+        fullPath += `?ref=${encodeURIComponent(branch)}`;
     }
     return fullPath;
 }
 
 export const useGithubContents = (context: ContextType<typeof AppContext>, path: string | false | null | undefined, repo?: GitHubRepository) => {
-    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null);
+    return useSWR(typeof path === "string" ? contentsPath(path, context.github.branch, repo) : null, {revalidateIfStale: false});
 };
+
+// Returns whether we should force a refresh (if something went wrong for example)
+async function addPathToCache(basePath: string, fileName: string, context: ContextType<typeof AppContext>, repo: GitHubRepository = "content", existingFileContents?: any): Promise<boolean> {
+    // Not going to worry about dealing with this edge case, because it shouldn't happen.
+    if (basePath === "") return true;
+    const pathSegments = [basePath, ...fileName.split("/")];
+    for (let i = 1; i < pathSegments.length; i++) {
+        const dirPath = pathSegments.filter((_, j) => j < i).join("/");
+        const name = pathSegments[i];
+        const dirObjects = await fetcher(contentsPath(dirPath, context.github.branch, repo), {
+            method: "GET"
+        }) as Entry[];
+        const newObject = dirObjects.find(o => o.name === name) as Entry;
+        if (!newObject) {
+            // Should force refresh here if we can't find the directory objects, something has gone wrong
+            return true;
+        }
+        await mutate(contentsPath(dirPath, context.github.branch, repo), async (current?: Entry[]) => {
+            if (!current) return [newObject];
+            const existingDirIndex = current?.findIndex(o => o.path === newObject.path && o.type === "dir") ?? -1;
+            if (existingDirIndex !== -1 && newObject.type === "dir") {
+                return current.map((o, i) => i === existingDirIndex ? newObject : o);
+            }
+            // Object is new, and not just overwriting an existing one, so we need to place it alphabetically.
+            // ! The following assumes that current is ordered alphabetically already !
+            let indexToAddObject;
+            if (newObject.type === "file") {
+                indexToAddObject = current?.findIndex(o => o.type === "file" && newObject.name.localeCompare(o.name) <= 0);
+            } else {
+                const indexOfFirstFile = current?.findIndex(o => o.type === "file");
+                indexToAddObject = Math.min(indexOfFirstFile === -1 ? current.length : indexOfFirstFile, current?.findIndex(o => newObject.name.localeCompare(o.name) <= 0));
+            }
+            if (indexToAddObject === -1) indexToAddObject = current.length;
+            return [...current.slice(0, indexToAddObject), newObject, ...current.slice(indexToAddObject)];
+        }, {revalidate: false});
+    }
+    if (existingFileContents) {
+        await mutate(contentsPath(`${basePath}/${fileName}`, context.github.branch, repo), existingFileContents, {revalidate: false});
+    }
+    return false;
+}
+
+// Returns the last directory that wasn't deleted
+async function deletePathFromCache(path: string, context: ContextType<typeof AppContext>, repo: GitHubRepository = "content"): Promise<string> {
+    let pathToDelete = path;
+    while (dirname(pathToDelete) !== "") {
+        // Let the file browser know this file is no longer there
+        const dirToDeleteFrom = dirname(pathToDelete);
+        let lengthAfterDeletion: number | undefined;
+        await mutate(contentsPath(dirToDeleteFrom, context.github.branch, repo), async (current?: Entry[]) => {
+            lengthAfterDeletion = current?.length ?? 0;
+            if (!current) return current;
+            const position = current.findIndex((entry) => {
+                return pathToDelete === entry.path;
+            });
+            if (position !== -1) {
+                lengthAfterDeletion -= 1;
+                return current.filter((n, i) => i !== position);
+            }
+            return current;
+        }, {revalidate: false});
+        if (!isDefined(lengthAfterDeletion) || lengthAfterDeletion > 0) {
+            return dirToDeleteFrom;
+        }
+        pathToDelete = dirToDeleteFrom;
+    }
+    return dirname(pathToDelete);
+}
 
 export const defaultGithubContext = {
     branch: "master",
@@ -122,7 +190,10 @@ function encodeContent(contentBody: string) {
     return content;
 }
 
-export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, repo: GitHubRepository = "content") {
+export async function githubCreate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, repo: GitHubRepository = "content"): Promise<[any, boolean]> {
+    if (!isDefined(basePath) || basePath === "") {
+        throw "We're not allowing creation of files at the top level, please use GitHub if you need to create or edit these!";
+    }
     const path = `${basePath}/${name}`;
 
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
@@ -137,11 +208,10 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
             content,
         },
     });
-
-    // TODO Could use mutate(...) to update filetree without a hard refresh - but remember to consider files saved in
-    // parent and sub-directories
-
-    return data;
+    // Ensure that requests to github after this update do not return stale data
+    updateGitHubCacheKey();
+    const shouldRefresh = await addPathToCache(basePath, name, context, repo);
+    return [data, shouldRefresh];
 }
 
 export async function githubUpdate(context: ContextType<typeof AppContext>, basePath: string, name: string, initialContent: string, sha: string, repo: GitHubRepository = "content") {
@@ -169,14 +239,13 @@ export async function githubUpdate(context: ContextType<typeof AppContext>, base
     return data;
 }
 
-export async function githubDelete(context: ContextType<typeof AppContext>, path: string, name: string, sha: string, repo: GitHubRepository = "content") {
+export async function githubDelete(context: ContextType<typeof AppContext>, path: string, name: string, sha: string, repo: GitHubRepository = "content"): Promise<string> {
     let wasPublished;
     try {
         wasPublished = context.editor.isAlreadyPublished();
     } catch {
         wasPublished = false;
     }
-    const basePath = dirname(path);
     await fetcher(contentsPath(path, undefined, repo), {
         method: "DELETE",
         body: {
@@ -185,19 +254,9 @@ export async function githubDelete(context: ContextType<typeof AppContext>, path
             sha: sha,
         },
     });
-
-    // Let the file browser know this file is no longer there
-    await mutate(contentsPath(basePath, context.github.branch, repo), (current: Entry[]) => {
-        const newDir = [...current];
-        const position = newDir.findIndex((entry) => {
-            return name === entry.name;
-        });
-        if (position !== -1) {
-            newDir.splice(position, 1);
-            return newDir;
-        }
-        return current;
-    }, {revalidate: false}); // github asks for aggressive disk caching, which we need to override.
+    // Ensure that requests to github after this update do not return stale data
+    updateGitHubCacheKey();
+    return await deletePathFromCache(path, context, repo);
 }
 
 // Adapted from this blog post: https://medium.com/@obodley/renaming-a-file-using-the-git-api-fed1e6f04188
@@ -208,6 +267,10 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     const basePath = dirname(path);
     const oldName = pathSegments.at(-1);
 
+    if (!isDefined(basePath) || basePath === "") {
+        throw "We're not allowing creation of files at the top level, please use GitHub if you need to create or edit these!";
+    }
+
     const targetPath = resolveRelativePath(name, path);
     const targetPathSegments = targetPath.split("/");
     const targetFilename = targetPathSegments.at(-1);
@@ -216,8 +279,8 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
     // Ensure that another file with the same name doesn't already exist, because the renaming process will overwrite
     // existing files otherwise. First we clear the cache to ensure that the file list is up-to-date (at least within
     // the last 60 seconds).
-    await mutate(contentsPath(targetBasePath, context.github.branch, repo), undefined);
-    const current: Entry[] = await context.github.cache.get(contentsPath(targetBasePath, context.github.branch, repo)) ?? [];
+    await mutate(contentsPath(targetBasePath, context.github.branch, repo));
+    const current: Entry[] = context.github.cache.get(contentsPath(targetBasePath, context.github.branch, repo))?.data ?? [];
     const index = current.findIndex((entry) => targetFilename === entry.name);
     if (index !== -1) throw Error(`A file with the name ${targetFilename} already exists in the same directory. Cannot rename!`);
 
@@ -284,8 +347,13 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
         }
     });
 
-    // TODO Could use mutate(...) to update filetree without a hard refresh - but remember to consider files moved to
-    // parent and sub-directories
+    // Ensure that requests to github after this update do not return stale data
+    updateGitHubCacheKey();
+    // TODO fix the below cache mutation so we don't have to refresh on rename. Issue is that the new file cache entry (at the new path) needs
+    //  to contain the JSON of the old cache entry (old path)
+    // const content = context.github.cache.get(contentsPath(path, context.github.branch, repo))?.data ?? {};
+    // await deletePathFromCache(path, context, repo);
+    // await addPathToCache(basePath, name, context, repo, content);
 }
 
 export async function githubSave(context: ContextType<typeof AppContext>) {
@@ -305,12 +373,8 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
     const initialCommitMessage = `${isPublishedChange ? "* " : ""}Edited ${path.split("/").at(-1)}`;
 
     const message = window.prompt("Enter your commit message", initialCommitMessage);
-
-    if (!message) {
-        return;
-    }
-
-    const {sha} = await context.github.cache.get(contentsPath(path, context.github.branch));
+    const {sha} = context.github.cache.get(contentsPath(path, context.github.branch))?.data ?? {};
+    if (!sha || !message) return;
 
     const body = {
         message,
@@ -353,7 +417,8 @@ export async function githubUpload(context: ContextType<typeof AppContext>, base
 
         result = await githubUpdate(context, figurePath, name, content, figureToReplace.sha);
     } else {
-        result = await githubCreate(context, figurePath, name, content);
+        const [newFile] = await githubCreate(context, figurePath, name, content);
+        result = newFile;
     }
 
     return `figures/${result.content.name}`;
