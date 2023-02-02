@@ -342,6 +342,7 @@ export async function githubRename(context: ContextType<typeof AppContext>, path
 
     // Ensure that requests to github after this update do not return stale data
     updateGitHubCacheKey();
+    // Renaming in this way doesn't change the file sha, so we can reuse it in the new cache entry!
     const shouldRefresh = await addPathToCache(targetPathSegments[0], targetPathSegments.slice(1).join("/"), context, repo, {path: targetPath, name: targetFilename, sha: blob.sha, type: "file"});
     if (!shouldRefresh) await deletePathFromCache(path, context, repo);
     return shouldRefresh;
