@@ -248,6 +248,13 @@ export interface CodeSnippet extends Content {
     url?: string;
 }
 
+export interface InteractiveCodeSnippet extends CodeSnippet {
+    setupCode?: string;
+    testCode?: string;
+    expectedResult?: string;
+    wrapCodeInMain?: boolean;
+}
+
 export interface CodeTabs extends Content {
 }
 

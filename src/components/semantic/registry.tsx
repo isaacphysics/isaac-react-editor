@@ -32,6 +32,7 @@ import {MetaItems} from "./metaItems";
 import {ItemChoicePresenter, ItemPresenter, ItemQuestionPresenter} from "./presenters/ItemQuestionPresenter";
 import styles from "./styles/semantic.module.css";
 import {ListChildrenPresenter} from "./presenters/ListChildrenPresenter";
+import {InteractiveCodeSnippetPresenter} from "./presenters/InteractiveCodeSnippetPresenter";
 
 export type ContentType =
     | "content"
@@ -50,6 +51,7 @@ export type ContentType =
     | "hints"
     | "figure"
     | "codeSnippet"
+    | "interactiveCodeSnippet"
     | "image"
     | "video"
     | "glossaryTerm"
@@ -155,6 +157,10 @@ const video: RegistryEntry = {
 const codeSnippet: RegistryEntry = {
     name: "Code Snippet",
     bodyPresenter: CodeSnippetPresenter,
+};
+const interactiveCodeSnippet: RegistryEntry = {
+    name: "Interactive Code Snippet",
+    bodyPresenter: InteractiveCodeSnippetPresenter,
 };
 const glossaryTerm: RegistryEntry = {
     name: "Glossary term",
@@ -289,6 +295,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     figure,
     image: {...figure, name: "Image"},
     codeSnippet,
+    interactiveCodeSnippet,
     video,
     glossaryTerm,
     emailTemplate,
