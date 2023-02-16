@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 
-import {InteractiveCodeSnippet} from "../../../isaac-data-types";
+import { InteractiveCodeSnippet } from "../../../isaac-data-types";
 
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
 import { EditableDocPropFor } from "../props/EditableDocProp";
 import { PresenterProps } from "../registry";
-import { Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from "reactstrap";
+import { EnumPropFor } from "../props/EnumProp";
 
 const EditableCode = EditableDocPropFor<InteractiveCodeSnippet>("code", {format: "code"});
 const EditableTestCode = EditableDocPropFor<InteractiveCodeSnippet>("testCode", {format: "code"});
@@ -16,32 +16,7 @@ const Languages = {
     python: "Python",
     javascript: "Javascript",
 };
-
-function LanguageSelector({doc, update}: PresenterProps<InteractiveCodeSnippet>) {
-    const [isOpen, setOpen] = useState(false);
-
-    const language = Languages[doc.language as keyof typeof Languages];
-
-    return <Dropdown toggle={() => setOpen(toggle => !toggle)} isOpen={isOpen}>
-        <DropdownToggle caret>
-            {language}
-        </DropdownToggle>
-        <DropdownMenu>
-            {Object.entries(Languages).map(([key, possibleType]) => {
-                return <DropdownItem key={key} active={language === possibleType} onClick={() => {
-                    if (language !== possibleType) {
-                        update({
-                            ...doc,
-                            language: key,
-                        });
-                    }
-                }}>
-                    {possibleType}
-                </DropdownItem>;
-            })}
-        </DropdownMenu>
-    </Dropdown>;
-}
+const LanguageSelector = EnumPropFor<InteractiveCodeSnippet>("language", Languages);
 
 export function InteractiveCodeSnippetPresenter(props: PresenterProps<InteractiveCodeSnippet>) {
     return <>

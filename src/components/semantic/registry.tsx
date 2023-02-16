@@ -33,6 +33,7 @@ import {ItemChoicePresenter, ItemPresenter, ItemQuestionPresenter} from "./prese
 import styles from "./styles/semantic.module.css";
 import {ListChildrenPresenter} from "./presenters/ListChildrenPresenter";
 import {InteractiveCodeSnippetPresenter} from "./presenters/InteractiveCodeSnippetPresenter";
+import {CalloutPresenter} from "./presenters/CalloutPresenter";
 
 export type ContentType =
     | "content"
@@ -94,7 +95,7 @@ const content: RegistryEntry = {
 };
 const callout: RegistryEntry = {
     name: "Callout",
-    bodyPresenter: ContentValueOrChildrenPresenter,
+    bodyPresenter: CalloutPresenter,
 };
 const choice: RegistryEntry = {
     name: "Choice",

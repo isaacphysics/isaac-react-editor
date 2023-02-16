@@ -39,7 +39,7 @@ const blockTypes = {
     "tabs": {type: "content", layout: "tabs", encoding: "markdown", children: []},
     "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
     "side-by-side layout": {type: "content", layout: "horizontal", encoding: "markdown", children: []},
-    "callout": {type: "content", layout: "callout", encoding: "markdown", value: ""},
+    "callout": {type: "content", layout: "callout", encoding: "markdown", value: "", subtitle: "regular"},
     "card deck": {type: "isaacCardDeck", encoding: "markdown", value: ""},
 };
 
