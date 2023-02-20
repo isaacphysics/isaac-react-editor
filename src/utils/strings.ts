@@ -1,3 +1,5 @@
+import {isDefined} from "./types";
+
 export function safeLowercase(label: string | undefined) {
     return label?.replace(/(^|[^a-zA-Z0-9])[A-Z][a-z]/g, (match) => match.toLowerCase());
 }
@@ -12,8 +14,8 @@ export function generateGuid() {
 export function dirname(path: string): string;
 export function dirname(path: string | undefined): string | undefined;
 export function dirname(path: string | undefined) {
-    if (!path) return path;
-    return path.substring(0, path.lastIndexOf('/'));
+    if (!isDefined(path)) return path;
+    return path.slice(0, path.lastIndexOf('/'));
 }
 
 export function ext(filename: string | undefined): string | undefined {

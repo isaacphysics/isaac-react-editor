@@ -35,8 +35,8 @@ async function doNew(context: ContextType<typeof AppContext>, action: ActionFor<
 
         const doCreate = async (initialContent: string) => {
             try {
-                await githubCreate(context, action.path, name, initialContent);
-                context.selection.setSelection({path: `${path}/${name}`, isDir: false, forceRefresh: true});
+                const [_, shouldRefresh] = await githubCreate(context, action.path, name, initialContent);
+                context.selection.setSelection({path: `${path}/${name}`, isDir: false, forceRefresh: shouldRefresh});
             } catch (e) {
                 alert("Couldn't create file. Perhaps it already exists.");
                 console.error("Couldn't create file. Perhaps it already exists.", e);
@@ -115,9 +115,9 @@ async function doDelete(context: ContextType<typeof AppContext>, action: ActionF
     const previouslyDirty = context.editor.getDirty();
     context.editor.setDirty(false);
     if (window.confirm("Do you really want to delete " + action.name + "?")) {
-        await githubDelete(context, action.path, action.name, action.sha);
+        const newDir = await githubDelete(context, action.path, action.name, action.sha);
         if (context.selection.getSelection()?.path === action.path) {
-            context.selection.setSelection({path: dirname(action.path), isDir: true});
+            context.selection.setSelection({path: newDir, isDir: true});
         }
     } else {
         context.editor.setDirty(previouslyDirty);
@@ -147,8 +147,8 @@ async function doRename(context: ContextType<typeof AppContext>, action: ActionF
 
         const basePath = dirname(oldPath);
         try {
-            await githubRename(context, oldPath, newName);
-            context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false, forceRefresh: true});
+            const shouldRefresh = await githubRename(context, oldPath, newName);
+            context.selection.setSelection({path: `${basePath}/${newName}`, isDir: false, forceRefresh: shouldRefresh});
         } catch (e) {
             window.alert("Could not rename file. Perhaps one with that name already exists.");
             console.error(e);
@@ -180,8 +180,8 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
 
         const contentToSave = typeof alteredContent === "string" ? alteredContent : JSON.stringify(alteredContent, null, 2);
 
-        githubCreate(context, basePath, newName, contentToSave).then(function(f) {
-            context.selection.setSelection({path: newPath, isDir: false});
+        githubCreate(context, basePath, newName, contentToSave).then(function([_, shouldRefresh]) {
+            context.selection.setSelection({path: newPath, isDir: false, forceRefresh: shouldRefresh});
         }).catch(function(e) {
             window.alert("Could not create file. Perhaps it already exists.");
             console.error(e);

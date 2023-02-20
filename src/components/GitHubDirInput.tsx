@@ -30,7 +30,7 @@ export const GitHubDirInput = ({repo, className, dir, setDir, invalid}: GitHubDi
     const [pathOption, setPathOption] = useState<GitHubOption | null>();
     const searchablePathPart = dir ? dir.split("/").length === 0 ? dir : dir.split("/").slice(0, -1).join("/") : "";
 
-    const {data, isValidating, error} = useSWR(contentsPath(searchablePathPart ?? "", appContext.github.branch, repo));
+    const {data, isValidating, isLoading, error} = useSWR(contentsPath(searchablePathPart ?? "", appContext.github.branch, repo));
 
     const pathOptions: GroupBase<GitHubOption>[] = useMemo(() => {
         return (error || !data) ? [] : [{
@@ -63,7 +63,7 @@ export const GitHubDirInput = ({repo, className, dir, setDir, invalid}: GitHubDi
 
     return <CreatableSelect
         className={className}
-        isLoading={isValidating}
+        isLoading={isLoading || isValidating}
         value={pathOption}
         tabSelectsValue
         onChange={onChange}
