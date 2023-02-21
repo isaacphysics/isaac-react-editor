@@ -11,6 +11,8 @@ const EditableCode = EditableDocPropFor<CodeSnippet>("code", {format: "code"});
 const EditableUrl = EditableDocPropFor<CodeSnippet>("url");
 
 const Languages = {
+    java: "Java",
+    vba: "Visual Basic",
     python: "Python",
     javascript: "Javascript",
     csharp: "C#",
