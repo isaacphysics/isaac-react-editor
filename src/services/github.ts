@@ -4,7 +4,7 @@ import useSWR, {Cache, mutate} from "swr";
 
 import {authorizationURL, doAuth} from "./auth";
 import {AppContext} from "../App";
-import {encodeBase64} from "../utils/base64";
+import {ALREADY_BASE64_ENCODED, encodeBase64, IMG_FILE_HEADERS} from "../utils/base64";
 import {Entry} from "../components/FileBrowser";
 import {dirname, resolveRelativePath} from "../utils/strings";
 import {Config, getConfig} from "./config";
@@ -192,7 +192,11 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
     // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
     // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
     // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
-    const content = encodeContent(initialContent);
+    // Don't encode image and PDF files, as they are already encoded.
+    const content = ALREADY_BASE64_ENCODED.includes(context.editor.getCurrentDocExt())
+        ? context.editor.getCurrentDocAsString()
+        : encodeBase64(context.editor.getCurrentDocAsString());
+
     const data = await fetcher(contentsPath(path, undefined, repo), {
         method: "PUT",
         body: {
@@ -368,10 +372,15 @@ export async function githubSave(context: ContextType<typeof AppContext>) {
     const {sha} = context.github.cache.get(contentsPath(path, context.github.branch))?.data ?? {};
     if (!sha || !message) return;
 
+    // Don't encode image files
+    const encodedContent = ALREADY_BASE64_ENCODED.includes(context.editor.getCurrentDocExt())
+        ? context.editor.getCurrentDocAsString()
+        : encodeBase64(context.editor.getCurrentDocAsString());
+
     const body = {
         message,
         branch: context.github.branch,
-        content: encodeBase64(context.editor.getCurrentDocAsString()),
+        content: encodedContent,
         sha: sha,
     }
 

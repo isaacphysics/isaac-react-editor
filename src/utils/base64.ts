@@ -1,3 +1,14 @@
+export const IMG_FILE_HEADERS = {
+    "jpg": "\xFF\xD8\xFF",
+    "jpeg": "\xFF\xD8\xFF",
+    "png": "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A",
+    "gif": "\x47\x49\x46\x38\x37\x61",
+};
+
+export const PDF_FILE_HEADER = "\x25\x50\x44\x46";
+
+export const ALREADY_BASE64_ENCODED = [...Object.keys(IMG_FILE_HEADERS), "pdf"];
+
 export const decodeBase64 = (input: string | undefined): string | undefined => {
     if (input === undefined) {
         return input;

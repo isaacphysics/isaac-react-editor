@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Alert, Button, ButtonGroup, Container, Input, Spinner} from "reactstrap";
+import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
 
 import { AppContext } from "../App";
 import { useGithubContents } from "../services/github";
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
-
 import { TopMenu } from "./TopMenu";
+import {decodeBase64, IMG_FILE_HEADERS, PDF_FILE_HEADER} from "../utils/base64";
 
 import styles from "../styles/editor.module.css";
 
@@ -26,10 +26,11 @@ export function PDFViewer() {
     const [editingPageNum, setEditingPageNum] = useState(false);
 
     useEffect(() => {
-        if (!data || !data.download_url) {
-            setInvalid(true);
-        } else {
+        if (data?.content && !data.content.match(RegExp(`^${PDF_FILE_HEADER}`))) {
             setInvalid(false);
+            appContext.editor.loadNewDoc(data.content);
+        } else {
+            setInvalid(true);
         }
     }, [data]);
 
@@ -56,7 +57,7 @@ export function PDFViewer() {
         setLoaded(true);
     }
 
-    function changePageNumber() {
+    function updatePageNumber() {
         setEditingPageNum(false);
         setPageNumber(Math.min(Math.max(1, pendingPageNumber), numPages));
     }
@@ -74,9 +75,9 @@ export function PDFViewer() {
                         className={"d-inline-block"}
                         value={pendingPageNumber}
                         onChange={e => setPendingPageNumber(parseInt(e.target.value) || pageNumber)}
-                        onKeyDown={e => e.key === "Enter" && changePageNumber()}
+                        onKeyDown={e => e.key === "Enter" && updatePageNumber()}
                     />
-                    <Button onClick={changePageNumber} className={"d-inline-block ml-2"}>Go</Button>
+                    <Button onClick={updatePageNumber} className={"d-inline-block ml-2"}>Go</Button>
                 </>
                 : <button onClick={() => {setEditingPageNum(true); setPendingPageNumber(pageNumber);}}>{pageNumber}/{numPages}</button>
             }</h5>

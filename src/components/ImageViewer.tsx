@@ -3,7 +3,7 @@ import {Alert, Container, Spinner} from "reactstrap";
 
 import { AppContext } from "../App";
 import { useGithubContents } from "../services/github";
-
+import { IMG_FILE_HEADERS } from "../utils/base64";
 import { TopMenu } from "./TopMenu";
 
 import styles from "../styles/editor.module.css";
@@ -18,10 +18,11 @@ export function ImageViewer() {
     const [invalid, setInvalid] = useState(false);
 
     useEffect(() => {
-        if (!data || !data.download_url) {
-            setInvalid(true);
-        } else {
+        if (data?.content && !data.content.match(RegExp(`^(${Object.values(IMG_FILE_HEADERS).join("|")})`))) {
             setInvalid(false);
+            appContext.editor.loadNewDoc(data.content);
+        } else {
+            setInvalid(true);
         }
     }, [data]);
 
@@ -39,14 +40,14 @@ export function ImageViewer() {
 
     if (invalid) {
         return <div className={styles.centered}>
-            <Alert color="warning">This content does not appear to be an image.</Alert>
+            <Alert color="warning">This content does not appear to be an image (PDF, JPEG or GIF).</Alert>
         </div>
     }
 
     return <div className={styles.editorWrapper}>
         <TopMenu />
         <Container>
-            <img className={styles.centerImage} src={data.download_url} alt={path} />
+            <img className={styles.centerImage} src={`data:image;base64,${data.content}`} alt={path} />
         </Container>
     </div>;
 }

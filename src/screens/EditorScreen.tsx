@@ -14,6 +14,7 @@ import {Action, doDispatch} from "../services/commands";
 import {useFixedRef} from "../utils/hooks";
 import {TextEditor} from "../components/TextEditor";
 import {ImageViewer} from "../components/ImageViewer";
+import {SVGViewer} from "../components/SVGViewer";
 import {PDFViewer} from "../components/PDFViewer";
 import {Preview, PreviewMode} from "../components/Preview";
 import {MenuModal, MenuModalRef} from "./MenuModal";
@@ -29,7 +30,8 @@ import styles from "../styles/editor.module.css";
 
 const FILE_COMPONENTS = {
     "json": SemanticEditor,
-    "jpg|jpeg|gif|png|svg": ImageViewer,
+    "jpg|jpeg|gif|png": ImageViewer,
+    "svg": SVGViewer,
     "pdf": PDFViewer,
 }
 
@@ -182,6 +184,9 @@ export function EditorScreen() {
                         return currentContent;
                     }
                 },
+                getCurrentDocExt: () => {
+                    return currentContentPath?.split(".").pop()?.toLowerCase() || "";
+                },
                 getCurrentDocAsString: () => {
                     if (typeof currentContent === "string") {
                         return currentContent;
@@ -291,7 +296,7 @@ export function EditorScreen() {
     // Finds the correct editor/viewer component given the current file type
     const FileEditor = useMemo(() => {
         return (selection?.path && Object.entries(FILE_COMPONENTS).find(([pattern, Component]) => {
-            const regex = new RegExp(`^.*\\.(${pattern})$`);
+            const regex = new RegExp(`^.*\\.(${pattern})$`, "i");
             if (regex.test(selection.path ?? "")) {
                 return true;
             }
