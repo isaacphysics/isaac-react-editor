@@ -166,6 +166,52 @@
     flex: 1;
 }
 
+.centerImage {
+    display: block;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 100%;
+    max-height: 90%;
+}
+
+.pdfNavigation {
+    position: absolute;
+    text-align: center;
+    z-index: 100;
+    top: 5px;
+    left: 5px;
+}
+
+.pdfNavigation input {
+    width: 3rem;
+}
+
+.pdfNavButtons {
+    margin-bottom: 10px;
+}
+
+.pdfContainer {
+    text-align: center;
+    margin-top: 40px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.pdfDocument {
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.pdfPage > [class~="react-pdf__Page__svg"] {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: hidden;
+    border: solid black 1px;
+}
+
 .centered {
     flex: 1;
     display: flex;
