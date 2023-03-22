@@ -47,7 +47,7 @@ export function ImageViewer() {
     return <div className={styles.editorWrapper}>
         <TopMenu />
         <Container>
-            <img className={styles.centerImage} src={`data:image;base64,${data.content}`} alt={path} />
+            <img className={styles.centerImage} src={`data:image;base64,${appContext.editor.getCurrentDocAsString()}`} alt={path} />
         </Container>
     </div>;
 }
