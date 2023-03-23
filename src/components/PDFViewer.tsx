@@ -5,7 +5,7 @@ import { Document, Page } from "react-pdf/dist/esm/entry.webpack5";
 import { AppContext } from "../App";
 import { useGithubContents } from "../services/github";
 import { TopMenu } from "./TopMenu";
-import {decodeBase64, IMG_FILE_HEADERS, PDF_FILE_HEADER} from "../utils/base64";
+import { PDF_FILE_HEADER } from "../utils/base64";
 
 import styles from "../styles/editor.module.css";
 
