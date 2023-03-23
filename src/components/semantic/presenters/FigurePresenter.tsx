@@ -32,8 +32,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             let type = "image";
             switch (getImageFileType(doc.src)) {
                 case "png": type = "image/png"; break;
+                case "gif": type = "image/gif"; break;
                 case "svg": type = "image/svg+xml"; break;
                 case "jpg": type = "image/jpeg"; break;
+                case "jpeg": type = "image/jpeg"; break;
             }
 
             const b64 = data.content;
@@ -96,7 +98,7 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
     function selectFile(file: File) {
         const reader = new FileReader();
         reader.onload = async function() {
-            const src = await githubUpload(appContext, basePath, file.name, reader.result as string);
+            const src = await githubUpload(appContext, basePath, file.name, window.btoa(reader.result as string));
             if (src) {
                 if (src === docRef.current.src) {
                     setReplacedFile(true);
