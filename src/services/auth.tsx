@@ -42,6 +42,7 @@ export function LoginPrompt() {
 }
 
 export function LoadingScreen({message = "Logging in..."}: { message?: string }) {
+    // FIXME should these be ${styles.centered} ${styles.flexFill}?
     return <div className={`m-5 text-center {styles.centered} {styles.flexFill}`}>
         <Spinner size="large" />
         <br />
