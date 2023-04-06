@@ -2,12 +2,12 @@ import {siteSpecific} from "./site";
 
 export const StagingServer = siteSpecific(
     "https://staging.isaacphysics.org",
-    "https://staging.isaaccomputerscience.org"
+    "https://staging.adacomputerscience.org"
 );
 
 const LiveServer = siteSpecific(
     "https://isaacphysics.org",
-    "https://isaaccomputerscience.org",
+    "https://adacomputerscience.org",
 );
 
 function makeFetcher(server: string) {

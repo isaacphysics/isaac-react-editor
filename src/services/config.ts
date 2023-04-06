@@ -33,13 +33,13 @@ const configs: { [host: string]: Config } = {
         REPO: "rutherford-content",
         previewServer: "https://editor-preview.isaacphysics.org",
     },
-    "editor.isaaccomputerscience.org": {
+    "editor.adacomputerscience.org": {
         ...sharedConfig,
-        clientId : "f929345390ca5ca6e1ba",
-        authCode : "WD4uGrm2iTFxmvwHjybnCSzIpgFk3r//7twVti62RpnQWyFteaKK11q6wLBQX6bb/yy9NY9t0m79MxokXUVZpRNzczPvBAkW6WGfmdCUa5tNs3UMswWmpITiv/TiGHJKxDRZ9m2KYgly3jqLzEU1EY7KznCCa16x7MLzdcQzyYKYS49RB3V/+B7IsuyDPQLRVffRTe/2MkrZmx98kj9x14eMgteIRQ7aYhi1pDsYE1dVGOMyojgoPsf6",
+        clientId : "c49d125435253a926eba",
+        authCode : "rqJgz6efqvIPwMSQkDadvFN7uPfZlhl0aNdmX0/w2YGJNK2+Z8WprbtPlKEYytGr4vS8HD0w5VMNl7SqcTakRAdK/01eP+9CRZuX/7UiZMD5bIGmjq+0nLyBE36gtPpmhzIsY8P6lldnps/MBXL5Qo1ogouE6oBcoC+wvzw2AEnMyYh2UT4dlDh8Pfu7PPzJ+IVqP4GgV22XRHpF+5nPv0VpSOtFdQuCP8KPMnASJgNwGSsnfb0/vQ==",
         OWNER: "isaacphysics",
-        REPO: "isaac-content-2",
-        previewServer: "https://editor-preview.isaaccomputerscience.org",
+        REPO: "ada-content",
+        previewServer: "https://editor-preview.adacomputerscience.org",
     },
 };
 

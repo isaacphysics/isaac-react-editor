@@ -1,4 +1,4 @@
-export type SITES = "CS" | "PHY";
+export type SITES = "ADA" | "PHY";
 
 const DEFAULT_DEV_SITE: SITES = "PHY";
 
@@ -8,7 +8,7 @@ function getCurrentSite(): SITES {
         case "localhost:8421":
             return DEFAULT_DEV_SITE;
         case "editor.isaacphysics.org": return "PHY";
-        case "editor.isaaccomputerscience.org": return "CS";
+        case "editor.adacomputerscience.org": return "ADA";
     }
     return DEFAULT_DEV_SITE;
 }
@@ -16,8 +16,8 @@ function getCurrentSite(): SITES {
 export const SITE: SITES = getCurrentSite();
 
 export const isPhy = SITE === "PHY";
-export const isCS = SITE === "CS";
+export const isAda = SITE === "ADA";
 
-export function siteSpecific<P, C>(phy: P, cs: C) {
-    return isPhy ? phy : cs;
+export function siteSpecific<P, A>(phy: P, ada: A) {
+    return isPhy ? phy : ada;
 }
