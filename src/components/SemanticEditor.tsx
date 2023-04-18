@@ -17,6 +17,7 @@ export interface EditorState {
     undo: () => void;
     getCurrentDoc: () => Content;
     getCurrentDocAsString: () => string;
+    getCurrentDocExt: () => string;
     getCurrentDocPath: () => string | undefined;
     setDirty: (isDirty: boolean) => void;
     setCurrentDoc: (newContent: Content | string, invertible?: boolean) => void;
@@ -32,6 +33,7 @@ export const defaultEditorState: EditorState = {
     },
     getCurrentDoc: () => ({}),
     getCurrentDocAsString: () => "",
+    getCurrentDocExt: () => "",
     getCurrentDocPath: () => undefined,
     setDirty: () => {
         throw new Error('setDirty called outside of AppContent');

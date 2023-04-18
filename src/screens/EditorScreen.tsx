@@ -13,6 +13,9 @@ import {Content} from "../isaac-data-types";
 import {Action, doDispatch} from "../services/commands";
 import {useFixedRef} from "../utils/hooks";
 import {TextEditor} from "../components/TextEditor";
+import {ImageViewer} from "../components/ImageViewer";
+import {SVGViewer} from "../components/SVGViewer";
+import {PDFViewer} from "../components/PDFViewer";
 import {Preview, PreviewMode} from "../components/Preview";
 import {MenuModal, MenuModalRef} from "./MenuModal";
 import {buildPageError} from "../components/PageError";
@@ -24,6 +27,13 @@ import {compare, Operation, applyReducer} from "fast-json-patch";
 import {invertJSONPatch} from "../utils/inversePatch";
 
 import styles from "../styles/editor.module.css";
+
+const FILE_COMPONENTS = {
+    "json": SemanticEditor,
+    "jpg|jpeg|gif|png": ImageViewer,
+    "svg": SVGViewer,
+    "pdf": PDFViewer,
+}
 
 function useParamsToSelection(params: Readonly<Params>): Selection {
     return useMemo<Selection>(() => {
@@ -174,6 +184,9 @@ export function EditorScreen() {
                         return currentContent;
                     }
                 },
+                getCurrentDocExt: () => {
+                    return currentContentPath?.split(".").pop()?.toLowerCase() || "";
+                },
                 getCurrentDocAsString: () => {
                     if (typeof currentContent === "string") {
                         return currentContent;
@@ -280,6 +293,15 @@ export function EditorScreen() {
         }
     }, [currentContent, hasFileOpen, selection?.path]);
 
+    // Finds the correct editor/viewer component given the current file type
+    const FileEditor = useMemo(() => {
+        return (selection?.path && Object.entries(FILE_COMPONENTS).find(([pattern, Component]) => {
+            const regex = new RegExp(`^.*\\.(${pattern})$`, "i");
+            if (regex.test(selection.path ?? "")) {
+                return true;
+            }
+        })?.[1]) || TextEditor;
+    }, [selection?.path]);
 
     return <SWRConfig value={{fetcher, revalidateOnFocus: false, revalidateOnReconnect: false}}>
         <AppContext.Provider value={appContext}>
@@ -291,12 +313,9 @@ export function EditorScreen() {
                 <LeftMenu />
                 <ErrorBoundary FallbackComponent={buildPageError(selection?.path)} onResetKeysChange={() => setCurrentContent({})} onReset={() => setCurrentContent({})} resetKeys={[selection]}>
                     <div>
-                        {hasFileOpen ?
-                            selection.path.endsWith(".json") ?
-                                <SemanticEditor />
-                                : <TextEditor />
-                            :
-                            <div className={`${styles.centered} mt-5`}>
+                        {hasFileOpen
+                            ? <FileEditor/>
+                            : <div className={`${styles.centered} mt-5`}>
                                 Choose a file on the left to edit
                             </div>
                         }
