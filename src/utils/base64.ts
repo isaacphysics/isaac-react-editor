@@ -7,8 +7,6 @@ export const IMG_FILE_HEADERS = {
 
 export const PDF_FILE_HEADER = "\x25\x50\x44\x46";
 
-export const ALREADY_BASE64_ENCODED = [...Object.keys(IMG_FILE_HEADERS), "pdf"];
-
 export const decodeBase64 = (input: string | undefined): string | undefined => {
     if (input === undefined) {
         return input;

@@ -4,7 +4,7 @@ import useSWR, {Cache, mutate} from "swr";
 
 import {authorizationURL, doAuth} from "./auth";
 import {AppContext} from "../App";
-import {ALREADY_BASE64_ENCODED, encodeBase64} from "../utils/base64";
+import {encodeBase64} from "../utils/base64";
 import {Entry} from "../components/FileBrowser";
 import {dirname, resolveRelativePath} from "../utils/strings";
 import {Config, getConfig} from "./config";
@@ -174,10 +174,6 @@ export function githubComparisonPath(oldVersion?: string, newVersion?: string) {
 }
 
 function encodeContent(contentBody: string, extension: string) {
-    if (ALREADY_BASE64_ENCODED.includes(extension)) {
-        // Don't encode image and PDF files, as they are already encoded.
-        return contentBody;
-    }
     let content;
     try {
         content = window.btoa(contentBody);
