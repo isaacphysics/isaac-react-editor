@@ -54,7 +54,7 @@ export const GitHubDirInput = ({repo, className, dir, setDir, invalid}: GitHubDi
 
     const onChange = (option: SingleValue<GitHubOption>) => {
         setPathOption(option);
-        setDir(option ? option.value : "");
+        setDir(option ? option.value.replace(/\/$/, "") : "");
     };
 
     const getBasePath = (path: string) => {
