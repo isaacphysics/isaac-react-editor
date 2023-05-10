@@ -12,6 +12,7 @@ import { isDefined } from "../utils/types";
 
 export const GITHUB_TOKEN_COOKIE = "github-token";
 const GITHUB_API_URL = "https://api.github.com/";
+const TEXT_FILE_EXTENSIONS = ["json", "txt"];
 
 const GITHUB_REPO_KEYS = {
     content: "$REPO",
@@ -175,10 +176,14 @@ export function githubComparisonPath(oldVersion?: string, newVersion?: string) {
 
 function encodeContent(contentBody: string, extension: string) {
     let content;
-    try {
-        content = window.btoa(contentBody);
-    } catch (e) {
+    // If we have a binary file, we want to base64 encode the bytes as-is, so use the standard window.btoa.
+    // But if this is a text file, we need to treat it as UTF-8 text (and not the UTF-16 that it is in JavaScript),
+    // otherwise extended-ASCII characters like pound signs will end up encoded as meaningless bytes when we decode
+    // it as UTF-8 later on.
+    if (TEXT_FILE_EXTENSIONS.includes(extension)) {
         content = encodeBase64(contentBody);
+    } else {
+        content = window.btoa(contentBody);
     }
     return content;
 }
@@ -189,9 +194,6 @@ export async function githubCreate(context: ContextType<typeof AppContext>, base
     }
     const path = `${basePath}/${name}`;
 
-    // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
-    // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
-    // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
     const content = encodeContent(initialContent, name.split(".").pop() ?? "");
 
     const data = await fetcher(contentsPath(path, undefined, repo), {
@@ -217,9 +219,6 @@ export async function githubUpdate(context: ContextType<typeof AppContext>, base
     }
     const path = `${basePath}/${name}`;
 
-    // If we have a binary file, we want to do the conversion as the binary file, so use the standard btoa
-    // But if there are any >255 characters in there, this must be UTF text so we use the encoder that
-    // first turns UTF-16 into UTF-8 as UTF-16 can't be encoded as base64 (since some "bytes" are > 255).
     const content = encodeContent(initialContent, name.split(".").pop() ?? "");
 
     const data = await fetcher(contentsPath(path, undefined, repo), {
