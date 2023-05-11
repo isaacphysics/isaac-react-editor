@@ -39,6 +39,7 @@ export interface IsaacCard extends Content {
     clickUrl?: string;
     disabled?: boolean;
     verticalContent?: boolean;
+    buttonText?: string;
 }
 
 export interface IsaacCardDeck extends Content {
