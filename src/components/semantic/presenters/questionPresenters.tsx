@@ -144,8 +144,14 @@ function QuestionTypeSelector({doc, update}: PresenterProps) {
                             delete newDoc.defaultFeedback;
                         }
 
+                        if (!(newDoc.hasOwnProperty("significantFiguresMin") && newDoc.hasOwnProperty("significantFiguresMax"))) {
+                            delete newDoc.significantFiguresMin;
+                            delete newDoc.significantFiguresMax;
+                        }
+
                         if (newType !== "isaacCoordinateQuestion") {
                             delete newDoc.ordered;
+                            delete newDoc.numberOfCoordinates;
                         }
 
                         update(newDoc);
