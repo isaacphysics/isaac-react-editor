@@ -5,6 +5,7 @@ import {InputType} from "reactstrap/lib/Input";
 import {
     ChemicalFormula,
     Choice,
+    CoordinateChoice, CoordinateItem,
     Formula,
     FreeTextRule,
     GraphChoice,
@@ -25,14 +26,14 @@ import {
 } from "./BaseValuePresenter";
 import {SemanticDocProp} from "../props/SemanticDocProp";
 import {CheckboxDocProp} from "../props/CheckboxDocProp";
-import {EditableValueProp} from "../props/EditableDocProp";
+import {EditableValueProp, EditableXProp, EditableYProp} from "../props/EditableDocProp";
 import {CHOICE_TYPES} from "../ChoiceInserter";
 import {PresenterProps} from "../registry";
 import {ListPresenterProp} from "../props/listProps";
 import {ClozeQuestionContext, ItemsContext} from "./ItemQuestionPresenter";
 
 import styles from "../styles/choice.module.css";
-import {QuestionContext} from "./questionPresenters";
+import {CoordinateQuestionContext, QuestionContext} from "./questionPresenters";
 import {Markup} from "../../../isaac/markup";
 import {NULL_CLOZE_ITEM, NULL_CLOZE_ITEM_ID} from "../../../isaac/IsaacTypes";
 
@@ -252,6 +253,28 @@ export const ItemChoicePresenter = (props: ValuePresenterProps<ParsonsChoice>) =
     </>;
 }
 
+export function CoordinateItemPresenter(props: PresenterProps<CoordinateItem>) {
+    return <div className={"mb-3"}>
+        <EditableXProp {...props} label={"x"} />
+        <div className={styles.questionLabel} />
+        <EditableYProp {...props} label={"y"} />
+    </div>;
+}
+
+export const CoordinateChoicePresenter = (props: ValuePresenterProps<CoordinateChoice>) => {
+    const {numberOfCoordinates} = useContext(CoordinateQuestionContext);
+
+    useEffect(() => {
+        if (numberOfCoordinates !== undefined && props.doc.items?.length !== numberOfCoordinates) {
+            props.update({...props.doc, items: Array(numberOfCoordinates).fill({x: 0, y: 0}).map((placeholder, i) => props.doc.items && props.doc.items[i] ? props.doc.items[i] : placeholder)});
+        }
+    }, [numberOfCoordinates]);
+
+    return <>
+        <ListPresenterProp {...props} prop="items" childTypeOverride="coordinateItem$choice" />
+    </>;
+}
+
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
     quantity: QuantityPresenter,
@@ -264,6 +287,7 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     regexPattern: RegexPatternPresenter,
     itemChoice: ItemChoicePresenter,
     parsonsChoice: ItemChoicePresenter,
+    coordinateChoice: CoordinateChoicePresenter,
 };
 
 export function ChoicePresenter(props: PresenterProps<Choice>) {

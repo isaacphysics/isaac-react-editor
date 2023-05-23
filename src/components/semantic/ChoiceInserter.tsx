@@ -33,6 +33,7 @@ export type CHOICE_TYPES =
     | "regexPattern"
     | "itemChoice"
     | "parsonsChoice"
+    | "coordinateChoice"
     ;
 
 const emptyChoices = [
@@ -47,6 +48,7 @@ const emptyChoices = [
     {...emptyChoice, type: "regexPattern", matchWholeString: false, caseInsensitive: false, multiLineRegex: true},
     {...emptyChoice, type: "itemChoice", children: []},
     {...emptyChoice, type: "parsonsChoice", children: []},
+    {...emptyChoice, type: "coordinateChoice", items: []}
 ];
 
 export const CHOICE_INSERTER_MAP: Partial<Record<ContentType, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {

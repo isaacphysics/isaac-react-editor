@@ -51,6 +51,13 @@ export interface IsaacClozeQuestion extends IsaacItemQuestion {
     detailedItemFeedback?: boolean;
 }
 
+export interface IsaacCoordinateQuestion extends IsaacQuestionBase {
+    significantFiguresMin?: number;
+    significantFiguresMax?: number;
+    ordered?: boolean;
+    numberOfCoordinates?: number;
+}
+
 export interface IsaacConceptPage extends SeguePage {
 }
 
@@ -358,8 +365,16 @@ export interface Notification extends Content {
 export interface ParsonsChoice extends ItemChoice {
 }
 
+export interface CoordinateChoice extends ItemChoice {
+}
+
 export interface ParsonsItem extends Item {
     indentation?: number;
+}
+
+export interface CoordinateItem extends Item {
+    x?: string;
+    y?: string;
 }
 
 export interface Quantity extends Choice {

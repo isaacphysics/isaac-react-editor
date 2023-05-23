@@ -1,5 +1,6 @@
 import {
     AnswerPresenter,
+    CoordinateQuestionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -13,7 +14,7 @@ import {
 import {CHOICE_TYPES} from "./ChoiceInserter";
 import {TabsPresenter} from "./presenters/TabsPresenter";
 import React, {FunctionComponent, Provider} from "react";
-import {ChoicePresenter} from "./presenters/ChoicePresenter";
+import {ChoicePresenter, CoordinateItemPresenter} from "./presenters/ChoicePresenter";
 import {Content} from "../../isaac-data-types";
 import {FigurePresenter} from "./presenters/FigurePresenter";
 import {ValuePresenter} from "./presenters/BaseValuePresenter";
@@ -29,7 +30,11 @@ import {PodPresenter} from "./presenters/PodPresenter";
 import {defaultMeta, MetaItemKey} from "./Metadata";
 import {CardDeckPresenter, CardPresenter} from "./presenters/CardPresenter";
 import {MetaItems} from "./metaItems";
-import {ItemChoicePresenter, ItemPresenter, ItemQuestionPresenter} from "./presenters/ItemQuestionPresenter";
+import {
+    ItemChoicePresenter,
+    ItemPresenter,
+    ItemQuestionPresenter
+} from "./presenters/ItemQuestionPresenter";
 import styles from "./styles/semantic.module.css";
 import {ListChildrenPresenter} from "./presenters/ListChildrenPresenter";
 import {InteractiveCodeSnippetPresenter} from "./presenters/InteractiveCodeSnippetPresenter";
@@ -66,6 +71,7 @@ export type ContentType =
     | "item"
     | "parsonsItem"
     | "item$choice"
+    | "coordinateItem$choice"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -290,6 +296,9 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     itemChoice: choice,
     parsonsChoice: choice,
     isaacClozeQuestion: isaacItemQuestion,
+    coordinateItem$choice: {bodyPresenter: CoordinateItemPresenter},
+    coordinateChoice: choice,
+    isaacCoordinateQuestion: {...question, headerPresenter: CoordinateQuestionPresenter, footerPresenter: undefined},
     item,
     parsonsItem: item,
     item$choice: {bodyPresenter: ItemChoicePresenter},
