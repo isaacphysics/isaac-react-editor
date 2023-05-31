@@ -20,6 +20,7 @@ const Languages = {
     python: "Python",
     sql: "SQL",
     vba: "Visual Basic",
+    haskell: "Haskell",
 };
 const LanguageSelector = EnumPropFor<CodeSnippet>("language", Languages);
 
