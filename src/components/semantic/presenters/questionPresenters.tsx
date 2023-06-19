@@ -1,9 +1,10 @@
-import React, {useState} from "react";
-import {EditableDocPropFor, EditableIDProp, EditableTitleProp,} from "../props/EditableDocProp";
+import React, {createContext, useContext, useState} from "react";
+import {EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
 import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} from "reactstrap";
 import {
     Content,
+    IsaacCoordinateQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
@@ -19,6 +20,7 @@ import {PresenterProps} from "../registry";
 import {SemanticListProp} from "../props/listProps";
 import {NumberDocPropFor} from "../props/NumberDocPropFor";
 import {ChoicesPresenter} from "./ChoicesPresenter";
+import {InserterProps} from "./ListChildrenPresenter";
 
 export const QuestionContext = React.createContext<Content | null>(null);
 
@@ -37,6 +39,7 @@ export type QUESTION_TYPES =
     | "isaacReorderQuestion"
     | "isaacParsonsQuestion"
     | "isaacClozeQuestion"
+    | "isaacCoordinateQuestion"
 ;
 
 const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
@@ -76,6 +79,9 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     isaacClozeQuestion: {
         name: "Cloze (Drag and Drop) Question",
     },
+    isaacCoordinateQuestion: {
+        name: "Coordinate Question",
+    },
     isaacSymbolicChemistryQuestion: {
         name: "Chemistry Question",
     },
@@ -99,7 +105,7 @@ function QuestionTypeSelector({doc, update}: PresenterProps) {
                 return <DropdownItem key={key} active={questionType === possibleType} onClick={() => {
                     if (questionType !== possibleType) {
                         const newType = key;
-                        const newDoc = {...doc, type: newType} as IsaacQuickQuestion & IsaacNumericQuestion;
+                        const newDoc = {...doc, type: newType} as IsaacQuickQuestion & IsaacNumericQuestion & IsaacCoordinateQuestion;
                         if (newType === "isaacNumericQuestion" && !newDoc.hasOwnProperty("requireUnits")) {
                             // Add the default value if it is missing
                             newDoc.requireUnits = true;
@@ -136,6 +142,16 @@ function QuestionTypeSelector({doc, update}: PresenterProps) {
                         if (newType === "isaacQuestion") {
                             // Remove the defaultFeedback property as it is not applicable to quick questions
                             delete newDoc.defaultFeedback;
+                        }
+
+                        if (!(newDoc.hasOwnProperty("significantFiguresMin") && newDoc.hasOwnProperty("significantFiguresMax"))) {
+                            delete newDoc.significantFiguresMin;
+                            delete newDoc.significantFiguresMax;
+                        }
+
+                        if (newType !== "isaacCoordinateQuestion") {
+                            delete newDoc.ordered;
+                            delete newDoc.numberOfCoordinates;
                         }
 
                         update(newDoc);
@@ -247,6 +263,53 @@ export function NumericQuestionPresenter(props: PresenterProps) {
         <div className={styles.questionLabel} /> {/* For spacing */}
     </>;
 }
+
+export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number}>(
+    {}
+);
+const EditableNumberOfCoordinates = NumberDocPropFor<IsaacCoordinateQuestion>("numberOfCoordinates", {label: "Number of coordinates", block: true});
+
+export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinateQuestion>) {
+    const {doc, update} = props;
+    const question = doc as IsaacCoordinateQuestion;
+
+    return <>
+        <QuestionMetaPresenter {...props} />
+        <EditableNumberOfCoordinates {...props} />
+        <CheckboxDocProp {...props} prop="ordered" label="Require that order of coordinates in choice and answer are the same" />
+        <div className={styles.questionLabel}>
+            Significant figures (affects both x and y values):
+            <div className="row">
+                <div className="col col-lg-5">
+                    <EditableSignificantFiguresMin doc={question} update={update} />
+                </div>
+                <div className="col col-lg-5">
+                    <EditableSignificantFiguresMax doc={question} update={update} />
+                </div>
+            </div>
+        </div>
+        <div className={styles.questionLabel} /> {/* For spacing */}
+        <CoordinateQuestionContext.Provider value={{
+            numberOfCoordinates: question.numberOfCoordinates,
+        }}>
+            <QuestionFooterPresenter {...props} />
+        </CoordinateQuestionContext.Provider>
+    </>;
+}
+
+export function CoordinateChoiceItemInserter({insert, position, lengthOfCollection}: InserterProps) {
+    const {numberOfCoordinates} = useContext(CoordinateQuestionContext);
+    if (position !== lengthOfCollection) {
+        return null; // Only include an insert button at the end.
+    }
+    if (numberOfCoordinates !== undefined && lengthOfCollection >= numberOfCoordinates) {
+        return null; // Max items reached in choice
+    }
+    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
+        insert(position, {type: "coordinateItem"});
+    }}>Add</Button>;
+}
+
 
 
 const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQuestion>) => {

@@ -13,6 +13,7 @@ import {ContentType, PresenterProps} from "../registry";
 import styles from "../styles/semantic.module.css";
 import {ChildTypeOverride} from "../props/listProps";
 import {ItemChoiceItemInserter} from "./ItemQuestionPresenter";
+import {CoordinateChoiceItemInserter} from "./questionPresenters";
 
 export interface InserterProps {
     insert: (index: number, newContent: Content) => void;
@@ -59,6 +60,7 @@ const INSERTER_MAP: Partial<Record<ContentType, React.FunctionComponent<Inserter
     }),
     item: PlainInserter({type: "item", id: generate, value: ""}),
     parsonsItem: PlainInserter({type: "parsonsItem", id: generate, value: "", indentation: 0}),
+    coordinateItem$choice: CoordinateChoiceItemInserter,
     item$choice: ItemChoiceItemInserter,
 };
 
