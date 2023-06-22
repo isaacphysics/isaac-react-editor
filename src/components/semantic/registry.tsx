@@ -44,6 +44,7 @@ export type ContentType =
     | "content"
     | "content$accordion"
     | "content$horizontal"
+    | "content$clearfix"
     | "content$callout"
     | "content$tabs"
     | "isaacConceptPage"
@@ -115,6 +116,13 @@ const horizontal: RegistryEntry = {
     name: "Side-by-side layout",
     className: styles.horizontal,
     bodyPresenter: ListChildrenPresenter,
+}
+const clearfix: RegistryEntry = {
+    name: "Clearfix",
+    bodyPresenter: () => <div className={"text-center pb-3"}>
+        <hr/>
+        <i>This block is used to clear floating elements</i>
+    </div>,
 }
 const tabs: RegistryEntry = {
     name: "Tabs",
@@ -263,6 +271,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacWildcard,
     content$accordion: accordion,
     content$horizontal: horizontal,
+    content$clearfix: clearfix,
     content$callout: callout,
     content$tabs: tabs,
     hints,
