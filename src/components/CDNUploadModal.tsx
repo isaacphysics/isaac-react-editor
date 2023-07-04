@@ -45,8 +45,7 @@ const renameCDNFile = async (context: ContextType<typeof AppContext>, item: Popu
             setSelection?.({path: `${basePath}/${newName}`, isDir: false});
             item.refresh?.(); // TODO remove once rename mutation works
         } catch (e) {
-            window.alert("Could not rename file. Perhaps one with that name already exists (see console for error message)");
-            console.error(e);
+            window.alert(`Could not rename file. Perhaps one with that name already exists?\n\nError details: ${e}`);
         }
     }
 };
@@ -60,8 +59,7 @@ const deleteCDNFile = async (context: ContextType<typeof AppContext>, item: Popu
             }
             window.alert("File successfully deleted!");
         } catch (e) {
-            window.alert("Could not delete file (see console for error message)");
-            console.error(e);
+            window.alert(`Could not delete file.\n\nError details: ${e}`);
         }
     }
 };
@@ -155,8 +153,7 @@ export const CDNUploadModal = () => {
                     setSuccessfulUploads(su => [...(su ?? []), path?.replace(/\/$/, "") + "/" + f.file.name]);
                     setSelectionAndUpdateDir({path: `${path}/${f.file.name}`, isDir: false});
                 } catch (e) {
-                    alert(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.`);
-                    console.error(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.`, e);
+                    alert(`Couldn't upload file "${f.file.name}" to CDN. Perhaps it already exists.\n\nError details: ${e}`);
                 }
             }
             reader.readAsBinaryString(f.file);
