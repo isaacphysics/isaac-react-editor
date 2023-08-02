@@ -11,21 +11,25 @@ const EditableCode = EditableDocPropFor<InteractiveCodeSnippet>("code", {format:
 const EditableTestCode = EditableDocPropFor<InteractiveCodeSnippet>("testCode", {format: "code"});
 const EditableSetupCode = EditableDocPropFor<InteractiveCodeSnippet>("setupCode", {format: "code"});
 const EditableUrl = EditableDocPropFor<InteractiveCodeSnippet>("url");
+const EditableDataUrl = EditableDocPropFor<InteractiveCodeSnippet>("dataUrl");
 
 const Languages = {
     python: "Python",
     javascript: "Javascript",
+    sql: "SQL",
 };
 const LanguageSelector = EnumPropFor<InteractiveCodeSnippet>("language", Languages);
 
 export function InteractiveCodeSnippetPresenter(props: PresenterProps<InteractiveCodeSnippet>) {
+    const isSQL = props.doc.language === "sql";
     return <>
         <LanguageSelector {...props} />
         <CheckboxDocProp {...props} prop="disableHighlighting" label="Disable highlighting" />
-        <EditableSetupCode {...props} label="Setup Code" block />
+        {!isSQL && <EditableSetupCode {...props} label="Setup Code" block />}
         <EditableCode {...props} label="Code" block />
-        <CheckboxDocProp {...props} prop="wrapCodeInMain" label="Wrap students code in `main()` function before testing" />
-        <EditableTestCode {...props} label="Test Code" block />
+        {!isSQL && <CheckboxDocProp {...props} prop="wrapCodeInMain" label="Wrap students code in `main()` function before testing" />}
+        {!isSQL && <EditableTestCode {...props} label="Test Code" block />}
         <EditableUrl {...props} label="Url" block />
+        {isSQL && <EditableDataUrl {...props} label="Table URL (on CDN)" block />}
     </>;
 }

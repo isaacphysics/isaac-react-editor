@@ -8,12 +8,6 @@ import { generate } from "../../utils/keyedListHook";
 
 const blockTypes = {
     "content": {type: "content", encoding: "markdown", value: ""},
-    "code snippet": {
-        type: "codeSnippet",
-        language: "pseudocode",
-        code: "",
-        disableHighlighting: false,
-    },
     "question": {
         type: "isaacQuestion",
         encoding: "markdown",
@@ -42,6 +36,18 @@ const blockTypes = {
     "clearfix": {type: "content", layout: "clearfix", encoding: "markdown", value: ""},
     "callout": {type: "content", layout: "callout", encoding: "markdown", value: "", subtitle: "regular"},
     "card deck": {type: "isaacCardDeck", encoding: "markdown", value: ""},
+    "code snippet": {
+        type: "codeSnippet",
+        language: "pseudocode",
+        code: "",
+        disableHighlighting: false,
+    },
+    "code snippet (interactive)": {
+        type: "interactiveCodeSnippet",
+        language: "python",
+        code: "",
+        disableHighlighting: false,
+    }
 };
 
 export function Inserter({insert, forceOpen, position}: InserterProps) {

@@ -261,6 +261,7 @@ export interface InteractiveCodeSnippet extends CodeSnippet {
     testCode?: string;
     expectedResult?: string;
     wrapCodeInMain?: boolean;
+    dataUrl?: string;
 }
 
 export interface CodeTabs extends Content {
