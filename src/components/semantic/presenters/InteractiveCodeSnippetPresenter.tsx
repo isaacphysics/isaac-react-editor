@@ -30,6 +30,6 @@ export function InteractiveCodeSnippetPresenter(props: PresenterProps<Interactiv
         {!isSQL && <CheckboxDocProp {...props} prop="wrapCodeInMain" label="Wrap students code in `main()` function before testing" />}
         {!isSQL && <EditableTestCode {...props} label="Test Code" block />}
         <EditableUrl {...props} label="Url" block />
-        {isSQL && <EditableDataUrl {...props} label="Table URL (on CDN)" block />}
+        {isSQL && <EditableDataUrl {...props} label="SQLite database URL (on CDN)" block />}
     </>;
 }
