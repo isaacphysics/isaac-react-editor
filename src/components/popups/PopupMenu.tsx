@@ -110,11 +110,11 @@ export const FilesPopupMenuInner = ({item}: {item: PopupEntry}) => {
         {item?.type === "file" && <hr/>}
         {item?.type === "file" && <MenuItem href={
             `${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/blob")}/${appContext.github.branch}/${item.path}`
-        } text="View on github"/>}
+        } text="View on GitHub"/>}
         {item?.type === "file" && <MenuItem
             href={`${githubReplaceWithConfig("https://github.com/$OWNER/$REPO/issues/new")}?body=${encodeURIComponent(
-                `Issue found in ${item.path} by ${appContext.github.user.login}.\n\n<Describe issue here>`
-            )}`} text="Report issue on github"/>}
+                `Issue found in https://editor.isaacphysics.org/edit/master/${item.path}.\n\n<Describe issue here>`
+            )}`} text="Report issue on GitHub"/>}
     </>;
 };
 
