@@ -28,6 +28,9 @@ export const MetaItems = asMetaItems({
             if (id && context.editor.isAlreadyPublished()) {
                 return "Please make sure not to alter the id of content once it has been published";
             }
+            if (!id.match(/^[a-z0-9]+([-_][a-z0-9]+)*$/)) {
+                return "This ID doesn't seem to match our usual style.";
+            }
         }
     }],
     title: ["Title", {
