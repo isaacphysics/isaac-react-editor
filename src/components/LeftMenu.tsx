@@ -8,7 +8,6 @@ import {dirname} from "../utils/strings";
 import {useGithubContents} from "../services/github";
 import {useFixedRef} from "../utils/hooks";
 import {useNavigate} from "react-router-dom";
-import {isPhy} from "../services/site";
 
 function scrollPathIntoView(path: string, snap?: boolean) {
     const item = document.getElementById(pathToId(path));
@@ -73,10 +72,10 @@ export function LeftMenu() {
             }}>🔍</button>
         </header>
         <FileBrowser />
-        {isPhy && <footer className={styles.leftMenuHeader}>
+        <footer className={styles.leftMenuHeader}>
             <button className={styles.iconButton} onClick={appContext.cdn.toggle}>
                 Upload to CDN
             </button>
-        </footer>}
+        </footer>
     </div>;
 }
