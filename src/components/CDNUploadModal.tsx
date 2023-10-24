@@ -92,7 +92,7 @@ const validateDir: (dir: string | undefined) => FileValidation = (dir: string | 
     if (dir.match(/^[a-zA-Z0-9_\-/]+$/) === null) return {error: "Directory is invalid: directory names can only contain alphanumeric characters, dashes and underscores"};
     return {isValid: true};
 };
-const FILE_TYPE_WHITELIST = ["JPG", "PNG", "GIF", "PDF", "CSV", "ODS", "XLSX"];
+const FILE_TYPE_WHITELIST = ["JPG", "PNG", "GIF", "PDF", "CSV", "ODS", "XLSX", "SQLITE"];
 
 export const CDNUploadModal = () => {
     const appContext = useContext(AppContext);
