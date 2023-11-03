@@ -9,6 +9,7 @@ import {stagingFetcher} from "../../services/isaacApi";
 import Select from "react-select";
 import {Item} from "../../utils/select";
 import {isDefined} from "../../utils/types";
+import { isAda } from "../../services/site";
 
 export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, codemirror: RefObject<ReactCodeMirrorRef> }) => {
     const popupRef = useRef<PopupRef>(null);
@@ -25,12 +26,12 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
     const [glossaryTermText, setGlossaryTermText] = useState<string>();
     const [glossaryTerm, setGlossaryTerm] = useState<Item<string> | undefined>();
     const [isInlineTerm, setIsInlineTerm] = useState<boolean>(true);
+    const [isTitledTerm, setIsTitledTerm] = useState<boolean>(isAda); // Ada should default to being checked
 
     const generateAndInsertGlossaryTerm = useCallback(() => {
         if (glossaryTerm) {
             const trimmedGlossaryTermText = glossaryTermText?.trim();
-            codemirror.current?.view?.dispatch(
-                codemirror.current?.view?.state.replaceSelection(`[glossary${isInlineTerm ? "-inline" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`)
+            codemirror.current?.view?.dispatch(codemirror.current?.view?.state.replaceSelection(`[glossary${isInlineTerm ? "-inline" : ""}${isTitledTerm ? "-titled" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`)
             );
         }
     }, [glossaryTermText, glossaryTerm, isInlineTerm, codemirror]);
@@ -53,6 +54,10 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
                 </InputGroup>
                 {isInlineTerm ?
                     <>
+                        <InputGroup className={"pl-4"}>
+                            <Label for={"glossary-term-titled-or-not"}>Titled glossary term?</Label>
+                            <Input type={"checkbox"} id="glossary-term-titled-or-not" onChange={e => setIsTitledTerm(e.target.checked)} checked={isTitledTerm}/>
+                        </InputGroup>
                         <Label for={"term-text-input"}>Text to display:</Label>
                         <Input id={"term-text-input"} placeholder={glossaryTerm?.label ?? "None"} value={glossaryTermText} onChange={(e) => setGlossaryTermText(e.target.value)} />
                     </>
