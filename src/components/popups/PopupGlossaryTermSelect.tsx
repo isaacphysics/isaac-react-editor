@@ -1,4 +1,4 @@
-import React, {ChangeEvent, RefObject, useCallback, useMemo, useRef, useState} from "react";
+import React, {RefObject, useCallback, useMemo, useRef, useState} from "react";
 import {Popup, PopupCloseContext, PopupRef} from "./Popup";
 import {Alert, Button, Container, Input, InputGroup, Label} from "reactstrap";
 import {ReactCodeMirrorRef} from "@uiw/react-codemirror";
@@ -31,15 +31,10 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
     const generateAndInsertGlossaryTerm = useCallback(() => {
         if (glossaryTerm) {
             const trimmedGlossaryTermText = glossaryTermText?.trim();
-            codemirror.current?.view?.dispatch(codemirror.current?.view?.state.replaceSelection(`[glossary${isInlineTerm ? "-inline" : ""}${isTitledTerm ? "-titled" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`)
+            codemirror.current?.view?.dispatch(codemirror.current?.view?.state.replaceSelection(`[glossary${isInlineTerm ? "-inline" : ""}${isInlineTerm && isTitledTerm ? "-titled" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`)
             );
         }
     }, [glossaryTermText, glossaryTerm, isInlineTerm, codemirror]);
-
-    const onInlineChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setIsInlineTerm(e.target.checked);
-        setIsTitledTerm(e.target.checked && isTitledTerm);
-    }
 
     return <>
         <button className={styles.cmPanelButton} title={"Insert glossary term"} onClick={(event) => {
@@ -55,7 +50,7 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
                 <hr/>
                 <InputGroup className={"pl-4"}>
                     <Label for={"glossary-term-full-or-inline"}>Inline glossary term?</Label>
-                    <Input type={"checkbox"} id="glossary-term-full-or-inline" onChange={e => onInlineChange(e)} checked={isInlineTerm}/>
+                    <Input type={"checkbox"} id="glossary-term-full-or-inline" onChange={e => setIsInlineTerm(e.target.checked)} checked={isInlineTerm}/>
                 </InputGroup>
                 {isInlineTerm ?
                     <>
