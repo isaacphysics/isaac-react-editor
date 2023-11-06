@@ -9,7 +9,7 @@ import {stagingFetcher} from "../../services/isaacApi";
 import Select from "react-select";
 import {Item} from "../../utils/select";
 import {isDefined} from "../../utils/types";
-import { isAda } from "../../services/site";
+import {isPhy, isAda} from "../../services/site";
 
 export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, codemirror: RefObject<ReactCodeMirrorRef> }) => {
     const popupRef = useRef<PopupRef>(null);
@@ -20,8 +20,13 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
     );
 
     const glossaryTermOptions: Item<string>[] = useMemo(() =>
-        glossaryTerms?.results.filter(gt => isDefined(gt.id)).map(gt => ({value: gt.id as string, label: gt.value ?? gt.id as string})) ?? []
-    , [glossaryTerms]);
+        glossaryTerms?.results.filter(gt => isDefined(gt.id)).map(
+                gt => {
+                    let label = gt.value ?? gt.id as string;
+                    if (isPhy) label += " [id: " + gt.id as string + "]";
+                    return ({value: gt.id as string, label: label});
+                }
+        ) ?? [], [glossaryTerms]);
 
     const [glossaryTermText, setGlossaryTermText] = useState<string>();
     const [glossaryTerm, setGlossaryTerm] = useState<Item<string> | undefined>();
