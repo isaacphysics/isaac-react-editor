@@ -54,7 +54,8 @@ export const renderClozeDropZones = (markdown: string) => {
 // Renders a placeholder for block glossary terms
 export const renderGlossaryBlocks = (markdown: string) => {
     // Matches strings such as [glossary:glossary-demo|boolean-algebra] which MUST be at the beginning of the line.
-    const glossaryBlockRegexp = /^\[glossary:(?<id>[a-z-|]+?)\]/gm;
+    // Also matches [glossary:glossary-demo|boolean_algebra]
+    const glossaryBlockRegexp = /^\[glossary:(?<id>[a-z-|_]+?)\]/gm;
     return markdown.replace(glossaryBlockRegexp, (_match, id) => {
         return `<b class="text-muted">[block glossary term: ${id}]</b>`;
     });
@@ -64,9 +65,10 @@ export const renderGlossaryBlocks = (markdown: string) => {
 export const renderInlineGlossaryTerms = (markdown: string) => {
     // Matches strings such as [glossary-inline:glossary-demo|boolean-algebra] and
     // [glossary-inline:glossary-demo|boolean-algebra "boolean algebra"] which CAN be inlined.
-    const glossaryInlineRegexp = /\[glossary-inline:(?<id>[a-z-|]+?)\s*(?:"(?<text>[A-Za-z0-9-()/,'\\. ]+)")?\]/g;
-    return markdown.replace(glossaryInlineRegexp, (_match, id, text, offset) => {
-        return `<code class="text-muted">[inline glossary term: ${text ?? id}]</code>`;
+    const glossaryInlineRegexp = /\[glossary-inline(?<titled>-titled):(?<id>[a-z-|_]+?)\s*(?:"(?<text>[A-Za-z0-9-()/,'\\. ]+)")?\]/g;
+    return markdown.replace(glossaryInlineRegexp, (_match, titled, id, text, offset) => {
+        
+        return `<code class="text-muted">[${titled ? "titled" : ""} inline glossary term: ${text ?? id}]</code>`;
     });
 }
 
