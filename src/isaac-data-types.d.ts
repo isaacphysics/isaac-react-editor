@@ -328,6 +328,7 @@ export interface FreeTextRule extends Choice {
 export interface GlossaryTerm extends Content {
     explanation?: Content;
     examBoard?: string;
+    stages?: string[];
 }
 
 export interface GraphChoice extends Choice {
