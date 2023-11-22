@@ -21,13 +21,25 @@ export function StagePresenter({doc, update}: PresenterProps<GlossaryTerm>) {
         if (doc.stages?.includes(stage)) {
             return;
         }
-        update({
-            ...doc,
-            stages: [...doc.stages ?? [], stage],
-        });
-        if (stage === searchString) {
+
+        // Autocomplete when one option remains
+        let stageToSet = undefined;
+        if (filteredStageList?.length === 1) {
+            stageToSet = filteredStageList.at(0);
             setSearchString("");
-            inputRef.current?.focus();
+        }
+        // Otherwise select from available stages
+        if (filteredStageList?.includes(stage)) {
+            stageToSet = stage;
+        }
+
+        if (stageToSet) {
+            update({
+                ...doc,
+                // Only on Ada will `tag` be potentially used
+                // this prevents Physics from creating new subjects
+                stages: [...doc.stages ?? [], stageToSet],
+            });
         }
     }
 
@@ -38,9 +50,7 @@ export function StagePresenter({doc, update}: PresenterProps<GlossaryTerm>) {
 
     function onKeyPress(e: React.KeyboardEvent) {
         if (e.key === "Enter") {
-            if (filteredStageList?.includes(searchString)) {
-                addStage(searchString);
-            }
+            addStage(searchString);
             e.preventDefault();
         }
     }

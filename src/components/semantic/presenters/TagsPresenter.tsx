@@ -30,10 +30,27 @@ export function TagsPresenter({doc, update}: PresenterProps) {
         if (doc.tags?.includes(tag)) {
             return;
         }
-        update({
-            ...doc,
-            tags: [...doc.tags ?? [], tag],
-        });
+
+        // Autocomplete if one option remains
+        let tagToSet = undefined;
+        if (filteredTagList?.length === 1) {
+            tagToSet = filteredTagList.at(0);
+            setSearchString("");
+        }
+        // Otherwise, if possible select a tag from the available list
+        if (filteredTagList?.includes(tag)) {
+            tagToSet = tag;
+        }
+
+        if (tagToSet || isAda) {
+            update({
+                ...doc,
+                // Only on Ada will `tag` be potentially used
+                // this prevents Physics from creating new subjects
+                tags: [...doc.tags ?? [], tagToSet ?? tag],
+            });
+        }
+
         if (tag === searchString) {
             setSearchString("");
             inputRef.current?.focus();
@@ -47,8 +64,7 @@ export function TagsPresenter({doc, update}: PresenterProps) {
 
     function onKeyPress(e: React.KeyboardEvent) {
         if (e.key === "Enter") {
-            // Don't want to allow editors to create new subjects
-            if (isAda) addTag(searchString);
+            addTag(searchString);
             e.preventDefault();
         }
     }
@@ -70,7 +86,7 @@ export function TagsPresenter({doc, update}: PresenterProps) {
             {showTagList && (filteredTagList?.map((tag) =>
                 <Button key={tag} outline color="primary" onClick={() => addTag(tag)}>{tag} ➕</Button>
             ) ?? <em>Loading...</em>)}
-            {isAda && 
+            {isAda && // Don't allow Physics editors to create new subjects
                 <Button color="success" onClick={() => addTag(searchString)}>Create new tag: {searchString} ➕</Button>}
         </div>}
     </div>;
