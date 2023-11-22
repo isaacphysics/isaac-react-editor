@@ -3,6 +3,7 @@ import { Button, Input } from "reactstrap";
 import useSWR from "swr";
 
 import { stagingFetcher } from "../../../services/isaacApi";
+import { isAda, siteSpecific } from "../../../services/site";
 
 import { PresenterProps } from "../registry";
 
@@ -15,12 +16,15 @@ export function TagsPresenter({doc, update}: PresenterProps) {
         searchString !== "" ? "content/tags" : null,
         stagingFetcher,
     );
+    // TODO: once merged import subjectList from constants
+    const subjectList = ["biology","chemistry","physics","maths"]
+    const searchList = siteSpecific(subjectList, tagList);
     const [showTagList, setShowTagList] = useState(true);
     const [filteredTagList, setFilteredTagList] = useState<string[]>();
 
     useEffect(() => {
-        setFilteredTagList(tagList?.filter(tag => tag.includes(searchString) && !doc.tags?.includes(tag)));
-    }, [searchString, tagList, doc.tags]);
+        setFilteredTagList(searchList?.filter(tag => tag.includes(searchString) && !doc.tags?.includes(tag)));
+    }, [searchString, searchList, doc.tags]);
 
     function addTag(tag: string) {
         if (doc.tags?.includes(tag)) {
@@ -43,7 +47,8 @@ export function TagsPresenter({doc, update}: PresenterProps) {
 
     function onKeyPress(e: React.KeyboardEvent) {
         if (e.key === "Enter") {
-            addTag(searchString);
+            // Don't want to allow editors to create new subjects
+            if (isAda) addTag(searchString);
             e.preventDefault();
         }
     }
@@ -52,18 +57,21 @@ export function TagsPresenter({doc, update}: PresenterProps) {
         {doc.tags?.map(tag => <Button key={tag} outline onClick={() => removeTag(tag)}>{tag} ➖</Button>)}
         <Input value={searchString}
                onChange={(e) => setSearchString(e.target.value.toLowerCase())}
-               placeholder="Type to add tags..."
+               placeholder={`Type to add ${siteSpecific("subjects", "tags")}...`}
                innerRef={inputRef}
                onKeyPress={onKeyPress}
         />
         {searchString !== "" && <div>
             <Button onClick={() => setShowTagList(!showTagList)}>
-                {showTagList ? "Hide tags" : "Show available tags"}
+                {showTagList ? 
+                    `Hide ${siteSpecific("subjects", "tags")}` :
+                    `Show available ${siteSpecific("subjects", "tags")}`}
             </Button>
             {showTagList && (filteredTagList?.map((tag) =>
                 <Button key={tag} outline color="primary" onClick={() => addTag(tag)}>{tag} ➕</Button>
             ) ?? <em>Loading...</em>)}
-            <Button color="success" onClick={() => addTag(searchString)}>Create new tag: {searchString} ➕</Button>
+            {isAda && 
+                <Button color="success" onClick={() => addTag(searchString)}>Create new tag: {searchString} ➕</Button>}
         </div>}
     </div>;
 }
