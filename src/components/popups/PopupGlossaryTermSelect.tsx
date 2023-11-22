@@ -22,12 +22,12 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
     const [filterSubject, setFilterSubject] = useState<string>();
     const [filterStage, setFilterStage] = useState<string>();
 
-    const subjectListOptions: Item<string>[] = useMemo(() => subjectList.map(
+    const subjectListOptions: Item<string>[] = subjectList.map(
         subject => ({value: subject, label: subject.charAt(0).toUpperCase() + subject.slice(1)})
-    ), []);
-    const stageListOptions: Item<string>[] = useMemo(() => stageList.map(
+    );
+    const stageListOptions: Item<string>[] = stageList.map(
         (stage, index) => ({value: stage, label: stagePrintList.at(index) ?? "Unknown"})
-    ), []);
+    );
 
     const glossaryTermOptions: Item<string>[] = useMemo(() =>
         glossaryTerms?.results.filter(
