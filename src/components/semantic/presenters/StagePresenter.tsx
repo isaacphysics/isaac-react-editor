@@ -43,6 +43,18 @@ export function StagePresenter({doc, update}: PresenterProps<GlossaryTerm>) {
         }
     }
 
+    function addallStages() {
+        // TODO: use constants.ts once merged
+        const remainingStages = ["university", "further_a", "a_level", "gcse", "year_9", "year_7_and_8"].filter(
+            stage => !doc.stages?.includes(stage)
+        )
+        update({
+            ...doc,
+            stages: [...doc.stages ?? [], ...remainingStages],
+        });
+    }
+
+
     function removeStage(stageToRemove: string) {
         const stages = doc.stages?.filter(stage => stage !== stageToRemove);
         update({...doc, stages: stages});
@@ -70,6 +82,7 @@ export function StagePresenter({doc, update}: PresenterProps<GlossaryTerm>) {
             {showStageList && (filteredStageList?.map((stage) =>
                 <Button key={stage} outline color="primary" onClick={() => addStage(stage)}>{stage} ➕</Button>
             ) ?? <em>Loading...</em>)}
+            <Button color="success" onClick={() => addallStages()}>Add all stages ➕</Button>
         </div>}
     </div>;
 }
