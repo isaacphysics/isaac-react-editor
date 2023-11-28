@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Input } from "reactstrap";
 import { GlossaryTerm } from "../../../isaac-data-types";
+import { stageList } from "../../../services/constants";
 
 import { PresenterProps } from "../registry";
 
@@ -13,7 +14,6 @@ export function StagePresenter({doc, update}: PresenterProps<GlossaryTerm>) {
     const [filteredStageList, setFilteredStageList] = useState<string[]>();
 
     useEffect(() => {
-        const stageList: string[] = ["university", "further_a", "a_level", "gcse", "year_9", "year_7_and_8"];
         setFilteredStageList(stageList?.filter(stage => stage.includes(searchString) && !doc.stages?.includes(stage)));
     }, [searchString, doc.stages]);
 

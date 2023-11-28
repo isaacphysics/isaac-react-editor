@@ -10,6 +10,7 @@ import Select from "react-select";
 import {Item} from "../../utils/select";
 import {isDefined} from "../../utils/types";
 import {isPhy, isAda} from "../../services/site";
+import { stageList, stagePrintList, subjectList } from "../../services/constants";
 
 export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, codemirror: RefObject<ReactCodeMirrorRef> }) => {
     const popupRef = useRef<PopupRef>(null);
@@ -18,15 +19,31 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
         "glossary/terms?limit=10000",
         stagingFetcher
     );
+    const [filterSubject, setFilterSubject] = useState<string>();
+    const [filterStage, setFilterStage] = useState<string>();
+
+    const subjectListOptions: Item<string>[] = subjectList.map(
+        subject => ({value: subject, label: subject.charAt(0).toUpperCase() + subject.slice(1)})
+    );
+    const stageListOptions: Item<string>[] = stageList.map(
+        (stage, index) => ({value: stage, label: stagePrintList.at(index) ?? "Unknown"})
+    );
 
     const glossaryTermOptions: Item<string>[] = useMemo(() =>
-        glossaryTerms?.results.filter(gt => isDefined(gt.id)).map(
+        glossaryTerms?.results.filter(
+            gt => {
+                let keep = isDefined(gt.id);
+                if (filterSubject) keep = (gt.tags?.includes(filterSubject) ?? false) && keep;
+                if (filterStage) keep = (gt.stages?.includes(filterStage) ?? false) && keep;
+                return keep;
+            }
+        ).map(
                 gt => {
                     let label = gt.value ?? gt.id as string;
                     if (isPhy) label += " [id: " + gt.id as string + "]";
                     return ({value: gt.id as string, label: label});
                 }
-        ) ?? [], [glossaryTerms]);
+        ) ?? [], [glossaryTerms, filterStage, filterSubject]);
 
     const [glossaryTermText, setGlossaryTermText] = useState<string>();
     const [glossaryTerm, setGlossaryTerm] = useState<Item<string> | undefined>();
@@ -39,7 +56,7 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
             codemirror.current?.view?.dispatch(codemirror.current?.view?.state.replaceSelection(`[glossary${isInlineTerm ? "-inline" : ""}${isInlineTerm && isTitledTerm ? "-titled" : ""}:${glossaryTerm.value}${isInlineTerm && trimmedGlossaryTermText ? ` "${trimmedGlossaryTermText}"` : ""}]`)
             );
         }
-    }, [glossaryTermText, glossaryTerm, isInlineTerm, codemirror]);
+    }, [glossaryTermText, glossaryTerm, isInlineTerm, isTitledTerm, codemirror]);
 
     return <>
         <button className={styles.cmPanelButton} title={"Insert glossary term"} onClick={(event) => {
@@ -47,6 +64,20 @@ export const PopupGlossaryTermSelect = ({wide, codemirror}: { wide?: boolean, co
         }}>{wide ? "Add glossary term" : "➕ glossary"}</button>
         <Popup popUpRef={popupRef}>
             <Container className={styles.cmPanelPopup}>
+                {isPhy && <>
+                    <Label for={"glossary-subject-select"}>Select subject:</Label>
+                    <Select inputId="glossary-subject-select"
+                            isClearable
+                            onChange={e => setFilterSubject(e ? e.value : undefined)}
+                            options={subjectListOptions}
+                            placeholder={"Type to search subjects"} />
+                    <Label for={"glossary-stage-select"}>Select stage:</Label>
+                    <Select inputId="glossary-stage-select"
+                            isClearable
+                            onChange={e => setFilterStage(e ? e.value : undefined)}
+                            options={stageListOptions}
+                            placeholder={"Type to search stages"} />
+                </>}
                 <Label for={"glossary-term-id-select"}>Select glossary term:</Label>
                 <Select inputId="glossary-term-id-select"
                         onChange={e => setGlossaryTerm(e ? {value: e.value, label: e.label} : undefined)}
