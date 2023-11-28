@@ -27,17 +27,6 @@ export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<Popup
     const handleContextMenu = useCallback((event: React.MouseEvent) => {
         event.preventDefault();
         setAnchorPoint({x: event.pageX, y: event.pageY});
-
-        if (event.pageY + (insideRef.current?.clientHeight ?? 0) > window.innerHeight) {
-            if (event.pageY - (insideRef.current?.clientHeight ?? 0) < 0) {
-                const difference = window.innerHeight - event.pageY;
-                setHeight(Math.min(difference, insideRef.current?.clientHeight ?? 200));
-            } else {
-                setAnchorPoint({x: event.pageX, y: event.pageY - (insideRef.current?.clientHeight ?? 0)});
-                setHeight(undefined);
-            }
-        }
-
         setOpen(true);
     }, [setAnchorPoint, setOpen]);
 
@@ -51,16 +40,24 @@ export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<Popup
     }, []);
     useLayoutEffect(() => {
         if (isOpen) {
-            if (anchorPoint.y + (insideRef.current?.clientHeight ?? 0) > window.innerHeight) {
-                if (anchorPoint.y - (insideRef.current?.clientHeight ?? 0) < 0) {
+            const tempAnchor = {x: anchorPoint.x, y: anchorPoint.y};
+
+            if (!insideRef.current) return;
+            if (anchorPoint.x + (insideRef.current.clientWidth) > window.innerWidth) {
+                tempAnchor.x = window.innerWidth - (insideRef.current.clientWidth);
+            }
+
+            if (anchorPoint.y + (insideRef.current.clientHeight) > window.innerHeight) {
+                if (anchorPoint.y - (insideRef.current.clientHeight) < 0) {
                     const difference = window.innerHeight - anchorPoint.y;
-                    setHeight(Math.min(difference, insideRef.current?.clientHeight ?? 200));
+                    setHeight(Math.min(difference, insideRef.current.clientHeight));
                 } else {
-                    setAnchorPoint({x: anchorPoint.x, y: anchorPoint.y - (insideRef.current?.clientHeight ?? 0)});
+                    tempAnchor.y = anchorPoint.y - (insideRef.current.clientHeight);
                     setHeight(undefined);
                 }
             }
 
+            setAnchorPoint(tempAnchor);
             document.addEventListener("click", closeOutside, {capture: true});
             return () => document.removeEventListener("click", closeOutside, {capture: true});
         }
@@ -83,8 +80,9 @@ export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<Popup
                     top: anchorPoint.y,
                     left: anchorPoint.x,
                     zIndex: 9999,
-                    overflow: "auto",
+                    overflowY: "auto",
                     maxHeight: height,
+                    minWidth: "max-content"
                 }}
                 ref={insideRef}
             >
