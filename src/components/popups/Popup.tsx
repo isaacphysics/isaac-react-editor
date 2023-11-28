@@ -21,14 +21,23 @@ export interface PopupRef {
 export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<PopupRef | null>; children: ReactNode }) {
     const [isOpen, setOpen] = useState(false);
     const [anchorPoint, setAnchorPoint] = useState({x: 0, y: 0});
+    const [height, setHeight] = useState<number>();
     const insideRef = useRef<HTMLDivElement | null>(null);
 
     const handleContextMenu = useCallback((event: React.MouseEvent) => {
         event.preventDefault();
         setAnchorPoint({x: event.pageX, y: event.pageY});
+
         if (event.pageY + (insideRef.current?.clientHeight ?? 0) > window.innerHeight) {
-            setAnchorPoint({x: event.pageX, y: event.pageY - (insideRef.current?.clientHeight ?? 0)});
+            if (event.pageY - (insideRef.current?.clientHeight ?? 0) < 0) {
+                const difference = window.innerHeight - event.pageY;
+                setHeight(Math.min(difference, insideRef.current?.clientHeight ?? 200));
+            } else {
+                setAnchorPoint({x: event.pageX, y: event.pageY - (insideRef.current?.clientHeight ?? 0)});
+                setHeight(undefined);
+            }
         }
+
         setOpen(true);
     }, [setAnchorPoint, setOpen]);
 
@@ -43,8 +52,15 @@ export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<Popup
     useLayoutEffect(() => {
         if (isOpen) {
             if (anchorPoint.y + (insideRef.current?.clientHeight ?? 0) > window.innerHeight) {
-                setAnchorPoint({x: anchorPoint.x, y: anchorPoint.y - (insideRef.current?.clientHeight ?? 0)});
+                if (anchorPoint.y - (insideRef.current?.clientHeight ?? 0) < 0) {
+                    const difference = window.innerHeight - anchorPoint.y;
+                    setHeight(Math.min(difference, insideRef.current?.clientHeight ?? 200));
+                } else {
+                    setAnchorPoint({x: anchorPoint.x, y: anchorPoint.y - (insideRef.current?.clientHeight ?? 0)});
+                    setHeight(undefined);
+                }
             }
+
             document.addEventListener("click", closeOutside, {capture: true});
             return () => document.removeEventListener("click", closeOutside, {capture: true});
         }
@@ -67,6 +83,8 @@ export function Popup({ popUpRef, children }: { popUpRef: MutableRefObject<Popup
                     top: anchorPoint.y,
                     left: anchorPoint.x,
                     zIndex: 9999,
+                    overflow: "auto",
+                    maxHeight: height,
                 }}
                 ref={insideRef}
             >
