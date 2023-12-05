@@ -5,6 +5,7 @@ import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} fr
 import {
     Content,
     IsaacCoordinateQuestion,
+    IsaacGraphSketcherQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
@@ -310,7 +311,28 @@ export function CoordinateChoiceItemInserter({insert, position, lengthOfCollecti
     }}>Add</Button>;
 }
 
+export function GraphSketcherQuestionPresenter(props: PresenterProps<IsaacGraphSketcherQuestion>) {
+    const {doc, update} = props;
+    const question = doc as IsaacCoordinateQuestion;
 
+    const EditableAxisLabelX = EditableDocPropFor<IsaacGraphSketcherQuestion>("axisLabelX", {label: "X-axis", block: true, format: "latex", previewWrapperChar: "$"});
+    const EditableAxisLabelY = EditableDocPropFor<IsaacGraphSketcherQuestion>("axisLabelY", {label: "Y-axis", block: true, format: "latex", previewWrapperChar: "$"});
+
+    return <>
+        <QuestionMetaPresenter {...props} />
+        <div className={styles.questionLabel}>
+            Axis labels:
+            <div className="row">
+                <div className="col col-lg-5">
+                    <EditableAxisLabelX doc={question} update={update} />
+                </div>
+                <div className="col col-lg-5">
+                    <EditableAxisLabelY doc={question} update={update} />
+                </div>
+            </div>
+        </div>
+    </>;
+}
 
 const EditableAvailableSymbols = ({doc, update}: PresenterProps<IsaacSymbolicQuestion>) => {
     return <EditableText

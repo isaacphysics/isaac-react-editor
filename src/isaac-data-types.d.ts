@@ -96,6 +96,8 @@ export interface IsaacFreeTextQuestion extends IsaacQuestionBase {
 }
 
 export interface IsaacGraphSketcherQuestion extends IsaacQuestionBase {
+    axisLabelX?: string;
+    axisLabelY?: string;
 }
 
 export interface IsaacItemQuestion extends IsaacQuestionBase {

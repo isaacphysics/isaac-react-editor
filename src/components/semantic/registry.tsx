@@ -1,6 +1,7 @@
 import {
     AnswerPresenter,
     CoordinateQuestionPresenter,
+    GraphSketcherQuestionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -297,7 +298,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     freeTextRule: choice,
     isaacRegexMatchQuestion: isaacStringMatchQuestion,
     regexPattern: choice,
-    isaacGraphSketcherQuestion: {...question, headerPresenter: QuestionMetaPresenter},
+    isaacGraphSketcherQuestion: {...question, headerPresenter: GraphSketcherQuestionPresenter},
     graphChoice: choice,
     isaacItemQuestion,
     isaacReorderQuestion: isaacItemQuestion,
