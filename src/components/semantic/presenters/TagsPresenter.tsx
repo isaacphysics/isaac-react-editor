@@ -3,7 +3,6 @@ import { Button, Input } from "reactstrap";
 import useSWR from "swr";
 
 import { stagingFetcher } from "../../../services/isaacApi";
-import { isAda, siteSpecific } from "../../../services/site";
 
 import { PresenterProps } from "../registry";
 
@@ -18,7 +17,7 @@ export function TagsPresenter({doc, update, subjectsOnly}: PresenterProps & {sub
     );
     // TODO: once merged import subjectList from constants
     const subjectList = ["biology","chemistry","physics","maths"]
-    const searchList = siteSpecific(subjectList, tagList);
+    const searchList = subjectsOnly ? subjectList : tagList;
     const [showTagList, setShowTagList] = useState(true);
     const [filteredTagList, setFilteredTagList] = useState<string[]>();
 
@@ -42,11 +41,10 @@ export function TagsPresenter({doc, update, subjectsOnly}: PresenterProps & {sub
             tagToSet = tag;
         }
 
-        if (tagToSet || isAda) {
+        if (tagToSet || !subjectsOnly) {
             update({
                 ...doc,
-                // Only on Ada will `tag` be potentially used
-                // this prevents Physics from creating new subjects
+                // We do not need to add subjects in the subjectsOnly case
                 tags: [...doc.tags ?? [], tagToSet ?? tag],
             });
         }
@@ -73,20 +71,20 @@ export function TagsPresenter({doc, update, subjectsOnly}: PresenterProps & {sub
         {doc.tags?.map(tag => <Button key={tag} outline onClick={() => removeTag(tag)}>{tag} ➖</Button>)}
         <Input value={searchString}
                onChange={(e) => setSearchString(e.target.value.toLowerCase())}
-               placeholder={`Type to add ${siteSpecific("subjects", "tags")}...`}
+               placeholder={`Type to add ${subjectsOnly ? "subjects" : "tags"}...`}
                innerRef={inputRef}
                onKeyPress={onKeyPress}
         />
         {searchString !== "" && <div>
             <Button onClick={() => setShowTagList(!showTagList)}>
                 {showTagList ? 
-                    `Hide ${siteSpecific("subjects", "tags")}` :
-                    `Show available ${siteSpecific("subjects", "tags")}`}
+                    `Hide ${subjectsOnly ? "subjects" : "tags"}` :
+                    `Show available ${subjectsOnly ? "subjects" : "tags"}`}
             </Button>
             {showTagList && (filteredTagList?.map((tag) =>
                 <Button key={tag} outline color="primary" onClick={() => addTag(tag)}>{tag} ➕</Button>
             ) ?? <em>Loading...</em>)}
-            {isAda && // Don't allow Physics editors to create new subjects
+            {!subjectsOnly && // Don't allow the addition of new subjects if it is subjectsOnly
                 <Button color="success" onClick={() => addTag(searchString)}>Create new tag: {searchString} ➕</Button>}
         </div>}
     </div>;
