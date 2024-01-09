@@ -9,7 +9,7 @@ import { PresenterProps } from "../registry";
 
 import styles from "../styles/tags.module.css";
 
-export function TagsPresenter({doc, update}: PresenterProps) {
+export function TagsPresenter({doc, update, subjectsOnly}: PresenterProps & {subjectsOnly?: boolean}) {
     const [searchString, setSearchString] = useState("");
     const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
     const {data: tagList} = useSWR<string[]>(

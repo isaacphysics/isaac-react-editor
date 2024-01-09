@@ -16,7 +16,7 @@ export function GlossaryTermPresenter(props: PresenterProps<GlossaryTerm>) {
         <div className={styles.controls}>
             <EditableValueProp {...props} placeHolder="Glossary term" block />
             <EditableIDProp {...props} label="Term ID" block />
-            <Label>{siteSpecific("Subjects", "Tags")}</Label> <TagsPresenter {...props} />
+            <Label>{siteSpecific("Subjects", "Tags")}</Label> <TagsPresenter {...props} subjectsOnly={isPhy} />
             {isPhy && <>
                 <Label>Stage</Label> <StagePresenter {...props} />
             </>}
