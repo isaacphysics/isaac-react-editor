@@ -4,7 +4,7 @@ import {ContentValueOrChildrenPresenter} from "./ContentValueOrChildrenPresenter
 import {EnumPropFor} from "../props/EnumProp";
 import {siteSpecific} from "../../../services/site";
 
-export const EditableStyleProp = EnumPropFor("subtitle", siteSpecific({regular: "Regular"}, {regular: "Regular", testData: "Test Data", sampleRun: "Sample Run"}));
+export const EditableStyleProp = EnumPropFor("subtitle", siteSpecific({regular: "Regular"}, {regular: "Regular", testData: "Test Data", sampleRun: "Sample Run", scenario: "Scenario"}));
 
 export function CalloutPresenter(props: PresenterProps) {
     return <>
