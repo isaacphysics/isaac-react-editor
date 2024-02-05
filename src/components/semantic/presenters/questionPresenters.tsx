@@ -6,6 +6,8 @@ import {
     Content,
     IsaacCoordinateQuestion,
     IsaacGraphSketcherQuestion,
+    IsaacInlinePart,
+    IsaacInlineQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
@@ -22,6 +24,9 @@ import {SemanticListProp} from "../props/listProps";
 import {NumberDocPropFor} from "../props/NumberDocPropFor";
 import {ChoicesPresenter} from "./ChoicesPresenter";
 import {InserterProps} from "./ListChildrenPresenter";
+import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
+import { InlinePartsPresenter } from "./InlinePartsPresenter";
+import { Box } from "../SemanticItem";
 
 export const QuestionContext = React.createContext<Content | null>(null);
 
@@ -33,6 +38,7 @@ export type QUESTION_TYPES =
     | "isaacSymbolicChemistryQuestion"
     | "isaacStringMatchQuestion"
     | "isaacFreeTextQuestion"
+    | "isaacInlineQuestion"
     | "isaacSymbolicLogicQuestion"
     | "isaacGraphSketcherQuestion"
     | "isaacRegexMatchQuestion"
@@ -64,6 +70,9 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     },
     isaacFreeTextQuestion: {
         name: "Free Text Question",
+    },
+    isaacInlineQuestion: {
+        name: "Inline Question",
     },
     isaacSymbolicLogicQuestion: {
         name: "Logic Question",
@@ -196,6 +205,10 @@ export function QuestionFooterPresenter(props: PresenterProps<IsaacQuestionBase>
     </>;
 }
 
+export function HintsPresenter(props: PresenterProps<IsaacQuestionBase>) {
+    return <SemanticListProp {...props} prop="hints" type="hints" />;
+}
+
 export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacMultiChoiceQuestion;
@@ -311,6 +324,15 @@ export function CoordinateChoiceItemInserter({insert, position, lengthOfCollecti
     }}>Add</Button>;
 }
 
+export function InlinePartInserter({insert, position, lengthOfCollection}: InserterProps) {
+    if (position !== lengthOfCollection) {
+        return null; // Only include an insert button at the end.
+    }
+    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
+        insert(position, {type: "inlineQuestionPart"});
+    }}>Add new inline question part</Button>;
+}
+
 export function GraphSketcherQuestionPresenter(props: PresenterProps<IsaacGraphSketcherQuestion>) {
     const {doc, update} = props;
     const question = doc as IsaacCoordinateQuestion;
@@ -415,6 +437,22 @@ export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMa
     return <>
         <QuestionMetaPresenter {...props} />
         <CheckboxDocProp {...props} prop="multiLineEntry" label="Multi-line" />
+    </>;
+}
+
+export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePart>) {
+    const {doc} = props;
+    return <Box name="Inline Question Part">
+        <h6><EditableIDProp {...props} label="Question ID"/></h6>
+        {/* TODO: experiment with generifying/genericising/generalising the below */}
+        <ChoicesPresenter {...props} doc={{...doc, type: "isaacStringMatchQuestion"}} />
+    </Box>;
+}
+
+export function InlineQuestionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
+    return <>
+        <ContentValueOrChildrenPresenter {...props} />
+        <InlinePartsPresenter {...props} />
     </>;
 }
 
