@@ -266,7 +266,7 @@ export const CoordinateChoicePresenter = (props: ValuePresenterProps<CoordinateC
 
     useEffect(() => {
         if (numberOfCoordinates !== undefined && props.doc.items?.length !== numberOfCoordinates) {
-            props.update({...props.doc, items: Array(numberOfCoordinates).fill({x: 0, y: 0}).map((placeholder, i) => props.doc.items && props.doc.items[i] ? props.doc.items[i] : placeholder)});
+            props.update({...props.doc, items: Array(numberOfCoordinates).fill({x: 0, y: 0, type: "coordinateItem"}).map((placeholder, i) => props.doc.items && props.doc.items[i] ? props.doc.items[i] : placeholder)});
         }
     }, [numberOfCoordinates]);
 
