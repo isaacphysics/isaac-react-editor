@@ -38,7 +38,6 @@ export type QUESTION_TYPES =
     | "isaacSymbolicChemistryQuestion"
     | "isaacStringMatchQuestion"
     | "isaacFreeTextQuestion"
-    | "isaacInlineQuestion"
     | "isaacSymbolicLogicQuestion"
     | "isaacGraphSketcherQuestion"
     | "isaacRegexMatchQuestion"
@@ -70,9 +69,6 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     },
     isaacFreeTextQuestion: {
         name: "Free Text Question",
-    },
-    isaacInlineQuestion: {
-        name: "Inline Question",
     },
     isaacSymbolicLogicQuestion: {
         name: "Logic Question",
@@ -449,7 +445,7 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
     </Box>;
 }
 
-export function InlineQuestionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
+export function InlineRegionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
     return <>
         <ContentValueOrChildrenPresenter {...props} />
         <InlinePartsPresenter {...props} />

@@ -4,7 +4,7 @@ import {
     GraphSketcherQuestionPresenter,
     HintsPresenter,
     InlineQuestionPartPresenter,
-    InlineQuestionPresenter,
+    InlineRegionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -79,6 +79,7 @@ export type ContentType =
     | "inlineQuestionPart"
     | "inlineItem$choice"
     | "coordinateItem$choice"
+    | "isaacInlineRegion"
     | QUESTION_TYPES
     | CHOICE_TYPES
 ;
@@ -304,7 +305,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacRegexMatchQuestion: isaacStringMatchQuestion,
     inlineItem$choice: choice,
     inlineQuestionPart: {bodyPresenter: InlineQuestionPartPresenter},
-    isaacInlineQuestion: {...question, bodyPresenter: InlineQuestionPresenter, footerPresenter: HintsPresenter},
+    isaacInlineRegion: {bodyPresenter: InlineRegionPresenter, footerPresenter: HintsPresenter},
     regexPattern: choice,
     isaacGraphSketcherQuestion: {...question, headerPresenter: GraphSketcherQuestionPresenter},
     graphChoice: choice,

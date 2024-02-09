@@ -35,6 +35,7 @@ const blockTypes = {
     "side-by-side layout": {type: "content", layout: "horizontal", encoding: "markdown", children: []},
     "clearfix": {type: "content", layout: "clearfix", encoding: "markdown", value: ""},
     "callout": {type: "content", layout: "callout", encoding: "markdown", value: "", subtitle: "regular"},
+    "inline region": {type: "isaacInlineRegion", encoding: "markdown", id: generate, children: []},
     "card deck": {type: "isaacCardDeck", encoding: "markdown", value: ""},
     "code snippet": {
         type: "codeSnippet",

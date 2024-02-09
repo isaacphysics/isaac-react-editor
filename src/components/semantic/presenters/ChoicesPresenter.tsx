@@ -16,7 +16,6 @@ const choicesType: Record<QUESTION_TYPES, CHOICE_TYPES | null> = {
     isaacSymbolicChemistryQuestion: "chemicalFormula",
     isaacStringMatchQuestion: "stringChoice",
     isaacFreeTextQuestion: "freeTextRule",
-    isaacInlineQuestion: "inlineItem$choice",
     isaacSymbolicLogicQuestion: "logicFormula",
     isaacGraphSketcherQuestion: "graphChoice",
     isaacRegexMatchQuestion: "regexPattern",
