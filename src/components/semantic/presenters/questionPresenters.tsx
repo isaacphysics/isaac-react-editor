@@ -438,11 +438,11 @@ export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMa
 
 export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePart>) {
     const {doc} = props;
-    return <Box name="Inline Question Part">
+    return <>
         <h6><EditableIDProp {...props} label="Question ID"/></h6>
         {/* TODO: experiment with generifying/genericising/generalising the below */}
         <ChoicesPresenter {...props} doc={{...doc, type: "isaacStringMatchQuestion"}} />
-    </Box>;
+    </>;
 }
 
 export function InlineRegionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
