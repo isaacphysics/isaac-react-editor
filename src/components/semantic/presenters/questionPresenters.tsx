@@ -26,7 +26,6 @@ import {ChoicesPresenter} from "./ChoicesPresenter";
 import {InserterProps} from "./ListChildrenPresenter";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { InlinePartsPresenter } from "./InlinePartsPresenter";
-import { Box } from "../SemanticItem";
 import { EditableInlineTypeProp } from "./InlineQuestionTypePresenter";
 
 export const QuestionContext = React.createContext<Content | null>(null);
@@ -450,6 +449,7 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
 
     return <>
         <h6><EditableIDProp {...props} label="Question ID"/></h6>
+        {props.doc.id && props.doc.id.match(/^\[|\]$/) && <p className="text-danger"><i>Warning: the ID should not include the surrounding square brackets!</i></p>}
         <EditableInlineTypeProp {...props} disabled={isDisabled} />
         <em>Note: you cannot change the question type if any choices exist.</em>
         {props.doc.type === "isaacNumericQuestion" && <>
@@ -457,6 +457,7 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
             <NumericQuestionPresenter {...props} showMeta={false} />
         </>}
         {choices}
+        <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" />
     </>;
 }
 
