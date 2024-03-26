@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 import {EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
 import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} from "reactstrap";
@@ -6,6 +6,8 @@ import {
     Content,
     IsaacCoordinateQuestion,
     IsaacGraphSketcherQuestion,
+    IsaacInlinePart,
+    IsaacInlineQuestion,
     IsaacMultiChoiceQuestion,
     IsaacNumericQuestion,
     IsaacQuestionBase,
@@ -22,6 +24,9 @@ import {SemanticListProp} from "../props/listProps";
 import {NumberDocPropFor} from "../props/NumberDocPropFor";
 import {ChoicesPresenter} from "./ChoicesPresenter";
 import {InserterProps} from "./ListChildrenPresenter";
+import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
+import { InlinePartsPresenter } from "./InlinePartsPresenter";
+import { EditableInlineTypeProp } from "./InlineQuestionTypePresenter";
 
 export const QuestionContext = React.createContext<Content | null>(null);
 
@@ -91,6 +96,59 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     },
 };
 
+export function changeQuestionType({doc, update, newType} : PresenterProps & {newType: QUESTION_TYPES}) {
+    const newDoc = {...doc, type: newType} as IsaacQuickQuestion & IsaacNumericQuestion & IsaacCoordinateQuestion;
+    if (newType === "isaacNumericQuestion" && !newDoc.hasOwnProperty("requireUnits")) {
+        // Add the default value if it is missing
+        newDoc.requireUnits = true;
+        delete newDoc.displayUnit;
+        newDoc.disregardSignificantFigures = false;
+        delete newDoc.showConfidence;
+        delete newDoc.randomiseChoices;
+    } else if (newType === "isaacQuestion" && !newDoc.hasOwnProperty("showConfidence")) {
+        newDoc.showConfidence = false;
+        delete newDoc.requireUnits
+        delete newDoc.disregardSignificantFigures
+        delete newDoc.displayUnit;
+        delete newDoc.randomiseChoices
+    } else if (newType === "isaacMultiChoiceQuestion" && !newDoc.hasOwnProperty("randomiseChoices")) {
+        // Add the default value if it is missing
+        newDoc.randomiseChoices = true;
+        delete newDoc.requireUnits
+        delete newDoc.disregardSignificantFigures
+        delete newDoc.displayUnit;
+        delete newDoc.showConfidence
+    } else {
+        // Remove the requireUnits property as it is no longer applicable to this type of question
+        delete newDoc.requireUnits;
+        // Remove the disregardSignificantFigures property as it is no longer applicable to this type of question
+        delete newDoc.disregardSignificantFigures;
+        // Remove the displayUnit property as it is no longer applicable to this type of question
+        delete newDoc.displayUnit;
+        // Remove the randomiseChoices property as it is no longer applicable to this type of question
+        delete newDoc.randomiseChoices;
+        // Remove showConfidence property as it is no longer applicable to this type of question
+        delete newDoc.showConfidence;
+    }
+
+    if (newType === "isaacQuestion") {
+        // Remove the defaultFeedback property as it is not applicable to quick questions
+        delete newDoc.defaultFeedback;
+    }
+
+    if (!(newDoc.hasOwnProperty("significantFiguresMin") && newDoc.hasOwnProperty("significantFiguresMax"))) {
+        delete newDoc.significantFiguresMin;
+        delete newDoc.significantFiguresMax;
+    }
+
+    if (newType !== "isaacCoordinateQuestion") {
+        delete newDoc.ordered;
+        delete newDoc.numberOfCoordinates;
+    }
+
+    update(newDoc);
+}
+
 function QuestionTypeSelector({doc, update}: PresenterProps) {
     const [isOpen, setOpen] = useState(false);
 
@@ -105,57 +163,7 @@ function QuestionTypeSelector({doc, update}: PresenterProps) {
                 const possibleType = QuestionTypes[key as QUESTION_TYPES];
                 return <DropdownItem key={key} active={questionType === possibleType} onClick={() => {
                     if (questionType !== possibleType) {
-                        const newType = key;
-                        const newDoc = {...doc, type: newType} as IsaacQuickQuestion & IsaacNumericQuestion & IsaacCoordinateQuestion;
-                        if (newType === "isaacNumericQuestion" && !newDoc.hasOwnProperty("requireUnits")) {
-                            // Add the default value if it is missing
-                            newDoc.requireUnits = true;
-                            delete newDoc.displayUnit;
-                            newDoc.disregardSignificantFigures = false;
-                            delete newDoc.showConfidence;
-                            delete newDoc.randomiseChoices;
-                        } else if (newType === "isaacQuestion" && !newDoc.hasOwnProperty("showConfidence")) {
-                            newDoc.showConfidence = false;
-                            delete newDoc.requireUnits
-                            delete newDoc.disregardSignificantFigures
-                            delete newDoc.displayUnit;
-                            delete newDoc.randomiseChoices
-                        } else if (newType === "isaacMultiChoiceQuestion" && !newDoc.hasOwnProperty("randomiseChoices")) {
-                            // Add the default value if it is missing
-                            newDoc.randomiseChoices = true;
-                            delete newDoc.requireUnits
-                            delete newDoc.disregardSignificantFigures
-                            delete newDoc.displayUnit;
-                            delete newDoc.showConfidence
-                        } else {
-                            // Remove the requireUnits property as it is no longer applicable to this type of question
-                            delete newDoc.requireUnits;
-                            // Remove the disregardSignificantFigures property as it is no longer applicable to this type of question
-                            delete newDoc.disregardSignificantFigures;
-                            // Remove the displayUnit property as it is no longer applicable to this type of question
-                            delete newDoc.displayUnit;
-                            // Remove the randomiseChoices property as it is no longer applicable to this type of question
-                            delete newDoc.randomiseChoices;
-                            // Remove showConfidence property as it is no longer applicable to this type of question
-                            delete newDoc.showConfidence;
-                        }
-
-                        if (newType === "isaacQuestion") {
-                            // Remove the defaultFeedback property as it is not applicable to quick questions
-                            delete newDoc.defaultFeedback;
-                        }
-
-                        if (!(newDoc.hasOwnProperty("significantFiguresMin") && newDoc.hasOwnProperty("significantFiguresMax"))) {
-                            delete newDoc.significantFiguresMin;
-                            delete newDoc.significantFiguresMax;
-                        }
-
-                        if (newType !== "isaacCoordinateQuestion") {
-                            delete newDoc.ordered;
-                            delete newDoc.numberOfCoordinates;
-                        }
-
-                        update(newDoc);
+                        changeQuestionType({doc, update, newType: key as QUESTION_TYPES});
                     }
                 }}>
                     {possibleType.name}
@@ -196,6 +204,10 @@ export function QuestionFooterPresenter(props: PresenterProps<IsaacQuestionBase>
     </>;
 }
 
+export function HintsPresenter(props: PresenterProps<IsaacQuestionBase>) {
+    return <SemanticListProp {...props} prop="hints" type="hints" />;
+}
+
 export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacMultiChoiceQuestion;
@@ -223,12 +235,12 @@ const EditableAvailableUnits = ({doc, update}: PresenterProps<IsaacNumericQuesti
 };
 const EditableDisplayUnit = EditableDocPropFor<IsaacNumericQuestion>("displayUnit",  {label: "Display unit", block: true, format: "latex", previewWrapperChar: "$"});
 
-export function NumericQuestionPresenter(props: PresenterProps) {
+export function NumericQuestionPresenter({showMeta = true, ...props}: {showMeta?: boolean} & PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacNumericQuestion;
 
     return <>
-        <QuestionMetaPresenter {...props} />
+        {showMeta && <QuestionMetaPresenter {...props} />}
         <div>
             <CheckboxDocProp doc={question} update={update} prop="disregardSignificantFigures" label="Exact answers only" />
         </div>
@@ -309,6 +321,15 @@ export function CoordinateChoiceItemInserter({insert, position, lengthOfCollecti
     return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
         insert(position, {type: "coordinateItem"});
     }}>Add</Button>;
+}
+
+export function InlinePartInserter({insert, position, lengthOfCollection}: InserterProps) {
+    if (position !== lengthOfCollection) {
+        return null; // Only include an insert button at the end.
+    }
+    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
+        insert(position, {type: "inlineQuestionPart"});
+    }}>Add new inline question part</Button>;
 }
 
 export function GraphSketcherQuestionPresenter(props: PresenterProps<IsaacGraphSketcherQuestion>) {
@@ -415,6 +436,35 @@ export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMa
     return <>
         <QuestionMetaPresenter {...props} />
         <CheckboxDocProp {...props} prop="multiLineEntry" label="Multi-line" />
+    </>;
+}
+
+export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePart>) {
+    const [isDisabled, setIsDisabled] = useState(false);
+    const choices = <ChoicesPresenter {...props} />;
+    
+    useEffect(() => {
+        setIsDisabled(choices.props.doc.choices && choices.props.doc.choices.length > 0);
+    }, [choices.props.doc.choices]);
+
+    return <>
+        <h6><EditableIDProp {...props} label="Question ID"/></h6>
+        {props.doc.id && props.doc.id.match(/^\[|\]$/) && <p className="text-danger"><i>Warning: the ID should not include the surrounding square brackets!</i></p>}
+        <EditableInlineTypeProp {...props} disabled={isDisabled} />
+        <em>Note: you cannot change the question type if any choices exist.</em>
+        {props.doc.type === "isaacNumericQuestion" && <>
+            <hr/>
+            <NumericQuestionPresenter {...props} showMeta={false} />
+        </>}
+        {choices}
+        <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" />
+    </>;
+}
+
+export function InlineRegionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
+    return <>
+        <ContentValueOrChildrenPresenter {...props} />
+        <InlinePartsPresenter {...props} />
     </>;
 }
 

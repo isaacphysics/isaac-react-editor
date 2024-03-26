@@ -2,6 +2,9 @@ import {
     AnswerPresenter,
     CoordinateQuestionPresenter,
     GraphSketcherQuestionPresenter,
+    HintsPresenter,
+    InlineQuestionPartPresenter,
+    InlineRegionPresenter,
     MultipleChoiceQuestionPresenter,
     NumericQuestionPresenter,
     QUESTION_TYPES,
@@ -73,6 +76,9 @@ export type ContentType =
     | "item"
     | "parsonsItem"
     | "item$choice"
+    | "inlineItem$choice"
+    | "inlineQuestionPart"
+    | "isaacInlineRegion"
     | "coordinateItem$choice"
     | QUESTION_TYPES
     | CHOICE_TYPES
@@ -206,6 +212,15 @@ const isaacCardDeck: RegistryEntry = {
     name: "Card Deck",
     bodyPresenter: CardDeckPresenter,
 };
+const isaacInlineRegion: RegistryEntry = {
+    name: "Inline Region",
+    bodyPresenter: InlineRegionPresenter,
+    footerPresenter: HintsPresenter,
+};
+const isaacInlineQuestionPart: RegistryEntry = {
+    name: "Inline Question Part", 
+    bodyPresenter: InlineQuestionPartPresenter,
+};
 
 const pageMeta: MetaItemKey[] = ["audience", ...defaultMeta, "relatedContent"];
 const pageMetaTail: MetaItemKey[] = ["published", "deprecated"];
@@ -297,6 +312,9 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacFreeTextQuestion: isaacStringMatchQuestion,
     freeTextRule: choice,
     isaacRegexMatchQuestion: isaacStringMatchQuestion,
+    inlineItem$choice: choice,
+    inlineQuestionPart: isaacInlineQuestionPart,
+    isaacInlineRegion: isaacInlineRegion,
     regexPattern: choice,
     isaacGraphSketcherQuestion: {...question, headerPresenter: GraphSketcherQuestionPresenter},
     graphChoice: choice,

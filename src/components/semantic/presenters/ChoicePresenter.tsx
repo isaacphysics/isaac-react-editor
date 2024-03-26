@@ -9,6 +9,7 @@ import {
     Formula,
     FreeTextRule,
     GraphChoice,
+    InlineChoice,
     IsaacNumericQuestion,
     ParsonsChoice,
     Quantity,
@@ -275,6 +276,12 @@ export const CoordinateChoicePresenter = (props: ValuePresenterProps<CoordinateC
     </>;
 }
 
+export const InlineChoicePresenter = (props: ValuePresenterProps<InlineChoice>) => {
+    return <>
+        <ListPresenterProp {...props} prop="items" childTypeOverride="inlineItem$choice" />
+    </>;
+}
+
 const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     choice: BaseValuePresenter,
     quantity: QuantityPresenter,
@@ -282,6 +289,7 @@ const CHOICE_REGISTRY: Record<CHOICE_TYPES, ValuePresenter<Choice>> = {
     chemicalFormula: ChemicalFormulaPresenter,
     stringChoice: StringChoicePresenter,
     freeTextRule: FreeTextRulePresenter,
+    inlineItem$choice: InlineChoicePresenter,
     logicFormula: FormulaPresenter,
     graphChoice: GraphChoicePresenter,
     regexPattern: RegexPatternPresenter,
