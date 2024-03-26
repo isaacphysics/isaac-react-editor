@@ -198,7 +198,9 @@ export function QuickQuestionPresenter(props: PresenterProps) {
 export function QuestionFooterPresenter(props: PresenterProps<IsaacQuestionBase>) {
     return <>
         <ChoicesPresenter {...props} />
-        <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" />
+        <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" onDelete={() => 
+            props.update({...props.doc, defaultFeedback: undefined})
+        } />
         <AnswerPresenter {...props} />
         <SemanticListProp {...props} prop="hints" type="hints" />
     </>;
