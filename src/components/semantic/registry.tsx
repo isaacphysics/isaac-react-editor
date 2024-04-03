@@ -137,7 +137,7 @@ const tabs: RegistryEntry = {
 }
 const hints: RegistryEntry = {
     name: "Hints",
-    bodyPresenter: (props) => <TabsPresenter {...props} hideTitles/>,
+    bodyPresenter: (props) => <TabsPresenter {...props} />,
 };
 const question: RegistryEntry = {
     name: "Question",
