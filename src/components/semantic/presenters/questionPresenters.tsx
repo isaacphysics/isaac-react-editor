@@ -149,24 +149,25 @@ export function changeQuestionType({doc, update, newType} : PresenterProps & {ne
     update(newDoc);
 }
 
-function QuestionTypeSelector({doc, update}: PresenterProps) {
+export function QuestionTypeSelector({doc, update, questionTypes = QuestionTypes, disabled = false}
+    : PresenterProps & {questionTypes?: Partial<Record<QUESTION_TYPES, { name: string; }>>, disabled?: boolean}) {
     const [isOpen, setOpen] = useState(false);
 
-    const questionType = QuestionTypes[doc.type as QUESTION_TYPES];
+    const questionType = questionTypes[doc.type as QUESTION_TYPES];
 
-    return <Dropdown toggle={() => setOpen(toggle => !toggle)} isOpen={isOpen}>
+    return <Dropdown toggle={() => setOpen(toggle => !toggle)} isOpen={isOpen} disabled={disabled}>
         <DropdownToggle caret>
-            {questionType.name}
+            {questionType?.name}
         </DropdownToggle>
         <DropdownMenu>
-            {Object.keys(QuestionTypes).map((key) => {
-                const possibleType = QuestionTypes[key as QUESTION_TYPES];
+            {Object.keys(questionTypes).map((key) => {
+                const possibleType = questionTypes[key as QUESTION_TYPES];
                 return <DropdownItem key={key} active={questionType === possibleType} onClick={() => {
                     if (questionType !== possibleType) {
                         changeQuestionType({doc, update, newType: key as QUESTION_TYPES});
                     }
                 }}>
-                    {possibleType.name}
+                    {possibleType?.name}
                 </DropdownItem>;
             })}
         </DropdownMenu>
