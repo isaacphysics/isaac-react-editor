@@ -76,7 +76,6 @@ export type ContentType =
     | "item"
     | "parsonsItem"
     | "item$choice"
-    | "inlineItem$choice"
     | "inlineQuestionPart"
     | "isaacInlineRegion"
     | "coordinateItem$choice"
@@ -312,7 +311,6 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     isaacFreeTextQuestion: isaacStringMatchQuestion,
     freeTextRule: choice,
     isaacRegexMatchQuestion: isaacStringMatchQuestion,
-    inlineItem$choice: choice,
     inlineQuestionPart: isaacInlineQuestionPart,
     isaacInlineRegion: isaacInlineRegion,
     regexPattern: choice,
