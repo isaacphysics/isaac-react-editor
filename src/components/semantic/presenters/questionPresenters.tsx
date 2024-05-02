@@ -331,7 +331,7 @@ export function InlinePartInserter({insert, position, lengthOfCollection}: Inser
         return null; // Only include an insert button at the end.
     }
     return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
-        insert(position, {type: "inlineQuestionPart"});
+        insert(position, {type: "inlineQuestionPart", choices: []} as IsaacInlineQuestion);
     }}>Add new inline question part</Button>;
 }
 

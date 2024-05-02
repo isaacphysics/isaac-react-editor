@@ -380,9 +380,6 @@ export interface ParsonsChoice extends ItemChoice {
 export interface CoordinateChoice extends ItemChoice {
 }
 
-export interface InlineChoice extends ItemChoice {
-}
-
 export interface ParsonsItem extends Item {
     indentation?: number;
 }
@@ -390,8 +387,6 @@ export interface ParsonsItem extends Item {
 export interface CoordinateItem extends Item {
     x?: string;
     y?: string;
-}
-export interface InlineItem extends Item {
 }
 
 export interface Quantity extends Choice {

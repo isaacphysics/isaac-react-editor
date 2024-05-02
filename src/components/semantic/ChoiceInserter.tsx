@@ -27,7 +27,6 @@ export type CHOICE_TYPES =
     | "formula"
     | "chemicalFormula"
     | "stringChoice"
-    | "inlineItem$choice"
     | "freeTextRule"
     | "logicFormula"
     | "graphChoice"
@@ -50,7 +49,6 @@ const emptyChoices = [
     {...emptyChoice, type: "itemChoice", children: []},
     {...emptyChoice, type: "parsonsChoice", children: []},
     {...emptyChoice, type: "coordinateChoice", items: []},
-    {...emptyChoice, type: "inlineItem$choice"},
 ];
 
 export const CHOICE_INSERTER_MAP: Partial<Record<ContentType, FunctionComponent<InserterProps>>> = Object.fromEntries(emptyChoices.map((choice) => {
