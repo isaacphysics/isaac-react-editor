@@ -94,7 +94,7 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
                 })
 
                 // Select a default value
-                if (values.length < 1) values.push(examBoardsForStage(doc)[0] as never);
+                if (values.length < 1) values.push(examBoardsForStage(doc)[0] as ExamBoard);
             }
 
             // Remove used options
