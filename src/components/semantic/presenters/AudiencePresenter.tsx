@@ -28,6 +28,10 @@ const csStagedExamBoards: Partial<Record<Stage, ExamBoard[]>> = {
     "scotland_advanced_higher": ["sqa"],
 };
 
+function isExamboardArray(arr: any[]): arr is ExamBoard[] {
+    return arr.every(v => csExamBoards.includes(v));
+}
+
 function examBoardsForStage(audienceContext: AudienceContext): ExamBoard[] {
     const stageSpecificExamBoards = audienceContext.stage?.length === 1 && csStagedExamBoards[audienceContext.stage[0]];
     return stageSpecificExamBoards || csExamBoards;
@@ -79,7 +83,7 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
             const filteredUnusedOptions = new Set(possible[key]);
 
             // Restrict Exam Board options by Stage selection if set
-            if (isAda && key === "examBoard" && doc.stage && doc.stage.length === 1) {
+            if (isAda && isExamboardArray(values) && doc.stage && doc.stage.length === 1) {
                 filteredUnusedOptions.forEach((value) => {
                     if (!examBoardsForStage(doc).includes(value as ExamBoard)) {
                         filteredUnusedOptions.delete(value);
@@ -94,7 +98,7 @@ function AudienceContextPresenter({doc, update, possible}: PresenterProps<Audien
                 })
 
                 // Select a default value
-                if (values.length < 1) values.push(examBoardsForStage(doc)[0] as ExamBoard);
+                if (values.length < 1) values.push(examBoardsForStage(doc)[0]);
             }
 
             // Remove used options
