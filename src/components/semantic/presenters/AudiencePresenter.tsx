@@ -28,7 +28,7 @@ const csStagedExamBoards: Partial<Record<Stage, ExamBoard[]>> = {
     "scotland_advanced_higher": ["sqa"],
 };
 
-function isExamboardArray(arr: any[]): arr is ExamBoard[] {
+function isExamboardArray(arr: string[]): arr is ExamBoard[] {
     return arr.every(v => csExamBoards.includes(v));
 }
 
