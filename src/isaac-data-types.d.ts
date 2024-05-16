@@ -56,6 +56,8 @@ export interface IsaacCoordinateQuestion extends IsaacQuestionBase {
     significantFiguresMax?: number;
     ordered?: boolean;
     numberOfCoordinates?: number;
+    placeholderXValue?: string;
+    placeholderYValue?: string;
 }
 
 export interface IsaacConceptPage extends SeguePage {

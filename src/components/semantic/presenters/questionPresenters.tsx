@@ -289,11 +289,28 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
     const {doc, update} = props;
     const question = doc as IsaacCoordinateQuestion;
 
+    const EditableCoordinateLabelX = EditableDocPropFor<IsaacCoordinateQuestion>(
+        "placeholderXValue", {label: "placeholder X Value", block: true, format: "plain"}
+    );
+    const EditableCoordinateLabelY = EditableDocPropFor<IsaacCoordinateQuestion>(
+        "placeholderYValue", {label: "placeholder Y Value", block: true, format: "plain"}
+    );
+
     return <>
         <QuestionMetaPresenter {...props} />
         <EditableNumberOfCoordinates {...props} />
         <CheckboxDocProp {...props} prop="ordered" label="Require that order of coordinates in choice and answer are the same" />
         <div className={styles.questionLabel}>
+            Coordinate labels:<br/>
+            <small><em>This does not accept latex. Please use a unicode equivalent such as Ψ₁.</em></small>
+            <div className="row">
+                <div className="col col-lg-5">
+                    <EditableCoordinateLabelX doc={question} update={update} />
+                </div>
+                <div className="col col-lg-5">
+                    <EditableCoordinateLabelY doc={question} update={update} />
+                </div>
+            </div>
             Significant figures (affects both x and y values):
             <div className="row">
                 <div className="col col-lg-5">
