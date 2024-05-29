@@ -193,7 +193,10 @@ async function doSaveAs(context: ContextType<typeof AppContext>, action: ActionF
 async function doSave(context:  ContextType<typeof AppContext>) {
     const selection = context.selection.getSelection();
     if (selection) {
-        await githubSave(context);
+        githubSave(context).catch(function(e) {
+            window.alert("Could not save file. Check the browser's console for more information.");
+            console.error(e);
+        });
     }
 }
 
