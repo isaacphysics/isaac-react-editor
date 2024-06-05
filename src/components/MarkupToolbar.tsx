@@ -14,7 +14,7 @@ import {
 import {ClozeQuestionContext} from "./semantic/presenters/ItemQuestionPresenter";
 
 export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => void, cancel: () => void, codemirror?: RefObject<ReactCodeMirrorRef>, encoding: string | undefined }) => {
-    const inClozeQuestion = useContext(ClozeQuestionContext);
+    const clozeContext = useContext(ClozeQuestionContext);
 
     const [wide, setWide] = useState(true);
     const toolbarRef = useRef<HTMLDivElement>(null);
@@ -71,7 +71,7 @@ export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => 
             </button>
             {encodingSpecific(
                 <>
-                    {inClozeQuestion && <PopupDropZoneInsert wide={wide} codemirror={codemirror}/>}
+                    {clozeContext.isClozeQuestion && <PopupDropZoneInsert wide={wide} codemirror={codemirror}/>}
                     <PopupGlossaryTermSelect wide={wide} codemirror={codemirror}/>
                 </>,
                 null,
