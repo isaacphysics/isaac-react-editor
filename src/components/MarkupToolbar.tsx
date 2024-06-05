@@ -12,9 +12,12 @@ import {
     makeStrikethrough
 } from "../utils/codeMirrorExtensions";
 import {ClozeQuestionContext} from "./semantic/presenters/ItemQuestionPresenter";
+import { InlineQuestionContext } from "./semantic/presenters/questionPresenters";
+import { PopupInlineQuestionInsert } from "./popups/PopupInlineQuestionInsert";
 
 export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => void, cancel: () => void, codemirror?: RefObject<ReactCodeMirrorRef>, encoding: string | undefined }) => {
     const clozeContext = useContext(ClozeQuestionContext);
+    const inlineContext = useContext(InlineQuestionContext);
 
     const [wide, setWide] = useState(true);
     const toolbarRef = useRef<HTMLDivElement>(null);
@@ -72,6 +75,7 @@ export const MarkupToolbar = ({set, cancel, codemirror, encoding}: { set: () => 
             {encodingSpecific(
                 <>
                     {clozeContext.isClozeQuestion && <PopupDropZoneInsert wide={wide} codemirror={codemirror}/>}
+                    {inlineContext.isInlineQuestion && <PopupInlineQuestionInsert wide={wide} codemirror={codemirror}/>}
                     <PopupGlossaryTermSelect wide={wide} codemirror={codemirror}/>
                 </>,
                 null,

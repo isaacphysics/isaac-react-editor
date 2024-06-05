@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
+import React, {createContext, useCallback, useContext, useEffect, useState} from "react";
 import {EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
 import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} from "reactstrap";
@@ -344,12 +344,20 @@ export function CoordinateChoiceItemInserter({insert, position, lengthOfCollecti
 }
 
 export function InlinePartInserter({insert, position, lengthOfCollection}: InserterProps) {
+    const inlineContext = useContext(InlineQuestionContext);
+    
+    const addPart = useCallback((idSuffix?: string) => {
+        insert(position, {type: "inlineQuestionPart", choices: [], id: idSuffix ? `inline-question:${idSuffix}` : undefined} as IsaacInlinePart);
+        inlineContext?.setNumParts?.(n => n + 1);
+    }, [insert, position, inlineContext]);
+
     if (position !== lengthOfCollection) {
         return null; // Only include an insert button at the end.
     }
-    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => {
-        insert(position, {type: "inlineQuestionPart", choices: []} as IsaacInlineQuestion);
-    }}>Add new inline question part</Button>;
+
+    inlineContext.addPart = addPart;
+
+    return <Button className={styles.itemsChoiceInserter} color="primary" onClick={() => addPart()}>Add new inline question part</Button>;
 }
 
 export function GraphSketcherQuestionPresenter(props: PresenterProps<IsaacGraphSketcherQuestion>) {
@@ -481,12 +489,20 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
     </>;
 }
 
+export const InlineQuestionContext = createContext<{
+    isInlineQuestion?: boolean,
+    numParts?: number,
+    setNumParts?: React.Dispatch<React.SetStateAction<number>>,
+    addPart?: (id: string) => void,
+}>({});
+
 export function InlineRegionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
-    return <>
+    const [numParts, setNumParts] = useState(0);
+    return <InlineQuestionContext.Provider value={{isInlineQuestion: true, numParts, setNumParts}}>
         <h6><EditableIDProp {...props} label="Question ID"/></h6>
         <ContentValueOrChildrenPresenter {...props} />
         <InlinePartsPresenter {...props} />
-    </>;
+    </InlineQuestionContext.Provider>;
 }
 
 export function FreeTextQuestionInstructions() {
