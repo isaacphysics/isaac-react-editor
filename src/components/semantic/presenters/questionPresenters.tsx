@@ -483,6 +483,7 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
 
 export function InlineRegionPresenter(props: PresenterProps<IsaacInlineQuestion>) {
     return <>
+        <h6><EditableIDProp {...props} label="Question ID"/></h6>
         <ContentValueOrChildrenPresenter {...props} />
         <InlinePartsPresenter {...props} />
     </>;
