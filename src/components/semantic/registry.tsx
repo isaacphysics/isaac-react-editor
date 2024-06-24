@@ -13,7 +13,8 @@ import {
     QuestionMetaPresenter,
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
-    SymbolicQuestionPresenter
+    SymbolicQuestionPresenter,
+    SymbolicChemistryQuestionPresenter
 } from "./presenters/questionPresenters";
 import {CHOICE_TYPES} from "./ChoiceInserter";
 import {TabsPresenter} from "./presenters/TabsPresenter";
@@ -149,6 +150,10 @@ const question: RegistryEntry = {
 const isaacSymbolicQuestion = {
     ...question,
     headerPresenter: SymbolicQuestionPresenter,
+};
+const isaacSymbolicChemistryQuestion = {
+    ...question,
+    headerPresenter: SymbolicChemistryQuestionPresenter,
 };
 const isaacStringMatchQuestion = {
     ...question,
@@ -302,7 +307,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     quantity: choice,
     isaacSymbolicQuestion,
     formula: choice,
-    isaacSymbolicChemistryQuestion: isaacSymbolicQuestion,
+    isaacSymbolicChemistryQuestion,
     chemicalFormula: choice,
     isaacSymbolicLogicQuestion: isaacSymbolicQuestion,
     logicFormula: choice,

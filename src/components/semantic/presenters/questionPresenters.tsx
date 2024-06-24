@@ -13,6 +13,7 @@ import {
     IsaacQuestionBase,
     IsaacQuickQuestion,
     IsaacStringMatchQuestion,
+    IsaacSymbolicChemistryQuestion,
     IsaacSymbolicQuestion,
     Quantity,
 } from "../../../isaac-data-types";
@@ -457,6 +458,13 @@ export function SymbolicQuestionPresenter(props: PresenterProps<IsaacSymbolicQue
         <div className={styles.editableFullwidth}>
             <EditableFormulaSeed {...props}/>
         </div>
+    </>;
+}
+
+export function SymbolicChemistryQuestionPresenter(props: PresenterProps<IsaacSymbolicChemistryQuestion>) {
+    return <>
+        <SymbolicQuestionPresenter {...props} />
+        <CheckboxDocProp {...props} prop="isNuclear" label="Nuclear question" />
     </>;
 }
 
