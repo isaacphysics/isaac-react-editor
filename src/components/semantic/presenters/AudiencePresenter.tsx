@@ -9,7 +9,7 @@ import {PresenterProps} from "../registry";
 import styles from "../styles/audience.module.css";
 
 function defaultAudience(): AudienceContext {
-    return isAda ? {stage: ["a_level"], examBoard: ["ocr"]} : {stage: ["a_level"]};
+    return isAda ? {stage: ["core"], examBoard: ["ada"]} : {stage: ["a_level"]};
 }
 
 type AudienceKey = keyof AudienceContext;
@@ -18,14 +18,16 @@ type AudienceValue = ExtractRecordArrayValue<Required<AudienceContext>>;
 const phyStages: Stage[] = ["university", "further_a", "a_level", "gcse", "year_9", "year_7_and_8"];
 const difficulties: Difficulty[] = ["practice_1", "practice_2", "practice_3", "challenge_1", "challenge_2", "challenge_3"];
 
-const csStages: Stage[] = ["a_level", "gcse", "scotland_national_5", "scotland_higher", "scotland_advanced_higher"];
-const csExamBoards: ExamBoard[] = ["aqa", "ocr", "cie", "edexcel", "eduqas", "wjec", "sqa"];
+const csStages: Stage[] = ["a_level", "gcse", "scotland_national_5", "scotland_higher", "scotland_advanced_higher", "core", "advanced"];
+const csExamBoards: ExamBoard[] = ["aqa", "ocr", "cie", "edexcel", "eduqas", "wjec", "sqa", "ada"];
 const csStagedExamBoards: Partial<Record<Stage, ExamBoard[]>> = {
     "a_level": ["aqa", "cie", "eduqas", "ocr", "wjec"],
     "gcse": ["aqa", "edexcel", "eduqas", "ocr", "wjec"],
     "scotland_national_5": ["sqa"],
     "scotland_higher": ["sqa"],
     "scotland_advanced_higher": ["sqa"],
+    "core": ["ada"],
+    "advanced": ["ada"],
 };
 
 function examBoardsForStage(audienceContext: AudienceContext): ExamBoard[] {
