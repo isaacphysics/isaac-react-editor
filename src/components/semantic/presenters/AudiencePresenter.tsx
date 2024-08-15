@@ -2,14 +2,14 @@ import React, {Fragment, useState} from "react";
 import {Button} from "reactstrap";
 
 import {AudienceContext, Difficulty, ExamBoard, RoleRequirement, Stage} from "../../../isaac-data-types";
-import {isAda} from "../../../services/site";
+import {isAda, siteSpecific} from "../../../services/site";
 import {ExtractRecordArrayValue, isDefined} from "../../../utils/types";
 
 import {PresenterProps} from "../registry";
 import styles from "../styles/audience.module.css";
 
 function adaDifficulty(doc : AudienceContext[]): Difficulty | undefined {
-    return doc[0].difficulty ? doc[0].difficulty[0] : undefined;
+    return  isAda && doc[0].difficulty ? doc[0].difficulty[0] : undefined;
 } 
 
 function defaultAudience(): AudienceContext {
@@ -209,6 +209,7 @@ function safeJoin(list: string[], joiner: string): string {
     if (list.length === 1) {
         return list[0];
     }
+    list = list.filter((item) => (isAda && difficulties.includes(item as Difficulty)) ? false : true);
     return list.map((item) => item.replaceAll(joiner, "").includes(" ") ? `(${item})` : item).join(joiner);
 }
 
@@ -229,6 +230,11 @@ function conciseAudiences(audiences: AudienceContext[] | undefined | null, type?
     if (audiences === undefined || audiences === null) {
         return type === "accordion" ? "All" : "None set";
     }
+
+    if (adaDifficulty(audiences)) {
+        return safeJoin(audiences.map((audience) => conciseAudience(audience)), " or ") + " and " + adaDifficulty(audiences);
+    }
+
     return safeJoin(audiences.map((audience) => conciseAudience(audience)), " or ");
 }
 
@@ -250,7 +256,7 @@ function AudienceEditor({doc, update, possible}: PresenterProps<AudienceContext[
                     update(audience);
                 }}>➖</Button>}
                 {index === doc.length - 1 ? <Button outline size="sm" onClick={() => {
-                    isAda ? update([...doc, defaultAudienceWithDifficulty(doc)]) : update([...doc, defaultAudience()]);
+                    siteSpecific(update([...doc, defaultAudience()]), update([...doc, defaultAudienceWithDifficulty(doc)]))
                 }}>OR ➕</Button> : " OR"}
             </div>;
         })}
