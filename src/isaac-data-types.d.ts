@@ -426,6 +426,10 @@ export interface AudienceContext {
     role?: RoleRequirement[];
 }
 
+export interface AdaAudienceContext extends AudienceContext {
+    difficulty: Difficulty[];
+}
+
 export interface GameFilter {
     subjects?: string[];
     fields?: string[];
@@ -476,6 +480,6 @@ export type Stage = "year_7_and_8" | "year_9" | "gcse" | "a_level" | "further_a"
 
 export type ExamBoard = "aqa" | "ocr" | "cie" | "edexcel" | "eduqas" | "wjec" | "sqa" | "ada" | "all";
 
-export type Difficulty = "practice_1" | "practice_2" | "practice_3" | "challenge_1" | "challenge_2" | "challenge_3";
+export type Difficulty = "practice_1" | "practice_2" | "practice_3" | "challenge_1" | "challenge_2" | "challenge_3" | "";
 
 export type RoleRequirement = "logged_in" | "teacher";
