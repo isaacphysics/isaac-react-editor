@@ -267,8 +267,7 @@ function DifficultyEditor({doc, update, possible}: PresenterProps<AudienceContex
     }
 
     const key = doc[0].difficulty ? doc[0].difficulty[0] : "";
-    const possibleOptions = possible.difficulty as Difficulty[];
-    const unusedOptions = new Set([...possibleOptions, ""]) as Set<Difficulty | "">;
+    const unusedOptions = new Set([...possible.difficulty as Difficulty[], ""])
     unusedOptions.delete(key);
 
     return <>
@@ -317,7 +316,7 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
         >
             <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(type)} />
             {isAda ? <> 
-                <DifficultyEditor doc={editingAudience as AudienceContext[]} update={setEditingAudience} possible={{difficulty: difficulties}}/> 
+                <DifficultyEditor doc={editingAudience} update={setEditingAudience} possible={{difficulty: difficulties}}/> 
                 <br/> 
             </> : null}
             Concise: {conciseAudiences(editingAudience)}
