@@ -23,7 +23,7 @@ type AudienceKey = keyof AudienceContext;
 type AudienceValue = ExtractRecordArrayValue<Required<AudienceContext>>;
 
 const phyStages: Stage[] = ["university", "further_a", "a_level", "gcse", "year_9", "year_7_and_8"];
-const difficulties: Difficulty[] = ["practice_1", "practice_2", "practice_3", "challenge_1", "challenge_2", "challenge_3", ""];
+const difficulties: Difficulty[] = ["practice_1", "practice_2", "practice_3", "challenge_1", "challenge_2", "challenge_3"];
 
 const csStages: Stage[] = ["a_level", "gcse", "scotland_national_5", "scotland_higher", "scotland_advanced_higher", "core", "advanced"];
 const csExamBoards: ExamBoard[] = ["aqa", "ocr", "cie", "edexcel", "eduqas", "wjec", "sqa", "ada"];
@@ -267,7 +267,8 @@ function DifficultyEditor({doc, update, possible}: PresenterProps<AudienceContex
     }
 
     const key = doc[0].difficulty ? doc[0].difficulty[0] : "";
-    const unusedOptions = new Set(possible.difficulty);
+    const possibleOptions = possible.difficulty as Difficulty[];
+    const unusedOptions = new Set([...possibleOptions, ""]) as Set<Difficulty | "">;
     unusedOptions.delete(key);
 
     return <>
