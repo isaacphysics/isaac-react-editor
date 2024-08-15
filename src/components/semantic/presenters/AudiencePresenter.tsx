@@ -1,18 +1,22 @@
 import React, {Fragment, useState} from "react";
 import {Button} from "reactstrap";
 
-import {AdaAudienceContext, AudienceContext, Difficulty, ExamBoard, RoleRequirement, Stage} from "../../../isaac-data-types";
+import {AudienceContext, Difficulty, ExamBoard, RoleRequirement, Stage} from "../../../isaac-data-types";
 import {isAda} from "../../../services/site";
 import {ExtractRecordArrayValue, isDefined} from "../../../utils/types";
 
 import {PresenterProps} from "../registry";
 import styles from "../styles/audience.module.css";
 
+function adaDifficulty(doc : AudienceContext[]): Difficulty | undefined {
+    return doc[0].difficulty ? doc[0].difficulty[0] : undefined;
+} 
+
 function defaultAudience(): AudienceContext {
-    return isAda ? {stage: ["core"], examBoard: ["ada"], difficulty: ["practice_1"]} : {stage: ["a_level"]};
+    return isAda ? {stage: ["core"], examBoard: ["ada"]} : {stage: ["a_level"]};
 }
-function defaultAudienceWithDifficulty(doc: AdaAudienceContext[]): AdaAudienceContext{
-    return {stage: ["core"], examBoard: ["ada"], difficulty: [doc[0].difficulty[0]]};
+function defaultAudienceWithDifficulty(doc: AudienceContext[]): AudienceContext{
+    return {stage: ["core"], examBoard: ["ada"], difficulty: (adaDifficulty(doc) ? [adaDifficulty(doc)] : undefined)} as AudienceContext;
 } 
 
 type AudienceKey = keyof AudienceContext;
@@ -246,17 +250,19 @@ function AudienceEditor({doc, update, possible}: PresenterProps<AudienceContext[
                     update(audience);
                 }}>➖</Button>}
                 {index === doc.length - 1 ? <Button outline size="sm" onClick={() => {
-                    isAda ? update([...doc, defaultAudienceWithDifficulty(doc as AdaAudienceContext[])]) : update([...doc, defaultAudience()]);
+                    isAda ? update([...doc, defaultAudienceWithDifficulty(doc)]) : update([...doc, defaultAudience()]);
                 }}>OR ➕</Button> : " OR"}
             </div>;
         })}
     </>
 }
 
-function DifficultyEditor({doc, update, possible}: PresenterProps<AdaAudienceContext[]> & {possible: Possibilities}) {
+function DifficultyEditor({doc, update, possible}: PresenterProps<AudienceContext[]> & {possible: Possibilities}) {
     const updateDifficulty = (newDifficulty: Difficulty) => {
         const audiences = [...doc];
-        audiences.forEach((audience) => {audience.difficulty = [newDifficulty]});
+        audiences.forEach((audience) => {
+            newDifficulty ? audience.difficulty = [newDifficulty] : audience.difficulty = undefined;
+        });
         update(audiences);
     }
 
@@ -310,7 +316,7 @@ export function AudiencePresenter({doc, update, type}: PresenterProps & {type?: 
         >
             <AudienceEditor doc={editingAudience} update={setEditingAudience} possible={getPossibleFields(type)} />
             {isAda ? <> 
-                <DifficultyEditor doc={editingAudience as AdaAudienceContext[]} update={setEditingAudience} possible={{difficulty: difficulties}}/> 
+                <DifficultyEditor doc={editingAudience as AudienceContext[]} update={setEditingAudience} possible={{difficulty: difficulties}}/> 
                 <br/> 
             </> : null}
             Concise: {conciseAudiences(editingAudience)}

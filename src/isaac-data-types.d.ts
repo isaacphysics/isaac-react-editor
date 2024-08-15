@@ -426,10 +426,6 @@ export interface AudienceContext {
     role?: RoleRequirement[];
 }
 
-export interface AdaAudienceContext extends AudienceContext {
-    difficulty: Difficulty[];
-}
-
 export interface GameFilter {
     subjects?: string[];
     fields?: string[];
