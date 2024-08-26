@@ -28,6 +28,7 @@ import {InserterProps} from "./ListChildrenPresenter";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { InlinePartsPresenter } from "./InlinePartsPresenter";
 import { EditableInlineTypeProp } from "./InlineQuestionTypePresenter";
+import { isAda } from "../../../services/site";
 
 export const QuestionContext = React.createContext<Content | null>(null);
 
@@ -103,7 +104,11 @@ export function changeQuestionType({doc, update, newType} : PresenterProps & {ne
         // Add the default value if it is missing
         newDoc.requireUnits = true;
         delete newDoc.displayUnit;
-        newDoc.disregardSignificantFigures = false;
+        if(isAda) {
+            newDoc.disregardSignificantFigures = true;
+        } else {
+            newDoc.disregardSignificantFigures = false;
+        }
         delete newDoc.showConfidence;
         delete newDoc.randomiseChoices;
     } else if (newType === "isaacQuestion" && !newDoc.hasOwnProperty("showConfidence")) {
