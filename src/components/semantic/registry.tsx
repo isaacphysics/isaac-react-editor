@@ -274,7 +274,7 @@ const isaacQuizSection: RegistryEntry = {
 const isaacWildcard: RegistryEntry = {
     name: "Wildcard",
     headerPresenter: PagePresenter,
-    metadata: [...defaultMeta, "description", "url"],
+    metadata: [...defaultMeta, "description", "url", "published"],
 };
 
 
