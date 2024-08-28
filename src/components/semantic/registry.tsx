@@ -44,6 +44,7 @@ import styles from "./styles/semantic.module.css";
 import {ListChildrenPresenter} from "./presenters/ListChildrenPresenter";
 import {InteractiveCodeSnippetPresenter} from "./presenters/InteractiveCodeSnippetPresenter";
 import {CalloutPresenter} from "./presenters/CalloutPresenter";
+import {LLMQuestionPresenter} from "./presenters/LLMQuestionPresenter";
 
 export type ContentType =
     | "content"
@@ -163,6 +164,11 @@ const isaacItemQuestion = {
     ...question,
     bodyPresenter: ItemQuestionPresenter,
     footerPresenter: undefined,
+};
+const isaacLLMFreeTextQuestion: RegistryEntry = {
+    ...question,
+    bodyPresenter: ContentValueOrChildrenPresenter,
+    footerPresenter: LLMQuestionPresenter,
 };
 const item = {
     bodyPresenter: ItemPresenter,
@@ -315,6 +321,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     stringChoice: choice,
     isaacFreeTextQuestion: isaacStringMatchQuestion,
     freeTextRule: choice,
+    isaacLLMFreeTextQuestion,
     isaacRegexMatchQuestion: isaacStringMatchQuestion,
     inlineQuestionPart: isaacInlineQuestionPart,
     isaacInlineRegion: isaacInlineRegion,
