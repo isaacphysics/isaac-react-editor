@@ -256,7 +256,7 @@ function AudienceEditor({doc, update, possible}: PresenterProps<AudienceContext[
                     update(audience);
                 }}>➖</Button>}
                 {index === doc.length - 1 ? <Button outline size="sm" onClick={() => {
-                    siteSpecific(update([...doc, defaultAudience()]), update([...doc, defaultAudienceWithDifficulty(doc)]))
+                    update(siteSpecific([...doc, defaultAudience()], [...doc, defaultAudienceWithDifficulty(doc)]));
                 }}>OR ➕</Button> : " OR"}
             </div>;
         })}
