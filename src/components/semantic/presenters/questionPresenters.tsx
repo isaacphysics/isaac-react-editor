@@ -40,6 +40,7 @@ export type QUESTION_TYPES =
     | "isaacSymbolicChemistryQuestion"
     | "isaacStringMatchQuestion"
     | "isaacFreeTextQuestion"
+    | "isaacLLMFreeTextQuestion"
     | "isaacSymbolicLogicQuestion"
     | "isaacGraphSketcherQuestion"
     | "isaacRegexMatchQuestion"
@@ -71,6 +72,9 @@ const QuestionTypes: Record<QUESTION_TYPES, {name: string}> = {
     },
     isaacFreeTextQuestion: {
         name: "Free Text Question",
+    },
+    isaacLLMFreeTextQuestion: {
+        name: "LLM-Marked Free Text Question",
     },
     isaacSymbolicLogicQuestion: {
         name: "Logic Question",

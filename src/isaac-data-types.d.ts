@@ -94,7 +94,27 @@ export interface IsaacFeaturedProfile extends Content {
     homepage?: string;
 }
 
-export interface IsaacFreeTextQuestion extends IsaacQuestionBase {
+export interface IsaacFreeTextQuestion extends Question {
+}
+
+export interface LLMFreeTextMarkSchemeEntry {
+    jsonField?: string;
+    shortDescription?: string;
+    marks?: number;
+}
+
+export interface LLMFreeTextMarkedExample {
+    answer?: string;
+    marks?: Record<string, number>;
+    marksAwarded?: number;
+}
+
+export interface IsaacLLMFreeTextQuestion extends IsaacQuestionBase {
+    markScheme?: LLMFreeTextMarkSchemeEntry[];
+    maxMarks?: number;
+    additionalMarkingInstructions?: string;
+    markCalculationInstructions?: string;
+    markedExamples?: LLMFreeTextMarkedExample[];
 }
 
 export interface IsaacGraphSketcherQuestion extends IsaacQuestionBase {
