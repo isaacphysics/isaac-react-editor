@@ -8,7 +8,7 @@ function MarkSchemeRowPresenter(props: PresenterProps<LLMFreeTextMarkSchemeEntry
     const {doc, update} = props;
     return <tr>
         <td><pre><EditableText text={doc.jsonField} onSave={jsonField => update({...doc, jsonField})} /></pre></td>
-        <td><EditableText text={doc.shortDescription} onSave={shortDescription => update({...doc, shortDescription})} /></td>
+        <td><EditableText text={doc.shortDescription} multiLine block onSave={shortDescription => update({...doc, shortDescription})} /></td>
     </tr>;
 }
 
@@ -17,7 +17,7 @@ const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 function MarkedExampleRowPresenter(props: PresenterProps<LLMFreeTextMarkedExample>) {
     const {doc, update} = props;
     return <tr>
-        <td><EditableText text={doc.answer} multiLine onSave={answer => update({...doc, answer})} /></td>
+        <td><EditableText text={doc.answer} multiLine block onSave={answer => update({...doc, answer})} /></td>
         <td>
             {Object.entries(doc.marks ?? {}).map(([jsonFieldname, value], index) => <div key={jsonFieldname}>
                 <EditableText label={jsonFieldname} text={value.toString()} onSave={value =>
@@ -63,10 +63,10 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                     <td>{"/* TODO MT: Input coming soon */"}<input className="w-100" placeholder="MIN(maxMarks, SUM(... all marks ...))" /></td>
                 </tr>
                 <tr>
-                    <td><strong>Marking instructions</strong></td>
+                    <td><strong>Additional marking instructions</strong></td>
                     <td>
                         <EditableText
-                            text={doc.additionalMarkingInstructions} multiLine
+                            text={doc.additionalMarkingInstructions} multiLine block
                             onSave={ams => update({...doc, additionalMarkingInstructions: ams})}
                         />
                     </td>
