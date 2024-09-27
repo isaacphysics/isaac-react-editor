@@ -3,18 +3,39 @@ import { PresenterProps } from "../registry";
 import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
+import { isDefined } from "../../../utils/types";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
 
-    function updateMarkSchemeEntry<T extends keyof LLMFreeTextMarkSchemeEntry>(index: number, field: T, value: LLMFreeTextMarkSchemeEntry[T]) {
-        update({...doc, markScheme: doc.markScheme?.map((msi, i) => i === index ? {...msi, [field]: value} : msi)});
+    function updateMark<T extends keyof LLMFreeTextMarkSchemeEntry>(index: number, field: T, value: LLMFreeTextMarkSchemeEntry[T]) {
+        let possiblyUpdatedMarkedExamples = doc.markedExamples;
+        if (field === "jsonField") { // also update marked examples mark fieldnames
+            const prevJsonFieldValue = doc.markScheme?.[index].jsonField;
+            if (isDefined(prevJsonFieldValue)) {
+                possiblyUpdatedMarkedExamples = doc.markedExamples?.map(me => {
+                    const newMarks = {...me.marks, [value as string]: me.marks?.[prevJsonFieldValue] ?? 0};
+                    delete newMarks[prevJsonFieldValue];
+                    return { ...me, marks: newMarks };
+                });
+            }
+        }
+        update({
+            ...doc,
+            markScheme: doc.markScheme?.map((msi, i) => i === index ? {...msi, [field]: value} : msi),
+            markedExamples: possiblyUpdatedMarkedExamples
+        });
     }
-    function updateMarkedExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
-        update({...doc, markedExamples: doc.markedExamples?.map((me, i) => i === index ? {...me, [field]: value} : me)});
+
+    function updateExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
+        update({
+            ...doc,
+            markedExamples: doc.markedExamples?.map((me, i) => i === index ? {...me, [field]: value} : me)
+        });
     }
+
 
     return <div>
         <h2 className="h5">Mark scheme</h2>
@@ -26,12 +47,12 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                 </tr>
             </thead>
             <tbody>
-                {doc.markScheme?.map((markSchemeItem, index) => <tr key={markSchemeItem.jsonField}>
+                {doc.markScheme?.map((mark, i) => <tr key={mark.jsonField}>
                     <td>
-                        <pre><EditableText text={markSchemeItem.jsonField} onSave={value => updateMarkSchemeEntry(index, "jsonField", value)} /></pre>
+                        <pre><EditableText text={mark.jsonField} onSave={value => updateMark(i, "jsonField", value)} /></pre>
                     </td>
                     <td>
-                        <EditableText text={markSchemeItem.shortDescription} multiLine block onSave={value => updateMarkSchemeEntry(index, "shortDescription", value)} />
+                        <EditableText text={mark.shortDescription} multiLine block onSave={value => updateMark(i, "shortDescription", value)} />
                     </td>
                 </tr>)}
             </tbody>
@@ -66,22 +87,22 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                 </tr>
             </thead>
             <tbody>
-                {doc.markedExamples?.map((markedExample, index) => <tr key={index}>
+                {doc.markedExamples?.map((example, i) => <tr key={i}>
                     <td>
-                        <EditableText text={markedExample.answer} multiLine block onSave={value => updateMarkedExample(index, "answer", value)} />
+                        <EditableText text={example.answer} multiLine block onSave={value => updateExample(i, "answer", value)} />
                     </td>
                     <td>
-                        {Object.entries(markedExample.marks ?? {}).map(([jsonFieldname, value]) => <div key={jsonFieldname}>
+                        {Object.entries(example.marks ?? {}).sort().map(([jsonFieldname, value]) => <div key={jsonFieldname}>
                             <EditableText label={jsonFieldname} text={value.toString()} onSave={value =>
-                                updateMarkedExample(index, "marks", {...markedExample.marks, [jsonFieldname]: parseInt(value ?? "0", 10)})
+                                updateExample(i, "marks", {...example.marks, [jsonFieldname]: parseInt(value ?? "0", 10)})
                             } />
                         </div>)}
                     </td>
                     <td>
                         <EditableText
-                            text={markedExample.marksAwarded?.toString()}
+                            text={example.marksAwarded?.toString()}
                             hasError={value => doc.maxMarks && parseInt(value ?? "0", 10) > doc.maxMarks ? "Exceeds question's max marks" : undefined}
-                            onSave={value => updateMarkedExample(index, "marksAwarded", parseInt(value ?? "0", 10))}
+                            onSave={value => updateExample(i, "marksAwarded", parseInt(value ?? "0", 10))}
                         />
                     </td>
                 </tr>)}
