@@ -10,6 +10,7 @@ const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
 
+    // Mark scheme operations - these changes also update marked examples
     function updateMark<T extends keyof LLMFreeTextMarkSchemeEntry>(index: number, field: T, value: LLMFreeTextMarkSchemeEntry[T]) {
         let possiblyUpdatedMarkedExamples = doc.markedExamples;
         if (field === "jsonField") { // also update marked examples mark fieldnames
@@ -28,11 +29,65 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             markedExamples: possiblyUpdatedMarkedExamples
         });
     }
+    
+    function addMark() {
+        const baseDefaultJsonFieldname = "jsonFieldToRename";
+        const existingJsonFields = new Set(doc.markScheme?.map(msi => msi.jsonField));
+        let nextFreeJsonFieldnameSuffix = 0;
+        while (existingJsonFields.has(`${baseDefaultJsonFieldname}${nextFreeJsonFieldnameSuffix}`)) {
+            nextFreeJsonFieldnameSuffix++;
+        }
+        const defaultJsonFieldname = `${baseDefaultJsonFieldname}${nextFreeJsonFieldnameSuffix}`;
+        update({
+            ...doc,
+            markScheme: [...doc.markScheme ?? [], {
+                jsonField: defaultJsonFieldname,
+                shortDescription: "Description (shown to user)",
+                marks: 1
+            }],
+            markedExamples: doc.markedExamples?.map(me => ({
+                ...me,
+                marks: {...me.marks, [defaultJsonFieldname]: 0}
+            }))
+        });
+    }
 
+    function deleteMark(jsonFieldname: string | undefined) {
+        if (!jsonFieldname) { return; }
+        update({
+            ...doc,
+            markScheme: doc.markScheme?.filter(msi => msi.jsonField !== jsonFieldname),
+            markedExamples: doc.markedExamples?.map(me => {
+                const newMarks = {...me.marks};
+                delete newMarks[jsonFieldname];
+                return { ...me, marks: newMarks };
+            })
+        });
+    }
+
+    // Marked example operations
     function updateExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
         update({
             ...doc,
             markedExamples: doc.markedExamples?.map((me, i) => i === index ? {...me, [field]: value} : me)
+        });
+    }
+
+    function addExample() {
+        update({
+            ...doc,
+            markedExamples: [...doc.markedExamples ?? [], {
+                answer: "Example answer",
+                marks: doc.markScheme?.reduce<Record<string, number>>((acc, mark) => ({...acc, [mark.jsonField ?? ""]: 0}), {}),
+                marksAwarded: 0
+            }]
+        });
+    }
+
+    function deleteExample(index: number) {
+        update({
+            ...doc,
+            markedExamples: doc.markedExamples?.filter((_, i) => i !== index)
         });
     }
 
@@ -49,12 +104,26 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             <tbody>
                 {doc.markScheme?.map((mark, i) => <tr key={mark.jsonField}>
                     <td>
-                        <pre><EditableText text={mark.jsonField} onSave={value => updateMark(i, "jsonField", value)} /></pre>
+                        <pre><EditableText
+                            text={mark.jsonField}
+                            hasError={value => !value?.match(/^[a-z][a-zA-Z0-9]+$/) ? "Invalid JSON fieldname format" : undefined}
+                            onSave={value => updateMark(i, "jsonField", value)}
+                        /></pre>
                     </td>
                     <td>
-                        <EditableText text={mark.shortDescription} multiLine block onSave={value => updateMark(i, "shortDescription", value)} />
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-fill">
+                                <EditableText text={mark.shortDescription} multiLine block onSave={value => updateMark(i, "shortDescription", value)} />
+                            </div>
+                            <button className="btn btn-sm mb-2 ml-2" onClick={() => deleteMark(mark.jsonField)}>❌</button>
+                        </div>
                     </td>
                 </tr>)}
+                <tr>
+                    <td colSpan={2}>
+                        <button className="btn btn-secondary" onClick={addMark}>Add mark</button>
+                    </td>
+                </tr>
             </tbody>
             <tfoot>
                 <tr>
@@ -99,13 +168,23 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                         </div>)}
                     </td>
                     <td>
-                        <EditableText
-                            text={example.marksAwarded?.toString()}
-                            hasError={value => doc.maxMarks && parseInt(value ?? "0", 10) > doc.maxMarks ? "Exceeds question's max marks" : undefined}
-                            onSave={value => updateExample(i, "marksAwarded", parseInt(value ?? "0", 10))}
-                        />
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-fill">
+                                <EditableText
+                                    text={example.marksAwarded?.toString()}
+                                    hasError={value => doc.maxMarks && parseInt(value ?? "0", 10) > doc.maxMarks ? "Exceeds question's max marks" : undefined}
+                                    onSave={value => updateExample(i, "marksAwarded", parseInt(value ?? "0", 10))}
+                                />
+                            </div>
+                            <button className="btn btn-sm mb-2 ml-2" onClick={() => deleteExample(i)}>❌</button>
+                        </div>
                     </td>
                 </tr>)}
+                <tr>
+                    <td colSpan={3}>
+                        <button className="btn btn-secondary" onClick={addExample}>Add marked example</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>;
