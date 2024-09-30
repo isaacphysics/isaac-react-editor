@@ -474,6 +474,7 @@ export function SymbolicChemistryQuestionPresenter(props: PresenterProps<IsaacSy
     return <>
         <SymbolicQuestionPresenter {...props} />
         <CheckboxDocProp {...props} prop="isNuclear" label="Nuclear question" />
+        <CheckboxDocProp {...props} prop="allowPermutations" label="Allow molecule permutations" />
     </>;
 }
 
