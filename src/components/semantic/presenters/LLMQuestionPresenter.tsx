@@ -3,39 +3,95 @@ import { PresenterProps } from "../registry";
 import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
-
-function MarkSchemeRowPresenter(props: PresenterProps<LLMFreeTextMarkSchemeEntry>) {
-    const {doc, update} = props;
-    return <tr>
-        <td><pre><EditableText text={doc.jsonField} onSave={jsonField => update({...doc, jsonField})} /></pre></td>
-        <td><EditableText text={doc.shortDescription} onSave={shortDescription => update({...doc, shortDescription})} /></td>
-    </tr>;
-}
+import { isDefined } from "../../../utils/types";
+import { CheckboxDocProp } from "../props/CheckboxDocProp";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
-function MarkedExampleRowPresenter(props: PresenterProps<LLMFreeTextMarkedExample>) {
-    const {doc, update} = props;
-    return <tr>
-        <td><EditableText text={doc.answer} multiLine onSave={answer => update({...doc, answer})} /></td>
-        <td>
-            {Object.entries(doc.marks ?? {}).map(([jsonFieldname, value], index) => <div key={jsonFieldname}>
-                <EditableText label={jsonFieldname} text={value.toString()} onSave={value =>
-                    update({...doc, marks: {...doc.marks, [jsonFieldname]: parseInt(value ?? "0", 10)}})
-                } />
-            </div>)}
-        </td>
-        <td>
-            <EditableText
-                text={doc.marksAwarded?.toString()}
-                onSave={marksAwarded => update({...doc, marksAwarded: parseInt(marksAwarded ?? "0", 10)})}
-            />
-        </td>
-    </tr>;
-}
-
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
+
+    // Mark scheme operations - these changes also update marked examples
+    function updateMark<T extends keyof LLMFreeTextMarkSchemeEntry>(index: number, field: T, value: LLMFreeTextMarkSchemeEntry[T]) {
+        let possiblyUpdatedMarkedExamples = doc.markedExamples;
+        if (field === "jsonField") { // also update marked examples mark fieldnames
+            const prevJsonFieldValue = doc.markScheme?.[index].jsonField;
+            if (isDefined(prevJsonFieldValue)) {
+                possiblyUpdatedMarkedExamples = doc.markedExamples?.map(me => {
+                    const newMarks = {...me.marks, [value as string]: me.marks?.[prevJsonFieldValue] ?? 0};
+                    delete newMarks[prevJsonFieldValue];
+                    return { ...me, marks: newMarks };
+                });
+            }
+        }
+        update({
+            ...doc,
+            markScheme: doc.markScheme?.map((msi, i) => i === index ? {...msi, [field]: value} : msi),
+            markedExamples: possiblyUpdatedMarkedExamples
+        });
+    }
+    
+    function addMark() {
+        const baseDefaultJsonFieldname = "jsonFieldToRename";
+        const existingJsonFields = new Set(doc.markScheme?.map(msi => msi.jsonField));
+        let nextFreeJsonFieldnameSuffix = 0;
+        while (existingJsonFields.has(`${baseDefaultJsonFieldname}${nextFreeJsonFieldnameSuffix}`)) {
+            nextFreeJsonFieldnameSuffix++;
+        }
+        const defaultJsonFieldname = `${baseDefaultJsonFieldname}${nextFreeJsonFieldnameSuffix}`;
+        update({
+            ...doc,
+            markScheme: [...doc.markScheme ?? [], {
+                jsonField: defaultJsonFieldname,
+                shortDescription: "Description (shown to user)",
+                marks: 1
+            }],
+            markedExamples: doc.markedExamples?.map(me => ({
+                ...me,
+                marks: {...me.marks, [defaultJsonFieldname]: 0}
+            }))
+        });
+    }
+
+    function deleteMark(jsonFieldname: string | undefined) {
+        if (!jsonFieldname) { return; }
+        update({
+            ...doc,
+            markScheme: doc.markScheme?.filter(msi => msi.jsonField !== jsonFieldname),
+            markedExamples: doc.markedExamples?.map(me => {
+                const newMarks = {...me.marks};
+                delete newMarks[jsonFieldname];
+                return { ...me, marks: newMarks };
+            })
+        });
+    }
+
+    // Marked example operations
+    function updateExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
+        update({
+            ...doc,
+            markedExamples: doc.markedExamples?.map((me, i) => i === index ? {...me, [field]: value} : me)
+        });
+    }
+
+    function addExample() {
+        update({
+            ...doc,
+            markedExamples: [...doc.markedExamples ?? [], {
+                answer: "Example answer",
+                marks: doc.markScheme?.reduce<Record<string, number>>((acc, mark) => ({...acc, [mark.jsonField ?? ""]: 0}), {}),
+                marksAwarded: 0
+            }]
+        });
+    }
+
+    function deleteExample(index: number) {
+        update({
+            ...doc,
+            markedExamples: doc.markedExamples?.filter((_, i) => i !== index)
+        });
+    }
+
 
     return <div>
         <h2 className="h5">Mark scheme</h2>
@@ -47,11 +103,28 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                 </tr>
             </thead>
             <tbody>
-                {doc.markScheme?.map((markSchemeItem, index) => <MarkSchemeRowPresenter
-                    key={markSchemeItem.jsonField}
-                    doc={markSchemeItem}
-                    update={newMSI => update({...doc, markScheme: doc.markScheme?.map((msi, i) => i === index ? newMSI : msi)})}
-                />)}
+                {doc.markScheme?.map((mark, i) => <tr key={mark.jsonField}>
+                    <td>
+                        <pre><EditableText
+                            text={mark.jsonField}
+                            hasError={value => !value?.match(/^[a-z][a-zA-Z0-9]+$/) ? "Invalid JSON fieldname format" : undefined}
+                            onSave={value => updateMark(i, "jsonField", value)}
+                        /></pre>
+                    </td>
+                    <td>
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-fill">
+                                <EditableText text={mark.shortDescription} multiLine block onSave={value => updateMark(i, "shortDescription", value)} />
+                            </div>
+                            <button className="btn btn-sm mb-2 ml-2" onClick={() => deleteMark(mark.jsonField)}>❌</button>
+                        </div>
+                    </td>
+                </tr>)}
+                <tr>
+                    <td colSpan={2}>
+                        <button className="btn btn-secondary" onClick={addMark}>Add mark</button>
+                    </td>
+                </tr>
             </tbody>
             <tfoot>
                 <tr>
@@ -63,10 +136,10 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                     <td>{"/* TODO MT: Input coming soon */"}<input className="w-100" placeholder="MIN(maxMarks, SUM(... all marks ...))" /></td>
                 </tr>
                 <tr>
-                    <td><strong>Marking instructions</strong></td>
+                    <td><strong>Additional marking instructions</strong></td>
                     <td>
                         <EditableText
-                            text={doc.additionalMarkingInstructions} multiLine
+                            text={doc.additionalMarkingInstructions} multiLine block
                             onSave={ams => update({...doc, additionalMarkingInstructions: ams})}
                         />
                     </td>
@@ -84,11 +157,39 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                 </tr>
             </thead>
             <tbody>
-                {doc.markedExamples?.map((markedExample, index) => <MarkedExampleRowPresenter
-                    key={index}
-                    doc={markedExample}
-                    update={newME => update({...doc, markedExamples: doc.markedExamples?.map((me, i) => i === index ? newME : me)})}
-                />)}
+                {doc.markedExamples?.map((example, i) => <tr key={i}>
+                    <td>
+                        <EditableText text={example.answer} multiLine block onSave={value => updateExample(i, "answer", value)} />
+                    </td>
+                    <td>
+                        {Object.keys(example.marks ?? {}).sort().map((jsonFieldname) => <div key={jsonFieldname}>
+                            {/* We assume, for now, that each point earns a single. Each one can be represented as a checkbox. */}
+                            <CheckboxDocProp
+                                label={jsonFieldname}
+                                doc={Object.entries(example.marks ?? {}).reduce<Record<string, boolean>>((booleanMarks, [key, val]) => ({...booleanMarks, [key]: val === 1}), {})}
+                                prop={jsonFieldname}
+                                update={newMarks => updateExample(i, "marks", {...example.marks, [jsonFieldname]: newMarks[jsonFieldname] ? 1 : 0})}
+                            />
+                        </div>)}
+                    </td>
+                    <td>
+                        <div className="d-flex justify-content-between">
+                            <div className="flex-fill">
+                                <EditableText
+                                    text={example.marksAwarded?.toString()}
+                                    hasError={value => doc.maxMarks && parseInt(value ?? "0", 10) > doc.maxMarks ? "Exceeds question's max marks" : undefined}
+                                    onSave={value => updateExample(i, "marksAwarded", parseInt(value ?? "0", 10))}
+                                />
+                            </div>
+                            <button className="btn btn-sm mb-2 ml-2" onClick={() => deleteExample(i)}>❌</button>
+                        </div>
+                    </td>
+                </tr>)}
+                <tr>
+                    <td colSpan={3}>
+                        <button className="btn btn-secondary" onClick={addExample}>Add marked example</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>;
