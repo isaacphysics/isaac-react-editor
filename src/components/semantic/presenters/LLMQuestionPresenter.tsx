@@ -4,6 +4,7 @@ import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSche
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
 import { isDefined } from "../../../utils/types";
+import { CheckboxDocProp } from "../props/CheckboxDocProp";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
@@ -161,10 +162,14 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                         <EditableText text={example.answer} multiLine block onSave={value => updateExample(i, "answer", value)} />
                     </td>
                     <td>
-                        {Object.entries(example.marks ?? {}).sort().map(([jsonFieldname, value]) => <div key={jsonFieldname}>
-                            <EditableText label={jsonFieldname} text={value.toString()} onSave={value =>
-                                updateExample(i, "marks", {...example.marks, [jsonFieldname]: parseInt(value ?? "0", 10)})
-                            } />
+                        {Object.keys(example.marks ?? {}).sort().map((jsonFieldname) => <div key={jsonFieldname}>
+                            {/* We assume, for now, that each point earns a single. Each one can be represented as a checkbox. */}
+                            <CheckboxDocProp
+                                label={jsonFieldname}
+                                doc={Object.entries(example.marks ?? {}).reduce<Record<string, boolean>>((booleanMarks, [key, val]) => ({...booleanMarks, [key]: val === 1}), {})}
+                                prop={jsonFieldname}
+                                update={newMarks => updateExample(i, "marks", {...example.marks, [jsonFieldname]: newMarks[jsonFieldname] ? 1 : 0})}
+                            />
                         </div>)}
                     </td>
                     <td>
