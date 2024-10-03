@@ -65,6 +65,7 @@ export type ContentType =
     | "figure"
     | "codeSnippet"
     | "interactiveCodeSnippet"
+    | "codeTabs"
     | "image"
     | "video"
     | "glossaryTerm"
@@ -194,6 +195,10 @@ const interactiveCodeSnippet: RegistryEntry = {
     name: "Interactive Code Snippet",
     bodyPresenter: InteractiveCodeSnippetPresenter,
 };
+const codeTabs: RegistryEntry = {
+    name: "Code Tabs",
+    bodyPresenter: TabsPresenter,
+}
 const glossaryTerm: RegistryEntry = {
     name: "Glossary term",
     bodyPresenter: GlossaryTermPresenter,
@@ -344,6 +349,7 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     image: {...figure, name: "Image"},
     codeSnippet,
     interactiveCodeSnippet,
+    codeTabs,
     video,
     glossaryTerm,
     emailTemplate,

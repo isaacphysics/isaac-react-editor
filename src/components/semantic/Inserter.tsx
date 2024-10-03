@@ -31,6 +31,7 @@ const blockTypes = {
     "image": {type: "image", encoding: "markdown", value: ""},
     "video": {type: "video", encoding: "markdown", src: "https://www.youtube.com/watch?v=<video_id>"},
     "tabs": {type: "content", layout: "tabs", encoding: "markdown", children: []},
+    "code tabs": {type: "codeTabs", encoding: "markdown", children: []},
     "accordion": {type: "content", layout: "accordion", encoding: "markdown", children: []},
     "side-by-side layout": {type: "content", layout: "horizontal", encoding: "markdown", children: []},
     "clearfix": {type: "content", layout: "clearfix", encoding: "markdown", value: ""},
