@@ -476,8 +476,8 @@ function SymbolicQuestionPresenterHead(props: PresenterProps<IsaacSymbolicQuesti
 export function SymbolicChemistryQuestionPresenter(props: PresenterProps<IsaacSymbolicChemistryQuestion>) {
     return <>
         <CheckboxDocProp {...props} prop="isNuclear" label="Nuclear question" />
-        <CheckboxDocProp {...props} prop="allowPermutations" label="Allow molecule permutations" />
-        <CheckboxDocProp {...props} prop="allowScalingCoefficients" label="Allow coefficient scaling" />
+        <CheckboxDocProp {...props} prop="allowPermutations" label="Allow molecule permutations" disabled={props.doc.isNuclear} />
+        <CheckboxDocProp {...props} prop="allowScalingCoefficients" label="Allow coefficient scaling" disabled={props.doc.isNuclear} />
         <SymbolicQuestionPresenterHead {...props} />
         {!props.doc.isNuclear && <SymbolicMetaSymbols {...props} metaSymbols={availableChemistryMetaSymbols} />}
         <div className={styles.editableFullwidth}>
