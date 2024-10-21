@@ -24,16 +24,15 @@ export function CheckboxDocProp<K extends keyof D, D extends { [Key in K]?: bool
         if (disabled && doc[prop]) {
             update({
                 ...doc,
-                [prop]: false,
+                [prop]: checkedIfUndefined ?? false,
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [disabled, doc[prop]]);
+    }, [checkedIfUndefined, disabled, doc, prop, update]);
 
     return <Label className={styles.checkboxLabel} style={{color: disabled ? "gray" : "black"}}>
         <Input type="checkbox"
                disabled={disabled}
-               checked={(!disabled && doc[prop]) ?? checkedIfUndefined ?? false}
+               checked={doc[prop] ?? checkedIfUndefined ?? false}
                onChange={(e) => {
                    update({
                        ...doc,
