@@ -503,8 +503,8 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
             <NumericQuestionPresenter {...props} showMeta={false} />
         </>}
         {choices}
-        <AnswerPresenter {...props} />
         <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" />
+        <AnswerPresenter {...props} />
     </>;
 }
 
