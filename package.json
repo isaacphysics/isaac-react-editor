@@ -41,9 +41,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start --verbose",
+    "build": "craco build",
+    "test": "craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -84,6 +84,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@craco/types": "^7.1.0",
     "@types/he": "^1.1.2",
     "@types/js-cookie": "^3.0.1",
     "@types/katex": "^0.11.1",
