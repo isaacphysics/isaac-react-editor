@@ -1,15 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { PresenterProps } from "../registry";
 import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
 import { isDefined } from "../../../utils/types";
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
+import { parseMarkingFormula } from "../../../services/llmMarkingFormula";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
+
+    const [llmMarkingFormula, setLLMMarkingFormula] = useState("test");
 
     // Mark scheme operations - these changes also update marked examples
     function updateMark<T extends keyof LLMFreeTextMarkSchemeEntry>(index: number, field: T, value: LLMFreeTextMarkSchemeEntry[T]) {
@@ -133,7 +136,13 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                 </tr>
                 <tr>
                     <td><strong>Marking formula</strong></td>
-                    <td>{"/* TODO MT: Input coming soon */"}<input className="w-100" placeholder="MIN(maxMarks, SUM(... all marks ...))" /></td>
+                    <td>
+                        {"/* TODO MT: Input coming soon */"}
+                        <input className="w-100" placeholder="MIN(maxMarks, SUM(... all marks ...))" value={llmMarkingFormula} onChange={e => setLLMMarkingFormula(e.target.value)} />
+                        <button className="btn btn-secondary" onClick={() => parseMarkingFormula(llmMarkingFormula)}>
+                            Test
+                        </button>
+                    </td>
                 </tr>
                 <tr>
                     <td><strong>Additional marking instructions</strong></td>
