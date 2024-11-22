@@ -27,7 +27,7 @@ import {ChoicesPresenter} from "./ChoicesPresenter";
 import {InserterProps} from "./ListChildrenPresenter";
 import { ContentValueOrChildrenPresenter } from "./ContentValueOrChildrenPresenter";
 import { InlinePartsPresenter } from "./InlinePartsPresenter";
-import { EditableInlineTypeProp } from "./InlineQuestionTypePresenter";
+import { EditableInlineTypeProp, INLINE_TYPES } from "./InlineQuestionTypePresenter";
 import { isAda } from "../../../services/site";
 
 export const QuestionContext = React.createContext<Content | null>(null);
@@ -221,11 +221,11 @@ export function HintsPresenter(props: PresenterProps<IsaacQuestionBase>) {
     return <SemanticListProp {...props} prop="hints" type="hints" />;
 }
 
-export function MultipleChoiceQuestionPresenter(props: PresenterProps) {
+export function MultipleChoiceQuestionPresenter({showMeta = true, ...props}: {showMeta?: boolean} & PresenterProps) {
     const {doc, update} = props;
     const question = doc as IsaacMultiChoiceQuestion;
     return <>
-        <QuestionMetaPresenter {...props} />
+        {showMeta && <QuestionMetaPresenter {...props} />}
         <CheckboxDocProp doc={question} update={update} prop="randomiseChoices" label="Randomise Choices" checkedIfUndefined={true} />
     </>;
 }
@@ -507,6 +507,23 @@ export function StringMatchQuestionPresenter(props: PresenterProps<IsaacStringMa
     </>;
 }
 
+const getInlineQuestionPresenter = (type: INLINE_TYPES, props: PresenterProps<IsaacInlinePart>) : Exclude<React.ReactNode, undefined> => {
+    switch (type) {
+        case "isaacNumericQuestion":
+            return <>
+                <hr/>
+                <NumericQuestionPresenter {...props} showMeta={false} />
+            </>;
+        case "isaacMultiChoiceQuestion":
+            return <>
+                <hr/>
+                <MultipleChoiceQuestionPresenter {...props} showMeta={false} />
+            </>;
+        case "isaacStringMatchQuestion":
+            return null;
+    }
+}
+
 export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePart>) {
     const [isDisabled, setIsDisabled] = useState(false);
     const choices = <ChoicesPresenter {...props} />;
@@ -520,10 +537,7 @@ export function InlineQuestionPartPresenter(props: PresenterProps<IsaacInlinePar
         {props.doc.id && props.doc.id.match(/^\[|\]$/) && <p className="text-danger"><i>Warning: the ID should not include the surrounding square brackets!</i></p>}
         <EditableInlineTypeProp {...props} disabled={isDisabled} />
         <em>Note: you cannot change the question type if any choices exist.</em>
-        {props.doc.type === "isaacNumericQuestion" && <>
-            <hr/>
-            <NumericQuestionPresenter {...props} showMeta={false} />
-        </>}
+        {props.doc.type && getInlineQuestionPresenter(props.doc.type as INLINE_TYPES, props)}
         {choices}
         <SemanticDocProp {...props} prop="defaultFeedback" name="Default Feedback" />
         <AnswerPresenter {...props} />
