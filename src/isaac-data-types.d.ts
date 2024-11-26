@@ -114,6 +114,8 @@ export interface IsaacLLMFreeTextQuestion extends IsaacQuestionBase {
     maxMarks?: number;
     additionalMarkingInstructions?: string;
     markCalculationInstructions?: string;
+    markingFormula?: any;
+    markingFormulaString?: string;
     markedExamples?: LLMFreeTextMarkedExample[];
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { PresenterProps } from "../registry";
 import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
@@ -11,8 +11,6 @@ const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
-
-    const [llmMarkingFormula, setLLMMarkingFormula] = useState("test");
 
     // Mark scheme operations - these changes also update marked examples
     function updateMark<T extends keyof LLMFreeTextMarkSchemeEntry>(index: number, field: T, value: LLMFreeTextMarkSchemeEntry[T]) {
@@ -95,6 +93,38 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         });
     }
 
+    function validateMarkingFormula(value?: string) {
+        value = value ?? "";
+        const regexStr = /[^a-zA-Z0-9(),\s]+/;
+        const badCharacters = new RegExp(regexStr);
+        if (badCharacters.test(value)) {
+            const usedBadChars: string[] = [];
+            for(let i = 0; i < value.length; i++) {
+                const char = value.charAt(i);
+                if (badCharacters.test(char)) {
+                    if (!usedBadChars.includes(char)) {
+                        usedBadChars.push(char);
+                    }
+                }
+            }
+            return 'Some of the characters you are using are not allowed: ' + usedBadChars.join(" ");
+        }
+        try { parseMarkingFormula(value); } 
+        catch (e) { 
+            if (e === "Ambiguous grammar") { 
+                return "Ambiguous marking formula"; 
+            }
+            return "Invalid marking formula";
+        }
+    }
+
+    function updateMarkingFormula(value?: string) {
+        update({
+            ...doc,
+            markingFormulaString: value,
+            markingFormula: parseMarkingFormula(value),
+        })
+    }
 
     return <div>
         <h2 className="h5">Mark scheme</h2>
@@ -137,11 +167,16 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                 <tr>
                     <td><strong>Marking formula</strong></td>
                     <td>
-                        {"/* TODO MT: Input coming soon */"}
-                        <input className="w-100" placeholder="MIN(maxMarks, SUM(... all marks ...))" value={llmMarkingFormula} onChange={e => setLLMMarkingFormula(e.target.value)} />
-                        <button className="btn btn-secondary" onClick={() => parseMarkingFormula(llmMarkingFormula)}>
-                            Test
-                        </button>
+                        <div className="flex-fill">
+                                <EditableText
+                                    block={true}
+                                    label="Marking formula"
+                                    placeHolder="e.g. MIN(maxMarks, SUM(... all marks ...))"
+                                    text={doc.markingFormulaString}
+                                    hasError={value => validateMarkingFormula(value)}
+                                    onSave={value => updateMarkingFormula(value)}
+                                />
+                            </div>
                     </td>
                 </tr>
                 <tr>
