@@ -67,11 +67,53 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         });
     }
 
+    function evaluateMarkingFormula<T extends keyof LLMFreeTextMarkedExample>(markingFormula: any, value: LLMFreeTextMarkedExample[T]): number { 
+        if (markingFormula.type === "LLMMarkingConstant") { 
+            return markingFormula.value; 
+        } else if (markingFormula.type === "LLMMarkingVariable") {
+            if (typeof value === 'object' && value !== null) {
+                console.log(markingFormula.name, value[markingFormula.name]);
+                return value[markingFormula.name] ?? 0;
+            }
+            return 0;
+        } else if (markingFormula.type === "LLMMarkingFunction") {
+            const args: any = markingFormula.arguments;
+            switch (markingFormula.name) {
+                case "SUM":
+                    return args.map((arg: any) => evaluateMarkingFormula(arg, value)).reduce((acc: number, val: number) => acc + val, 0);
+                case "MAX":
+                    return Math.max(...args.map((arg: any) => evaluateMarkingFormula(arg, value)));
+                case "MIN":
+                    return Math.min(...args.map((arg: any) => evaluateMarkingFormula(arg, value)));
+                default:
+                    throw new Error("Unknown marking function: " + markingFormula.name);
+            }
+        }
+        throw new Error("Unknown marking expression type: " + markingFormula.type);
+    }
+
+    function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula: any, value: LLMFreeTextMarkedExample[T]): number {
+        if (markingFormula === undefined && typeof value === 'object' && value !== null) {
+            let total: number = 0;
+            for (const key in value) {
+                total = total + (value[key] ?? 0);
+            }
+
+            return Math.min(doc.maxMarks ?? 0, total);
+        }
+
+        return evaluateMarkingFormula(markingFormula, value);
+    }
+
     // Marked example operations
     function updateExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
         update({
             ...doc,
-            markedExamples: doc.markedExamples?.map((me, i) => i === index ? {...me, [field]: value} : me)
+            markedExamples: doc.markedExamples?.map((me, i) => i === index ? {
+                ...me, 
+                [field]: value, 
+                marksAwarded: evaluateMarkTotal(doc.markingFormula, value)
+            } : me)
         });
     }
 
@@ -168,15 +210,16 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                     <td><strong>Marking formula</strong></td>
                     <td>
                         <div className="flex-fill">
-                                <EditableText
-                                    block={true}
-                                    label="Marking formula"
-                                    placeHolder="e.g. MIN(maxMarks, SUM(... all marks ...))"
-                                    text={doc.markingFormulaString}
-                                    hasError={value => validateMarkingFormula(value)}
-                                    onSave={value => updateMarkingFormula(value)}
-                                />
-                            </div>
+                            <EditableText
+                                block={true}
+                                label="Marking formula"
+                                placeHolder="e.g. MIN(maxMarks, SUM(... all marks ...))"
+                                text={doc.markingFormulaString}
+                                hasError={value => validateMarkingFormula(value)}
+                                onSave={value => updateMarkingFormula(value)}
+                            />
+                        </div>
+                        {/* TODO: Add buttons for maxMarks/mark names/functions(?) */}
                     </td>
                 </tr>
                 <tr>
