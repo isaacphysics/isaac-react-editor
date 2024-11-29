@@ -217,9 +217,11 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                                 text={doc.markingFormulaString}
                                 hasError={value => validateMarkingFormula(value)}
                                 onSave={value => updateMarkingFormula(value)}
+                                buttonStrings={["Test", "Test2", "positiveFuel", "negativeFuel2"]}
+                                // eslint-disable-next-line jsx-a11y/no-autofocus
+                                autoFocus={false}
                             />
                         </div>
-                        {/* TODO: Add buttons for maxMarks/mark names/functions(?) */}
                     </td>
                 </tr>
                 <tr>

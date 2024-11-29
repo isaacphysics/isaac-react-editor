@@ -50,6 +50,7 @@ export type EditableTextProps = {
     format?: EditableTextFormat;
     previewWrapperChar?: "$" | "";
     inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value">;
+    buttonStrings?: string[];
 };
 
 interface EditableTextState {
@@ -103,6 +104,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                                  multiLine = format === "code",
                                  previewWrapperChar = "",
                                  inputProps,
+                                 buttonStrings = [],
                              }, ref) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [errorMessage, setErrorMessage] = useState<string>();
@@ -207,47 +209,53 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const labelLC = safeLowercase(label);
     const placeHolderLC = safeLowercase(placeHolder);
 
+    const aButtons = buttonStrings.map((buttonString, index) => (
+        <Button key={index} onClick={() => setCurrent((state.value ?? "") + buttonString)}>{buttonString}</Button>
+    ));
+
     const Wrap = block ? "div" : "span";
     if (state.isEditing) {
-        return <Wrap ref={wrapperRef} className={`${styles.isEditingWrapper} ${multiLine ? styles.multiLine : ""}`}>
-            <span className={classNames(styles.controlWrapper, format === "code" ? "w-100" : "")}>
-                <span className={styles.labelledInput}>
-                    <>
-                        {multiLine ? labelElement : <div>{labelElement}</div>}
-                        {format === "code"
-                            ? <CodeMirror
-                                className={"w-100"}
-                                value={state.value ?? ""}
-                                // eslint-disable-next-line jsx-a11y/no-autofocus
-                                autoFocus
-                                extensions={[
-                                    EditorView.lineWrapping,
-                                    keyBindings(() => {save(); return true;}, () => {cancel(); return true;}, "plaintext"),
-                                ]}
-                                onChange={(newValue) => setCurrent(newValue)}
-                            >
-                                <MarkupToolbar set={save} cancel={cancel} encoding={"plaintext"} />
-                            </CodeMirror>
-                            : <Input
-                                type={multiLine ? "textarea" : "text"}
-                                /* eslint-disable-next-line jsx-a11y/no-autofocus */
-                                autoFocus
-                                value={state.value ?? ""}
-                                onChange={e => setCurrent(e.target.value)}
-                                onKeyDown={handleKey}
-                                placeholder={placeHolder}
-                                onBlur={onBlur}
-                                invalid={!!errorMessage}
-                                {...inputProps}
-                            />
-                        }
-                    </>
+        return <> <Wrap ref={wrapperRef} className={`${styles.isEditingWrapper} ${multiLine ? styles.multiLine : ""}`}>
+                <span className={classNames(styles.controlWrapper, format === "code" ? "w-100" : "")}>
+                    <span className={styles.labelledInput}>
+                        <>
+                            {multiLine ? labelElement : <div>{labelElement}</div>}
+                            {format === "code"
+                                ? <CodeMirror
+                                    className={"w-100"}
+                                    value={state.value ?? ""}
+                                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                                    autoFocus
+                                    extensions={[
+                                        EditorView.lineWrapping,
+                                        keyBindings(() => {save(); return true;}, () => {cancel(); return true;}, "plaintext"),
+                                    ]}
+                                    onChange={(newValue) => setCurrent(newValue)}
+                                >
+                                    <MarkupToolbar set={save} cancel={cancel} encoding={"plaintext"} />
+                                </CodeMirror>
+                                : <Input
+                                    type={multiLine ? "textarea" : "text"}
+                                    /* eslint-disable-next-line jsx-a11y/no-autofocus */
+                                    autoFocus={autoFocus ?? false}
+                                    value={state.value ?? ""}
+                                    onChange={e => setCurrent(e.target.value)}
+                                    onKeyDown={handleKey}
+                                    placeholder={placeHolder}
+                                    onBlur={onBlur}
+                                    invalid={!!errorMessage}
+                                    {...inputProps}
+                                />
+                            }
+                        </>
+                    </span>
+                    {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
                 </span>
-                {errorMessage && <FormFeedback className={styles.feedback}>{errorMessage}</FormFeedback>}
-            </span>
-            <Button onClick={cancel}>Cancel</Button>
-            <Button color="primary" onClick={() => save()}>Set</Button>
-        </Wrap>
+                <Button onClick={cancel}>Cancel</Button>
+                <Button color="primary" onClick={() => save()}>Set</Button>
+            </Wrap>
+            {aButtons}
+        </>
     }
     if (nonEmpty) {
         return <Wrap className={classNames(styles.notEditingWrapper, {[styles.multiLine]: multiLine})}>
