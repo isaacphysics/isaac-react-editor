@@ -210,7 +210,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const placeHolderLC = safeLowercase(placeHolder);
 
     const insertStringButtons = buttonStrings.map((buttonString, index) => (
-        <Button key={index} onClick={() => setCurrent((state.value ?? "") + " " + buttonString[1])}>{buttonString[0]}</Button>
+        <Button key={index} onClick={() => setCurrent((state.value ? state.value + ((state.value.at(-1) === "(" || buttonString[1] === ")") ? "" : ", ") : "") + buttonString[1])}>{buttonString[0]}</Button>
     ));
 
     const Wrap = block ? "div" : "span";

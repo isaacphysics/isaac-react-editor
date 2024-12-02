@@ -179,8 +179,10 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         })
     }
 
-    const jsonFieldnamesMap: [string, string][] = doc.markScheme?.map(msi => msi.jsonField ? [msi.jsonField, msi.jsonField] as [string, string] : ["", ""]) ?? [["", ""]];
-    const buttonStrings: [string, string][] = [...jsonFieldnamesMap, ["maxMarks", "maxMarks"]];
+    const functionNamesMap: [string, string][] = [["SUM", "SUM("], ["MAX", "MAX("], ["MIN", "MIN("], [")", ")"]]; // These are the only functions we support for now
+    const constantNamesMap: [string, string][] = [["0", "0"], ["1", "1"]];
+    const variableNamesMap: [string, string][] = doc.markScheme?.map(msi => msi.jsonField ? [msi.jsonField, msi.jsonField] as [string, string] : ["", ""]) ?? [["", ""]];
+    const buttonStrings: [string, string][] = [...functionNamesMap, ...constantNamesMap, ...variableNamesMap, ["maxMarks", "maxMarks"]];
 
     return <div>
         <h2 className="h5">Mark scheme</h2>
@@ -271,7 +273,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                                 label={jsonFieldname}
                                 doc={Object.entries(example.marks ?? {}).reduce<Record<string, boolean>>((booleanMarks, [key, val]) => ({...booleanMarks, [key]: val === 1}), {})}
                                 prop={jsonFieldname}
-                                update={newMarks => updateExample(i, "marks", {...example.marks, [jsonFieldname]: newMarks[jsonFieldname] ? 1 : 0})}
+                                update={newMarks => updateExample(i, "marks", {...example.marks, [jsonFieldname]: newMarks[jsonFieldname] ? 1 : 0, "maxMarks": doc.maxMarks ?? 0})}
                             />
                         </div>)}
                     </td>
