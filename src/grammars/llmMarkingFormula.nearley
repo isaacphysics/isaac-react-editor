@@ -14,7 +14,7 @@
 @lexer lexer
 
 # Entrypoint
-MAIN -> WS EXPRESSION                             {% ([start]) => start %}
+MAIN -> WS EXPRESSION                             {% ([_ws, start]) => start %}
 
 # Expression rules
 EXPRESSION -> %integer                            {% ([integer]) => ({type: "LLMMarkingConstant", value: Number(integer.value)}) %} 

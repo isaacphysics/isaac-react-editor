@@ -50,7 +50,7 @@ export type EditableTextProps = {
     format?: EditableTextFormat;
     previewWrapperChar?: "$" | "";
     inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value"|"className">;
-    buttonStrings?: string[];
+    buttonStrings?: [string, string][];
 };
 
 interface EditableTextState {
@@ -210,7 +210,7 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const placeHolderLC = safeLowercase(placeHolder);
 
     const insertStringButtons = buttonStrings.map((buttonString, index) => (
-        <Button key={index} onClick={() => setCurrent((state.value ?? "") + " " + buttonString)}>{buttonString}</Button>
+        <Button key={index} onClick={() => setCurrent((state.value ?? "") + " " + buttonString[1])}>{buttonString[0]}</Button>
     ));
 
     const Wrap = block ? "div" : "span";

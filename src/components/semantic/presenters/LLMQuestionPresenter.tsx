@@ -1,6 +1,6 @@
 import React from "react";
 import { PresenterProps } from "../registry";
-import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
+import { IsaacLLMFreeTextQuestion, LLMFormulaNode, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry, LLMFunctionNode, LLMVariableNode, LLMConstantNode } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
 import { isDefined } from "../../../utils/types";
@@ -9,6 +9,17 @@ import { parseMarkingFormula } from "../../../services/llmMarkingFormula";
 import styles from "../styles/editable.module.css";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
+
+// Type guards for LLMFormulaNode
+export function isLLMFunctionNode(node: LLMFormulaNode): node is LLMFunctionNode {
+    return node.type === "LLMMarkingFunction";
+}
+export function isLLMVariableNode(node: LLMFormulaNode): node is LLMVariableNode {
+    return node.type === "LLMMarkingVariable";
+}
+export function isLLMConstantNode(node: LLMFormulaNode): node is LLMConstantNode {
+    return node.type === "LLMMarkingConstant";
+}
 
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
@@ -68,24 +79,23 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         });
     }
 
-    function evaluateMarkingFormula<T extends keyof LLMFreeTextMarkedExample>(markingFormula: any, value: LLMFreeTextMarkedExample[T]): number { 
-        if (markingFormula.type === "LLMMarkingConstant") { 
+    function evaluateMarkingFormula<T extends keyof LLMFreeTextMarkedExample>(markingFormula: LLMFormulaNode, value: LLMFreeTextMarkedExample[T]): number { 
+        if (isLLMConstantNode(markingFormula)) { 
             return markingFormula.value; 
-        } else if (markingFormula.type === "LLMMarkingVariable") {
-            if (typeof value === 'object' && value !== null) {
-                console.log(markingFormula.name, value[markingFormula.name]);
+        } else if (isLLMVariableNode(markingFormula)) {
+            if (typeof value === 'object') {
                 return value[markingFormula.name] ?? 0;
             }
             return 0;
-        } else if (markingFormula.type === "LLMMarkingFunction") {
-            const args: any = markingFormula.arguments;
+        } else if (isLLMFunctionNode(markingFormula)) {
+            const args: LLMFormulaNode[] = markingFormula.arguments;
             switch (markingFormula.name) {
                 case "SUM":
-                    return args.map((arg: any) => evaluateMarkingFormula(arg, value)).reduce((acc: number, val: number) => acc + val, 0);
+                    return args.map((arg: LLMFormulaNode) => evaluateMarkingFormula(arg, value)).reduce((acc: number, val: number) => acc + val, 0);
                 case "MAX":
-                    return Math.max(...args.map((arg: any) => evaluateMarkingFormula(arg, value)));
+                    return Math.max(...args.map((arg: LLMFormulaNode) => evaluateMarkingFormula(arg, value)));
                 case "MIN":
-                    return Math.min(...args.map((arg: any) => evaluateMarkingFormula(arg, value)));
+                    return Math.min(...args.map((arg: LLMFormulaNode) => evaluateMarkingFormula(arg, value)));
                 default:
                     throw new Error("Unknown marking function: " + markingFormula.name);
             }
@@ -93,7 +103,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         throw new Error("Unknown marking expression type: " + markingFormula.type);
     }
 
-    function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula: any, value: LLMFreeTextMarkedExample[T]): number {
+    function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula: LLMFormulaNode, value: LLMFreeTextMarkedExample[T]): number {
         if (markingFormula === undefined && typeof value === 'object' && value !== null) {
             let total: number = 0;
             for (const key in value) {
@@ -169,6 +179,9 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         })
     }
 
+    const jsonFieldnamesMap: [string, string][] = doc.markScheme?.map(msi => msi.jsonField ? [msi.jsonField, msi.jsonField] as [string, string] : ["", ""]) ?? [["", ""]];
+    const buttonStrings: [string, string][] = [...jsonFieldnamesMap, ["maxMarks", "maxMarks"]];
+
     return <div>
         <h2 className="h5">Mark scheme</h2>
         <table className="table table-bordered">
@@ -219,7 +232,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                                 text={doc.markingFormulaString}
                                 hasError={value => validateMarkingFormula(value)}
                                 onSave={value => updateMarkingFormula(value)}
-                                buttonStrings={[...(doc.markScheme ? doc.markScheme.map(msi => msi.jsonField ?? "") : []), "maxMarks"]}
+                                buttonStrings={buttonStrings}
                                 inputProps={{ className: styles["llm_formula_input"] }}
                             />
                         </div>
