@@ -6,6 +6,7 @@ import { EditableText } from "../props/EditableText";
 import { isDefined } from "../../../utils/types";
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
 import { parseMarkingFormula } from "../../../services/llmMarkingFormula";
+import styles from "../styles/editable.module.css";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
@@ -211,15 +212,15 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                     <td>
                         <div className="flex-fill">
                             <EditableText
+                                multiLine={true}
                                 block={true}
                                 label="Marking formula"
                                 placeHolder="e.g. MIN(maxMarks, SUM(... all marks ...))"
                                 text={doc.markingFormulaString}
                                 hasError={value => validateMarkingFormula(value)}
                                 onSave={value => updateMarkingFormula(value)}
-                                buttonStrings={["Test", "Test2", "positiveFuel", "negativeFuel2"]}
-                                // eslint-disable-next-line jsx-a11y/no-autofocus
-                                autoFocus={false}
+                                buttonStrings={[...(doc.markScheme ? doc.markScheme.map(msi => msi.jsonField ?? "") : []), "maxMarks"]}
+                                inputProps={{ className: styles["llm_formula_input"] }}
                             />
                         </div>
                     </td>

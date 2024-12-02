@@ -49,7 +49,7 @@ export type EditableTextProps = {
     block?: boolean;
     format?: EditableTextFormat;
     previewWrapperChar?: "$" | "";
-    inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value">;
+    inputProps?: Omit<InputProps, "type"|"placeHolder"|"invalid"|"autoFocus"|"value"|"className">;
     buttonStrings?: string[];
 };
 
@@ -209,8 +209,8 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
     const labelLC = safeLowercase(label);
     const placeHolderLC = safeLowercase(placeHolder);
 
-    const aButtons = buttonStrings.map((buttonString, index) => (
-        <Button key={index} onClick={() => setCurrent((state.value ?? "") + buttonString)}>{buttonString}</Button>
+    const insertStringButtons = buttonStrings.map((buttonString, index) => (
+        <Button key={index} onClick={() => setCurrent((state.value ?? "") + " " + buttonString)}>{buttonString}</Button>
     ));
 
     const Wrap = block ? "div" : "span";
@@ -254,7 +254,9 @@ export const EditableText = forwardRef<EditableTextRef, EditableTextProps>(({
                 <Button onClick={cancel}>Cancel</Button>
                 <Button color="primary" onClick={() => save()}>Set</Button>
             </Wrap>
-            {aButtons}
+            <Wrap ref={wrapperRef} className={`justify-content-start ${styles.isEditingWrapper}`}>
+                {insertStringButtons}
+            </Wrap>
         </>
     }
     if (nonEmpty) {
