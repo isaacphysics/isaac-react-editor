@@ -176,6 +176,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             ...doc,
             markingFormulaString: value,
             markingFormula: parseMarkingFormula(value),
+            markedExamples: doc.markedExamples?.map(me => ({...me, marksAwarded: evaluateMarkTotal(parseMarkingFormula(value), me.marks)}))
         })
     }
 

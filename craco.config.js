@@ -3,7 +3,6 @@ module.exports = {
         configure: (webpackConfig) => {
             webpackConfig.resolve.extensions.push('.nearley');
 
-            // Add nearley-loader at the beginning of oneOf to ensure priority
             const nearleyLoader = {
                 test: /\.nearley$/,
                 use: [{ loader: require.resolve('nearley-loader') }],

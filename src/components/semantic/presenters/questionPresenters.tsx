@@ -147,7 +147,8 @@ export function changeQuestionType({doc, update, newType} : PresenterProps & {ne
     }
     
     if (newType === "isaacLLMFreeTextQuestion") {
-        // Remove the choices property as it is not applicable to LLM-Marked questions
+        // Remove the choices and answer properties as they are not applicable to LLM-Marked questions
+        delete newDoc.answer;
         delete newDoc.choices;
     }
 
