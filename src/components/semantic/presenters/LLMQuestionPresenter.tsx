@@ -103,18 +103,29 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         throw new Error("Unknown marking expression type: " + markingFormula.type);
     }
 
-    function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula: LLMFormulaNode, value: LLMFreeTextMarkedExample[T]): number {
-        if (markingFormula === undefined && typeof value === 'object' && value !== null) {
-            let total: number = 0;
-            for (const key in value) {
-                total = total + (value[key] ?? 0);
+    function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula?: LLMFormulaNode, value?: LLMFreeTextMarkedExample[T]): number {
+        function defaultMarkingFormula(): number {
+            if (typeof value === 'object' && value !== null) {
+                let total: number = 0;
+                for (const key in value) {
+                    total = total + (key !== "maxMarks" && value[key] ? value[key] : 0);
+                }
+    
+                return Math.min(doc.maxMarks ?? 0, total);
             }
-
-            return Math.min(doc.maxMarks ?? 0, total);
+            return 0;
         }
+        
+        if (markingFormula === undefined) {
+            return defaultMarkingFormula();
+        } 
 
-        return evaluateMarkingFormula(markingFormula, value);
-    }
+        try {
+            return evaluateMarkingFormula(markingFormula, value);
+        } catch {
+            return defaultMarkingFormula();
+        }
+    } 
 
     // Marked example operations
     function updateExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
@@ -123,7 +134,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             markedExamples: doc.markedExamples?.map((me, i) => i === index ? {
                 ...me, 
                 [field]: value, 
-                marksAwarded: evaluateMarkTotal(doc.markingFormula, value)
+                marksAwarded: evaluateMarkTotal(doc.markingFormula, {...(value as Record<string, unknown>), "maxMarks": doc.maxMarks ?? 0})
             } : me)
         });
     }
@@ -281,11 +292,16 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
                     <td>
                         <div className="d-flex justify-content-between">
                             <div className="flex-fill">
+                                {doc.markingFormula ? 
+                                <div>
+                                    {example.marksAwarded}
+                                </div> 
+                                :
                                 <EditableText
                                     text={example.marksAwarded?.toString()}
                                     hasError={value => doc.maxMarks && parseInt(value ?? "0", 10) > doc.maxMarks ? "Exceeds question's max marks" : undefined}
                                     onSave={value => updateExample(i, "marksAwarded", parseInt(value ?? "0", 10))}
-                                />
+                                />}
                             </div>
                             <button className="btn btn-sm mb-2 ml-2" onClick={() => deleteExample(i)}>❌</button>
                         </div>
