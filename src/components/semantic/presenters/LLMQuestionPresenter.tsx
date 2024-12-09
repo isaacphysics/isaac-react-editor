@@ -1,15 +1,25 @@
 import React from "react";
 import { PresenterProps } from "../registry";
-import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
+import { IsaacLLMFreeTextQuestion, LLMFormulaNode, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry, LLMFunctionNode, LLMVariableNode, LLMConstantNode } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
 import { isDefined } from "../../../utils/types";
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
 import { parseMarkingFormula } from "../../../services/llmMarkingFormula";
 import styles from "../styles/editable.module.css";
-import { evaluateMarkTotal } from "../../../utils/llmMarkingFormula";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
+
+// Type guards for LLMFormulaNode
+export function isLLMFunctionNode(node: LLMFormulaNode): node is LLMFunctionNode {
+    return node.type === "LLMMarkingFunction";
+}
+export function isLLMVariableNode(node: LLMFormulaNode): node is LLMVariableNode {
+    return node.type === "LLMMarkingVariable";
+}
+export function isLLMConstantNode(node: LLMFormulaNode): node is LLMConstantNode {
+    return node.type === "LLMMarkingConstant";
+}
 
 export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuestion>) {
     const {doc, update} = props;
@@ -69,6 +79,54 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
         });
     }
 
+    function evaluateMarkingFormula<T extends keyof LLMFreeTextMarkedExample>(markingFormula: LLMFormulaNode, value: LLMFreeTextMarkedExample[T]): number { 
+        if (isLLMConstantNode(markingFormula)) { 
+            return markingFormula.value; 
+        } else if (isLLMVariableNode(markingFormula)) {
+            if (typeof value === 'object') {
+                return value[markingFormula.name] ?? 0;
+            }
+            return 0;
+        } else if (isLLMFunctionNode(markingFormula)) {
+            const args: LLMFormulaNode[] = markingFormula.arguments;
+            switch (markingFormula.name) {
+                case "SUM":
+                    return args.map((arg: LLMFormulaNode) => evaluateMarkingFormula(arg, value)).reduce((acc: number, val: number) => acc + val, 0);
+                case "MAX":
+                    return Math.max(...args.map((arg: LLMFormulaNode) => evaluateMarkingFormula(arg, value)));
+                case "MIN":
+                    return Math.min(...args.map((arg: LLMFormulaNode) => evaluateMarkingFormula(arg, value)));
+                default:
+                    throw new Error("Unknown marking function: " + markingFormula.name);
+            }
+        }
+        throw new Error("Unknown marking expression type: " + markingFormula.type);
+    }
+
+    function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula?: LLMFormulaNode, value?: LLMFreeTextMarkedExample[T]): number {
+        function defaultMarkingFormula(): number {
+            if (typeof value === 'object' && value !== null) {
+                let total: number = 0;
+                for (const key in value) {
+                    total = total + (key !== "maxMarks" && value[key] ? value[key] : 0);
+                }
+    
+                return Math.min(doc.maxMarks ?? 0, total);
+            }
+            return 0;
+        }
+        
+        if (markingFormula === undefined) {
+            return defaultMarkingFormula();
+        } 
+
+        try {
+            return evaluateMarkingFormula(markingFormula, value);
+        } catch {
+            return defaultMarkingFormula();
+        }
+    } 
+
     // Marked example operations
     function updateExample<T extends keyof LLMFreeTextMarkedExample>(index: number, field: T, value: LLMFreeTextMarkedExample[T]) {
         update({
@@ -76,7 +134,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             markedExamples: doc.markedExamples?.map((me, i) => i === index ? {
                 ...me, 
                 [field]: value, 
-                marksAwarded: evaluateMarkTotal(doc.markingFormula, {...(value as Record<string, unknown>), "maxMarks": doc.maxMarks ?? 0}, doc.maxMarks)
+                marksAwarded: evaluateMarkTotal(doc.markingFormula, {...(value as Record<string, unknown>), "maxMarks": doc.maxMarks ?? 0})
             } : me)
         });
     }
@@ -129,7 +187,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             ...doc,
             markingFormulaString: value,
             markingFormula: parseMarkingFormula(value),
-            markedExamples: doc.markedExamples?.map(me => ({...me, marksAwarded: evaluateMarkTotal(parseMarkingFormula(value), me.marks, doc.maxMarks)}))
+            markedExamples: doc.markedExamples?.map(me => ({...me, marksAwarded: evaluateMarkTotal(parseMarkingFormula(value), me.marks)}))
         })
     }
 
