@@ -1,7 +1,6 @@
 import { Parser, Grammar } from 'nearley';
 import grammar from '../grammars/llmMarkingFormula.nearley';
 
-
 export function parseMarkingFormula(markingFormula?: string) {
     if (!markingFormula) {
         return "";
