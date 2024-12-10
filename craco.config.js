@@ -16,5 +16,14 @@ module.exports = {
 
             return webpackConfig;
         }
-    }
+    },
+    jest: {
+        configure: {
+            preset: 'ts-jest',
+            verbose: true,
+            transform: {
+                '^.+\\.(ts|tsx)$': 'ts-jest'
+            }
+        },
+    },
 };
