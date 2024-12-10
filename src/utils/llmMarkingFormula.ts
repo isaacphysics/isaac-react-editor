@@ -11,7 +11,7 @@ export function isLLMConstantNode(node: LLMFormulaNode): node is LLMConstantNode
     return node.type === "LLMMarkingConstant";
 }
 
-export function evaluateMarkingFormula<T extends keyof LLMFreeTextMarkedExample>(markingFormula: LLMFormulaNode, value: LLMFreeTextMarkedExample[T]): number { 
+export function evaluateMarkingFormula<T extends LLMFormulaNode>(markingFormula: T, value: Record<string, number>): number { 
     if (isLLMConstantNode(markingFormula)) { 
         return markingFormula.value; 
     } else if (isLLMVariableNode(markingFormula)) {
@@ -35,7 +35,7 @@ export function evaluateMarkingFormula<T extends keyof LLMFreeTextMarkedExample>
     throw new Error("Unknown marking expression type: " + markingFormula.type);
 }
 
-export function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(markingFormula?: LLMFormulaNode, value?: LLMFreeTextMarkedExample[T]): number {
+export function evaluateMarkTotal<T extends LLMFormulaNode>(markingFormula?: T, value?: Record<string, number>) : number {
     function defaultMarkingFormula(): number {
         if (typeof value === 'object' && value !== null) {
             let total: number = 0;
@@ -43,7 +43,7 @@ export function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(mark
                 total = total + (key !== "maxMarks" && value[key] ? value[key] : 0);
             }
 
-            return Math.min(doc.maxMarks ?? 0, total);
+            return Math.min(value.maxMarks ?? 0, total);
         }
         return 0;
     }
@@ -53,7 +53,7 @@ export function evaluateMarkTotal<T extends keyof LLMFreeTextMarkedExample>(mark
     } 
 
     try {
-        return evaluateMarkingFormula(markingFormula, value);
+        return evaluateMarkingFormula(markingFormula, value ?? {});
     } catch {
         return defaultMarkingFormula();
     }

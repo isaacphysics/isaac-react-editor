@@ -1,12 +1,13 @@
 import React from "react";
 import { PresenterProps } from "../registry";
-import { IsaacLLMFreeTextQuestion, LLMFormulaNode, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry, LLMFunctionNode, LLMVariableNode, LLMConstantNode } from "../../../isaac-data-types";
+import { IsaacLLMFreeTextQuestion, LLMFreeTextMarkedExample, LLMFreeTextMarkSchemeEntry } from "../../../isaac-data-types";
 import { NumberDocPropFor } from "../props/NumberDocPropFor";
 import { EditableText } from "../props/EditableText";
 import { isDefined } from "../../../utils/types";
 import { CheckboxDocProp } from "../props/CheckboxDocProp";
 import { parseMarkingFormula } from "../../../services/llmMarkingFormula";
 import styles from "../styles/editable.module.css";
+import { evaluateMarkTotal } from "../../../utils/llmMarkingFormula";
 
 const MaxMarksEditor = NumberDocPropFor<IsaacLLMFreeTextQuestion>("maxMarks");
 
@@ -75,7 +76,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             markedExamples: doc.markedExamples?.map((me, i) => i === index ? {
                 ...me, 
                 [field]: value, 
-                marksAwarded: evaluateMarkTotal(doc.markingFormula, {...(value as Record<string, unknown>), "maxMarks": doc.maxMarks ?? 0})
+                marksAwarded: evaluateMarkTotal(doc.markingFormula, {...(value as Record<string, number>), "maxMarks": doc.maxMarks ?? 0})
             } : me)
         });
     }
@@ -128,7 +129,7 @@ export function LLMQuestionPresenter(props: PresenterProps<IsaacLLMFreeTextQuest
             ...doc,
             markingFormulaString: value,
             markingFormula: parseMarkingFormula(value),
-            markedExamples: doc.markedExamples?.map(me => ({...me, marksAwarded: evaluateMarkTotal(parseMarkingFormula(value), me.marks)}))
+            markedExamples: doc.markedExamples?.map(me => ({...me, marksAwarded: evaluateMarkTotal(parseMarkingFormula(value), {...me.marks, "maxMarks": doc.maxMarks ?? 0})}))
         })
     }
 
