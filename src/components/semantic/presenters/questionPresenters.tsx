@@ -1,5 +1,5 @@
 import React, {createContext, useCallback, useContext, useEffect, useState} from "react";
-import {EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
+import {EditableCoordPropPlaceholders, EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
 import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} from "reactstrap";
 import {
@@ -152,8 +152,8 @@ export function changeQuestionType({doc, update, newType} : PresenterProps & {ne
     }
 
     if (newType !== "isaacCoordinateQuestion") {
-        delete newDoc.ordered;
         delete newDoc.numberOfCoordinates;
+        delete newDoc.dimensions;
     }
 
     update(newDoc);
@@ -290,35 +290,26 @@ export function NumericQuestionPresenter({showMeta = true, ...props}: {showMeta?
     </>;
 }
 
-export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number}>(
+export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number, dimensions?: number, placeholderValues?: string[]}>(
     {}
 );
 const EditableNumberOfCoordinates = NumberDocPropFor<IsaacCoordinateQuestion>("numberOfCoordinates", {label: "Number of coordinates", block: true});
+const EditableDimensions = NumberDocPropFor<IsaacCoordinateQuestion>("dimensions", {label: "Dimensions", block: true});
 
 export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinateQuestion>) {
     const {doc, update} = props;
     const question = doc as IsaacCoordinateQuestion;
 
-    const EditableCoordinateLabelX = EditableDocPropFor<IsaacCoordinateQuestion>(
-        "placeholderXValue", {label: "placeholder X Value", block: true, format: "plain"}
-    );
-    const EditableCoordinateLabelY = EditableDocPropFor<IsaacCoordinateQuestion>(
-        "placeholderYValue", {label: "placeholder Y Value", block: true, format: "plain"}
-    );
-
     return <>
         <QuestionMetaPresenter {...props} />
         <EditableNumberOfCoordinates {...props} />
-        <CheckboxDocProp {...props} prop="ordered" label="Require that order of coordinates in choice and answer are the same" />
+        <EditableDimensions {...props} />
         <div className={styles.questionLabel}>
             Coordinate labels:<br/>
             <small><em>This does not accept latex. Please use a unicode equivalent such as Ψ₁.</em></small>
             <div className="row">
                 <div className="col col-lg-5">
-                    <EditableCoordinateLabelX doc={question} update={update} />
-                </div>
-                <div className="col col-lg-5">
-                    <EditableCoordinateLabelY doc={question} update={update} />
+                    {[...Array(question.dimensions)].map((_, i) => <EditableCoordPropPlaceholders {...props} key={i} dim={i} label={"Placeholder ".concat(i.toString())} />)}
                 </div>
             </div>
             Significant figures (affects both x and y values):
@@ -334,6 +325,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
         <div className={styles.questionLabel} /> {/* For spacing */}
         <CoordinateQuestionContext.Provider value={{
             numberOfCoordinates: question.numberOfCoordinates,
+            dimensions: question.dimensions
         }}>
             <QuestionFooterPresenter {...props} />
         </CoordinateQuestionContext.Provider>
