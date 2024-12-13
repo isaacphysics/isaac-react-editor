@@ -309,16 +309,19 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
             <small><em>This does not accept latex. Please use a unicode equivalent such as Ψ₁.</em></small>
             <div className="row">
                 <div className="col col-lg-5">
-                    {[...Array(question.dimensions)].map((_, i) => <EditableCoordPropPlaceholders {...props} key={i} dim={i} label={"Placeholder ".concat(i.toString())} />)}
+                    {[...Array(question.dimensions)].map((_, i) => 
+                     <div className={"mb-3"} key={i}>
+                        <EditableCoordPropPlaceholders {...props} key={i} dim={i} label={"Placeholder ".concat((i+1).toString())} />
+                    </div>)}
                 </div>
             </div>
-            Significant figures (affects both x and y values):
+            Significant figures (affects all values):
             <div className="row">
                 <div className="col col-lg-5">
-                    <EditableSignificantFiguresMin doc={question} update={update} />
+                    <EditableSignificantFiguresMin {...props} />
                 </div>
                 <div className="col col-lg-5">
-                    <EditableSignificantFiguresMax doc={question} update={update} />
+                    <EditableSignificantFiguresMax {...props} />
                 </div>
             </div>
         </div>

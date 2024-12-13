@@ -49,7 +49,7 @@ export const EditableDocPropForCoords = (dimension: number, defaultProps?: Custo
             }}
             /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
             // @ts-ignore
-            text={doc["values"] ? doc["values"][dimension] : ""}
+            text={doc["values"] ? (doc["values"][dimension] ?? "") : ""}
             {...defaultProps}
             {...rest}
             ref={ref} />
@@ -63,12 +63,12 @@ export const EditableDocPropForCoordsPlaceholders = (dimension: number, defaultP
             onSave={(newText) => {
                 update({
                     ...doc,
-                    values: arrayWith(doc["placeholderValues"] ?? new Array<string>(dimension), dimension, newText)
+                    placeholderValues: arrayWith(doc["placeholderValues"] ?? new Array<string>(dimension), dimension, newText)
                 });
             }}
             /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
             // @ts-ignore
-            text={""}
+            text={doc["placeholderValues"] ? (doc["placeholderValues"][dimension] ?? "") : ""}
             {...defaultProps}
             {...rest}
             ref={ref} />
