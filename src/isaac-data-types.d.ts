@@ -54,7 +54,6 @@ export interface IsaacClozeQuestion extends IsaacItemQuestion {
 export interface IsaacCoordinateQuestion extends IsaacQuestionBase {
     significantFiguresMin?: number;
     significantFiguresMax?: number;
-    ordered?: boolean;
     numberOfCoordinates?: number;
     dimensions?: number;
     placeholderValues?: string[];
