@@ -303,6 +303,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
     return <>
         <QuestionMetaPresenter {...props} />
         <EditableNumberOfCoordinates {...props} />
+        <CheckboxDocProp {...props} prop="ordered" label="Require that order of coordinates in choice and answer are the same" />
         <EditableDimensions {...props} />
         <div className={styles.questionLabel}>
             Coordinate labels:<br/>
