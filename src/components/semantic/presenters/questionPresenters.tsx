@@ -290,7 +290,7 @@ export function NumericQuestionPresenter({showMeta = true, ...props}: {showMeta?
     </>;
 }
 
-export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number, dimensions?: number, placeholderValues?: string[]}>(
+export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number, dimensions?: number}>(
     {}
 );
 const EditableNumberOfCoordinates = NumberDocPropFor<IsaacCoordinateQuestion>("numberOfCoordinates", {label: "Number of coordinates", block: true});
@@ -311,7 +311,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
                 <div className="col col-lg-5">
                     {[...Array(question.dimensions)].map((_, i) => 
                      <div className={"mb-3"} key={i}>
-                        <EditableCoordProp {...props} key={i} dim={i} prop={"placeholderValues"} label={"Placeholder ".concat((i+1).toString())} />
+                        <EditableCoordProp {...props} dim={i} prop={"placeholderValues"} label={"Placeholder ".concat((i+1).toString())} />
                     </div>)}
                 </div>
             </div>
@@ -336,7 +336,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
 }
 
 export function CoordinateChoiceItemInserter({insert, position, lengthOfCollection}: InserterProps) {
-    const {numberOfCoordinates} = useContext(CoordinateQuestionContext);
+    const numberOfCoordinates = useContext(CoordinateQuestionContext).numberOfCoordinates;
     if (position !== lengthOfCollection) {
         return null; // Only include an insert button at the end.
     }
