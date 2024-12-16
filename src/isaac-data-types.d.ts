@@ -409,7 +409,7 @@ export interface ParsonsItem extends Item {
 }
 
 export interface CoordinateItem extends Item {
-    values?: string[];
+    coordinates?: string[];
 }
 
 export interface Quantity extends Choice {

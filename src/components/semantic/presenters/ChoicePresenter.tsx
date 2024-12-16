@@ -257,7 +257,7 @@ export function CoordinateItemPresenter(props: PresenterProps<CoordinateItem>) {
     const numberOfDimensions = useContext(CoordinateQuestionContext).numberOfDimensions;
     return <>{[...Array(numberOfDimensions)].map((_, i) =>
         <div className={"mb-3"} key={i}>
-            <EditableCoordProp {...props} dim={i} prop={"values"} label={"Dimension ".concat((i+1).toString())} />
+            <EditableCoordProp {...props} dim={i} prop={"coordinates"} label={"Dimension ".concat((i+1).toString())} />
         <div className={styles.questionLabel} />
     </div>)}</>
 }
@@ -266,7 +266,7 @@ export const CoordinateChoicePresenter = (props: ValuePresenterProps<CoordinateC
     const numberOfCoordinates = useContext(CoordinateQuestionContext).numberOfCoordinates;
     useEffect(() => {
         if (numberOfCoordinates !== undefined && props.doc.items?.length !== numberOfCoordinates) {
-            props.update({...props.doc, items: Array(numberOfCoordinates).fill({values: [], type: "coordinateItem"}).map((placeholder, i) => props.doc.items && props.doc.items[i] ? props.doc.items[i] : placeholder)});
+            props.update({...props.doc, items: Array(numberOfCoordinates).fill({coordinates: [], type: "coordinateItem"}).map((placeholder, i) => props.doc.items && props.doc.items[i] ? props.doc.items[i] : placeholder)});
         }
     }, [numberOfCoordinates]);
 
