@@ -410,10 +410,7 @@ export interface ParsonsItem extends Item {
 }
 
 export interface CoordinateItem extends Item {
-    x?: string;
-    y?: string;
     values?: string[];
-    dimensions?: number;
 }
 
 export interface Quantity extends Choice {
