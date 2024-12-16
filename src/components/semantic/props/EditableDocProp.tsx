@@ -38,40 +38,24 @@ function arrayWith<T>(array: T[], index: number, value: T): T[] {
     return [...array.slice(0, index), value, ...array.slice(index + 1)];
 }
 
-export const EditableDocPropForCoords = (dimension: number, defaultProps?: CustomTextProps) => {
-    const typedRender = <D extends CoordinateItem>({doc, update, ...rest}: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
+export const EditableDocPropForCoords = (
+    dimension: number, prop: "values" | "placeholderValues", defaultProps?: CustomTextProps) => {
+    const typedRender = <D extends CoordinateItem | IsaacCoordinateQuestion>({doc, update, ...rest }: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
+        const currentVal = (prop === "values") ? (doc as CoordinateItem)["values"] : (doc as IsaacCoordinateQuestion)["placeholderValues"];
         return <EditableText
-            onSave={(newText) => {
-                update({
-                    ...doc,
-                    values: arrayWith(doc["values"] ?? new Array<string>(dimension), dimension, newText)
-                });
-            }}
-            /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
-            // @ts-ignore
-            text={doc["values"] ? (doc["values"][dimension] ?? "") : ""}
-            {...defaultProps}
-            {...rest}
-            ref={ref} />
-    };
-    return forwardRef(typedRender);
-};
-
-export const EditableDocPropForCoordsPlaceholders = (dimension: number, defaultProps?: CustomTextProps) => {
-    const typedRender = <D extends IsaacCoordinateQuestion>({doc, update, ...rest}: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
-        return <EditableText
-            onSave={(newText) => {
-                update({
-                    ...doc,
-                    placeholderValues: arrayWith(doc["placeholderValues"] ?? new Array<string>(dimension), dimension, newText)
-                });
-            }}
-            /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
-            // @ts-ignore
-            text={doc["placeholderValues"] ? (doc["placeholderValues"][dimension] ?? "") : ""}
-            {...defaultProps}
-            {...rest}
-            ref={ref} />
+                onSave={(newText) => {
+                    update({
+                        ...doc,
+                        [prop]: arrayWith(currentVal ?? new Array<string>(dimension), dimension, newText)
+                    });
+                }}
+                /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
+                // @ts-ignore
+                text={doc[prop] ? (doc[prop][dimension] ?? "") : ""}
+                {...defaultProps}
+                {...rest}
+                ref={ref}
+            />
     };
     return forwardRef(typedRender);
 };
@@ -81,13 +65,8 @@ export const EditableTitleProp = EditableDocPropFor("title", {format: "latex", b
 export const EditableSubtitleProp = EditableDocPropFor("subtitle", {block: true});
 export const EditableValueProp = EditableDocPropFor("value", {block: true});
 export const EditableAltTextProp = EditableDocPropFor<Item>("altText", {block: true, label: "Accessible alt text"});
-export const EditableCoordProp = (props: {dim: number} & PresenterProps<CoordinateItem> & CustomTextProps) => {
-    const {dim, ...restProps} = props;
-    const Component = EditableDocPropForCoords(dim);
-    return <Component {...restProps} />;
-};
-export const EditableCoordPropPlaceholders = (props: {dim: number} & PresenterProps<IsaacCoordinateQuestion> & CustomTextProps) => {
-    const {dim, ...restProps} = props;
-    const Component = EditableDocPropForCoordsPlaceholders(dim);
+export const EditableCoordProp = (props: {dim: number, prop: "values" | "placeholderValues"} & PresenterProps<CoordinateItem> & CustomTextProps) => {
+    const {dim, prop, ...restProps} = props;
+    const Component = EditableDocPropForCoords(dim, prop);
     return <Component {...restProps} />;
 };

@@ -1,5 +1,5 @@
 import React, {createContext, useCallback, useContext, useEffect, useState} from "react";
-import {EditableCoordPropPlaceholders, EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
+import {EditableCoordProp, EditableDocPropFor, EditableIDProp, EditableTitleProp} from "../props/EditableDocProp";
 import styles from "../styles/question.module.css";
 import {Alert, Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,} from "reactstrap";
 import {
@@ -311,7 +311,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
                 <div className="col col-lg-5">
                     {[...Array(question.dimensions)].map((_, i) => 
                      <div className={"mb-3"} key={i}>
-                        <EditableCoordPropPlaceholders {...props} key={i} dim={i} label={"Placeholder ".concat((i+1).toString())} />
+                        <EditableCoordProp {...props} key={i} dim={i} prop={"placeholderValues"} label={"Placeholder ".concat((i+1).toString())} />
                     </div>)}
                 </div>
             </div>

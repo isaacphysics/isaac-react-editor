@@ -257,7 +257,7 @@ export function CoordinateItemPresenter(props: PresenterProps<CoordinateItem>) {
     const dimensions = useContext(CoordinateQuestionContext).dimensions;
     return <>{[...Array(dimensions)].map((_, i) =>
         <div className={"mb-3"} key={i}>
-            <EditableCoordProp {...props} dim={i} label={"Dimension ".concat((i+1).toString())} />
+            <EditableCoordProp {...props} dim={i} prop={"values"} label={"Dimension ".concat((i+1).toString())} />
         <div className={styles.questionLabel} />
     </div>)}</>
 }
