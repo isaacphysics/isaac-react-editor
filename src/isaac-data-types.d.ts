@@ -55,7 +55,7 @@ export interface IsaacCoordinateQuestion extends IsaacQuestionBase {
     significantFiguresMin?: number;
     significantFiguresMax?: number;
     numberOfCoordinates?: number;
-    dimensions?: number;
+    numberOfDimensions?: number;
     placeholderValues?: string[];
 }
 

@@ -153,7 +153,7 @@ export function changeQuestionType({doc, update, newType} : PresenterProps & {ne
 
     if (newType !== "isaacCoordinateQuestion") {
         delete newDoc.numberOfCoordinates;
-        delete newDoc.dimensions;
+        delete newDoc.numberOfDimensions;
     }
 
     update(newDoc);
@@ -290,11 +290,11 @@ export function NumericQuestionPresenter({showMeta = true, ...props}: {showMeta?
     </>;
 }
 
-export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number, dimensions?: number}>(
+export const CoordinateQuestionContext = createContext<{numberOfCoordinates?: number, numberOfDimensions?: number}>(
     {}
 );
 const EditableNumberOfCoordinates = NumberDocPropFor<IsaacCoordinateQuestion>("numberOfCoordinates", {label: "Number of coordinates", block: true});
-const EditableDimensions = NumberDocPropFor<IsaacCoordinateQuestion>("dimensions", {label: "Dimensions", block: true});
+const EditableDimensions = NumberDocPropFor<IsaacCoordinateQuestion>("numberOfDimensions", {label: "Dimensions", block: true});
 
 export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinateQuestion>) {
     const {doc, update} = props;
@@ -309,7 +309,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
             <small><em>This does not accept latex. Please use a unicode equivalent such as Ψ₁.</em></small>
             <div className="row">
                 <div className="col col-lg-5">
-                    {[...Array(question.dimensions)].map((_, i) => 
+                    {[...Array(question.numberOfDimensions)].map((_, i) => 
                      <div className={"mb-3"} key={i}>
                         <EditableCoordProp {...props} dim={i} prop={"placeholderValues"} label={"Placeholder ".concat((i+1).toString())} />
                     </div>)}
@@ -328,7 +328,7 @@ export function CoordinateQuestionPresenter(props: PresenterProps<IsaacCoordinat
         <div className={styles.questionLabel} /> {/* For spacing */}
         <CoordinateQuestionContext.Provider value={{
             numberOfCoordinates: question.numberOfCoordinates,
-            dimensions: question.dimensions
+            numberOfDimensions: question.numberOfDimensions
         }}>
             <QuestionFooterPresenter {...props} />
         </CoordinateQuestionContext.Provider>
