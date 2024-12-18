@@ -46,7 +46,7 @@ export const EditableDocPropForCoords = (
                 onSave={(newText) => {
                     update({
                         ...doc,
-                        [prop]: arrayWith(currentVal ?? new Array<string>(dimension), dimension, newText)
+                        [prop]: arrayWith(currentVal ?? new Array<string>(dimension).fill(""), dimension, newText)
                     });
                 }}
                 /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
