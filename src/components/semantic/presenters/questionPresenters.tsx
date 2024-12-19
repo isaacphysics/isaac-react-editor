@@ -152,6 +152,7 @@ export function changeQuestionType({doc, update, newType} : PresenterProps & {ne
     }
 
     if (newType !== "isaacCoordinateQuestion") {
+        delete newDoc.ordered;
         delete newDoc.numberOfCoordinates;
         delete newDoc.numberOfDimensions;
     }
