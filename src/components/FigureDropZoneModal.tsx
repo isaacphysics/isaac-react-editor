@@ -17,7 +17,6 @@ const PositionableDropZone = (props: PositionableDropZoneProps & {scaleFactor: {
 
     return <div 
         className="position-absolute" 
-        // style={{left: `${left}%`, top: `${top}%`}}
         style={{
             left: `calc(${left}% - (${minWidth !== 'auto' ? minWidth : "100px"} * ${scaleFactor.x} * ${left/100}))`, 
             top: `calc(${top}% - (${minHeight !== 'auto' ? minHeight : "24px"} * ${scaleFactor.y} * ${top/100})`
@@ -41,7 +40,6 @@ interface FigureDropZoneModalProps {
 }
 
 // TODO: 
-// - bounds checking
 // - drag and drop
 // - remove drop zones
 // - remove index from dropZones json?
@@ -73,7 +71,6 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
             <div className="d-flex justify-content-center">
                 <div className="position-relative">
                     <img src={imgSrc} alt="" ref={imageRef} onLoad={recalculateImageScaleFactor}/>
-                    {/* {dropZones.map((dzProps, i) => <PositionableDropZone key={i} {...{...dzProps, left: dzProps.left / imageScaleFactor.x, top: dzProps.top / imageScaleFactor.y}} />)} */}
                     {dropZones.map((dzProps, i) => <PositionableDropZone key={i} {...dzProps} scaleFactor={imageScaleFactor} />)}
                 </div>
             </div>
@@ -109,12 +106,11 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                             </td>
                             <td>
                                 <input type={"number"} step={0.1} value={percentageLeft[i]} onChange={event => {
+                                    const newValue = Math.max(0, Math.min(100, parseFloat(event.target.value)));
                                     const newDropZoneStates = [...dropZones];
                                     const newPercentageLeft = [...percentageLeft];
-                                    // TODO: subtract width of drop zone from natural width of image
-                                    // newDropZoneStates[i].left = event.target.value !== "" ? parseFloat(((imageRef.current?.naturalWidth ?? 0) * (parseFloat(event.target.value)) / 100).toFixed(1)) : 0;
-                                    newPercentageLeft[i] = event.target.value !== "" ? parseFloat(event.target.value) : ""
-                                    newDropZoneStates[i].left = event.target.value !== "" ? parseFloat(event.target.value) : 0;
+                                    newPercentageLeft[i] = event.target.value !== "" ? newValue : ""
+                                    newDropZoneStates[i].left = event.target.value !== "" ? newValue : 0;
                                     setDropZones(newDropZoneStates);
                                     setPercentageLeft(newPercentageLeft);
                                 }} onBlur={() => {
@@ -125,11 +121,11 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                             </td>
                             <td>
                                 <input type={"number"} step={0.1} value={percentageTop[i]} onChange={event => {
+                                    const newValue = Math.max(0, Math.min(100, parseFloat(event.target.value)));
                                     const newDropZoneStates = [...dropZones];
                                     const newPercentageTop = [...percentageTop];
-                                    // newDropZoneStates[i].top = event.target.value !== "" ? parseFloat(((imageRef.current?.naturalHeight ?? 0) * (parseFloat(event.target.value) / 100)).toFixed(1)) : 0;
-                                    newDropZoneStates[i].top = event.target.value !== "" ? parseFloat(event.target.value) : 0;
-                                    newPercentageTop[i] = event.target.value !== "" ? parseFloat(event.target.value) : "";
+                                    newDropZoneStates[i].top = event.target.value !== "" ? newValue : 0;
+                                    newPercentageTop[i] = event.target.value !== "" ? newValue : "";
                                     setPercentageTop(newPercentageTop);
                                     setDropZones(newDropZoneStates);
                                 }} onBlur={() => {
@@ -157,7 +153,3 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
         </ModalBody>
     </Modal>;
 };
-
-{/* <Markup trusted-markup-encoding="markdown">
-    {`<span class="d-inline-block text-right ${markupStyles.clozeDropZonePlaceholder}" style="min-width: ${minWidth}; min-height: ${minHeight}">${index}&nbsp;&nbsp;</span>`}
-</Markup> */}
