@@ -366,6 +366,13 @@ export interface ExternalReference {
 }
 
 export interface Figure extends Image {
+    dropZones?: {
+        index: number;
+        minWidth: string;
+        minHeight: string;
+        left: number;
+        top: number;
+    }[];
 }
 
 export interface Formula extends Choice {

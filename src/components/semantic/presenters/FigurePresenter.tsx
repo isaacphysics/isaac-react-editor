@@ -13,6 +13,8 @@ import { useFixedRef } from "../../../utils/hooks";
 import styles from "../styles/figure.module.css";
 import {NON_STATIC_FIGURE_FLAG} from "../../../isaac/IsaacTypes";
 import {Alert} from "reactstrap";
+import { ClozeQuestionContext } from "./ItemQuestionPresenter";
+import { FigureDropZoneModal, PositionableDropZoneProps } from "../../FigureDropZoneModal";
 
 export function FigurePresenter(props: PresenterProps<Figure>) {
     const {doc, update} = props;
@@ -25,6 +27,11 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
     const basePath = dirname(appContext.selection.getSelection()?.path) as string;
     const [replacedFile, setReplacedFile] = useState(false);
     const {data} = useGithubContents(appContext, getContentPathFromSrc(doc.src), isAppAsset(doc.src) ? "app" : undefined);
+
+    const clozeContext = useContext(ClozeQuestionContext);
+    const [clozeDropZoneModalOpen, setClozeModalDropZoneOpen] = useState(false);
+    const toggleClozeDropZoneModal = () => setClozeModalDropZoneOpen(o => !o);
+    const [dropZones, setDropZones] = useState<PositionableDropZoneProps[]>(doc.dropZones ?? []);
 
     const imageRef = useRef<HTMLImageElement>(null);
     useEffect(() => {
@@ -57,6 +64,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             }
         }
     }, [data, doc.src]);
+
+    useEffect(() => {
+        update({...doc, dropZones});
+    }, [dropZones]);
 
     const fileRef = useRef<HTMLInputElement>(null);
 
@@ -167,5 +178,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
                 </>}
             </div>
         </div>
+        {clozeContext.isClozeQuestion && <div className={styles.clozeFigureFooter}>
+            <button onClick={toggleClozeDropZoneModal} disabled={!imageRef.current?.src}>Add drop-zones to figure</button>
+            {!!dropZones.length && <span style={{color: "grey"}}> ({dropZones.length} managed zone{dropZones.length !== 1 ? "s" : ""})</span>}
+            {imageRef.current?.src && <FigureDropZoneModal open={clozeDropZoneModalOpen} toggle={toggleClozeDropZoneModal} imgSrc={imageRef.current.src} dropZones={dropZones} setDropZones={setDropZones}/>}
+        </div>}
     </>;
 }

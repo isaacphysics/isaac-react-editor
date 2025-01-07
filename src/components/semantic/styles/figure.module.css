@@ -29,3 +29,36 @@
     top: -1000px;
     visibility: hidden;
 }
+
+.clozeDropZoneModalBody {
+
+    > :first-child img {
+        max-width: 100%;
+    }
+
+    .dropZoneInputs {
+        width: 100%;
+        table-layout: fixed;
+        margin: 1rem 0 2rem;
+
+        thead {
+            border-bottom: 1px solid #999;
+        }
+
+        th:first-child {
+            width: 60px;
+        }
+
+        tbody > tr > td {
+            padding-top: 0.5rem;
+        }
+
+        td:not(:first-child) > input {
+            width: 70px;
+            height: auto;
+            margin: auto;
+            border: none;
+            border-bottom: 1px solid #ccc;
+        }
+    }
+}
