@@ -23,7 +23,7 @@ import {MetaItemPresenter, MetaOptions} from "../Metadata";
 import styles from "../styles/question.module.css";
 import {Box} from "../SemanticItem";
 import {ExpandableText} from "../ExpandableText";
-import {extractFigureDropZonesCount, extractValueOrChildrenText} from "../../../utils/content";
+import {extractFigureDropZoneCount, extractValueOrChildrenText} from "../../../utils/content";
 import {dropZoneRegex, NULL_CLOZE_ITEM, NULL_CLOZE_ITEM_ID} from "../../../isaac/IsaacTypes";
 
 interface ItemsContextType {
@@ -36,9 +36,10 @@ interface ItemsContextType {
 export const ItemsContext = createContext<ItemsContextType>(
     {items: undefined, remainingItems: undefined, withReplacement: undefined, allowSubsetMatch: undefined}
 );
-export const ClozeQuestionContext = createContext<{isClozeQuestion: boolean, dropZoneCount?: number}>(
-    {isClozeQuestion: false}
-);
+export const ClozeQuestionContext = createContext<{isClozeQuestion: boolean, dropZoneCount?: number, calculateDZIndexFromFigureId: (id: string) => number}>({
+    isClozeQuestion: false,
+    calculateDZIndexFromFigureId: (id: string) => 0,
+});
 
 function isParsonsQuestion(doc: Content | null | undefined): doc is IsaacParsonsQuestion {
     return doc?.type === "isaacParsonsQuestion";
@@ -56,8 +57,8 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
     const countDropZonesIn = (doc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion) => {
         if (!isClozeQuestion(doc)) return;
         const questionExposition = extractValueOrChildrenText(doc);
-        const figureZones = extractFigureDropZonesCount(doc);
-        setDropZoneCount((questionExposition.match(dropZoneRegex)?.length ?? 0) + figureZones);
+        const figureZonesCount = extractFigureDropZoneCount(doc);
+        setDropZoneCount((questionExposition.match(dropZoneRegex)?.length ?? 0) + figureZonesCount.map(x => x[1]).reduce((a, b) => a + b, 0));
     };
     const updateWithDropZoneCount = (newDoc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion, invertible?: boolean) => {
         update(newDoc, invertible);
@@ -67,7 +68,14 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
         countDropZonesIn(doc);
     }, []);
 
-    return <ClozeQuestionContext.Provider value={{isClozeQuestion: isClozeQuestion(doc), dropZoneCount}}>
+    return <ClozeQuestionContext.Provider value={{
+        isClozeQuestion: isClozeQuestion(doc), 
+        dropZoneCount,
+        // the index DZs start from for a given figure is given by the sum of number of DZs outside of figures, plus the number of DZs in figures before+including 
+        // the current figure, or, equivalently (and more easily calculable), the total number of DZs minus the number of DZs in figures after the current figure
+        calculateDZIndexFromFigureId: dropZoneCount ? (index) => 
+            dropZoneCount - extractFigureDropZoneCount(doc).filter((v, i, a) => i >= a.map(x => x[0]).indexOf(index)).map(x => x[1]).reduce((a, b) => a + b, 0) : () => 0,
+    }}>
         {isParsonsQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" /></div>}
         {isClozeQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" /></div>}
         {isClozeQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="detailedItemFeedback" label="Indicate which items are incorrect in question feedback" /></div>}

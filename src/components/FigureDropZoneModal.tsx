@@ -38,7 +38,7 @@ const PositionableDropZone = (props: PositionableDropZoneProps & DraggableDropZo
         const newY = toFixedDP(clamp(((e.pageY - imgPos.current.top) / (imgPos.current.bottom - imgPos.current.top)) * 100, 0, 100), 1);
         props.setPercentageLeft(newX);
         props.setPercentageTop(newY);
-        props.setDropZone({index: index ?? -1, minWidth, minHeight, left: newX, top: newY});
+        props.setDropZone({index, minWidth, minHeight, left: newX, top: newY});
     }, 40), []);
 
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
@@ -75,6 +75,7 @@ interface FigureDropZoneModalProps {
     open: boolean;
     toggle: () => void;
     imgSrc: string;
+    externalDropZoneCount: number;
     dropZones: PositionableDropZoneProps[];
     setDropZones: React.Dispatch<React.SetStateAction<PositionableDropZoneProps[]>>;
 }
@@ -86,7 +87,7 @@ interface FigureDropZoneModalProps {
 // - migrate min width / height to px only or auto (this is all that's allowed anyway!)
 
 export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
-    const {open, toggle, imgSrc, dropZones, setDropZones} = props;
+    const {open, toggle, imgSrc, externalDropZoneCount, dropZones, setDropZones} = props;
     const clozeContext = useContext(ClozeQuestionContext);
     const imageRef = useRef<HTMLImageElement>(null);
 
@@ -133,8 +134,9 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                 <tbody>
                     {dropZones.map((dzProps, i) => {
                         const {index, minWidth, minHeight, left, top} = dzProps;
+
                         return <tr key={i}> 
-                            <td>{index}</td>
+                            <td>{index ?? externalDropZoneCount + i}</td>
                             <td>
                                 <input type={"text"} value={minWidth} onChange={event => {
                                     const newDropZoneStates = [...dropZones];
@@ -187,7 +189,10 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
             <span><small><i>Note: any exact pixel values here may not be accurate to your screen. They are being scaled relative to the natural resolution of the image; if the image is shrunk, any units will follow. What you see here will instead be more accurate to how it will appear on the site.</i></small></span>
     
             <div className="d-flex justify-content-between mt-3">
-                <button onClick={() => setDropZones([...dropZones, {index: (clozeContext.dropZoneCount ?? 0), minWidth: "100px", minHeight: "auto", left: 0, top: 0}])}>
+                <button onClick={() => {
+                    setDropZones([...dropZones, {minWidth: "100px", minHeight: "auto", left: 0, top: 0}])
+                    clozeContext.dropZoneCount = clozeContext.dropZoneCount ? clozeContext.dropZoneCount + 1 : 1;
+                }}>
                     Add drop zone
                 </button>
                 <button onClick={toggle}>
