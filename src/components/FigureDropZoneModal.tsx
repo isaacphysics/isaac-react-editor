@@ -41,6 +41,10 @@ const PositionableDropZone = (props: PositionableDropZoneProps & DraggableDropZo
         props.setDropZone({index, minWidth, minHeight, left: newX, top: newY});
     }, 40), []);
 
+    const dragImage = new Image();
+    // 1x1 transparent pixel
+    dragImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     return <div 
         className="position-absolute" 
@@ -54,7 +58,7 @@ const PositionableDropZone = (props: PositionableDropZoneProps & DraggableDropZo
             const imgRect = document.getElementById("figure-image")?.getBoundingClientRect();
             if (!imgRect) return;
             imgPos.current = {left: imgRect.left, right: imgRect.right, top: imgRect.top, bottom: imgRect.bottom};
-            e.dataTransfer.setDragImage(new Image(1, 1), 0, 0);
+            e.dataTransfer.setDragImage(dragImage, 0, 0);
         }}
         onDrag={(e) => {
             if (!imgPos.current.left || !imgPos.current.right || !imgPos.current.top || !imgPos.current.bottom) return;
