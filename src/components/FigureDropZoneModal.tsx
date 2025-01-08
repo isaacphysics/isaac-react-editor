@@ -29,7 +29,6 @@ interface DraggableDropZoneProps {
 
 const PositionableDropZone = (props: PositionableDropZoneProps & DraggableDropZoneProps) => {
     const {index, minWidth, minHeight, left, top, scaleFactor} = props;
-    // const [imgPos, setImgPos] = useState({left: 0, right: 0, top: 0, bottom: 0});
     const imgPos = useRef({left: 0, right: 0, top: 0, bottom: 0});
 
     const handleDrag = useCallback(throttle((e: React.DragEvent<HTMLDivElement>) => {
@@ -79,19 +78,16 @@ interface FigureDropZoneModalProps {
     open: boolean;
     toggle: () => void;
     imgSrc: string;
-    externalDropZoneCount: number;
+    initialDropZoneIndex: number;
     dropZones: PositionableDropZoneProps[];
     setDropZones: React.Dispatch<React.SetStateAction<PositionableDropZoneProps[]>>;
 }
 
 // TODO: 
-// - drag and drop
-// - remove drop zones
-// - remove index from dropZones json?
 // - migrate min width / height to px only or auto (this is all that's allowed anyway!)
 
 export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
-    const {open, toggle, imgSrc, externalDropZoneCount, dropZones, setDropZones} = props;
+    const {open, toggle, imgSrc, initialDropZoneIndex, dropZones, setDropZones} = props;
     const clozeContext = useContext(ClozeQuestionContext);
     const imageRef = useRef<HTMLImageElement>(null);
 
@@ -117,7 +113,9 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                 <div className="position-relative">
                     <img id="figure-image" src={imgSrc} alt="" ref={imageRef} onLoad={recalculateImageScaleFactor}/>
                     {dropZones.map((dzProps, i) => <PositionableDropZone 
-                        key={i} {...dzProps} scaleFactor={imageScaleFactor} 
+                        key={i} {...dzProps} 
+                        index={dzProps.index ?? initialDropZoneIndex + i}
+                        scaleFactor={imageScaleFactor} 
                         setPercentageLeft={l => setPercentageLeft(p => p.map((v, j) => j === i ? l : v))}
                         setPercentageTop={t => setPercentageTop(p => p.map((v, j) => j === i ? t : v))}
                         setDropZone={dz => setDropZones(p => p.map((v, j) => j === i ? dz : v))}
@@ -141,7 +139,7 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                         const {index, minWidth, minHeight, left, top} = dzProps;
 
                         return <tr key={i}> 
-                            <td>{index ?? externalDropZoneCount + i}</td>
+                            <td>{index ?? initialDropZoneIndex + i}</td>
                             <td>
                                 <input type={"text"} value={minWidth} onChange={event => {
                                     const newDropZoneStates = [...dropZones];
@@ -204,7 +202,9 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
     
             <div className="d-flex justify-content-between mt-3">
                 <button onClick={() => {
-                    setDropZones([...dropZones, {minWidth: "100px", minHeight: "auto", left: 0, top: 0}])
+                    setDropZones([...dropZones, {minWidth: "100px", minHeight: "auto", left: 50, top: 50}])
+                    setPercentageLeft([...percentageLeft, 50]);
+                    setPercentageTop([...percentageTop, 50]);
                     clozeContext.dropZoneCount = clozeContext.dropZoneCount ? clozeContext.dropZoneCount + 1 : 1;
                 }}>
                     Add drop zone

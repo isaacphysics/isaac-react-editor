@@ -182,7 +182,8 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
             <button onClick={toggleClozeDropZoneModal} disabled={!imageRef.current?.src}>Add drop-zones to figure</button>
             {!!dropZones.length && <span style={{color: "grey"}}> ({dropZones.length} managed zone{dropZones.length !== 1 ? "s" : ""})</span>}
             {imageRef.current?.src && <FigureDropZoneModal 
-                open={clozeDropZoneModalOpen} toggle={toggleClozeDropZoneModal} imgSrc={imageRef.current.src} externalDropZoneCount={clozeContext.calculateDZIndexFromFigureId(doc.id as string)}
+                open={clozeDropZoneModalOpen} toggle={toggleClozeDropZoneModal} imgSrc={imageRef.current.src} 
+                initialDropZoneIndex={clozeContext.calculateDZIndexFromFigureId(doc.id as string)}
                 dropZones={dropZones} setDropZones={setDropZones}
             />}
         </div>}
