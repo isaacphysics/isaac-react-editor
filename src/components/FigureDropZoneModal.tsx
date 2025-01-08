@@ -1,25 +1,65 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useCallback, useContext, useRef, useState } from "react";
 import styles from "./semantic/styles/figure.module.css";
 import markupStyles from "../isaac/styles/markup.module.css";
 import { Modal, ModalBody, ModalHeader } from "reactstrap";
 import { ClozeQuestionContext } from "./semantic/presenters/ItemQuestionPresenter";
+import throttle from "lodash/throttle";
+
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
+
+const toFixedDP = (value: number, dp: number) => {
+    const factor = Math.pow(10, dp);
+    return Math.round(value * factor) / factor;
+}
 
 export interface PositionableDropZoneProps {
-    index: number;
+    index?: number;
     minWidth: string;
     minHeight: string;
     left: number;
     top: number;
 }
 
-const PositionableDropZone = (props: PositionableDropZoneProps & {scaleFactor: {x: number, y: number}}) => {
-    const {index, minWidth, minHeight, left, top, scaleFactor} = props;
+interface DraggableDropZoneProps {
+    scaleFactor: {x: number, y: number};
+    setPercentageLeft: (l: number) => void;
+    setPercentageTop: (t: number) => void;
+    setDropZone: (dz: PositionableDropZoneProps) => void;
+}
 
+const PositionableDropZone = (props: PositionableDropZoneProps & DraggableDropZoneProps) => {
+    const {index, minWidth, minHeight, left, top, scaleFactor} = props;
+    // const [imgPos, setImgPos] = useState({left: 0, right: 0, top: 0, bottom: 0});
+    const imgPos = useRef({left: 0, right: 0, top: 0, bottom: 0});
+
+    const handleDrag = useCallback(throttle((e: React.DragEvent<HTMLDivElement>) => {
+        if (e.pageX === 0 && e.pageY === 0) return; // on drag end, the event fires with this; ignore it
+        const newX = toFixedDP(clamp(((e.pageX - imgPos.current.left) / (imgPos.current.right - imgPos.current.left)) * 100, 0, 100), 1);
+        const newY = toFixedDP(clamp(((e.pageY - imgPos.current.top) / (imgPos.current.bottom - imgPos.current.top)) * 100, 0, 100), 1);
+        props.setPercentageLeft(newX);
+        props.setPercentageTop(newY);
+        props.setDropZone({index: index ?? -1, minWidth, minHeight, left: newX, top: newY});
+    }, 40), []);
+
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     return <div 
         className="position-absolute" 
+        draggable={true}
+        role="tooltip"
         style={{
             left: `calc(${left}% - (${minWidth !== 'auto' ? minWidth : "100px"} * ${scaleFactor.x} * ${left/100}))`, 
-            top: `calc(${top}% - (${minHeight !== 'auto' ? minHeight : "24px"} * ${scaleFactor.y} * ${top/100})`
+            top: `calc(${top}% - (${minHeight !== 'auto' ? minHeight : "24px"} * ${scaleFactor.y} * ${top/100}))`
+        }}
+        onDragStart={(e) => {
+            const imgRect = document.getElementById("figure-image")?.getBoundingClientRect();
+            if (!imgRect) return;
+            imgPos.current = {left: imgRect.left, right: imgRect.right, top: imgRect.top, bottom: imgRect.bottom};
+            e.dataTransfer.setDragImage(new Image(1, 1), 0, 0);
+        }}
+        onDrag={(e) => {
+            if (!imgPos.current.left || !imgPos.current.right || !imgPos.current.top || !imgPos.current.bottom) return;
+            e.persist(); 
+            handleDrag(e);
         }}
     >
         <span className={`d-inline-block text-right ${markupStyles.clozeDropZonePlaceholder}`} style={{
@@ -70,8 +110,13 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
         <ModalBody className={styles.clozeDropZoneModalBody}>
             <div className="d-flex justify-content-center">
                 <div className="position-relative">
-                    <img src={imgSrc} alt="" ref={imageRef} onLoad={recalculateImageScaleFactor}/>
-                    {dropZones.map((dzProps, i) => <PositionableDropZone key={i} {...dzProps} scaleFactor={imageScaleFactor} />)}
+                    <img id="figure-image" src={imgSrc} alt="" ref={imageRef} onLoad={recalculateImageScaleFactor}/>
+                    {dropZones.map((dzProps, i) => <PositionableDropZone 
+                        key={i} {...dzProps} scaleFactor={imageScaleFactor} 
+                        setPercentageLeft={l => setPercentageLeft(p => p.map((v, j) => j === i ? l : v))}
+                        setPercentageTop={t => setPercentageTop(p => p.map((v, j) => j === i ? t : v))}
+                        setDropZone={dz => setDropZones(p => p.map((v, j) => j === i ? dz : v))}
+                    />)}
                 </div>
             </div>
 
@@ -106,7 +151,7 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                             </td>
                             <td>
                                 <input type={"number"} step={0.1} value={percentageLeft[i]} onChange={event => {
-                                    const newValue = Math.max(0, Math.min(100, parseFloat(event.target.value)));
+                                    const newValue = clamp(parseFloat(event.target.value), 0, 100);
                                     const newDropZoneStates = [...dropZones];
                                     const newPercentageLeft = [...percentageLeft];
                                     newPercentageLeft[i] = event.target.value !== "" ? newValue : ""
@@ -121,7 +166,7 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                             </td>
                             <td>
                                 <input type={"number"} step={0.1} value={percentageTop[i]} onChange={event => {
-                                    const newValue = Math.max(0, Math.min(100, parseFloat(event.target.value)));
+                                    const newValue = clamp(parseFloat(event.target.value), 0, 100);
                                     const newDropZoneStates = [...dropZones];
                                     const newPercentageTop = [...percentageTop];
                                     newDropZoneStates[i].top = event.target.value !== "" ? newValue : 0;
@@ -139,7 +184,7 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                 </tbody>
             </table>
 
-            <span><small><i>Note: any exact pixel values here may not be accurate to your screen. They are being scaled relative to the natural resolution of the image; if the image is shrunk, any units will follow. What you see here, however, should be more accurate to how it will appear on the site.</i></small></span>
+            <span><small><i>Note: any exact pixel values here may not be accurate to your screen. They are being scaled relative to the natural resolution of the image; if the image is shrunk, any units will follow. What you see here will instead be more accurate to how it will appear on the site.</i></small></span>
     
             <div className="d-flex justify-content-between mt-3">
                 <button onClick={() => setDropZones([...dropZones, {index: (clozeContext.dropZoneCount ?? 0), minWidth: "100px", minHeight: "auto", left: 0, top: 0}])}>
