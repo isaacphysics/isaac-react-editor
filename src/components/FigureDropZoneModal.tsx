@@ -129,6 +129,7 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                         <th>Min height</th>
                         <th>X (%)</th>
                         <th>Y (%)</th>
+                        <th/> {/* remove button */}
                     </tr>
                 </thead>
                 <tbody>
@@ -180,6 +181,15 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
                                         setPercentageTop(p => p.map((v, j) => j === i ? 0 : v));
                                     }
                                 }}/>
+                            </td>
+                            <td>
+                                <button onClick={() => {
+                                    setDropZones(dropZones.filter((_, j) => j !== i));
+                                    setPercentageLeft(percentageLeft.filter((_, j) => j !== i));
+                                    setPercentageTop(percentageTop.filter((_, j) => j !== i));
+                                }}>
+                                    ❌
+                                </button>
                             </td>
                         </tr>
                     })}
