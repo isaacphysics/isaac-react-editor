@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
+import React, {createContext, useContext, useEffect, useRef, useState} from "react";
 import {Button, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row} from "reactstrap";
 
 import {
@@ -23,8 +23,9 @@ import {MetaItemPresenter, MetaOptions} from "../Metadata";
 import styles from "../styles/question.module.css";
 import {Box} from "../SemanticItem";
 import {ExpandableText} from "../ExpandableText";
-import {extractFigureDropZoneCount, extractValueOrChildrenText} from "../../../utils/content";
+import {extractDropZoneCountPerFigure, extractFigureDropZoneStartIndex, extractValueOrChildrenText} from "../../../utils/content";
 import {dropZoneRegex, NULL_CLOZE_ITEM, NULL_CLOZE_ITEM_ID} from "../../../isaac/IsaacTypes";
+import { PositionableDropZoneProps } from "../../FigureDropZoneModal";
 
 interface ItemsContextType {
     items: ParsonsItem[] | undefined;
@@ -36,8 +37,14 @@ interface ItemsContextType {
 export const ItemsContext = createContext<ItemsContextType>(
     {items: undefined, remainingItems: undefined, withReplacement: undefined, allowSubsetMatch: undefined}
 );
-export const ClozeQuestionContext = createContext<{isClozeQuestion: boolean, dropZoneCount?: number, calculateDZIndexFromFigureId: (id: string) => number}>({
+export const ClozeQuestionContext = createContext<{
+    isClozeQuestion: boolean, 
+    dropZoneCount?: number, 
+    figureMap: {[id: string]: [dropZones: PositionableDropZoneProps[], setDropZones: React.Dispatch<React.SetStateAction<PositionableDropZoneProps[]>>]}, 
+    calculateDZIndexFromFigureId: (id: string) => number}
+>({
     isClozeQuestion: false,
+    figureMap: {},
     calculateDZIndexFromFigureId: (id: string) => 0,
 });
 
@@ -54,10 +61,11 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
 
     // Logic to count cloze question drop zones (if necessary) on initial presenter render and doc update
     const [dropZoneCount, setDropZoneCount] = useState<number>();
+    const figureMap = useRef<{[id: string]: [dropZones: PositionableDropZoneProps[], setDropZones: React.Dispatch<React.SetStateAction<PositionableDropZoneProps[]>>]}>({});
     const countDropZonesIn = (doc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion) => {
         if (!isClozeQuestion(doc)) return;
         const questionExposition = extractValueOrChildrenText(doc);
-        const figureZonesCount = extractFigureDropZoneCount(doc);
+        const figureZonesCount = extractDropZoneCountPerFigure(doc);
         setDropZoneCount((questionExposition.match(dropZoneRegex)?.length ?? 0) + figureZonesCount.map(x => x[1]).reduce((a, b) => a + b, 0));
     };
     const updateWithDropZoneCount = (newDoc: IsaacItemQuestion | IsaacReorderQuestion | IsaacParsonsQuestion | IsaacClozeQuestion, invertible?: boolean) => {
@@ -68,13 +76,27 @@ export function ItemQuestionPresenter(props: PresenterProps<IsaacItemQuestion | 
         countDropZonesIn(doc);
     }, []);
 
+    useEffect(() => {
+        const f = async () => {
+            // if the number of drop zones has changed, the indexes of figure zones may need to change.
+            const figures = Array.from(Object.entries(figureMap.current))
+            for (const figure of figures) {
+                const [id, [dropZones, setDropZones]] = figure;
+                const startIndex = extractFigureDropZoneStartIndex(doc, id);
+                console.log(id, "starting at", startIndex, dropZones);
+                setDropZones(dropZones.map((dz, i) => ({...dz, index: startIndex + i})));
+                await new Promise(resolve => setTimeout(resolve, 50));
+                console.log("Updated figure", dropZones.map((dz, i) => ({...dz, index: startIndex + i})));
+            }
+        }
+        f();
+    }, [dropZoneCount]);
+
     return <ClozeQuestionContext.Provider value={{
         isClozeQuestion: isClozeQuestion(doc), 
         dropZoneCount,
-        // the index DZs start from for a given figure is given by the sum of number of DZs outside of figures, plus the number of DZs in figures before+including 
-        // the current figure, or, equivalently (and more easily calculable), the total number of DZs minus the number of DZs in figures after the current figure
-        calculateDZIndexFromFigureId: dropZoneCount ? (index) => 
-            dropZoneCount - extractFigureDropZoneCount(doc).filter((v, i, a) => i >= a.map(x => x[0]).indexOf(index)).map(x => x[1]).reduce((a, b) => a + b, 0) : () => 0,
+        figureMap: figureMap.current,
+        calculateDZIndexFromFigureId: (id) => extractFigureDropZoneStartIndex(doc, id),
     }}>
         {isParsonsQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="disableIndentation" label="Disable indentation" /></div>}
         {isClozeQuestion(doc) && <div><CheckboxDocProp doc={doc} update={update} prop="withReplacement" label="Allow items to be used more than once" /></div>}

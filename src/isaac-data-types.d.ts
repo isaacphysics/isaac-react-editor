@@ -367,7 +367,7 @@ export interface ExternalReference {
 
 export interface Figure extends Image {
     dropZones?: {
-        index?: number;
+        index: number;
         minWidth: string;
         minHeight: string;
         left: number;

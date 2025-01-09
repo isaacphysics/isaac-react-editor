@@ -1,14 +1,30 @@
-import {Content, Figure} from "../isaac-data-types";
-import { isDefined } from "./types";
+import {Content, Figure, IsaacClozeQuestion} from "../isaac-data-types";
+import { dropZoneRegex } from "../isaac/IsaacTypes";
 
 export const extractValueOrChildrenText = (doc: Content): string => {
     return (doc.value || doc.children?.map(extractValueOrChildrenText).join("\n")) ?? "";
 };
 
-export const extractIndexedFigureDropZones = (doc: Content): number[] => {
-    return (doc.type === "figure" ? (doc as Figure).dropZones?.map(dz => dz.index).filter(isDefined) : doc.children?.map(extractIndexedFigureDropZones).reduce((a, b) => [...a, ...b], []))?.filter((z, i, a) => a.indexOf(z) === i) ?? [];
+export const extractDropZoneCountPerFigure = (doc: Content): [string, number][]=> {
+    return (doc.type === "figure" ? ((doc as Figure).dropZones ? [[doc.id as string, (doc as Figure).dropZones!.length]] : []) : doc.children?.map(extractDropZoneCountPerFigure).reduce((a, b) => [...a, ...b], [])) ?? [];
 };
 
-export const extractFigureDropZoneCount = (doc: Content): [string, number][]=> {
-    return (doc.type === "figure" ? ((doc as Figure).dropZones ? [[doc.id as string, (doc as Figure).dropZones!.length]] : []) : doc.children?.map(extractFigureDropZoneCount).reduce((a, b) => [...a, ...b], [])) ?? [];
-};
+// the index is the sum of the number of DZs before the figure
+export const extractFigureDropZoneStartIndex = (doc: IsaacClozeQuestion, figureId: string): number => {
+    if (!doc.children) return 0;
+    let dropZoneStartIndex = 0;
+    const flatChildren = doc.children.flat();
+    for (const child of flatChildren) {
+        if (child.type === "figure" && child.id === figureId) return dropZoneStartIndex;
+        
+        const valueMatches = (child as Content).value?.matchAll(dropZoneRegex);
+        dropZoneStartIndex += valueMatches ? Array.from(valueMatches).length : 0;
+
+        if (child.type === "figure") {
+            const dropZones = (child as Figure).dropZones;
+            dropZoneStartIndex += dropZones ? dropZones.length : 0;
+        }
+    }
+
+    return 0;
+}

@@ -67,7 +67,10 @@ export function FigurePresenter(props: PresenterProps<Figure>) {
 
     useEffect(() => {
         update({...doc, dropZones});
-    }, [dropZones]);
+        if (clozeContext.isClozeQuestion) {
+            clozeContext.figureMap[doc.id as string] = [dropZones, setDropZones];
+        }
+    }, [clozeContext.isClozeQuestion, dropZones, setDropZones]);
 
     const fileRef = useRef<HTMLInputElement>(null);
 

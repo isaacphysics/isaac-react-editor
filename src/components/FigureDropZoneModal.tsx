@@ -13,7 +13,7 @@ const toFixedDP = (value: number, dp: number) => {
 }
 
 export interface PositionableDropZoneProps {
-    index?: number;
+    index: number;
     minWidth: string;
     minHeight: string;
     left: number;
@@ -202,7 +202,7 @@ export const FigureDropZoneModal = (props: FigureDropZoneModalProps) => {
     
             <div className="d-flex justify-content-between mt-3">
                 <button onClick={() => {
-                    setDropZones([...dropZones, {minWidth: "100px", minHeight: "auto", left: 50, top: 50}])
+                    setDropZones([...dropZones, {index: initialDropZoneIndex + dropZones.length, minWidth: "100px", minHeight: "auto", left: 50, top: 50}])
                     setPercentageLeft([...percentageLeft, 50]);
                     setPercentageTop([...percentageTop, 50]);
                     clozeContext.dropZoneCount = clozeContext.dropZoneCount ? clozeContext.dropZoneCount + 1 : 1;
