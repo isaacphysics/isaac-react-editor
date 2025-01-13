@@ -38,7 +38,7 @@ const PositionableDropZone = (props: PositionableDropZoneProps & DraggableDropZo
         props.setPercentageLeft(newX);
         props.setPercentageTop(newY);
         props.setDropZone({index, minWidth, minHeight, left: newX, top: newY});
-    }, 40), []);
+    }, 40), [index, minWidth, minHeight]);
 
     const dragImage = new Image();
     // 1x1 transparent pixel
