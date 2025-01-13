@@ -1,4 +1,4 @@
-import {Content, Figure, IsaacClozeQuestion} from "../isaac-data-types";
+import {Content, Figure} from "../isaac-data-types";
 import { dropZoneRegex } from "../isaac/IsaacTypes";
 
 export const extractValueOrChildrenText = (doc: Content): string => {
@@ -10,11 +10,10 @@ export const extractDropZoneCountPerFigure = (doc: Content): [string, number][]=
 };
 
 // the index is the sum of the number of DZs before the figure
-export const extractFigureDropZoneStartIndex = (doc: IsaacClozeQuestion, figureId: string): number => {
+export const extractFigureDropZoneStartIndex = (doc: Content, figureId: string): number => {
     if (!doc.children) return 0;
     let dropZoneStartIndex = 0;
-    const flatChildren = doc.children.flat();
-    for (const child of flatChildren) {
+    for (const child of doc.children) {
         if (child.type === "figure" && child.id === figureId) return dropZoneStartIndex;
         
         const valueMatches = (child as Content).value?.matchAll(dropZoneRegex);
@@ -24,7 +23,9 @@ export const extractFigureDropZoneStartIndex = (doc: IsaacClozeQuestion, figureI
             const dropZones = (child as Figure).dropZones;
             dropZoneStartIndex += dropZones ? dropZones.length : 0;
         }
+
+        dropZoneStartIndex += extractFigureDropZoneStartIndex(child, figureId);
     }
 
-    return 0;
+    return dropZoneStartIndex;
 }
