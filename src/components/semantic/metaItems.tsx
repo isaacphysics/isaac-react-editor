@@ -46,6 +46,8 @@ export const MetaItems = asMetaItems({
     appId: "App ID",
     appAccessKey: "Access Key",
     attribution: ["Attribution", {deleteIfEmpty: true}],
+    permissions: ["Permissions", {deleteIfEmpty: true}],
+    notes: ["Notes", {deleteIfEmpty: true}],
     supersededBy: ["Superseded By", {deleteIfEmpty: true}],
     level: ["Level", {type: "number", hasWarning: (value) => {
         const level = value as number; // Already parsed by virtue of type: "number"

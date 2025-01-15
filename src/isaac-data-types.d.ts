@@ -453,6 +453,8 @@ export interface RegexPattern extends Choice {
 
 export interface SeguePage extends Content {
     summary?: string;
+    permissions?: string;
+    notes?: string;
 }
 
 export interface StringChoice extends Choice {
