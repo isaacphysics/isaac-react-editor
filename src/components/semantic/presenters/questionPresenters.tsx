@@ -200,6 +200,17 @@ export function QuestionMetaPresenter(props: PresenterProps) {
     </div>;
 }
 
+export function H5pTitlePresenter(props: PresenterProps) {
+    return <div>
+        <h1 className="mb-3">
+            {props.doc.h5p ? props.doc.h5p.title : ""}
+        </h1>
+        <h4>
+            {props.doc.content ? props.doc.content.interactiveVideo.video.files[0].path : ""}
+        </h4>
+    </div>;
+}
+
 export function AnswerPresenter({doc, ...rest}: PresenterProps) {
     return <SemanticDocProp doc={doc as IsaacQuickQuestion} {...rest} prop="answer" name="Answer" />;
 }

@@ -323,6 +323,10 @@ export interface InteractiveCodeSnippet extends CodeSnippet {
 export interface CodeTabs extends Content {
 }
 
+interface H5pContent {
+    interactiveVideo: { video: { files: { path: string }[] } };
+}
+
 export interface Content extends ContentBase {
     title?: string;
     subtitle?: string;
@@ -337,6 +341,8 @@ export interface Content extends ContentBase {
     deprecated?: boolean;
     level?: number;
     searchableContent?: string;
+    h5p?: Record<string, string>;
+    content?: H5pContent
 }
 
 export interface ContentBase {
@@ -460,6 +466,9 @@ export interface StringChoice extends Choice {
 }
 
 export interface Video extends Media {
+}
+
+export interface H5pVideo extends Media {
 }
 
 export interface AudienceContext {

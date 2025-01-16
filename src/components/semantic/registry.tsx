@@ -14,7 +14,8 @@ import {
     QuickQuestionPresenter,
     StringMatchQuestionPresenter,
     SymbolicQuestionPresenter,
-    SymbolicChemistryQuestionPresenter
+    SymbolicChemistryQuestionPresenter,
+    H5pTitlePresenter
 } from "./presenters/questionPresenters";
 import {CHOICE_TYPES} from "./ChoiceInserter";
 import {TabsPresenter} from "./presenters/TabsPresenter";
@@ -45,6 +46,7 @@ import {ListChildrenPresenter} from "./presenters/ListChildrenPresenter";
 import {InteractiveCodeSnippetPresenter} from "./presenters/InteractiveCodeSnippetPresenter";
 import {CalloutPresenter} from "./presenters/CalloutPresenter";
 import {LLMQuestionPresenter} from "./presenters/LLMQuestionPresenter";
+import { H5pVideoPresenter } from "./presenters/H5pVideoPresenter";
 
 export type ContentType =
     | "content"
@@ -68,6 +70,8 @@ export type ContentType =
     | "codeTabs"
     | "image"
     | "video"
+    | "h5pVideo"
+    | "h5p"
     | "glossaryTerm"
     | "emailTemplate"
     | "anvilApp"
@@ -103,6 +107,11 @@ interface RegistryEntry {
     contextProviderWrapper?: Provider<Content | null>;
     className?: string;
 }
+
+const h5p: RegistryEntry = {
+    name: "H5P",
+    headerPresenter: H5pTitlePresenter,
+} 
 
 const content: RegistryEntry = {
     headerPresenter: undefined,
@@ -187,6 +196,11 @@ const video: RegistryEntry = {
     bodyPresenter: VideoPresenter,
     metadata: mediaMeta,
 };
+const h5pVideo: RegistryEntry = {
+    name: "H5pVideo",
+    bodyPresenter: H5pVideoPresenter,
+    metadata: mediaMeta,
+}
 const codeSnippet: RegistryEntry = {
     name: "Code Snippet",
     bodyPresenter: CodeSnippetPresenter,
@@ -351,6 +365,8 @@ export const REGISTRY: Record<ContentType, RegistryEntry> = {
     interactiveCodeSnippet,
     codeTabs,
     video,
+    h5pVideo,
+    h5p,
     glossaryTerm,
     emailTemplate,
     anvilApp,
