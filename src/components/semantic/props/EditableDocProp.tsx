@@ -31,13 +31,6 @@ export const EditableDocPropFor = <
     return forwardRef(typedRender);
 };
 
-function arrayWith<T>(array: T[], index: number, value: T): T[] {
-    if (index >= array.length) {
-        array.length = index + 1;
-    }
-    return [...array.slice(0, index), value, ...array.slice(index + 1)];
-}
-
 export const EditableDocPropForCoords = (
     dimension: number, prop: "coordinates" | "placeholderValues", defaultProps?: CustomTextProps) => {
     const typedRender = <D extends CoordinateItem | IsaacCoordinateQuestion>({doc, update, ...rest }: EditableDocProps<D>, ref: React.ForwardedRef<EditableTextRef>) => {
@@ -46,7 +39,7 @@ export const EditableDocPropForCoords = (
                 onSave={(newText) => {
                     update({
                         ...doc,
-                        [prop]: arrayWith(currentVal ?? new Array<string>(dimension).fill(""), dimension, newText)
+                        [prop]: (currentVal ?? new Array<string>(dimension)).with(dimension, newText ?? "")
                     });
                 }}
                 /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
